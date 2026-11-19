@@ -4,6 +4,7 @@
 
 module Wasp.ExternalConfig.TsConfig
   ( TsConfig (..),
+    TsConfigExtends (..),
     CompilerOptions (..),
     TsConfigReference (..),
     TsConfigFile,
@@ -11,6 +12,7 @@ module Wasp.ExternalConfig.TsConfig
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Arrow (left)
 import Data.Aeson
   ( FromJSON,
@@ -27,13 +29,21 @@ import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (parseJsonWithComments)
 
 data TsConfig = TsConfig
-  { compilerOptions :: !(Maybe CompilerOptions),
+  { extends :: !(Maybe TsConfigExtends),
+    compilerOptions :: !(Maybe CompilerOptions),
     include :: !(Maybe [String]),
     exclude :: !(Maybe [String]),
     files :: !(Maybe [String]),
     references :: !(Maybe [TsConfigReference])
   }
   deriving (Show, Generic, FromJSON)
+
+-- | The configs a tsconfig extends. In the file it's one path or a list of them.
+newtype TsConfigExtends = TsConfigExtends {extendedConfigPaths :: [String]}
+  deriving (Show, Eq)
+
+instance FromJSON TsConfigExtends where
+  parseJSON value = TsConfigExtends <$> (parseJSON value <|> (pure <$> parseJSON value))
 
 data CompilerOptions = CompilerOptions
   { _module :: !(Maybe String),

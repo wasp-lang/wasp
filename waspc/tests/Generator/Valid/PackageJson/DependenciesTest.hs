@@ -6,6 +6,7 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.OptionalNpmDeps (FeatureNpmDeps (..))
 import Wasp.Generator.Valid.PackageJson.Dependencies (featureNpmDepsValidator)
+import Wasp.Project.PackageManager (PackageManager (..))
 import qualified Wasp.Validator as V
 
 spec_featureNpmDepsValidator :: Spec
@@ -17,7 +18,7 @@ spec_featureNpmDepsValidator = do
     it "accepts a package in either dependency field" $ do
       validate (packageJsonWith [("@types/mailer", "^1.0.0")] [("mailer", "^1.0.0")]) `shouldBe` []
 
-    it "doesn't check the versions, since npm does" $ do
+    it "doesn't check the versions, since the package manager does" $ do
       validate (packageJsonWith [("mailer", "0.0.1")] [("@types/mailer", "0.0.1")]) `shouldBe` []
 
     it "names the missing packages and how to install them" $ do
@@ -26,11 +27,19 @@ spec_featureNpmDepsValidator = do
                        ++ " Run `npm install \"mailer@^1.0.0\"` and `npm install --save-dev \"@types/mailer@^1.0.0\"`."
                    ]
 
+    it "names the command of the project's package manager" $ do
+      validateWith Pnpm (packageJsonWith [] [])
+        `shouldBe` [ "Your app uses email, so it needs mailer, @types/mailer."
+                       ++ " Run `pnpm add \"mailer@^1.0.0\"` and `pnpm add --save-dev \"@types/mailer@^1.0.0\"`."
+                   ]
+
     it "only installs what is missing" $ do
       validate (packageJsonWith [("mailer", "^1.0.0")] [])
         `shouldBe` ["Your app uses email, so it needs @types/mailer. Run `npm install --save-dev \"@types/mailer@^1.0.0\"`."]
   where
-    validate = map V.message . V.execValidator (featureNpmDepsValidator emailNpmDeps)
+    validate = validateWith Npm
+
+    validateWith packageManager = map V.message . V.execValidator (featureNpmDepsValidator packageManager emailNpmDeps)
 
     emailNpmDeps =
       FeatureNpmDeps

@@ -35,9 +35,9 @@ Vitest reads its configuration from your `vite.config.ts`, so your tests use the
 ```ts title="vite.config.ts" auto-js
 // highlight-next-line
 import { defineConfig } from "vitest/config";
-import { wasp } from "wasp/client/vite";
+import { wasp } from "@wasp/wasp/vite";
 // highlight-next-line
-import { waspTestConfig } from "wasp/test";
+import { waspTestConfig } from "@wasp/wasp/test";
 
 export default defineConfig({
   plugins: [wasp()],
@@ -247,7 +247,7 @@ test("shows the stats", async () => {
 ## API reference
 
 <CardLink
-  to="../api/wasp/test#wasptestconfig"
+  to="../api/@wasp/wasp/test#wasptestconfig"
   kind="api"
   title="waspTestConfig"
   description="Configure Vitest with the defaults a Wasp app needs."

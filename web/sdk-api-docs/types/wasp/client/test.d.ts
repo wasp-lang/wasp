@@ -2,7 +2,8 @@
  * Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code
  * with [Vitest](https://vitest.dev/) and
  * [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).
- * The helper for configuring Vitest is in {@linkcode "test"! | wasp/test}.
+ * The helper for configuring Vitest is in
+ * [`@wasp/wasp/test`](https://wasp.sh/docs/api/@wasp/wasp/test).
  *
  * @module
  */

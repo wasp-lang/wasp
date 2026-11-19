@@ -57,7 +57,7 @@ vitestTest =
     mainWaspTs :: T.Text
     mainWaspTs =
       [trimming|
-        import { app, page, query, route } from "@wasp/spec";
+        import { app, page, query, route } from "wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -133,8 +133,8 @@ vitestTest =
     viteConfigTs =
       [trimming|
         import { defineConfig } from "vitest/config";
-        import { wasp } from "wasp/client/vite";
-        import { waspTestConfig } from "wasp/test";
+        import { wasp } from "@wasp/wasp/vite";
+        import { waspTestConfig } from "@wasp/wasp/test";
 
         export default defineConfig({
           plugins: [wasp()],

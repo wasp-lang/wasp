@@ -4,13 +4,11 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
-import qualified System.FilePath.Posix as FP.Posix
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import Wasp.Util (toUpperFirst)
 
 data SdkRootDir
@@ -22,8 +20,6 @@ data ClientTemplatesDir
 data ServerTemplatesDir
 
 data ViteDir
-
-data VitePluginsDir
 
 mkTmplFdWithDstAndData ::
   Path' (Rel SdkTemplatesDir) File' ->
@@ -80,20 +76,14 @@ getRegisteredOperationTypeName operation = "Registered" ++ getGenericOperationDe
 viteDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ViteDir)
 viteDirInSdkTemplatesDir = [reldir|client/vite|]
 
-vitePluginsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir VitePluginsDir)
-vitePluginsDirInSdkTemplatesDir = viteDirInSdkTemplatesDir </> [reldir|plugins|]
+viteDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir ViteDir)
+viteDirInSdkRootDir = [reldir|client/vite|]
 
 sdkPackageName :: String
 sdkPackageName = "wasp"
 
--- | What the project's package.json says for the 'sdkPackageName' dependency.
--- npm links the dir into `node_modules`, even before Wasp generates it.
-sdkPackageSpecifier :: String
-sdkPackageSpecifier = "file:" ++ sdkRootDirInWaspProjectDirPosix
-  where
-    sdkRootDirInWaspProjectDirPosix =
-      FP.Posix.dropTrailingPathSeparator
-        $ SP.fromRelDirP
-        $ fromJust
-        $ SP.relDirToPosix
-        $ dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir </> sdkRootDirInGeneratedAppDir
+sdkPackageJsonInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) File'
+sdkPackageJsonInSdkTemplatesDir = [relfile|package.json|]
+
+sdkPackageJsonTmplData :: Aeson.Value
+sdkPackageJsonTmplData = Aeson.object ["sdkPackageName" Aeson..= sdkPackageName]

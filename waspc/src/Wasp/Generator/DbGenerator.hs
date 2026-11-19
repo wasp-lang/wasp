@@ -11,7 +11,7 @@ import Data.Aeson (object, (.=))
 import Data.List (find)
 import Data.Maybe (maybeToList)
 import qualified Data.Text as T
-import StrongPath (Abs, Dir, File, Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, Path', (</>))
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -34,8 +34,8 @@ import Wasp.Generator.DbGenerator.Common
     dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir,
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInGeneratedAppDir,
-    dbSchemaFileInNodeModulesDir,
     dbTemplatesDirInTemplatesDir,
+    findGeneratedPrismaClientSchemaFile,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
@@ -224,25 +224,23 @@ warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
 generatePrismaClient spec generatedAppDir = do
-  isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
+  isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isGeneratedClientSchemaSameAsProjectSchema]
   if not isGeneratedPrismaClientValid
     then generatePrismaClientIfEntitiesExist
     else return Nothing
   where
     isCurrentSchemaUpToDate :: IO Bool
     isCurrentSchemaUpToDate =
-      checksumFileExistsAndMatchesSchema
-        generatedAppDir
-        Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
+      checksumFileExistsAndMatchesSchema generatedAppDir $
+        generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
 
     -- If the generated client's schema doesn't match the current Wasp schema.prisma,
     -- we should regenerate the client.
     -- This can happen if the user runs `npx prisma generate` manually.
-    isNodeModulesSchemaSameAsProjectSchema :: IO Bool
-    isNodeModulesSchemaSameAsProjectSchema =
-      checksumFileExistsAndMatchesSchema
-        generatedAppDir
-        Wasp.Generator.DbGenerator.Common.dbSchemaFileInNodeModulesDir
+    isGeneratedClientSchemaSameAsProjectSchema :: IO Bool
+    isGeneratedClientSchemaSameAsProjectSchema =
+      Wasp.Generator.DbGenerator.Common.findGeneratedPrismaClientSchemaFile generatedAppDir
+        >>= maybe (return False) (checksumFileExistsAndMatchesSchema generatedAppDir)
 
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
@@ -254,15 +252,14 @@ generatePrismaClient spec generatedAppDir = do
 
 checksumFileExistsAndMatchesSchema ::
   Path' Abs (Dir GeneratedAppDir) ->
-  Path' (Rel GeneratedAppDir) (File PrismaDbSchema) ->
+  Path' Abs (File PrismaDbSchema) ->
   IO Bool
-checksumFileExistsAndMatchesSchema generatedAppDir schemaFileInProjectDir =
+checksumFileExistsAndMatchesSchema generatedAppDir dbSchemaFileAbs =
   ifM
     (IOUtil.doesFileExist checksumFileAbs)
     (checksumFileMatchesSchema dbSchemaFileAbs checksumFileAbs)
     (return False)
   where
-    dbSchemaFileAbs = generatedAppDir </> schemaFileInProjectDir
     checksumFileAbs = generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir
 
 checksumFileMatchesSchema :: (Wasp.Generator.DbGenerator.Common.DbSchemaChecksumFile f) => Path' Abs (File Wasp.Generator.DbGenerator.Common.PrismaDbSchema) -> Path' Abs (File f) -> IO Bool

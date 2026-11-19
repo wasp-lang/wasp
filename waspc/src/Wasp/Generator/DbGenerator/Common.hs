@@ -16,14 +16,16 @@ module Wasp.Generator.DbGenerator.Common
     PrismaDbSchema,
     dbSchemaFileInGeneratedAppDir,
     DbSchemaChecksumFile,
-    dbSchemaFileInNodeModulesDir,
+    findGeneratedPrismaClientSchemaFile,
   )
 where
 
-import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, File, File', Path', Rel, reldir, relfile, (</>))
+import qualified StrongPath as SP
+import qualified System.Directory as SD
+import qualified System.FilePath as FP
 import Wasp.Generator.Common (DbRootDir, GeneratedAppComponentDir, GeneratedAppDir)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 data DbTemplatesDir
@@ -68,8 +70,23 @@ dbSchemaFileFromGeneratedAppComponentDir = dbRootDirFromGeneratedAppComponentDir
 dbSchemaFileInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File PrismaDbSchema)
 dbSchemaFileInGeneratedAppDir = dbRootDirInGeneratedAppDir </> dbSchemaFileInDbRootDir
 
-dbSchemaFileInNodeModulesDir :: Path' (Rel GeneratedAppDir) (File PrismaDbSchema)
-dbSchemaFileInNodeModulesDir = waspProjectDirFromGeneratedAppDir </> [relfile|node_modules/.prisma/client/schema.prisma|]
+-- | The schema that the Prisma client was last generated from. The Prisma CLI
+-- writes the client into `.prisma/client` next to the installed
+-- \@prisma/client package, and where that is depends on the package manager.
+-- Wasp's link to the package leads there.
+findGeneratedPrismaClientSchemaFile :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe (Path' Abs (File PrismaDbSchema)))
+findGeneratedPrismaClientSchemaFile generatedAppDir = do
+  isPrismaClientPackageLinked <- SD.doesDirectoryExist prismaClientPackageLink
+  if isPrismaClientPackageLinked
+    then do
+      prismaClientPackageDir <- SD.canonicalizePath prismaClientPackageLink
+      -- The package is `<node_modules>/@prisma/client`.
+      let nodeModulesDir = FP.takeDirectory $ FP.takeDirectory prismaClientPackageDir
+      Just <$> SP.parseAbsFile (nodeModulesDir FP.</> ".prisma" FP.</> "client" FP.</> "schema.prisma")
+    else return Nothing
+  where
+    prismaClientPackageLink =
+      FP.dropTrailingPathSeparator (SP.fromAbsDir generatedAppDir) FP.</> "node_modules" FP.</> "@prisma" FP.</> "client"
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]

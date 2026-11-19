@@ -16,7 +16,7 @@ import Wasp.Generator.TypeAugmentationGenerator.Common
   ( typeAugmentationRootDirInGeneratedCodeDir,
     typeAugmentationTemplatesDirInTemplatesDir,
   )
-import Wasp.NpmPackageNames (waspSpecNpmPackageName)
+import Wasp.NpmPackageNames (waspSpecImportSpecifier)
 
 genSpecTypeAugmentation :: AppSpec -> Generator [FileDraft]
 genSpecTypeAugmentation spec =
@@ -28,7 +28,7 @@ genSpecTypeAugmentation spec =
             [relfile|register.ts|]
             ( object
                 [ "entities" .= entities,
-                  "waspSpecPackageName" .= waspSpecNpmPackageName
+                  "waspSpecImportSpecifier" .= waspSpecImportSpecifier
                 ]
             )
         ]

@@ -30,7 +30,10 @@ import qualified Wasp.Generator.NodeCommands as NodeCommands
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
+import Wasp.Project.PackageManager (makeInstallCommand)
+import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspDependencyLinksScript), waspNpmPackageScriptCommand)
 
 -- | Something a command needs from the generated app, after code generation.
 data SetupGoal
@@ -47,6 +50,7 @@ allSetupGoals = [minBound .. maxBound]
 -- | Setup steps that a goal might need post code generation.
 data SetupStep
   = CheckNpmDepsInstalled
+  | LinkWaspDependencies
   | FormatPrismaSchema
   | WarnIfDbNeedsMigration
   | GeneratePrismaClient
@@ -60,17 +64,19 @@ allSetupSteps = [minBound .. maxBound]
 -- | The prerequisite steps that must run before the provided step.
 --
 -- 'CheckNpmDepsInstalled' makes sure the project has the packages the
--- generated code needs, so the steps that use installed packages depend on it.
+-- generated code needs, and 'LinkWaspDependencies' makes the generated code
+-- find them, so the steps that use installed packages depend on both.
 -- 'FormatPrismaSchema' matters for the steps that compare schema checksums.
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites CheckNpmDepsInstalled = []
-prerequisites FormatPrismaSchema = [CheckNpmDepsInstalled]
-prerequisites WarnIfDbNeedsMigration = [CheckNpmDepsInstalled, FormatPrismaSchema]
-prerequisites GeneratePrismaClient = [CheckNpmDepsInstalled, FormatPrismaSchema]
+prerequisites LinkWaspDependencies = [CheckNpmDepsInstalled]
+prerequisites FormatPrismaSchema = [LinkWaspDependencies]
+prerequisites WarnIfDbNeedsMigration = [LinkWaspDependencies, FormatPrismaSchema]
+prerequisites GeneratePrismaClient = [LinkWaspDependencies, FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
-prerequisites BuildSdk = [CheckNpmDepsInstalled, GeneratePrismaClient]
+prerequisites BuildSdk = [LinkWaspDependencies, GeneratePrismaClient]
 -- Runs `tsc`, and the user code imports the SDK.
-prerequisites TypeCheckUserCode = [CheckNpmDepsInstalled, BuildSdk]
+prerequisites TypeCheckUserCode = [LinkWaspDependencies, BuildSdk]
 
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
@@ -91,7 +97,7 @@ resolveSetupSteps :: [SetupGoal] -> [SetupStep]
 resolveSetupSteps = withPrerequisites . concatMap stepsForGoal
 
 stepsForGoal :: SetupGoal -> [SetupStep]
-stepsForGoal PrismaCliReady = [CheckNpmDepsInstalled, FormatPrismaSchema]
+stepsForGoal PrismaCliReady = [LinkWaspDependencies, FormatPrismaSchema]
 stepsForGoal DbMigrationsChecked = [WarnIfDbNeedsMigration]
 stepsForGoal SdkReady = [BuildSdk]
 stepsForGoal UserCodeTypeChecked = [TypeCheckUserCode]
@@ -106,6 +112,7 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of
   CheckNpmDepsInstalled -> checkNpmDepsInstalled spec
+  LinkWaspDependencies -> linkWaspDependencies spec
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
@@ -126,8 +133,25 @@ checkNpmDepsInstalled spec = do
       [ GenericGeneratorError $
           "Your project lists these packages, but they are not installed: "
             ++ intercalate ", " notInstalledPackageNames
-            ++ ". Run `npm install`."
+            ++ ". Run `"
+            ++ makeInstallCommand (AS.packageManager spec)
+            ++ "`."
       ]
+
+-- | The generated code imports the packages that come with \@wasp/wasp. Only
+-- some package managers put them where the generated code finds them, so
+-- \@wasp/wasp links them into the generated app dir.
+linkWaspDependencies :: AppSpec -> Setup ()
+linkWaspDependencies spec = do
+  exitCode <- liftIO $ J.run $ J.prefixWith J.Wasp $ J.fromProc linkProcess
+  case exitCode of
+    ExitSuccess -> return ()
+    ExitFailure code ->
+      throwError [GenericGeneratorError $ "Linking the packages of " ++ waspNpmPackageName ++ " into the generated code failed with exit code: " ++ show code]
+  where
+    linkProcess =
+      NodeCommand.proc (AS.waspProjectDir spec) $
+        waspNpmPackageScriptCommand WaspDependencyLinksScript []
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do

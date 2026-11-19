@@ -1,0 +1,116 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "wasp/auth": ["${configDir}/.wasp/out/sdk/wasp/dist/auth/index"],
+      "wasp/auth/providers": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/auth/providers/index"
+      ],
+      "wasp/auth/providers/types": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/auth/providers/types"
+      ],
+      "wasp/auth/user": ["${configDir}/.wasp/out/sdk/wasp/dist/auth/user"],
+      "wasp/auth/validation": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/auth/validation"
+      ],
+      "wasp/client": ["${configDir}/.wasp/out/sdk/wasp/dist/client/index"],
+      "wasp/client/api": ["${configDir}/.wasp/out/sdk/wasp/dist/api/index"],
+      "wasp/client/app": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/app/index"
+      ],
+      "wasp/client/app/layout": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/app/layout"
+      ],
+      "wasp/client/app/router": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/app/router"
+      ],
+      "wasp/client/auth": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/auth/index"
+      ],
+      "wasp/client/crud": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/crud/index"
+      ],
+      "wasp/client/operations": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/operations/index"
+      ],
+      "wasp/client/router": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/router/index"
+      ],
+      "wasp/client/test": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/test/index"
+      ],
+      "wasp/client/webSocket": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/client/webSocket/index"
+      ],
+      "wasp/core/serialization": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/core/serialization/index"
+      ],
+      "wasp/entities": ["${configDir}/.wasp/out/sdk/wasp/dist/entities/index"],
+      "wasp/env": ["${configDir}/.wasp/out/sdk/wasp/dist/env/index"],
+      "wasp/errors": ["${configDir}/.wasp/out/sdk/wasp/dist/errors/index"],
+      "wasp/serialization": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/serialization/index"
+      ],
+      "wasp/server": ["${configDir}/.wasp/out/sdk/wasp/dist/server/index"],
+      "wasp/server/api": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/api/index"
+      ],
+      "wasp/server/auth": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/auth/index"
+      ],
+      "wasp/server/auth/jwt": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/auth/jwt"
+      ],
+      "wasp/server/auth/password": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/auth/password"
+      ],
+      "wasp/server/auth/session": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/auth/session"
+      ],
+      "wasp/server/auth/utils": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/auth/utils"
+      ],
+      "wasp/server/core/auth": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/core/auth"
+      ],
+      "wasp/server/crud": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/crud/index"
+      ],
+      "wasp/server/crud/*": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/crud/*"
+      ],
+      "wasp/server/email": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/email/index"
+      ],
+      "wasp/server/email/core/types": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/email/core/types"
+      ],
+      "wasp/server/errors": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/errors/index"
+      ],
+      "wasp/server/jobs": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/jobs/index"
+      ],
+      "wasp/server/jobs/core/pgBoss": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/jobs/core/pgBoss/index"
+      ],
+      "wasp/server/middleware": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/middleware/index"
+      ],
+      "wasp/server/operations": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/operations/index"
+      ],
+      "wasp/server/types": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/types/index"
+      ],
+      "wasp/server/utils": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/utils"
+      ],
+      "wasp/server/webSocket": [
+        "${configDir}/.wasp/out/sdk/wasp/dist/server/webSocket/index"
+      ],
+      "wasp/types": ["${configDir}/.wasp/out/sdk/wasp/dist/types/index"],
+      "wasp/spec": ["./lib/spec.d.ts"],
+      "wasp/spec/internal": ["./lib/spec-internal.d.ts"]
+    }
+  }
+}

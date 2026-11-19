@@ -371,7 +371,7 @@ When you want to add authentication to your app, you need to specify the `userEn
 For example, you might set it to `User`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -522,7 +522,7 @@ In the Advanced section you can see an example for [Email](./advanced/custom-aut
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({

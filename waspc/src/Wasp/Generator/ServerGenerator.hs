@@ -65,6 +65,7 @@ genServer spec =
       genFileCopy [relfile|rollup.config.js|],
       genFileCopy $ C.asTmplFile $ SP.castFile ServerNodeCommands.loadDotEnvFileInServerRootDir,
       genFileCopy [relfile|src/createRollupBundle.js|],
+      genFileCopy [relfile|src/plugins/sdkImports.js|],
       genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,

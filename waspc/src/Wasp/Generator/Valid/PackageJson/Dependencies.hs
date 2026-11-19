@@ -9,35 +9,19 @@ import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
-  ( DependencyType (..),
-    makeRequiredDepValidator,
-  )
 import Wasp.Generator.OptionalNpmDeps (FeatureNpmDeps, getNpmDepsOfUsedFeatures)
 import qualified Wasp.Generator.OptionalNpmDeps as FeatureNpmDeps
-import Wasp.Generator.SdkGenerator.Common (sdkPackageName, sdkPackageSpecifier)
+import Wasp.Project.PackageManager (DependencyType (..), PackageManager, makeAddPackagesCommand)
 import qualified Wasp.Validator as V
 
 dependenciesValidator :: AS.AppSpec -> V.Validator P.PackageJson
-dependenciesValidator spec =
-  V.all
-    [ sdkDepValidator,
-      usedFeaturesDepsValidator
-    ]
-  where
-    -- The user's code and the generated code import the generated SDK as a
-    -- package, so the project has to depend on it.
-    sdkDepValidator :: V.Validator P.PackageJson
-    sdkDepValidator = makeRequiredDepValidator Runtime (sdkPackageName, sdkPackageSpecifier)
-
-    usedFeaturesDepsValidator :: V.Validator P.PackageJson
-    usedFeaturesDepsValidator = V.all $ featureNpmDepsValidator <$> getNpmDepsOfUsedFeatures spec
+dependenciesValidator spec = V.all $ featureNpmDepsValidator (AS.packageManager spec) <$> getNpmDepsOfUsedFeatures spec
 
 -- | Checks that the project lists the packages of a feature the app uses. npm
 -- checks their versions, because they are optional peer dependencies of
 -- \@wasp/wasp.
-featureNpmDepsValidator :: FeatureNpmDeps -> V.Validator P.PackageJson
-featureNpmDepsValidator featureNpmDeps packageJson
+featureNpmDepsValidator :: PackageManager -> FeatureNpmDeps -> V.Validator P.PackageJson
+featureNpmDepsValidator packageManager featureNpmDeps packageJson
   | null missingDeps && null missingDevDeps = V.success
   | otherwise =
       V.failure $
@@ -57,11 +41,11 @@ featureNpmDepsValidator featureNpmDeps packageJson
       not $ any (M.member $ Npm.Dependency.name dep) [P.dependencies packageJson, P.devDependencies packageJson]
 
     installCommands =
-      [makeInstallCommand [] missingDeps | not (null missingDeps)]
-        ++ [makeInstallCommand ["--save-dev"] missingDevDeps | not (null missingDevDeps)]
+      [makeAddDepsCommand Runtime missingDeps | not (null missingDeps)]
+        ++ [makeAddDepsCommand Development missingDevDeps | not (null missingDevDeps)]
 
-    makeInstallCommand :: [String] -> [Npm.Dependency.Dependency] -> String
-    makeInstallCommand flags deps = unwords $ "npm install" : flags ++ map makePackageSpec deps
+    makeAddDepsCommand :: DependencyType -> [Npm.Dependency.Dependency] -> String
+    makeAddDepsCommand dependencyType = makeAddPackagesCommand packageManager dependencyType . map makePackageSpecifier
 
     -- Quoted, because some shells treat the `^` of a version range specially.
-    makePackageSpec dep = show $ Npm.Dependency.name dep ++ "@" ++ Npm.Dependency.version dep
+    makePackageSpecifier dep = show $ Npm.Dependency.name dep ++ "@" ++ Npm.Dependency.version dep

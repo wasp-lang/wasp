@@ -26,6 +26,7 @@ import qualified Wasp.Message as Msg
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
+import Wasp.Project.PackageManager (detectPackageManagerOrDefault, getLockfileName, makeInstallCommand, supportedPackageManagers)
 import Wasp.Project.RunConfig (ProjectRunConfig)
 import Wasp.Project.WaspNpmPackage (doesVersionMatchDeclaredVersion, getDeclaredVersion, getWaspNpmPackageDeclaration)
 import Wasp.Version (getWaspCliNpmPackageVersion)
@@ -72,9 +73,10 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
       FSN.watchDir mgr (SP.fromAbsDir waspProjectDir) eventFilter (onEvent chan)
       where
         eventFilter event =
-          isWatchedFile filename && filename /= "package-lock.json"
+          isWatchedFile filename && filename `notElem` lockfileNames
           where
             filename = FP.takeFileName $ FSN.eventPath event
+            lockfileNames = getLockfileName <$> supportedPackageManagers
 
     watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan dirInWaspProjectDir =
       FSN.watchTree mgr (SP.fromAbsDir $ waspProjectDir </> dirInWaspProjectDir) eventFilter (onEvent chan)
@@ -190,6 +192,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     findWaspVersionChangeError :: IO (Maybe CompileError)
     findWaspVersionChangeError = do
       runningVersion <- getWaspCliNpmPackageVersion
+      packageManager <- detectPackageManagerOrDefault waspProjectDir
       declaredVersion <- either (const Nothing) getDeclaredVersion <$> getWaspNpmPackageDeclaration waspProjectDir
       return $ case declaredVersion of
         Just version
@@ -201,7 +204,9 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
                   ++ version
                   ++ ", but the running Wasp is "
                   ++ show runningVersion
-                  ++ ". Stop Wasp, run `npm install`, and start it again."
+                  ++ ". Stop Wasp, run `"
+                  ++ makeInstallCommand packageManager
+                  ++ "`, and start it again."
         _ -> Nothing
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors

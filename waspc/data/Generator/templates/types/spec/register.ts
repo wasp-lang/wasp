@@ -1,9 +1,9 @@
 {{={= =}=}}
 // The import ensures the module is always loaded into the bundle.
 // Otherwise, module augmentation can fail if it wasn't loaded.
-import "{= waspSpecPackageName =}";
+import "{= waspSpecImportSpecifier =}";
 
-declare module "{= waspSpecPackageName =}" {
+declare module "{= waspSpecImportSpecifier =}" {
   export interface Register {
     entities: {
 {=# entities =}

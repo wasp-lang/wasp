@@ -45,7 +45,7 @@ Enabling Slack Authentication comes down to a series of steps:
 Now let's properly configure the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -124,7 +124,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -189,7 +189,7 @@ Now that the tunnel exposes your server to the public, tell Wasp to use the new 
 Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -263,7 +263,7 @@ The fields you receive depend on the scopes you request. In the example above, t
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({

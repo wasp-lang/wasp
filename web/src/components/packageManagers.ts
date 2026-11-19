@@ -1,10 +1,13 @@
 /**
- * The package managers the docs show commands for. Adding one here makes its
- * prop required in `PackageManagerCommand`, so the docs build fails until every
- * command has its form for it. `toPackageManagerCommands` has to learn it too,
- * which is where the commands of `WaspCommand` come from.
+ * The package managers the docs show commands for. Authors write a command
+ * for the first one, npm, and `toPackageManagerCommands.ts` turns it into the
+ * command of the others. Adding one here means teaching it there.
  */
-export const PACKAGE_MANAGERS = [{ name: "npm", label: "npm" }] as const;
+export const PACKAGE_MANAGERS = [
+  { name: "npm", label: "npm" },
+  { name: "pnpm", label: "pnpm" },
+  { name: "bun", label: "Bun" },
+] as const;
 
 export type PackageManagerName = (typeof PACKAGE_MANAGERS)[number]["name"];
 
@@ -13,17 +16,3 @@ export type PackageManagerCommands = Record<PackageManagerName, string>;
 
 /** The tab group that remembers the reader's package manager. */
 export const PACKAGE_MANAGER_TAB_GROUP_ID = "package-manager";
-
-/** MDX props aren't type-checked, so a missing command only shows up here. */
-export function assertHasEveryPackageManagerCommand(
-  componentName: string,
-  commands: PackageManagerCommands,
-): void {
-  for (const { name } of PACKAGE_MANAGERS) {
-    if (!commands[name]) {
-      throw new Error(
-        `${componentName} is missing the ${name} command in: ${JSON.stringify(commands)}`,
-      );
-    }
-  }
-}

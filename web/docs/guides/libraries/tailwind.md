@@ -21,7 +21,7 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 1. Add the Tailwind CSS Vite plugin to your `vite.config.ts` file:
 
     ```ts title="vite.config.ts"
-    import { wasp } from 'wasp/client/vite'
+    import { wasp } from '@wasp/wasp/vite'
     // highlight-next-line
     import tailwindcss from '@tailwindcss/vite'
     import { defineConfig } from 'vite'

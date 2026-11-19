@@ -10,7 +10,7 @@ import StrongPath (Abs, Dir, File, Path', Rel)
 import Validation (Validation (..))
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common (CompileError, WaspProjectDir, WaspTsConfigFile)
-import Wasp.Project.ExternalConfig.TsConfig (parseAndValidateTsConfigFile)
+import Wasp.Project.ExternalConfig.TsConfig (extendsImportAliasesValidator, noCustomPathsValidator, parseAndValidateTsConfigFile)
 import qualified Wasp.Validator as V
 
 parseAndValidateWaspTsConfig ::
@@ -22,7 +22,8 @@ parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidato
 waspTsConfigValidator :: V.Validator T.TsConfig
 waspTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", ".wasp/out/types/spec"],
+    [ extendsImportAliasesValidator,
+      V.inField ("include", T.include) $ V.required $ V.containsAll ["**/*.wasp.ts", ".wasp/out/types/spec"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where
@@ -42,5 +43,6 @@ waspTsConfigValidator =
           V.inField ("lib", T.lib) $ V.eqJust ["ES2025"],
           -- From TypeScript 6 onwards, we need to manually specify which
           -- packages' globals we want to load.
-          V.inField ("types", T.types) $ V.required $ V.containsAll ["node"]
+          V.inField ("types", T.types) $ V.required $ V.containsAll ["node"],
+          noCustomPathsValidator
         ]

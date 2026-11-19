@@ -53,6 +53,7 @@ module ShellCommands
     TestContext (..),
     inTestWaspProjectDir,
     createTestWaspProject,
+    createTestWaspProjectWithPackageManager,
     SnapshotTestContext (..),
     createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
@@ -75,6 +76,7 @@ import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirI
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
+import Wasp.Project.PackageManager (PackageManager, getPackageManagerName)
 
 -- TODO: In future, find a good way to test `wasp-cli start`.
 
@@ -166,6 +168,10 @@ waspCliNewWithPipedAnswersFails appName starterTemplate =
 waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName starterTemplate =
   return $ unwords ["$WASP_CLI_CMD", "new", appName, "-t", show starterTemplate]
+
+waspCliNewWithPackageManager :: PackageManager -> String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewWithPackageManager packageManager appName starterTemplate =
+  (++ " --package-manager " ++ getPackageManagerName packageManager) <$> waspCliNew appName starterTemplate
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "$WASP_CLI_CMD completion"
@@ -296,13 +302,9 @@ waspCliStudio = return "$WASP_CLI_CMD studio"
 npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 npmInstall = return "npm install"
 
--- | TODO(#2262): Once the examples join the pnpm workspace, they depend on
--- \@wasp/wasp through `workspace:*`, which doesn't hold in the test dir either.
--- Decide then how a copied example gets the dev packages.
---
--- Points the project at the dev Wasp npm package tarballs by their absolute
--- paths. Projects copied from the repo, e.g. the examples, point at them
--- relative to their place in the repo, which doesn't hold in the test dir.
+-- | Points the project at the dev Wasp npm package tarballs by their absolute
+-- paths. Projects copied from the repo, e.g. the examples, depend on the
+-- packages through the repo's pnpm workspace, which the test dir isn't part of.
 -- `wasp new` does the same for a new project (see "Wasp.Cli.DevWaspNpmPackages").
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =
@@ -404,6 +406,11 @@ createTestWaspProject :: StarterTemplate -> ShellCommandBuilder TestContext Shel
 createTestWaspProject template = do
   context <- ask
   waspCliNew context.waspProjectContext.waspProjectName template
+
+createTestWaspProjectWithPackageManager :: PackageManager -> StarterTemplate -> ShellCommandBuilder TestContext ShellCommand
+createTestWaspProjectWithPackageManager packageManager template = do
+  context <- ask
+  waspCliNewWithPackageManager packageManager context.waspProjectContext.waspProjectName template
 
 assertCommandOutputContains ::
   ShellCommandBuilder context ShellCommand ->

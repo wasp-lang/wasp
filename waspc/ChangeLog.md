@@ -10,11 +10,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `app()` in `main.wasp.ts` no longer takes a `wasp: { version }` field. The `@wasp/wasp` version in `package.json` decides which Wasp a project runs. ([#5269](https://github.com/wasp-lang/wasp/pull/5269))
 - `wasp.overriddenDeps` no longer works. Use npm's `overrides` instead. ([#5268](https://github.com/wasp-lang/wasp/pull/5268), [#5387](https://github.com/wasp-lang/wasp/pull/5387))
 - React, Vite, Express and the other packages that come with `@wasp/wasp` are now its peer dependencies, so Wasp projects no longer work with npm's `legacy-peer-deps` or `omit=peer` settings. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
-- Wasp projects no longer use npm workspaces, and depend on the generated `wasp` package through `"wasp": "file:.wasp/out/sdk/wasp"` in `package.json` instead. ([#5388](https://github.com/wasp-lang/wasp/pull/5388))
+- Wasp projects no longer use npm workspaces. Their `tsconfig.src.json` now extends `@wasp/wasp/tsconfig.paths.json`, which maps the `wasp/*` imports to the generated code, and can't set `paths` of its own. ([#5388](https://github.com/wasp-lang/wasp/pull/5388), [#5410](https://github.com/wasp-lang/wasp/pull/5410))
 - Wasp projects now list the packages that only some features need, like `lucia` for auth or `pg-boss` for jobs, in their `package.json`. Wasp's compiler names the missing ones and the command that installs them. ([#5387](https://github.com/wasp-lang/wasp/pull/5387))
 - Wasp no longer runs `npm install` after compiling a project. ([#5389](https://github.com/wasp-lang/wasp/pull/5389))
+- The Wasp Vite plugin and the Vitest config helper are now imported from `@wasp/wasp/vite` and `@wasp/wasp/test` (previously `wasp/client/vite` and `wasp/test`). ([#5409](https://github.com/wasp-lang/wasp/pull/5409))
 - Wasp now requires Node.js >=26.13.1 (previously >=24.22.1) and `@types/node` `^26.0.0`. ([#5329](https://github.com/wasp-lang/wasp/pull/5329))
-- The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
+- The Wasp Spec is now imported from `wasp/spec` (previously `@wasp.sh/spec`), and `tsconfig.wasp.json` extends `@wasp/wasp/tsconfig.paths.json` too. ([#5159](https://github.com/wasp-lang/wasp/pull/5159), [#5411](https://github.com/wasp-lang/wasp/pull/5411))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
@@ -28,6 +29,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🎉 New Features
 
+- Wasp projects can now use pnpm or Bun instead of npm. `wasp new` asks which package manager to use, or takes it from `--package-manager`. ([#5412](https://github.com/wasp-lang/wasp/pull/5412), [#5413](https://github.com/wasp-lang/wasp/pull/5413), [#5414](https://github.com/wasp-lang/wasp/pull/5414), [#5415](https://github.com/wasp-lang/wasp/pull/5415), [#5416](https://github.com/wasp-lang/wasp/pull/5416))
 - A globally installed `wasp` now runs the Wasp version of the project you call it in, so each project keeps the version it installed. ([#5265](https://github.com/wasp-lang/wasp/pull/5265))
 - The server and the client now share one `HttpError` class, exported from `wasp/errors`. Client code can check for it with `instanceof`, and read the response's headers from its `response`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - `HttpError`'s status code is now available as `status`. `statusCode` still works, but is deprecated. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))

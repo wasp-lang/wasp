@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "25bab8865816b4fb7aa518ff7d814b91f13405e6209257448d7103ef2e0d0451"
+        "584f5d2bccb45715523fbe085aecc3586da6f92e280fde5296dce03d91f04b59"
     ],
     [
         [
@@ -464,37 +464,9 @@
     [
         [
             "file",
-            "sdk/wasp/client/vite/index.ts"
+            "sdk/wasp/client/vite/config.json"
         ],
-        "a732194fc55b5d6267650d50ccb1f45792953132b72e98bea344c61040f218f6"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/virtualUserModules.ts"
-        ],
-        "004edfbc13d8a60497c2632392ff892a50805aab968b9ae061fe0026147fb738"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/virtualWaspModules.ts"
-        ],
-        "2f354e74eb357c3f026a0d3d7de8d195b4bdcb8531cf11668018c4344f691741"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/wasp.ts"
-        ],
-        "b6ef71c2473ec8e01d1bfa59ad18880bf0959d7f166fd87c7bf2ba855f4e9fd7"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/waspConfig.ts"
-        ],
-        "8d2a86d96693589b673087df0fbea987ee09930d568801924062bae2d8bb9640"
+        "e65ac79bdd2eda362d425692da1d137cd6aa608091e35b750a5a1da7d4fba909"
     ],
     [
         [
@@ -516,13 +488,6 @@
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
         "d43a453792095d2970c506d6d463d79f02c5a6b23306bd1642466128ebfc0383"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/virtual-files/index.ts"
-        ],
-        "9156d597969303910044a116be7ccdc43ad102be6bc3eac93b9c4d091c589c55"
     ],
     [
         [
@@ -578,7 +543,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "1d447722bcf11d70d0cc0c01d6cc6751d4cdc632bbb7630d3355b7e1d023c35e"
+        "0b0bff911b604d4e6864a5f51b1a916ddee1cdab95ef12b1ef0bd7b32a7a3ea0"
     ],
     [
         [
@@ -592,7 +557,7 @@
             "file",
             "sdk/wasp/scripts/copy-assets.js"
         ],
-        "2adba4b8fee21018494b854b81303df0e7ecbdc3cc1d75678732b25781c91837"
+        "b142d18b731ebec910e81f68e79e2ad8cd20c10d9be4c79a578405066309a7ea"
     ],
     [
         [
@@ -753,7 +718,7 @@
             "file",
             "sdk/wasp/server/core/auth.ts"
         ],
-        "03d7aaf23761a58ac445fb9acc6e9210bd3b360e468b5a462e2012c3162895d3"
+        "bbae893d8884078cf1f1b777f340357eba062000b7dbb9fcc47c3a7e3fd841f0"
     ],
     [
         [
@@ -985,13 +950,6 @@
             "sdk/wasp/server/webSocket/index.ts"
         ],
         "f5f38234f2e6955ae5dc8868c4e1f2c3c8a6dad626192864f0b8e199db31f1e4"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/test/index.ts"
-        ],
-        "0e7b286916e4bb55359c7167412c5b8dad6169431cc0a59ef7c15a89bf3c2fa7"
     ],
     [
         [
@@ -1369,7 +1327,7 @@
             "file",
             "server/src/createRollupBundle.js"
         ],
-        "071bf61d4b6bb94ddc5298669019d1955cad80d43a376ed57e22a5a95f7230c4"
+        "8b178672f94430d74ae302b061e687b743b63eb55a6eb76082d293ddb58d5ed0"
     ],
     [
         [
@@ -1440,6 +1398,13 @@
             "server/src/middleware/operations.ts"
         ],
         "b7e2dc990c87a962e9ad624af77e4885f2915d4c0abceb9b7772d4d63ecceef3"
+    ],
+    [
+        [
+            "file",
+            "server/src/plugins/sdkImports.js"
+        ],
+        "0bbdf494c6413c0eed96086978a908a903b70210dcfeab2a2918d511b1c54560"
     ],
     [
         [
@@ -1859,7 +1824,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "c810e029aaf829728bada4a9a6aa28facdb0278e75bd304c5e6325d286a2687a"
+        "6168d56d2742da748ab8c6b20c83ff4f15d149fe59d8ab7d8dbed4196c827652"
     ],
     [
         [
@@ -1873,6 +1838,6 @@
             "file",
             "types/spec/register.ts"
         ],
-        "7c66b70387c4b193f7ec142b7e1f5085ab0b23fc80e398a19434c7925309f511"
+        "d9eb244796484726208151649e2d4bb06f96e4e0ac671d20810187d04de5e5c2"
     ]
 ]

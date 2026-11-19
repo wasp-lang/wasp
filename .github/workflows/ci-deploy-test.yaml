@@ -40,9 +40,10 @@ jobs:
 
       - uses: $/.github/actions/setup-dev-wasp-packages
 
+      # The examples are in the repo's pnpm workspace. `...` also installs the
+      # workspace packages the app depends on.
       - name: Install app dependencies
-        working-directory: ${{ env.APP_TO_DEPLOY }}
-        run: mise run reinstall-dev-wasp-app-deps
+        run: pnpm install --filter "./${APP_TO_DEPLOY}..."
 
       - name: Install Fly CLI
         # NOTE: We tell users to install the latest version of Fly CLI,
@@ -92,7 +93,7 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm run test:e2e
+        run: pnpm run test:e2e
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
@@ -136,9 +137,10 @@ jobs:
 
       - uses: $/.github/actions/setup-dev-wasp-packages
 
+      # The examples are in the repo's pnpm workspace. `...` also installs the
+      # workspace packages the app depends on.
       - name: Install app dependencies
-        working-directory: ${{ env.APP_TO_DEPLOY }}
-        run: mise run reinstall-dev-wasp-app-deps
+        run: pnpm install --filter "./${APP_TO_DEPLOY}..."
 
       - name: Install Railway CLI
         run: mise use -g railway@5.28.0
@@ -186,7 +188,7 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm run test:e2e
+        run: pnpm run test:e2e
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project

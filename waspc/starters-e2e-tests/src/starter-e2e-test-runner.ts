@@ -1,11 +1,12 @@
 import { fileURLToPath } from "url";
 import { $, chalk, fs, path, spinner, tmpdir, within } from "zx";
-import { WaspCliCommand } from "./cli.js";
+import { PackageManager, WaspCliCommand } from "./cli.js";
 import { setupWaspMailCrabConfiguration } from "./mailcrab.js";
 import { StarterName } from "./starters.js";
 
 interface StarterTestConfiguration {
   waspCliCommand: WaspCliCommand;
+  packageManager: PackageManager;
   starterName: StarterName;
 }
 
@@ -23,6 +24,7 @@ export async function runStarterE2ETests(
 
 async function initializeTestEnvironment({
   waspCliCommand,
+  packageManager,
   starterName,
 }: StarterTestConfiguration): Promise<string> {
   const tempDirectoryPath = tmpdir();
@@ -35,7 +37,7 @@ async function initializeTestEnvironment({
 
   await $({
     cwd: tempDirectoryPath,
-  })`${waspCliCommand} new ${waspStarterProjectName} -t ${starterName}`;
+  })`${waspCliCommand} new ${waspStarterProjectName} -t ${starterName} --package-manager ${packageManager}`;
 
   const waspProjectPath = path.join(tempDirectoryPath, waspStarterProjectName);
 

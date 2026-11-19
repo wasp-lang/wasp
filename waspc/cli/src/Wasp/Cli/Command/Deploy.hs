@@ -8,13 +8,13 @@ import Control.Monad.IO.Class (liftIO)
 import System.Environment (getExecutablePath)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import qualified Wasp.Project.Deployment
 
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
   InWaspProject waspProjectDir <- require
   WaspNpmPackageAvailable <- require
   deployResult <- liftIO $ do

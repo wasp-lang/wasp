@@ -72,7 +72,7 @@ Let's start with the `main.wasp.ts` file: it is the central spec file of your ap
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "RecipeApp",
@@ -114,7 +114,7 @@ We do that by defining Operations, in this case, a Query `getRecipes` and Action
 First, we define these Operations in our `main.wasp.ts` file, so Wasp knows about them and can "beef them up":
 
 ```ts title="main.wasp.ts"
-import { action, app, query } from "@wasp/spec"
+import { action, app, query } from "wasp/spec"
 import { getRecipes, addRecipe } from "./src/recipe/operations" with { type: "ref" }
 
 export default app({
@@ -152,7 +152,7 @@ For the end, let's create a home page of our app.
 First, we define it in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { HomePage } from "./src/pages/HomePage" with { type: "ref" }
 
 export default app({
@@ -240,10 +240,24 @@ Let's create and run our first Wasp app in 2 short steps:
 
 1. **To create a new app on Linux / macOS / WSL (Windows), open your terminal and run:**
 
+   **Package manager**
+
    **npm**
 
    ```shell
    npx @wasp/cli@latest new
+   ```
+
+   **pnpm**
+
+   ```shell
+   pnpm dlx @wasp/cli@latest new
+   ```
+
+   **Bun**
+
+   ```shell
+   bunx @wasp/cli@latest new
    ```
 
    **Global CLI**
@@ -256,11 +270,27 @@ Let's create and run our first Wasp app in 2 short steps:
 
 2. **Then, run the app:**
 
+   **Package manager**
+
    **npm**
 
    ```shell
    cd <my-project-name>
    npm run dev
+   ```
+
+   **pnpm**
+
+   ```shell
+   cd <my-project-name>
+   pnpm run dev
+   ```
+
+   **Bun**
+
+   ```shell
+   cd <my-project-name>
+   bun run dev
    ```
 
    **Global CLI**
@@ -289,8 +319,22 @@ But don't stop there! Turn your coding agent into a Wasp framework expert in the
 
    **Other Agents (Cursor, Codex, Gemini, Copilot, OpenCode, etc.):**
 
+   **npm**
+
    ```shell
    npx skills add wasp-lang/wasp-agent-plugins
+   ```
+
+   **pnpm**
+
+   ```shell
+   pnpm dlx skills add wasp-lang/wasp-agent-plugins
+   ```
+
+   **Bun**
+
+   ```shell
+   bunx skills add wasp-lang/wasp-agent-plugins
    ```
 
    **Initialize the plugin / skills:** Invoke the `/wasp-plugin-init` skill to add Wasp knowledge to your agent's memory file (e.g. `CLAUDE.md`, `AGENTS.md`):
@@ -357,7 +401,7 @@ Check NVM repo for more details: <https://github.com/nvm-sh/nvm>.
 
 #### Installation {#detailed-installation}
 
-Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and runs `npm install`, which installs Wasp along with the rest of the project's dependencies. After you clone a project, run `npm install` yourself.
+Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and installs it along with the rest of the project's dependencies, with the [package manager](https://wasp.sh/docs/advanced/dependencies#package-managers) you choose. After you clone a project, run its install command yourself, e.g. `npm install`.
 
 The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands) for how to run it.
 
@@ -365,8 +409,22 @@ The `@wasp/wasp` version in `package.json` is the project's Wasp version, so eve
 
 You don't need a global install to use Wasp. If you prefer shorter commands, and want the Wasp CLI available anywhere, even outside of projects, install it globally:
 
+**npm**
+
 ```shell
 npm i -g @wasp/cli@latest
+```
+
+**pnpm**
+
+```shell
+pnpm add --global @wasp/cli@latest
+```
+
+**Bun**
+
+```shell
+bun add --global @wasp/cli@latest
 ```
 
 Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`.
@@ -381,8 +439,22 @@ Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/inst
 
 To switch a project to another Wasp version, change its `@wasp/wasp` dependency:
 
+**npm**
+
 ```shell
 npm install --save-exact @wasp/wasp@x.y.z
+```
+
+**pnpm**
+
+```shell
+pnpm add --save-exact @wasp/wasp@x.y.z
+```
+
+**Bun**
+
+```shell
+bun add --save-exact @wasp/wasp@x.y.z
 ```
 
 Check the [migration guide](https://wasp.sh/docs/migration-guide) before upgrading to a new minor version.
@@ -464,10 +536,24 @@ Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments
 
 Use this template:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npx @wasp/cli@latest new <project-name> -t saas
+```
+
+**pnpm**
+
+```shell
+pnpm dlx @wasp/cli@latest new <project-name> -t saas
+```
+
+**Bun**
+
+```shell
+bunx @wasp/cli@latest new <project-name> -t saas
 ```
 
 **Global CLI**
@@ -486,10 +572,24 @@ When you run it for the first time, it opens on a welcome page that walks you th
 
 Use this template:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npx @wasp/cli@latest new <project-name> -t basic
+```
+
+**pnpm**
+
+```shell
+pnpm dlx @wasp/cli@latest new <project-name> -t basic
+```
+
+**Bun**
+
+```shell
+bunx @wasp/cli@latest new <project-name> -t basic
 ```
 
 **Global CLI**
@@ -506,10 +606,24 @@ A minimal starter template that features just a single page. Perfect for startin
 
 Use this template:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npx @wasp/cli@latest new <project-name> -t minimal
+```
+
+**pnpm**
+
+```shell
+pnpm dlx @wasp/cli@latest new <project-name> -t minimal
+```
+
+**Bun**
+
+```shell
+bunx @wasp/cli@latest new <project-name> -t minimal
 ```
 
 **Global CLI**
@@ -558,8 +672,22 @@ We recommend installing with `project` scope so the settings are committed to gi
 
 Run the following command and select all the skills:
 
+**npm**
+
 ```shell
 npx skills add wasp-lang/wasp-agent-plugins
+```
+
+**pnpm**
+
+```shell
+pnpm dlx skills add wasp-lang/wasp-agent-plugins
+```
+
+**Bun**
+
+```shell
+bunx skills add wasp-lang/wasp-agent-plugins
 ```
 
 ### Setup
@@ -607,10 +735,24 @@ You can find the complete code of the app we're about to build [here](https://gi
 
 To setup a new Wasp project, run the following command in your terminal:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npx @wasp/cli@latest new TodoApp -t minimal
+```
+
+**pnpm**
+
+```shell
+pnpm dlx @wasp/cli@latest new TodoApp -t minimal
+```
+
+**Bun**
+
+```shell
+bunx @wasp/cli@latest new TodoApp -t minimal
 ```
 
 **Global CLI**
@@ -623,11 +765,27 @@ We are using the `minimal` template because we're going to implement the app fro
 
 Enter the newly created directory and start the development server:
 
+**Package manager**
+
 **npm**
 
 ```shell
 cd TodoApp
 npm run dev
+```
+
+**pnpm**
+
+```shell
+cd TodoApp
+pnpm run dev
+```
+
+**Bun**
+
+```shell
+cd TodoApp
+bun run dev
 ```
 
 **Global CLI**
@@ -708,7 +866,7 @@ The file exports your app's top-level configuration and a collection of specific
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 // This is a reference to your MainPage component.
 // Read more about how Wasp references your code in the section below.
 import { MainPage } from "./src/MainPage" with { type: "ref" }
@@ -752,7 +910,7 @@ In the next section, we'll explore how **route** and **page** work together to b
 In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
@@ -804,7 +962,7 @@ This happens when the TypeScript Language Server gets out of sync with the curre
 To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
@@ -949,7 +1107,7 @@ Since `src/HelloPage.tsx` no longer exists, remove its route from the `main.wasp
 Your Wasp file should now look like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
@@ -991,10 +1149,24 @@ Read more about how Wasp Entities work in the [Entities](https://wasp.sh/docs/fe
 
 To update the database schema to include this entity, run:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev
 ```
 
 **Global CLI**
@@ -1007,10 +1179,24 @@ You'll need to do this any time you change an entity's definition. It instructs 
 
 To take a look at the database and the new `Task` entity, run:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db studio
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db studio
+```
+
+**Bun**
+
+```shell
+bun run wasp db studio
 ```
 
 **Global CLI**
@@ -1048,7 +1234,7 @@ We'll create a new Query called `getTasks`. We'll need to declare the Query in t
 We need to add a **query** specification to `main.wasp.ts` so that Wasp knows it exists:
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp/spec"
+import { app, page, query, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 
@@ -1200,7 +1386,7 @@ Creating an Action is very similar to creating a Query.
 We must first declare the Action in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp/spec"
+import { action, app, page, query, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask } from "./src/actions" with { type: "ref" }
@@ -1352,7 +1538,7 @@ Solution
 Declaring the Action in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp/spec"
+import { action, app, page, query, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
@@ -1471,7 +1657,7 @@ model User {
 Next, tell Wasp to use full-stack [authentication](https://wasp.sh/docs/features/auth/overview):
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp/spec"
+import { action, app, page, query, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
@@ -1499,16 +1685,44 @@ export default app({
 
 Auth needs the `lucia` package in your project, so install it:
 
+**npm**
+
 ```shell
 npm install lucia@3
 ```
 
+**pnpm**
+
+```shell
+pnpm add lucia@3
+```
+
+**Bun**
+
+```shell
+bun add lucia@3
+```
+
 Don't forget to update the database schema by running:
+
+**Package manager**
 
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev
 ```
 
 **Global CLI**
@@ -1533,7 +1747,7 @@ Wasp also supports authentication using [email](https://wasp.sh/docs/features/au
 Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp/spec"
+import { action, app, page, query, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
@@ -1600,7 +1814,7 @@ Since you are using TypeScript, you can benefit from using Wasp's type-safe `Lin
 We don't want users who are not logged in to access the main page, because they won't be able to create any tasks. So let's make the page private by requiring the user to be logged in:
 
 ```ts title="main.wasp.ts"
-import { action, app, page, query, route } from "@wasp/spec"
+import { action, app, page, query, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
@@ -1639,10 +1853,24 @@ Since we just added users, you don't have an account yet. Go to the signup page 
 
 Let's check out what the database looks like. Start the Prisma Studio:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db studio
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db studio
+```
+
+**Bun**
+
+```shell
+bun run wasp db studio
 ```
 
 **Global CLI**
@@ -1682,10 +1910,24 @@ model Task {
 
 As always, you must migrate the database after changing the Entities:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev
 ```
 
 **Global CLI**
@@ -1766,10 +2008,24 @@ With these changes, each user should have a list of tasks that only they can see
 
 Try playing around, adding a few users and some tasks for each of them. Then open the Prisma Studio:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db studio
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db studio
+```
+
+**Bun**
+
+```shell
+bun run wasp db studio
 ```
 
 **Global CLI**
@@ -1842,7 +2098,7 @@ You write the Wasp Spec in TypeScript, so you get out-of-the-box support in all 
 ### A quick example
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp/spec";
+import { app, page, query, route } from "wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -1909,7 +2165,7 @@ The vast majority of Wasp apps won't run into these limitations, so we recommend
 Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp/spec`, then pass it an import object with `import` (or `importDefault`) and `from`:
 
 ```ts title="main.wasp.ts"
-import { ref } from "@wasp/spec";
+import { ref } from "wasp/spec";
 
 export default app({
   // ...
@@ -1925,7 +2181,7 @@ export default app({
 The `from` path is relative to the `*.wasp.ts` file where you call `ref(...)` and must resolve inside your project's `src` directory.
 
 :::note[Limitation]
-You can't re-export `ref` from `@wasp/spec` (`export { ref } from "@wasp/spec"`). Import it first, then re-export it if needed.
+You can't re-export `ref` from `@wasp/spec` (`export { ref } from "wasp/spec"`). Import it first, then re-export it if needed.
 :::
 
 ### Useful patterns
@@ -1937,7 +2193,7 @@ For larger apps you don't have to keep everything in `main.wasp.ts`. You can mov
 Each feature file exports it's own `Spec`:
 
 ```ts title="src/auth/auth.wasp.ts"
-import { page, route, type Spec } from "@wasp/spec";
+import { page, route, type Spec } from "wasp/spec";
 
 import { LoginPage } from "./LoginPage" with { type: "ref" };
 import { SignupPage } from "./SignupPage" with { type: "ref" };
@@ -1953,7 +2209,7 @@ The `Spec` annotation gives TypeScript enough information to validate the specif
 Then `main.wasp.ts` imports it and joins in into the `spec`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec";
+import { app, page, route } from "wasp/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { authSpec } from "./src/auth/auth.wasp";
@@ -2010,7 +2266,7 @@ A **page** is a React component that Wasp renders as a full screen of your app. 
 To show a page at a URL, call `route` with a unique name, the URL path, and the page to render. Wrap your React component with `page` to turn it into a page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 
@@ -2049,7 +2305,7 @@ Most apps have pages whose content depends on the URL, like `/photo/42`. Instead
 Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -2076,7 +2332,7 @@ Read more in the [React Router docs on dynamic segments](https://reactrouter.com
 Append `?` to a path segment to make it optional. The route matches whether or not the segment is present:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
@@ -2109,7 +2365,7 @@ Read more in the [React Router docs on optional segments](https://reactrouter.co
 Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { FilesPage } from "./src/FilesPage" with { type: "ref" }
 
 export default app({
@@ -2219,7 +2475,7 @@ export function Navigation() {
 If your app uses [authentication](https://wasp.sh/docs/features/auth/overview), you can mark a page with `authRequired: true`. Wasp then shows the page only to logged-in users and redirects everyone else to the path defined in `auth.onAuthFailedRedirectTo`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -2251,7 +2507,7 @@ While Wasp checks whether the user is logged in, it shows a loading indicator in
 By default, Wasp renders each page on its own. To give every page a shared header, footer, or set of providers, declare a **root component** in the `client` config and render React Router's `Outlet` where the current page should go:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { Root } from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -2305,7 +2561,7 @@ Read more in the [React docs on `<meta>`](https://react.dev/reference/react-dom/
 When a visitor opens a URL that no route matches, Wasp shows a generic error screen. To show your own "not found" page instead, add a route with a path of `/*`. The router picks the most specific matching route, so this route only renders when nothing else matches:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { NotFoundPage } from "./src/NotFoundPage" with { type: "ref" }
 
 export default app({
@@ -2324,7 +2580,7 @@ By default, Wasp splits and lazy-loads all pages. This means that, for example, 
 In most apps, you won't notice lazy loading at all. The page's code is usually small and downloads quickly. But when a page has a lot of code, or your users are on slow connections, navigating to it can feel sluggish: the previous page stays on screen until the new page's code arrives. If a page needs to render instantly, like one users open right after landing on your app, set the `lazy: false` option on its `route` spec to include it in the initial bundle:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 export default app({
@@ -2345,7 +2601,7 @@ Disabling lazy loading means that this page's code will always be downloaded by 
 You can prerender specific routes at build time by setting the `prerender` property. This generates static HTML that is served immediately, giving faster load times and better SEO.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
@@ -2583,7 +2839,7 @@ To create a Query in Wasp, we begin with a `query` spec.
 Let's declare two Queries - one to fetch all tasks, and another to fetch tasks based on a filter, such as whether a task is done:
 
 ```ts title="main.wasp.ts"
-import { app, query } from "@wasp/spec"
+import { app, query } from "wasp/spec"
 import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -2894,7 +3150,7 @@ When a Query fails, `useQuery` retries it a few times before giving up. Client e
 In most cases, resources used in Queries will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your Query, add it to the `query` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { app, query } from "@wasp/spec"
+import { app, query } from "wasp/spec"
 import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -3013,7 +3269,7 @@ Once these two steps are completed, you can use the Action from anywhere in your
 To create an Action in Wasp, we begin with an `action` spec. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -3313,7 +3569,7 @@ To look at the [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Requ
 In most cases, resources used in Actions will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your Action, add it to the `action` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -3470,7 +3726,7 @@ We can then define a new `crud` called `Tasks`.
 We specify to use the `Task` entity and we enable the `getAll`, `get`, `create` and `update` operations (let's say we don't need the `delete` operation).
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp/spec"
+import { app, crud } from "wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -3517,7 +3773,7 @@ We are building a simple tasks app with username based auth
 We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -3569,7 +3825,7 @@ We can then run `npm run wasp -- db migrate-dev` to create the database and run 
 Let's add the following `crud` spec to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp/spec"
+import { app, crud } from "wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -3838,10 +4094,24 @@ Your Wasp app will automatically connect to it, just keep `npm run wasp -- start
 
 By default, `npm run wasp -- start db` runs the dev database on port `5432`, or the next free port if `5432` is taken. If you specify a port with `--db-port <port>`, Wasp won't look for another available port.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- start db --db-port 8080
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp start db --db-port 8080
+```
+
+**Bun**
+
+```shell
+bun run wasp start db --db-port 8080
 ```
 
 **Global CLI**
@@ -3872,6 +4142,8 @@ If you need to customise the development database, you can use the following opt
 
 Here are some examples of customising the development database:
 
+**Package manager**
+
 **npm**
 
 ```shell
@@ -3888,6 +4160,42 @@ npm run wasp -- start db --db-image pgvector/pgvector:pg18
 
 # Use PostgreSQL version 15 (requires different volume path):
 npm run wasp -- start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
+```
+
+**pnpm**
+
+```shell
+# Use default PostgreSQL image:
+pnpm run wasp start db
+# Same as:
+pnpm run wasp start db --db-image postgres:18
+
+# Use PostgreSQL with PostGIS extension for geographic data:
+pnpm run wasp start db --db-image postgis/postgis:18-3.6
+
+# Use PostgreSQL with pgvector extension for AI embeddings:
+pnpm run wasp start db --db-image pgvector/pgvector:pg18
+
+# Use PostgreSQL version 15 (requires different volume path):
+pnpm run wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
+```
+
+**Bun**
+
+```shell
+# Use default PostgreSQL image:
+bun run wasp start db
+# Same as:
+bun run wasp start db --db-image postgres:18
+
+# Use PostgreSQL with PostGIS extension for geographic data:
+bun run wasp start db --db-image postgis/postgis:18-3.6
+
+# Use PostgreSQL with pgvector extension for AI embeddings:
+bun run wasp start db --db-image pgvector/pgvector:pg18
+
+# Use PostgreSQL version 15 (requires different volume path):
+bun run wasp start db --db-image postgres:15 --db-volume-mount-path /var/lib/postgresql/data
 ```
 
 **Global CLI**
@@ -3930,10 +4238,24 @@ DATABASE_URL=<my-db-url> wasp ...
 
 This trick is useful for running a certain `wasp` command on a specific database. For example, you could do:
 
+**Package manager**
+
 **npm**
 
 ```shell
 DATABASE_URL=<production-db-url> npm run wasp -- db seed myProductionSeed
+```
+
+**pnpm**
+
+```shell
+DATABASE_URL=<production-db-url> pnpm run wasp db seed myProductionSeed
+```
+
+**Bun**
+
+```shell
+DATABASE_URL=<production-db-url> bun run wasp db seed myProductionSeed
 ```
 
 **Global CLI**
@@ -3961,6 +4283,8 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 2. Delete the old migrations, because PostgreSQL can't use SQLite migrations, and delete the SQLite database by running [`npm run wasp -- clean`](https://wasp.sh/docs/advanced/cli#project-commands). `npm run wasp -- clean` also deletes `node_modules`, so install the dependencies again:
 
+   **Package manager**
+
    **npm**
 
    ```shell
@@ -3969,12 +4293,46 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
    npm install
    ```
 
+   **pnpm**
+
+   ```shell
+   rm -r migrations/
+   pnpm run wasp clean
+   pnpm install
+   ```
+
+   **Bun**
+
+   ```shell
+   rm -r migrations/
+   bun run wasp clean
+   bun install
+   ```
+
    **Global CLI**
+
+   **npm**
 
    ```shell
    rm -r migrations/
    wasp clean
    npm install
+   ```
+
+   **pnpm**
+
+   ```shell
+   rm -r migrations/
+   wasp clean
+   pnpm install
+   ```
+
+   **Bun**
+
+   ```shell
+   rm -r migrations/
+   wasp clean
+   bun install
    ```
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
@@ -3997,7 +4355,7 @@ Seeding is most commonly used for:
 You can define as many **seed functions** as you want in an array under the `db.seeds` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
 
 export default app({
@@ -4077,10 +4435,24 @@ Run the command `npm run wasp -- db seed` and Wasp will ask you which seed funct
 
 Alternatively, run the command `npm run wasp -- db seed <seed-name>` to choose a specific seed function right away, for example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db seed devSeedSimple
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db seed devSeedSimple
+```
+
+**Bun**
+
+```shell
+bun run wasp db seed devSeedSimple
 ```
 
 **Global CLI**
@@ -4100,7 +4472,7 @@ You'll often want to call `npm run wasp -- db seed` right after you run `npm run
 Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client). To customize the client, define a function in the `db.prismaSetupFn` field that returns a Prisma Client instance. This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
 export default app({
@@ -4169,7 +4541,7 @@ Use one of the following commands to run the seed functions:
   This command runs the seed function with the specified name. Wasp derives this name from the imported function name you list in `db.seeds`. For example, to run the seed function `devSeedSimple` which was defined like this:
 
   ```ts title="main.wasp.ts"
-  import { app } from "@wasp/spec"
+  import { app } from "wasp/spec"
   import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
 
   export default app({
@@ -4186,10 +4558,24 @@ Use one of the following commands to run the seed functions:
 
   Use the following command:
 
+  **Package manager**
+
   **npm**
 
   ```shell
   npm run wasp -- db seed devSeedSimple
+  ```
+
+  **pnpm**
+
+  ```shell
+  pnpm run wasp db seed devSeedSimple
+  ```
+
+  **Bun**
+
+  ```shell
+  bun run wasp db seed devSeedSimple
   ```
 
   **Global CLI**
@@ -4266,7 +4652,7 @@ Relationship between Wasp file and Prisma file
 Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { api, app, job, query } from "@wasp/spec"
+import { api, app, job, query } from "wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { foo } from "./src/workers/bar" with { type: "ref" }
@@ -4452,7 +4838,7 @@ Auth is an essential piece of any serious application. That's why Wasp provides 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -4476,8 +4862,22 @@ Read more about the `auth` field options in the [API Reference](#api-reference) 
 
 Auth needs the `lucia` package in your project. Install it if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3
+```
+
+**Bun**
+
+```shell
+bun add lucia@3
 ```
 
 Social auth methods, like `google` and `gitHub` above, also need the `arctic` package. Each auth method's page lists what to install.
@@ -4565,7 +4965,7 @@ When declaring a page, you can set the `authRequired` property.
 If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `auth.onAuthFailedRedirectTo` field.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import Main from "./src/pages/Main" with { type: "ref" }
 
 export default app({
@@ -4632,7 +5032,7 @@ There are two ways to access the `user` object on the client:
 If the page's spec sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import Account from "./src/pages/Account" with { type: "ref" }
 
 export default app({
@@ -4744,7 +5144,7 @@ When users log in, Wasp creates a session for them and stores it in the database
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { updatePassword } from "./src/auth" with { type: "ref" }
 
 export default app({
@@ -4819,7 +5219,7 @@ Since Wasp's definition of valid email addresses is wider than the HTML5 grammar
 You can replace the default password rules with your own [Zod](https://zod.dev) schema. Set the `passwordValidationSchema` field on the `email` or `usernameAndPassword` auth method:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { passwordValidationSchema } from "./src/auth/password" with { type: "ref" }
 
 export default app({
@@ -4900,7 +5300,7 @@ First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `mai
 For example, if you are using [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
@@ -5151,7 +5551,7 @@ After Wasp generates the UI components for your auth, you can use it as is, or c
 Based on the authentication providers you enabled in your `main.wasp.ts` file, the Auth UI will show the corresponding UI (form and buttons). For example, if you enabled e-mail authentication:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -5173,7 +5573,7 @@ You'll get the following UI:
 And then if you enable Google and Github:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -5215,7 +5615,7 @@ Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-
 You can use the `LoginForm` component to build your login page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 
 export default app({
@@ -5246,7 +5646,7 @@ Used with [Username & Password](https://wasp.sh/docs/features/auth/username-and-
 You can use the `SignupForm` component to build your signup page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
@@ -5281,7 +5681,7 @@ If users forget their password, they can use this form to reset it.
 You can use the `ForgotPasswordForm` component to build your own forgot password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
 
 export default app({
@@ -5316,7 +5716,7 @@ After users click on the link in the email they receive after submitting the for
 You can use the `ResetPasswordForm` component to build your reset password page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
 
 export default app({
@@ -5347,7 +5747,7 @@ After users sign up, they will receive an email with a link to this form where t
 You can use the `VerifyEmailForm` component to build your email verification page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
 
 export default app({
@@ -5540,7 +5940,7 @@ To set up username authentication we need to:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
@@ -5563,14 +5963,28 @@ export default app({
 
 Auth needs the `lucia` package in your project. Install it if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3
+```
+
+**Bun**
+
+```shell
+bun add lucia@3
 ```
 
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -5613,7 +6027,7 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -5884,7 +6298,7 @@ We'll need to take the following steps to set up email authentication:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
@@ -5910,14 +6324,28 @@ export default app({
 
 Auth needs the `lucia` package in your project. Install it if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3
+```
+
+**Bun**
+
+```shell
+bun add lucia@3
 ```
 
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -5974,7 +6402,7 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import {
   LoginPage,
   SignupPage,
@@ -6594,7 +7022,7 @@ Wasp requires you to declare a `userEntity` for all `auth` methods (social or ot
 Here's what the full setup looks like:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -6654,7 +7082,7 @@ model User {
 Declare an import under `auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -6800,7 +7228,7 @@ Enabling GitHub Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -6822,14 +7250,28 @@ export default app({
 
 Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3 arctic@1
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3 arctic@1
+```
+
+**Bun**
+
+```shell
+bun add lucia@3 arctic@1
 ```
 
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -6902,7 +7344,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -6964,7 +7406,7 @@ Running `npm run wasp -- db migrate-dev` and `npm run dev` should now give you a
 Add `gitHub: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7045,7 +7487,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/github" with { type: "ref" }
 
 export default app({
@@ -7140,7 +7582,7 @@ Enabling Google Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -7162,14 +7604,28 @@ export default app({
 
 Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3 arctic@1
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3 arctic@1
+```
+
+**Bun**
+
+```shell
+bun add lucia@3 arctic@1
 ```
 
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7294,7 +7750,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -7356,7 +7812,7 @@ Running `npm run wasp -- db migrate-dev` and `npm run dev` should now give you a
 Add `google: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7424,7 +7880,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -7519,7 +7975,7 @@ Enabling Keycloak Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -7541,14 +7997,28 @@ export default app({
 
 Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3 arctic@1
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3 arctic@1
+```
+
+**Bun**
+
+```shell
+bun add lucia@3 arctic@1
 ```
 
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7628,7 +8098,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -7688,7 +8158,7 @@ Running `npm run wasp -- db migrate-dev` and `npm run dev` should now give you a
 Add `keycloak: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7749,7 +8219,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "ref" }
 
 export default app({
@@ -7844,7 +8314,7 @@ Enabling Slack Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -7866,14 +8336,28 @@ export default app({
 
 Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3 arctic@1
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3 arctic@1
+```
+
+**Bun**
+
+```shell
+bun add lucia@3 arctic@1
 ```
 
 Now let's properly configure the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -7949,7 +8433,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -8026,10 +8510,24 @@ After starting the tunnel, you will see your tunnel URL in the terminal. Go to t
 
 Now that the tunnel exposes your server to the public, tell Wasp to use the new public domain as the server URL. Wasp then passes it to both the server (for the OAuth redirect URL) and the client (as the API URL). Start your app with the `--server-url` option, and pin the server port to the one the tunnel forwards to:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run dev -- --server-port 3001 --server-url https://<subdomain>.loca.lt
+```
+
+**pnpm**
+
+```shell
+pnpm run dev --server-port 3001 --server-url https://<subdomain>.loca.lt
+```
+
+**Bun**
+
+```shell
+bun run dev --server-port 3001 --server-url https://<subdomain>.loca.lt
 ```
 
 **Global CLI**
@@ -8043,7 +8541,7 @@ wasp start --server-port 3001 --server-url https://<subdomain>.loca.lt
 Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8127,7 +8625,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
@@ -8223,7 +8721,7 @@ Enabling Discord Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -8245,14 +8743,28 @@ export default app({
 
 Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3 arctic@1
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3 arctic@1
+```
+
+**Bun**
+
+```shell
+bun add lucia@3 arctic@1
 ```
 
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8319,7 +8831,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -8381,7 +8893,7 @@ Running `npm run wasp -- db migrate-dev` and `npm run dev` should now give you a
 Add `discord: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8451,7 +8963,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/discord" with { type: "ref" }
 
 export default app({
@@ -8561,7 +9073,7 @@ Enabling Microsoft Authentication comes down to a series of steps:
 Here's a skeleton of what our `main.wasp.ts` should look like after we're done:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring the social authentication
@@ -8583,14 +9095,28 @@ export default app({
 
 Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3 arctic@1
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3 arctic@1
+```
+
+**Bun**
+
+```shell
+bun add lucia@3 arctic@1
 ```
 
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8684,7 +9210,7 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
@@ -8746,7 +9272,7 @@ Running `npm run wasp -- db migrate-dev` and `npm run dev` should now give you a
 Add `microsoft: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -8808,7 +9334,7 @@ Wasp also lets you customize the configuration of the providers' settings using 
 Let's use this example to show both fields in action:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/microsoft" with { type: "ref" }
 
 export default app({
@@ -9215,7 +9741,7 @@ When you want to add authentication to your app, you need to specify the `userEn
 For example, you might set it to `User`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -9376,7 +9902,7 @@ In the Advanced section you can see an example for [Email](https://wasp.sh/docs/
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
@@ -9542,7 +10068,7 @@ OAuth Flow with Hooks
 To use auth hooks, you must first declare them in the Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import {
   onBeforeSignup,
   onAfterSignup,
@@ -9587,7 +10113,7 @@ The `onBeforeSignup` hook can be useful if you want to reject a user based on so
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak) [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9640,7 +10166,7 @@ Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook 
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak) [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9695,7 +10221,7 @@ The `onAfterEmailVerified` hook receives an `email` string and `user` object, th
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9740,7 +10266,7 @@ The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.
 Works with [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak) [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9785,7 +10311,7 @@ The `onBeforeLogin` hook can be useful if you want to reject a user based on som
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak) [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9830,7 +10356,7 @@ Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to updat
 Works with [Email](https://wasp.sh/docs/features/auth/email/overview) [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview) [Slack](https://wasp.sh/docs/features/auth/social-auth/slack) [Discord](https://wasp.sh/docs/features/auth/social-auth/discord) [Github](https://wasp.sh/docs/features/auth/social-auth/github) [Google](https://wasp.sh/docs/features/auth/social-auth/google) [Keycloak](https://wasp.sh/docs/features/auth/social-auth/keycloak) [Microsoft](https://wasp.sh/docs/features/auth/social-auth/microsoft)
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
@@ -9992,7 +10518,7 @@ Below you will find a starting point for creating your own actions. The given im
 #### Email
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -10133,7 +10659,7 @@ export const customSignup: CustomSignup<
 #### Username and password
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
@@ -10251,7 +10777,7 @@ We suggest using the built-in field validators for your authentication flow. You
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10317,7 +10843,7 @@ To speed up development, Wasp offers a `Dummy` email sender that `console.log`s 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10332,15 +10858,31 @@ export default app({
 
 The SMTP provider needs the `nodemailer` and `@types/nodemailer` packages in your project:
 
+**npm**
+
 ```shell
 npm install nodemailer@8
 npm install --save-dev @types/nodemailer@8
 ```
 
+**pnpm**
+
+```shell
+pnpm add nodemailer@8
+pnpm add --save-dev @types/nodemailer@8
+```
+
+**Bun**
+
+```shell
+bun add nodemailer@8
+bun add --dev @types/nodemailer@8
+```
+
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10370,14 +10912,28 @@ Some hosting providers (for example, **Railway** on its free tier, or **Hetzner*
 
 The Mailgun provider needs the `mailgun.js` package in your project:
 
+**npm**
+
 ```shell
 npm install mailgun.js@10
+```
+
+**pnpm**
+
+```shell
+pnpm add mailgun.js@10
+```
+
+**Bun**
+
+```shell
+bun add mailgun.js@10
 ```
 
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10419,14 +10975,28 @@ As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com
 
 The SendGrid provider needs the `@sendgrid/mail` package in your project:
 
+**npm**
+
 ```shell
 npm install @sendgrid/mail@7
+```
+
+**pnpm**
+
+```shell
+pnpm add @sendgrid/mail@7
+```
+
+**Bun**
+
+```shell
+bun add @sendgrid/mail@7
 ```
 
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10453,14 +11023,28 @@ SENDGRID_API_KEY=
 
 The Resend provider needs the `resend` package in your project:
 
+**npm**
+
 ```shell
 npm install resend@6
+```
+
+**pnpm**
+
+```shell
+pnpm add resend@6
+```
+
+**Bun**
+
+```shell
+bun add resend@6
 ```
 
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -10524,7 +11108,7 @@ Let's write an example Job that will print a message to the console and return a
 1. Start by creating a Job spec in your Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp/spec"
+import { app, job } from "wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
@@ -10598,7 +11182,7 @@ In our example, `mySpecialJob` uses its argument, but your worker function doesn
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job spec:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp/spec"
+import { app, job } from "wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
@@ -10633,8 +11217,22 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 `PgBoss` also needs the `pg-boss` package in your project:
 
+**npm**
+
 ```shell
 npm install pg-boss@8
+```
+
+**pnpm**
+
+```shell
+pnpm add pg-boss@8
+```
+
+**Bun**
+
+```shell
+bun add pg-boss@8
 ```
 
 ##### Limitations
@@ -10747,14 +11345,28 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 
 WebSockets need the Socket.IO packages in your project:
 
+**npm**
+
 ```shell
 npm install socket.io@4 socket.io-client@4 @socket.io/component-emitter@4
+```
+
+**pnpm**
+
+```shell
+pnpm add socket.io@4 socket.io-client@4 @socket.io/component-emitter@4
+```
+
+**Bun**
+
+```shell
+bun add socket.io@4 socket.io-client@4 @socket.io/component-emitter@4
 ```
 
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({
@@ -10963,7 +11575,7 @@ After completing these two steps, you'll be able to call the API from the client
 First, we need to declare the API in the Wasp file and you can easily do this with the `api` function:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp/spec"
+import { api, app } from "wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11024,7 +11636,7 @@ Let's say you wanted to create some `GET` route that would take an email address
 Define the API in Wasp:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp/spec"
+import { api, app } from "wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11088,7 +11700,7 @@ You can do this by defining custom middleware for your APIs in the Wasp file.
 For example, an `apiNamespace` is a simple spec used to apply some `middlewareConfigFn` to all APIs under some specific path:
 
 ```ts title="main.wasp.ts"
-import { apiNamespace, app } from "@wasp/spec"
+import { apiNamespace, app } from "wasp/spec"
 import { apiMiddleware } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11117,7 +11729,7 @@ For more information about middleware configuration, please see: [Middleware Con
 In many cases, resources used in APIs will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your API, add it to the `api` spec in Wasp:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp/spec"
+import { api, app } from "wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -11153,7 +11765,7 @@ You can use streaming responses to send data to the client in chunks as it becom
 To create a streaming API, write a function that uses Express response methods like `res.write()` and `res.end()`:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp/spec"
+import { api, app } from "wasp/spec"
 import { getStreamingText } from "./src/streaming" with { type: "ref" }
 
 export default app({
@@ -11325,23 +11937,66 @@ In a Wasp project, dependencies are defined in a standard way for JavaScript pro
 
 #### Adding a New Dependency
 
-To add a new package, like `date-fns` (a great date handling library), you use `npm`:
+To add a new package, like `date-fns` (a great date handling library), you use your package manager:
+
+**npm**
 
 ```shell
 npm install date-fns
+```
+
+**pnpm**
+
+```shell
+pnpm add date-fns
+```
+
+**Bun**
+
+```shell
+bun add date-fns
 ```
 
 This command will add the package in the `dependencies` section of your `package.json` file.
 
 You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't remove them.
 
-One of them is `wasp`, with the value `file:.wasp/out/sdk/wasp`. It points at the code Wasp generates for your app, and your `wasp/...` imports resolve to it.
+#### Package managers
+
+Wasp works with npm, pnpm and Bun. It doesn't work with Yarn.
+
+When you create a project, `npx @wasp/cli@latest new` asks which package manager you want. You can also pass it, e.g. `--package-manager pnpm`. Without it, Wasp uses the package manager that ran it, so `pnpm dlx @wasp/cli@latest new my-app` creates a pnpm project.
+
+In an existing project, Wasp goes by the `packageManager` field of your `package.json`, then by the lockfile it finds (`package-lock.json`, `pnpm-lock.yaml` or `bun.lock`), and assumes npm otherwise. It uses that package manager in the commands it tells you to run and in the Dockerfile it generates. Wasp never installs packages itself, so you run the install command after you change `package.json` or pull your teammates' changes.
+
+To move an existing project to another package manager:
+
+1. Delete `node_modules` and the old lockfile.
+
+2. Move the settings of the old package manager. New npm projects come with an `.npmrc` and an `allowScripts` field in `package.json`. In pnpm, both go into `pnpm-workspace.yaml`:
+
+   ```yaml title="pnpm-workspace.yaml"
+   minimumReleaseAge: 10080
+   minimumReleaseAgeExclude:
+     - "@wasp/*"
+   allowBuilds:
+     "@prisma/client": true
+     "@prisma/engines": true
+     esbuild: true
+     prisma: true
+   ```
+
+3. Add `@prisma/client` to your `package.json`, in the version of your `prisma` package, if it isn't there yet.
+
+4. Install the packages with the new package manager, and commit its lockfile.
 
 #### Using Packages that are Already Used by Wasp Internally
 
-Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run `npm run wasp -- deps` to see them.
+Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so your package manager installs them. Run `npm run wasp -- deps` to see them.
 
-npm has to install peer dependencies for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
+To import one of them in your own code, add it to your `package.json` in the version that `npm run wasp -- deps` shows. npm also lets you import them without listing them, but pnpm doesn't, and a different version than Wasp's ends up as a second copy of the package.
+
+With npm, peer dependencies have to be installed for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
 
 #### Packages that Wasp features need {#feature-packages}
 
@@ -11364,7 +12019,7 @@ Each feature's page has the command that installs its packages. If you forget on
 Your app uses jobs, so it needs pg-boss. Run `npm install "pg-boss@^8.4.2"`.
 ```
 
-These packages are optional peer dependencies of `@wasp/wasp`. npm refuses a version that conflicts with the one Wasp requires, like it does for React or Prisma.
+These packages are optional peer dependencies of `@wasp/wasp`, so your package manager checks their versions against the ones Wasp requires, like it does for React or Prisma.
 
 #### Overriding Wasp's Dependencies (Advanced)
 
@@ -11386,7 +12041,7 @@ When you override dependencies, it's up to you to test your app thoroughly and v
 If you find the need to override any dependency, we'd appreciate for you to [post an issue on GitHub](https://github.com/wasp-lang/wasp/issues/new/choose), or a [message on our Discord](https://discord.gg/rzdnErX), explaining your usecase. This will make us aware of your needs, and helps us prioritize giving you a supported solution faster.
 :::
 
-To override a dependency that Wasp uses, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
+To override a dependency that Wasp uses, use the overrides of your package manager. npm and Bun read the [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field of `package.json`, and pnpm reads [`overrides`](https://pnpm.io/settings#overrides) in `pnpm-workspace.yaml`. With npm, if you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 **Before**
 
@@ -11416,17 +12071,15 @@ To override a dependency that Wasp uses, use npm's [`overrides`](https://docs.np
 
 #### Supply Chain Protection
 
-New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
+New npm projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default, and new pnpm projects have the same setting, [`minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage), in `pnpm-workspace.yaml`. This prevents the package manager from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
 
-The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`, so you can upgrade Wasp on the day a release comes out. Keep this line when you edit the file.
+The same file excludes Wasp's own `@wasp/*` packages, so you can upgrade Wasp on the day a release comes out. Keep that setting when you edit the file.
 
-If you need to install a recently published package, you can temporarily override this by passing the flag directly:
+If you need to install a recently published package, adjust the value in that file. With npm, you can also override it for one command by passing the flag directly:
 
-```shell
+```sh
 npm install some-package --min-release-age=0
 ```
-
-Or you can adjust the value in your project's `.npmrc` file.
 
 
 ## Advanced / Worktrees
@@ -11453,8 +12106,22 @@ Creating the worktree is only the first step. Each worktree is a fresh copy of t
 
 After you create a new worktree for your Wasp app, you must first run:
 
+**npm**
+
 ```shell
 npm install
+```
+
+**pnpm**
+
+```shell
+pnpm install
+```
+
+**Bun**
+
+```shell
+bun install
 ```
 
 It installs the app's dependencies, including Wasp itself through the `@wasp/wasp` package. `wasp new` installs them for you when it creates a project, but in a fresh clone or worktree you need to run it yourself.
@@ -11486,10 +12153,24 @@ See [Environment variables](https://wasp.sh/docs/advanced/env-vars) for Wasp's e
 
 If you are using SQLite, it doesn't need a separate database process. It's enough to apply the migrations:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev
 ```
 
 **Global CLI**
@@ -11502,10 +12183,24 @@ wasp db migrate-dev
 
 If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- start db
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp start db
+```
+
+**Bun**
+
+```shell
+bun run wasp start db
 ```
 
 **Global CLI**
@@ -11516,10 +12211,24 @@ wasp start db
 
 Then apply the migrations from another terminal:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev
 ```
 
 **Global CLI**
@@ -11538,10 +12247,24 @@ If your app needs to seed scaffold data, you can apply it with the `npm run wasp
 
 After the setup, the app should start successfully:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run dev
+```
+
+**pnpm**
+
+```shell
+pnpm run dev
+```
+
+**Bun**
+
+```shell
+bun run dev
 ```
 
 **Global CLI**
@@ -11833,7 +12556,7 @@ export const clientEnvValidationSchema = defineEnvValidationSchema(
 The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
@@ -11913,8 +12636,22 @@ Wasp doesn't provide helpers for testing server code yet. You can follow the pro
 
 Install Vitest and the libraries for testing React components:
 
+**npm**
+
 ```shell
 npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+```
+
+**pnpm**
+
+```shell
+pnpm add --save-dev vitest jsdom @testing-library/react @testing-library/jest-dom msw
+```
+
+**Bun**
+
+```shell
+bun add --dev vitest jsdom @testing-library/react @testing-library/jest-dom msw
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
@@ -11929,8 +12666,8 @@ Vitest reads its configuration from your `vite.config.ts`, so your tests use the
 
 ```ts title="vite.config.ts"
 import { defineConfig } from "vitest/config";
-import { wasp } from "wasp/client/vite";
-import { waspTestConfig } from "wasp/test";
+import { wasp } from "@wasp/wasp/vite";
+import { waspTestConfig } from "@wasp/wasp/test";
 
 export default defineConfig({
   plugins: [wasp()],
@@ -11977,11 +12714,27 @@ Add a script for running your tests to your `package.json`:
 
 Your tests import code from the Wasp SDK, which Wasp generates when it compiles your app. Keep `npm run dev` running in one terminal, and run your tests in another:
 
+**npm**
+
 ```shell
 npm test
 ```
 
+**pnpm**
+
+```shell
+pnpm test
+```
+
+**Bun**
+
+```shell
+bun run test
+```
+
 Vitest watches your files and reruns the affected tests when you change them. In CI, it runs the tests once instead. There, generate the SDK with `npm run wasp -- compile` before running the tests:
+
+**Package manager**
 
 **npm**
 
@@ -11990,20 +12743,66 @@ npm run wasp -- compile
 npm test
 ```
 
+**pnpm**
+
+```shell
+pnpm run wasp compile
+pnpm test
+```
+
+**Bun**
+
+```shell
+bun run wasp compile
+bun run test
+```
+
 **Global CLI**
+
+**npm**
 
 ```shell
 wasp compile
 npm test
 ```
 
+**pnpm**
+
+```shell
+wasp compile
+pnpm test
+```
+
+**Bun**
+
+```shell
+wasp compile
+bun run test
+```
+
 #### Running tests visually
 
 Vitest has a [UI](https://vitest.dev/guide/ui) that shows your test results in the browser. Install it and start Vitest with it:
 
+**npm**
+
 ```shell
 npm install -D @vitest/ui
 npm test -- --ui
+```
+
+**pnpm**
+
+```shell
+pnpm add --save-dev @vitest/ui
+pnpm test --ui
+```
+
+**Bun**
+
+```shell
+bun add --dev @vitest/ui
+bun run test --ui
 ```
 
 ### Writing client tests
@@ -12151,11 +12950,11 @@ test("shows the stats", async () => {
 
 ### API reference
 
-[API reference](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
+[API reference](https://wasp.sh/docs/api/@wasp/wasp/test#wasptestconfig)
 
-#### [waspTestConfig »](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
+#### [waspTestConfig »](https://wasp.sh/docs/api/@wasp/wasp/test#wasptestconfig)
 
-[Configure Vitest with the defaults a Wasp app needs.](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
+[Configure Vitest with the defaults a Wasp app needs.](https://wasp.sh/docs/api/@wasp/wasp/test#wasptestconfig)
 
 [API reference](https://wasp.sh/docs/api/wasp/client/test#renderincontext)
 
@@ -12269,7 +13068,7 @@ Once `prerender` is enabled, Wasp will know to render this route's HTML on `npm 
 For routes with no [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments), you can just set `prerender: true`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { AboutPage } from "./src/AboutPage" with { type: "ref" }
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
@@ -12291,7 +13090,7 @@ export default app({
 If your route has [dynamic segments](https://wasp.sh/docs/features/pages-and-routes#dynamic-segments), you'll need to declare with which data you want to prerender them, by passing an array of concrete paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 export default app({
@@ -12311,7 +13110,7 @@ The prerendered paths must match the route's pattern, with all dynamic segments 
 If you have a lot of dynamic paths to prerender, you can generate the list of paths from your data or other sources. For example, if you want to prerender the routes for your Top 10 countries, you can fetch them from your analytics and generate the paths:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { CountryPage } from "./src/CountryPage" with { type: "ref" }
 
 async function getTopCountries(): Promise<string[]> {
@@ -12369,7 +13168,7 @@ You can learn more in our SEO guide, which explains exactly how prerendering hel
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { DashPage } from "./src/DashPage" with { type: "ref" }
 
 export default app({
@@ -12485,7 +13284,7 @@ For the full picture, including how to measure your app, where to apply each tec
 Each Wasp project can have only one `app` spec. It is used to configure your app and its components.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "todoApp",
@@ -12505,7 +13304,7 @@ We'll go through some common customizations you might want to do to your app. Fo
 You may want to change the title of your app, which appears in the browser tab, next to the favicon. You can change it by changing the `title` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -12521,7 +13320,7 @@ If you are looking to add additional style sheets or scripts to your app, you ca
 An example of adding extra style sheets and scripts:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -12550,7 +13349,7 @@ export default app({
 You can configure the client using the `client` field inside the `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
@@ -12578,7 +13377,7 @@ It can be used for a variety of purposes, but the most common ones are:
 Let's define a common layout for your application:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -12615,7 +13414,7 @@ You need to import the [`Outlet`](https://reactrouter.com/8.0.1/api/components/O
 This is how to set up various providers that your application needs:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -12723,7 +13522,7 @@ For the full description of the `setupFn` field, check the [`Client` API Referen
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -12813,7 +13612,7 @@ Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and
 
 ### Required Configuration
 
-You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
+You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use the `wasp()` plugin from `@wasp/wasp/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
 
 - Configuration required for Wasp full-stack apps to work.
 - Environment variables validation.
@@ -12823,7 +13622,7 @@ You have **full control** over your `vite.config.ts` file. Wasp doesn't manage t
 Here's the minimal required configuration:
 
 ```ts title="vite.config.ts"
-import { wasp } from 'wasp/client/vite'
+import { wasp } from '@wasp/wasp/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -12863,7 +13662,7 @@ Vite config customization can be useful for things like:
 The `wasp()` plugin accepts options allowing you to customize the underlying React plugin behavior if needed:
 
 ```ts title="vite.config.ts"
-import { wasp } from "wasp/client/vite";
+import { wasp } from "@wasp/wasp/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -12886,7 +13685,7 @@ Below are some examples of how you can customize the Vite config.
 If you want Vite to open the browser automatically when you run `npm run dev`, you can do that by customizing the `open` option.
 
 ```ts title="vite.config.ts"
-import { wasp } from "wasp/client/vite";
+import { wasp } from "@wasp/wasp/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -12901,10 +13700,24 @@ export default defineConfig({
 
 `npm run dev` automatically chooses a port for the client dev server. By default, it'll pick the first available port starting from `3000`. If you want to specify a custom port, you can do that with the `--client-port` option.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run dev -- --client-port 4000
+```
+
+**pnpm**
+
+```shell
+pnpm run dev --client-port 4000
+```
+
+**Bun**
+
+```shell
+bun run dev --client-port 4000
 ```
 
 **Global CLI**
@@ -12919,14 +13732,28 @@ Chrome DevTools support [mapping a page's resources to a folder](https://develop
 
 1. Install the plugin as a **dev dependency**:
 
+**npm**
+
 ```shell
 npm i -D vite-plugin-devtools-json
+```
+
+**pnpm**
+
+```shell
+pnpm add --save-dev vite-plugin-devtools-json
+```
+
+**Bun**
+
+```shell
+bun add --dev vite-plugin-devtools-json
 ```
 
 2. Extend your `vite.config.{ts,js}`:
 
 ```ts title="vite.config.ts"
-import { wasp } from "wasp/client/vite";
+import { wasp } from "@wasp/wasp/vite";
 import { defineConfig } from "vite";
 import devtoolsJson from "vite-plugin-devtools-json";
 
@@ -12943,11 +13770,11 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 
 ### API Reference
 
-[API reference](https://wasp.sh/docs/api/wasp/client/vite#wasp)
+[API reference](https://wasp.sh/docs/api/@wasp/wasp/vite#wasp)
 
-#### [wasp »](https://wasp.sh/docs/api/wasp/client/vite#wasp)
+#### [wasp »](https://wasp.sh/docs/api/@wasp/wasp/vite#wasp)
 
-[The Wasp Vite plugin and all its options.](https://wasp.sh/docs/api/wasp/client/vite#wasp)
+[The Wasp Vite plugin and all its options.](https://wasp.sh/docs/api/@wasp/wasp/vite#wasp)
 
 
 ## Advanced / Server customization / Server config
@@ -12955,7 +13782,7 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
@@ -13154,7 +13981,7 @@ const defaultGlobalMiddleware: MiddlewareConfig = new Map([
 If you would like to modify the middleware for *all* operations and APIs, you can do something like:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { serverMiddlewareFn } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
@@ -13182,7 +14009,7 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
 If you would like to modify the middleware for a single API, you can do something like:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp/spec"
+import { api, app } from "wasp/spec"
 import { webhookCallback, webhookCallbackMiddlewareFn } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -13228,7 +14055,7 @@ router.post("/webhook/callback", webhookCallbackMiddleware, ...)
 If you would like to modify the middleware for all API routes under some common path, you can define a `middlewareConfigFn` on an `apiNamespace`:
 
 ```ts title="main.wasp.ts"
-import { apiNamespace, app } from "@wasp/spec"
+import { apiNamespace, app } from "wasp/spec"
 import { fooBarNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
 
 export default app({
@@ -13286,9 +14113,9 @@ This guide provides an overview of the Wasp CLI commands, arguments, and options
 
 ### Running Wasp commands
 
-Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version in `package.json` is the project's Wasp version. You run that Wasp through npm, or through the global Wasp CLI.
+Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version in `package.json` is the project's Wasp version. You run that Wasp through your package manager, or through the global Wasp CLI.
 
-**npm.** Wasp projects come with npm scripts that run the project's Wasp:
+**Package manager.** Wasp projects come with `package.json` scripts that run the project's Wasp. With npm:
 
 | Script                      | Runs                                      |
 | --------------------------- | ----------------------------------------- |
@@ -13299,10 +14126,26 @@ Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version 
 
 npm reads the flags after `npm run <script>` as its own, so pass Wasp's arguments after `--`, e.g. `npm run wasp -- db migrate-dev --name init`.
 
+With pnpm or Bun, run the same scripts with `pnpm run` or `bun run`, and pass Wasp's arguments without the `--`, e.g. `pnpm run wasp db migrate-dev --name init`.
+
 **Global CLI.** If you'd rather type `wasp <command>` directly, install the Wasp CLI globally:
+
+**npm**
 
 ```shell
 npm i -g @wasp/cli@latest
+```
+
+**pnpm**
+
+```shell
+pnpm add --global @wasp/cli@latest
+```
+
+**Bun**
+
+```shell
+bun add --global @wasp/cli@latest
 ```
 
 Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the version from your `package.json`. Outside of a project, it runs commands with its own version, so `wasp new` creates projects on the global CLI's version. Read more in [Installing Wasp globally](https://wasp.sh/docs/quick-start#global-cli).
@@ -13311,10 +14154,24 @@ To create a project without a global install, run `npx @wasp/cli@latest new`.
 
 The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev --name init
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev --name init
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev --name init
 ```
 
 **Global CLI**
@@ -13390,7 +14247,7 @@ Newsletter: https://wasp.sh/#signup
 
 - Use `wasp new` to start the interactive mode for setting up a new Wasp project.
 
-This will prompt you to input the project name and to select a template. The chosen template will then be used to generate the project directory with the specified name.
+This will prompt you to input the project name, to select a template and to choose a package manager. The chosen template will then be used to generate the project directory with the specified name.
 
 ```
 $ wasp new
@@ -13404,6 +14261,11 @@ Choose a starter template
 [3] saas
     Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more.
     Check out https://opensaas.sh/ for more details.
+▸ 1
+Choose a package manager
+[1] npm (default)
+[2] pnpm
+[3] bun
 ▸ 1
 
 🐝 --- Creating your project from the "basic" template... -------------------------
@@ -13429,7 +14291,9 @@ To run your new app, do:
     npm run dev
 ```
 
-- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the npm scripts fail with `wasp: command not found`.
+- To choose the package manager without the prompt, pass `--package-manager` with `npm`, `pnpm` or `bun`, e.g. `wasp new MyFirstProject --package-manager pnpm`. Without it, Wasp uses the package manager that ran it, e.g. pnpm for `pnpm dlx @wasp/cli@latest new MyFirstProject`, and npm otherwise. Read more in [Package managers](https://wasp.sh/docs/advanced/dependencies#package-managers).
+
+- `wasp new` installs the project's packages for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run the install command of your package manager yourself, e.g. `npm install`. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the `package.json` scripts fail with `wasp: command not found`.
 
 #### Project Commands
 
@@ -13708,10 +14572,24 @@ The benefit of migrations is that you can apply the same change to multiple data
 
 After you made a change in the Prisma schema, you can create a migration by running the following command:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev
 ```
 
 **Global CLI**
@@ -13754,10 +14632,24 @@ You can't use the `npm run wasp -- db studio` command to view the `_prisma_migra
 
 You can use the same tool to inspect the **production database**, but you'll need to set the `DATABASE_URL` env variable to point to the production database. Set the `DATABASE_URL` env variable in your terminal before running the `npm run wasp -- db studio` command:
 
+**Package manager**
+
 **npm**
 
 ```shell
 DATABASE_URL="postgresql://user:password@host:port/dbname" npm run wasp -- db studio
+```
+
+**pnpm**
+
+```shell
+DATABASE_URL="postgresql://user:password@host:port/dbname" pnpm run wasp db studio
+```
+
+**Bun**
+
+```shell
+DATABASE_URL="postgresql://user:password@host:port/dbname" bun run wasp db studio
 ```
 
 **Global CLI**
@@ -13795,6 +14687,8 @@ While it's not identical to a real production environment, it's the closest you 
 
 ### Usage
 
+**Package manager**
+
 **npm**
 
 ```shell
@@ -13804,6 +14698,28 @@ npm run wasp -- start db
 # Start the local production build server
 # (this is an example, you'll probably need to add more environment variables)
 npm run preview -- --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>
+```
+
+**pnpm**
+
+```shell
+# Start a local database, copy the connection URL
+pnpm run wasp start db
+
+# Start the local production build server
+# (this is an example, you'll probably need to add more environment variables)
+pnpm run preview --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>
+```
+
+**Bun**
+
+```shell
+# Start a local database, copy the connection URL
+bun run wasp start db
+
+# Start the local production build server
+# (this is an example, you'll probably need to add more environment variables)
+bun run preview --server-env DATABASE_URL=<your-database-url> --server-env JWT_SECRET=<your-jwt-secret>
 ```
 
 **Global CLI**
@@ -13873,10 +14789,24 @@ The only exception is the environment variables that configure your app's ports 
 
 Example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run preview -- --server-env-file .env.staging --client-env-file .env.client.staging
+```
+
+**pnpm**
+
+```shell
+pnpm run preview --server-env-file .env.staging --client-env-file .env.client.staging
+```
+
+**Bun**
+
+```shell
+bun run preview --server-env-file .env.staging --client-env-file .env.client.staging
 ```
 
 **Global CLI**
@@ -13889,10 +14819,24 @@ wasp build start --server-env-file .env.staging --client-env-file .env.client.st
 
 Use `--server-env` to specify environment variables for the server:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run preview -- --server-env DATABASE_URL=postgresql://localhost:5432/myapp
+```
+
+**pnpm**
+
+```shell
+pnpm run preview --server-env DATABASE_URL=postgresql://localhost:5432/myapp
+```
+
+**Bun**
+
+```shell
+bun run preview --server-env DATABASE_URL=postgresql://localhost:5432/myapp
 ```
 
 **Global CLI**
@@ -13903,10 +14847,24 @@ wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp
 
 You can specify multiple server environment variables:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run preview -- --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key
+```
+
+**pnpm**
+
+```shell
+pnpm run preview --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key
+```
+
+**Bun**
+
+```shell
+bun run preview --server-env DATABASE_URL=postgresql://localhost:5432/myapp --server-env JWT_SECRET=my-secret-key
 ```
 
 **Global CLI**
@@ -13917,10 +14875,24 @@ wasp build start --server-env DATABASE_URL=postgresql://localhost:5432/myapp --s
 
 You can also point to an `.env` file to load environment variables:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run preview -- --server-env-file .env.production
+```
+
+**pnpm**
+
+```shell
+pnpm run preview --server-env-file .env.production
+```
+
+**Bun**
+
+```shell
+bun run preview --server-env-file .env.production
 ```
 
 **Global CLI**
@@ -13937,10 +14909,24 @@ Do not commit your `.env` files with sensitive information to your version contr
 
 Use `--client-env` to specify environment variables for the client:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run preview -- --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
+```
+
+**pnpm**
+
+```shell
+pnpm run preview --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
+```
+
+**Bun**
+
+```shell
+bun run preview --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
 ```
 
 **Global CLI**
@@ -13951,10 +14937,24 @@ wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456
 
 Multiple client environment variables:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run preview -- --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456
+```
+
+**pnpm**
+
+```shell
+pnpm run preview --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456
+```
+
+**Bun**
+
+```shell
+bun run preview --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-env REACT_APP_PLAUSIBLE_ID=PLAUSIBLE-123456
 ```
 
 **Global CLI**
@@ -13965,10 +14965,24 @@ wasp build start --client-env REACT_APP_GOOGLE_ANALYTICS_ID=GA-123456 --client-e
 
 You can also point to an `.env` file for client variables:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run preview -- --client-env-file .env.client.production
+```
+
+**pnpm**
+
+```shell
+pnpm run preview --client-env-file .env.client.production
+```
+
+**Bun**
+
+```shell
+bun run preview --client-env-file .env.client.production
 ```
 
 **Global CLI**
@@ -14063,10 +15077,24 @@ Read more in the official Docker docs on [multi-stage builds](https://docs.docke
 
 To see what your project's (potentially combined) Dockerfile will look like, run:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- dockerfile
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp dockerfile
+```
+
+**Bun**
+
+```shell
+bun run wasp dockerfile
 ```
 
 **Global CLI**
@@ -14084,10 +15112,24 @@ Wasp CLI can deploy your full-stack application with a single command. The comma
 
 It looks like this:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy <provider> launch my-wasp-app
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy <provider> launch my-wasp-app
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy <provider> launch my-wasp-app
 ```
 
 **Global CLI**
@@ -14127,10 +15169,24 @@ To deploy to Fly.io using Wasp CLI:
 
 Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly launch my-wasp-app dfw
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly launch my-wasp-app dfw
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly launch my-wasp-app dfw
 ```
 
 **Global CLI**
@@ -14178,10 +15234,24 @@ Setting up a custom domain is a three-step process:
 
 1. You need to add your domain to your Fly client app. You can do this by running:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly cmd --context client certs create mycoolapp.com
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly cmd --context client certs create mycoolapp.com
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly cmd --context client certs create mycoolapp.com
 ```
 
 **Global CLI**
@@ -14216,10 +15286,24 @@ You can validate your ownership of mycoolapp.com by:
 
 3. You need to set your domain as the `WASP_WEB_CLIENT_URL` environment variable for your server app:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly cmd --context server secrets set WASP_WEB_CLIENT_URL=https://mycoolapp.com
 ```
 
 **Global CLI**
@@ -14236,10 +15320,24 @@ That's it, your app should be available at `https://mycoolapp.com`!
 
 If you'd also like to access your app at `https://www.mycoolapp.com`, you can generate certificates for the `www` subdomain.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly cmd --context client certs create www.mycoolapp.com
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly cmd --context client certs create www.mycoolapp.com
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly cmd --context client certs create www.mycoolapp.com
 ```
 
 **Global CLI**
@@ -14272,10 +15370,24 @@ If your app requires any other server-side environment variables (like social au
 
 2. After the app has already been deployed by using the `secrets set` command:
 
+   **Package manager**
+
    **npm**
 
    ```shell
    npm run wasp -- deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
+   ```
+
+   **pnpm**
+
+   ```shell
+   pnpm run wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
+   ```
+
+   **Bun**
+
+   ```shell
+   bun run wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
    ```
 
    **Global CLI**
@@ -14288,10 +15400,24 @@ If your app requires any other server-side environment variables (like social au
 
 If you've added any [client-side environment variables](https://wasp.sh/docs/advanced/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly launch my-wasp-app dfw
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy fly launch my-wasp-app dfw
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy fly launch my-wasp-app dfw
 ```
 
 **Global CLI**
@@ -14302,10 +15428,24 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 
 or
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly deploy
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy fly deploy
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy fly deploy
 ```
 
 **Global CLI**
@@ -14342,10 +15482,24 @@ fly platform regions
 
 If you have multiple organizations, you can specify a `--org` option. For example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly launch my-wasp-app dfw --org hive
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly launch my-wasp-app dfw --org hive
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly launch my-wasp-app dfw --org hive
 ```
 
 **Global CLI**
@@ -14371,11 +15525,27 @@ We have crafted a small guide on [how to create a custom Docker image with PostG
 :::tip
 You only need to specify the Docker image once, when creating the database:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly create-db <region> --db-image <custom-postgres-image>
 npm run wasp -- deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly create-db <region> --db-image <custom-postgres-image>
+pnpm run wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly create-db <region> --db-image <custom-postgres-image>
+bun run wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 ```
 
 **Global CLI**
@@ -14392,10 +15562,24 @@ wasp deploy fly launch <app-name> <region> --db-image <custom-postgres-image>
 
 `launch` is a convenience command that runs `setup`, `create-db`, and `deploy` in sequence.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly launch <app-name> <region>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly launch <app-name> <region>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly launch <app-name> <region>
 ```
 
 **Global CLI**
@@ -14416,12 +15600,30 @@ It accepts the following arguments:
 
 Running `npm run wasp -- deploy fly launch` is the same as running the following commands:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly setup <app-name> <region>
 npm run wasp -- deploy fly create-db <region>
 npm run wasp -- deploy fly deploy
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly setup <app-name> <region>
+pnpm run wasp deploy fly create-db <region>
+pnpm run wasp deploy fly deploy
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly setup <app-name> <region>
+bun run wasp deploy fly create-db <region>
+bun run wasp deploy fly deploy
 ```
 
 **Global CLI**
@@ -14460,10 +15662,24 @@ Fly accepts only certain combinations of CPU kind, CPU count, and memory. If you
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
 
 **Global CLI**
@@ -14476,10 +15692,24 @@ wasp deploy fly launch my-wasp-app dfw --server-secret GOOGLE_CLIENT_ID=<...> --
 
 If you've added any [client-side environment variables](https://wasp.sh/docs/advanced/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly launch my-wasp-app dfw
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy fly launch my-wasp-app dfw
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy fly launch my-wasp-app dfw
 ```
 
 **Global CLI**
@@ -14492,10 +15722,24 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 
 If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
 ```
 
 **Global CLI**
@@ -14508,10 +15752,24 @@ wasp deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
 
 The `setup` command registers your client and server apps on Fly, and sets up needed environment variables. It only needs to be run once, when initially creating the app. It does *not* trigger a deploy for the client or server apps.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly setup <app-name> <region>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly setup <app-name> <region>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly setup <app-name> <region>
 ```
 
 **Global CLI**
@@ -14544,10 +15802,24 @@ You should only run `setup` once per app. If you run it multiple times, it creat
 
 The `create-db` command creates a new database for your app.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly create-db <region>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly create-db <region>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly create-db <region>
 ```
 
 **Global CLI**
@@ -14590,10 +15862,24 @@ You should only run `create-db` once per app. If you run it multiple times, it c
 
 #### `deploy`
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly deploy
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly deploy
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly deploy
 ```
 
 **Global CLI**
@@ -14606,10 +15892,24 @@ The `deploy` command pushes your built client and server live.
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly deploy
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly deploy
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly deploy
 ```
 
 **Global CLI**
@@ -14620,10 +15920,24 @@ wasp deploy fly deploy
 
 If you've added any [client-side environment variables](https://wasp.sh/docs/advanced/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy fly deploy
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy fly deploy
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy fly deploy
 ```
 
 **Global CLI**
@@ -14638,10 +15952,24 @@ You must specify your client-side environment variables every time you redeploy 
 
 If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly deploy --custom-server-url https://api.myapp.com
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly deploy --custom-server-url https://api.myapp.com
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly deploy --custom-server-url https://api.myapp.com
 ```
 
 **Global CLI**
@@ -14654,10 +15982,24 @@ wasp deploy fly deploy --custom-server-url https://api.myapp.com
 
 If you want to run arbitrary Fly commands (for example `fly secrets list` for your server app), here's how to do it:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy fly cmd secrets list --context server
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy fly cmd secrets list --context server
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy fly cmd secrets list --context server
 ```
 
 **Global CLI**
@@ -14683,10 +16025,24 @@ To deploy to Railway using Wasp CLI:
 
 Using the Wasp CLI, you can easily deploy a new app to Railway with a single command:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway launch my-wasp-app
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway launch my-wasp-app
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway launch my-wasp-app
 ```
 
 **Global CLI**
@@ -14752,10 +16108,24 @@ That's it, your app should be available at `https://mycoolapp.com`!
 
 `launch` is a convenience command that runs `setup` and `deploy` in sequence.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway launch <project-name>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway launch <project-name>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway launch <project-name>
 ```
 
 **Global CLI**
@@ -14772,11 +16142,27 @@ It accepts the following arguments:
 
 Running `npm run wasp -- deploy railway launch` is the same as running the following commands:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway setup <project-name>
 npm run wasp -- deploy railway deploy <project-name>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway setup <project-name>
+pnpm run wasp deploy railway deploy <project-name>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway setup <project-name>
+bun run wasp deploy railway deploy <project-name>
 ```
 
 **Global CLI**
@@ -14796,11 +16182,27 @@ Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for 
 You only need to specify the Docker image once, when first creating the app.
 :::
 
+**Package manager**
+
 **npm**
 
 ```shell
 # Use PostGIS:
 npm run wasp -- deploy railway launch my-wasp-app --db-image postgis/postgis:18-3.6
+```
+
+**pnpm**
+
+```shell
+# Use PostGIS:
+pnpm run wasp deploy railway launch my-wasp-app --db-image postgis/postgis:18-3.6
+```
+
+**Bun**
+
+```shell
+# Use PostGIS:
+bun run wasp deploy railway launch my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
 **Global CLI**
@@ -14816,10 +16218,24 @@ Railway's [Database View](https://docs.railway.com/databases/database-view) isn'
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway launch <project-name> --existing-project-id <railway-project-id>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway launch <project-name> --existing-project-id <railway-project-id>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway launch <project-name> --existing-project-id <railway-project-id>
 ```
 
 **Global CLI**
@@ -14832,10 +16248,24 @@ wasp deploy railway launch <project-name> --existing-project-id <railway-project
 
 By default, Wasp CLI will prompt you to select a Railway workspace for your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-name>
 ```
 
 **Global CLI**
@@ -14850,10 +16280,24 @@ wasp deploy railway launch <project-name> --workspace <railway-workspace-id-or-n
 
 If you are deploying an app that requires any other environment variables (like social auth secrets), you can set them with the `--server-secret` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
 ```
 
 **Global CLI**
@@ -14866,10 +16310,24 @@ wasp deploy railway launch my-wasp-app --server-secret GOOGLE_CLIENT_ID=<...> --
 
 If you've added any [client-side environment variables](https://wasp.sh/docs/advanced/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `launch` command, for example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway launch my-wasp-app
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy railway launch my-wasp-app
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy railway launch my-wasp-app
 ```
 
 **Global CLI**
@@ -14882,10 +16340,24 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 
 If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
 ```
 
 **Global CLI**
@@ -14900,10 +16372,24 @@ The `deploy` command deploys your client and server apps to Railway.
 
 It expects the existing services to be named `<project-name>-client` and `<project-name>-server`. If you originally deployed these services manually, rename them in Railway to match before using this command. Passing `--existing-project-id` selects the project, but does not override the expected service names.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway deploy <project-name>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway deploy <project-name>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway deploy <project-name>
 ```
 
 **Global CLI**
@@ -14920,10 +16406,24 @@ It accepts the following arguments:
 
 Run this command whenever you want to **update your deployed app** with the latest changes:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway deploy <project-name>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway deploy <project-name>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway deploy <project-name>
 ```
 
 **Global CLI**
@@ -14938,10 +16438,24 @@ When you run the `deploy` command, Wasp CLI will use the Railway project that's 
 
 If you are deploying your Railway app in the CI, you can pass the `--existing-project-id` option to tell Wasp CLI the Railway project ID to use for the deployment:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway deploy <project-name> --existing-project-id <railway-project-id>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway deploy <project-name> --existing-project-id <railway-project-id>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway deploy <project-name> --existing-project-id <railway-project-id>
 ```
 
 **Global CLI**
@@ -14957,10 +16471,24 @@ wasp deploy railway deploy <project-name> --existing-project-id <railway-project
 
 If you've added any [client-side environment variables](https://wasp.sh/docs/advanced/env-vars#client-env-vars) to your app, pass them to the terminal session before running the `deploy` command, for example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway deploy <project-name>
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy railway deploy <project-name>
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy railway deploy <project-name>
 ```
 
 **Global CLI**
@@ -14975,10 +16503,24 @@ You must specify your client-side environment variables every time you redeploy 
 
 If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
 ```
 
 **Global CLI**
@@ -14991,10 +16533,24 @@ wasp deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
 
 The `setup` command creates your client, server, and database services on Railway. It also configures environment variables. It does *not* deploy the client or server services.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway setup <project-name>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway setup <project-name>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway setup <project-name>
 ```
 
 **Global CLI**
@@ -15026,11 +16582,27 @@ Use `--db-image <docker-image>` if your app needs another PostgreSQL image, for 
 You only need to specify the Docker image once, when first creating the app.
 :::
 
+**Package manager**
+
 **npm**
 
 ```shell
 # Use PostGIS:
 npm run wasp -- deploy railway setup my-wasp-app --db-image postgis/postgis:18-3.6
+```
+
+**pnpm**
+
+```shell
+# Use PostGIS:
+pnpm run wasp deploy railway setup my-wasp-app --db-image postgis/postgis:18-3.6
+```
+
+**Bun**
+
+```shell
+# Use PostGIS:
+bun run wasp deploy railway setup my-wasp-app --db-image postgis/postgis:18-3.6
 ```
 
 **Global CLI**
@@ -15046,10 +16618,24 @@ Railway's [Database View](https://docs.railway.com/databases/database-view) isn'
 
 By default, Wasp CLI tries to create a new Railway project named `<project-name>`. If you want to use an existing Railway project, pass its ID with `--existing-project-id` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway setup <project-name> --existing-project-id <railway-project-id>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway setup <project-name> --existing-project-id <railway-project-id>
 ```
 
 **Global CLI**
@@ -15062,10 +16648,24 @@ wasp deploy railway setup <project-name> --existing-project-id <railway-project-
 
 By default, Wasp CLI will prompt you to select in which Railway workspace you want to create your project. If you want to skip the prompt and provide the workspace id or name directly, use the `--workspace` option:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>
+```
+
+**Bun**
+
+```shell
+bun run wasp deploy railway setup <project-name> --workspace <railway-workspace-id-or-name>
 ```
 
 **Global CLI**
@@ -15091,10 +16691,24 @@ If your app requires any other server-side environment variables (like social au
 
 If you've added any [client-side environment variables](https://wasp.sh/docs/advanced/env-vars#client-env-vars) to your app, pass them to the terminal session before running a deployment command, for example:
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway launch my-wasp-app
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy railway launch my-wasp-app
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy railway launch my-wasp-app
 ```
 
 **Global CLI**
@@ -15105,10 +16719,24 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 
 or
 
+**Package manager**
+
 **npm**
 
 ```shell
 REACT_APP_ANOTHER_VAR=somevalue npm run wasp -- deploy railway deploy
+```
+
+**pnpm**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue pnpm run wasp deploy railway deploy
+```
+
+**Bun**
+
+```shell
+REACT_APP_ANOTHER_VAR=somevalue bun run wasp deploy railway deploy
 ```
 
 **Global CLI**
@@ -15156,6 +16784,8 @@ The workflow needs to include the following steps:
 2. Install Node.js and your project's dependencies, which include Wasp
 3. Install any provider-specific dependencies
 4. Deploy the application using `npm run wasp -- deploy <provider> deploy`
+
+The examples on this page use npm. With pnpm or Bun, use their commands instead, e.g. `pnpm install --frozen-lockfile` for `npm ci`.
 
 To be able to deploy your apps to the deployment providers, you need to set **provider-specific API keys** in the environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
 
@@ -15316,10 +16946,24 @@ Let's go through each of these steps.
 
 Running the command `npm run build` generates deployable code for the whole app in the `.wasp/out/` directory.
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run build
+```
+
+**pnpm**
+
+```shell
+pnpm run build
+```
+
+**Bun**
+
+```shell
+bun run build
 ```
 
 **Global CLI**
@@ -15474,6 +17118,8 @@ Setting up a CI/CD pipeline is an optional but highly recommended part of deploy
 **Continuous Deployment (CD)** refers to the automatic deployment of code changes to the production environment. This is commonly know as "push to deploy" and frees developers from having to manually deploy code changes.
 
 ### Running tests in CI
+
+The examples on this page use npm. With pnpm or Bun, use their commands instead, e.g. `pnpm install --frozen-lockfile` for `npm ci`.
 
 #### End to end tests
 
@@ -15693,9 +17339,13 @@ Wasp now requires Node.js 26 or later, the [current LTS line](https://github.com
 
 Wasp projects no longer use npm workspaces, and Wasp no longer runs `npm install` for you. Your `package.json` lists everything your app needs, including the packages of the Wasp features you use, like `lucia` for auth. You install them with `npm install`, like in any other project. Your `package-lock.json` no longer changes when Wasp regenerates its code.
 
+#### Any package manager
+
+Wasp no longer requires npm. A project can use pnpm or Bun instead, and `wasp new` asks which one you want. The steps below use npm, which your project uses today. To switch afterwards, see [Package managers](https://wasp.sh/docs/advanced/dependencies#package-managers).
+
 #### New npm organization
 
-Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
+Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`. The Wasp Spec comes with `@wasp/wasp`, and you import it from `wasp/spec`.
 
 #### Prisma 6
 
@@ -15757,21 +17407,49 @@ Node.js 26 is a new major version with breaking changes. Check out Node.js's [re
 
 The global Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package. It doesn't hand commands over to your project's Wasp, so `wasp start` would keep running Wasp 0.26 on your migrated project:
 
+**npm**
+
 ```shell
 npm uninstall -g @wasp.sh/wasp-cli
+```
+
+**pnpm**
+
+```shell
+pnpm remove --global @wasp.sh/wasp-cli
+```
+
+**Bun**
+
+```shell
+bun remove --global @wasp.sh/wasp-cli
 ```
 
 **If you don't want a global Wasp CLI, you can skip the rest of this step.** Your project's `@wasp/wasp` dependency brings the Wasp CLI, and you run it through npm (see [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands)).
 
 To keep typing `wasp <command>`, install the new package. If you skipped the uninstall above, npm fails here with an `EEXIST` error:
 
+**npm**
+
 ```shell
 npm i -g @wasp/cli@0.27
 ```
 
+**pnpm**
+
+```shell
+pnpm add --global @wasp/cli@0.27
+```
+
+**Bun**
+
+```shell
+bun add --global @wasp/cli@0.27
+```
+
 #### 3. Depend on `@wasp/wasp` instead of `@wasp.sh/spec` {#depend-on-wasp}
 
-Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Remove Wasp's two entries from `workspaces`, and add the `wasp` dependency in their place. The `wasp` dependency points at the code Wasp generates, and your `wasp/...` imports resolve to it. If `workspaces` has no other entries, remove the field.
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Remove Wasp's two entries from `workspaces`. If `workspaces` has no other entries, remove the field. Your `wasp/...` imports keep working, and [step 8](#extend-tsconfig) sets up how TypeScript finds them.
 
 Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands):
 
@@ -15800,13 +17478,12 @@ Also add the npm scripts that new projects come with. They run your project's Wa
     "preview": "wasp build start"
   },
   "dependencies": {
-    "@wasp/wasp": "0.27.0",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "@wasp/wasp": "0.27.0"
   }
 }
 ```
 
-Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 10](#reinstall-dependencies).
+Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 12](#reinstall-dependencies).
 
 #### 4. Add the packages of the features you use {#feature-packages}
 
@@ -15889,9 +17566,9 @@ min-release-age=7
 min-release-age-exclude[]=@wasp/*
 ```
 
-#### 7. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+#### 7. Rename `@wasp.sh/spec` imports to `wasp/spec`
 
-Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
+You now import the Wasp Spec from `wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
 **Before**
 
@@ -15902,7 +17579,7 @@ import { app, page, route } from "@wasp.sh/spec";
 **After**
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec";
+import { app, page, route } from "wasp/spec";
 ```
 
 If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or remove the lines that mention the old package, the Wasp version in `main.wasp.ts`, or `wasp install`, so coding agents don't follow outdated instructions:
@@ -15924,7 +17601,51 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or
 - Run `npm install` before other Wasp commands in a fresh clone or worktree.
 ```
 
-#### 8. Remove the Wasp version from `main.wasp.ts`
+#### 8. Extend the tsconfig that comes with `@wasp/wasp` {#extend-tsconfig}
+
+Wasp's generated code is no longer a package in `node_modules`. TypeScript now finds your `wasp/...` imports through a tsconfig that comes with `@wasp/wasp`. Extend it in `tsconfig.src.json` and in `tsconfig.wasp.json`:
+
+```json title="tsconfig.src.json"
+{
+  "extends": "@wasp/wasp/tsconfig.paths.json",
+  "compilerOptions": {
+    // ...
+  }
+}
+```
+
+```json title="tsconfig.wasp.json"
+{
+  "extends": "@wasp/wasp/tsconfig.paths.json",
+  "compilerOptions": {
+    // ...
+  }
+}
+```
+
+If either file sets `compilerOptions.paths`, remove it. TypeScript doesn't merge `paths` with the ones of the extended tsconfig, so yours would hide Wasp's.
+
+Your editor can't find the extended file until you install `@wasp/wasp` in [step 12](#reinstall-dependencies).
+
+#### 9. Import the Wasp Vite plugin from `@wasp/wasp/vite` {#vite-plugin-import}
+
+The Wasp Vite plugin moved from the generated code into the `@wasp/wasp` package. Update the import in your `vite.config.ts`:
+
+**Before**
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vite";
+import { wasp } from "wasp/client/vite";
+```
+
+**After**
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vite";
+import { wasp } from "@wasp/wasp/vite";
+```
+
+#### 10. Remove the Wasp version from `main.wasp.ts`
 
 `package.json` now sets the Wasp version, so remove the `wasp` field:
 
@@ -15947,7 +17668,7 @@ export default app({
 });
 ```
 
-#### 9. Upgrade to Prisma 6
+#### 11. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -15979,7 +17700,7 @@ Update the Prisma packages in your `package.json`:
 
 Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 10. Reinstall your dependencies {#reinstall-dependencies}
+#### 12. Reinstall your dependencies {#reinstall-dependencies}
 
 :::caution[Back up your SQLite development database]
 If your app uses SQLite in development, its database is `.wasp/out/db/dev.db`, so deleting `.wasp` deletes your development data too. Copy the file somewhere outside `.wasp` first if you want to keep it.
@@ -15994,10 +17715,24 @@ npm install
 
 Then run the migrations. Prisma 6 changed how it stores some things in the database, so `npm run wasp -- db migrate-dev` creates a new migration if your app needs one:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db migrate-dev
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db migrate-dev
+```
+
+**Bun**
+
+```shell
+bun run wasp db migrate-dev
 ```
 
 **Global CLI**
@@ -16008,9 +17743,7 @@ wasp db migrate-dev
 
 If Wasp reports a missing package from [step 4](#feature-packages) here, run the command Wasp prints and try again.
 
-Finally, run `npm install` once more. Wasp has generated its code by now, so npm removes the old workspace entries from your `package-lock.json`. Commit the file.
-
-#### 11. Update your Vitest setup
+#### 13. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -16026,7 +17759,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    ```ts title="vite.config.ts"
    import { defineConfig } from "vitest/config";
-   import { wasp } from "wasp/client/vite";
+   import { wasp } from "@wasp/wasp/vite";
 
    export default defineConfig({
      plugins: [wasp()],
@@ -16040,7 +17773,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    ```ts title="vite.config.ts"
    import { defineConfig } from "vite";
-   import { wasp } from "wasp/client/vite";
+   import { wasp } from "@wasp/wasp/vite";
 
    export default defineConfig({
      plugins: [wasp()],
@@ -16090,8 +17823,22 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 1. Install Vitest and the testing libraries your tests use:
 
+   **npm**
+
    ```shell
    npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+   ```
+
+   **pnpm**
+
+   ```shell
+   pnpm add --save-dev vitest jsdom @testing-library/react @testing-library/jest-dom msw
+   ```
+
+   **Bun**
+
+   ```shell
+   bun add --dev vitest jsdom @testing-library/react @testing-library/jest-dom msw
    ```
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
@@ -16102,7 +17849,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    ```ts title="vite.config.ts"
    import { defineConfig } from "vite";
-   import { wasp } from "wasp/client/vite";
+   import { wasp } from "@wasp/wasp/vite";
 
    export default defineConfig({
      plugins: [wasp()],
@@ -16113,8 +17860,8 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    ```ts title="vite.config.ts"
    import { defineConfig } from "vitest/config";
-   import { wasp } from "wasp/client/vite";
-   import { waspTestConfig } from "wasp/test";
+   import { wasp } from "@wasp/wasp/vite";
+   import { waspTestConfig } from "@wasp/wasp/test";
 
    export default defineConfig({
      plugins: [wasp()],
@@ -16226,6 +17973,8 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    Your tests import the Wasp SDK, so generate it first with `npm run wasp -- compile`, or keep `npm run dev` running in another terminal:
 
+   **Package manager**
+
    **npm**
 
    ```shell
@@ -16233,22 +17982,52 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
    npm test
    ```
 
+   **pnpm**
+
+   ```shell
+   pnpm run wasp compile
+   pnpm test
+   ```
+
+   **Bun**
+
+   ```shell
+   bun run wasp compile
+   bun run test
+   ```
+
    **Global CLI**
+
+   **npm**
 
    ```shell
    wasp compile
    npm test
    ```
 
+   **pnpm**
+
+   ```shell
+   wasp compile
+   pnpm test
+   ```
+
+   **Bun**
+
+   ```shell
+   wasp compile
+   bun run test
+   ```
+
 Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
 
-#### 12. Check relative paths in your server code
+#### 14. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-#### 13. Check the packages your server loads at runtime
+#### 15. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -16267,7 +18046,7 @@ export default app({
 })
 ```
 
-#### 14. Install the system dependencies your app needs
+#### 16. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -16277,7 +18056,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-#### 15. Update your custom Dockerfile
+#### 17. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -16289,7 +18068,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 16. Import `HttpError` from `wasp/errors`
+#### 18. Import `HttpError` from `wasp/errors`
 
 The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
 
@@ -16305,7 +18084,7 @@ import { HttpError } from "wasp/server"
 import { HttpError } from "wasp/errors"
 ```
 
-#### 17. Update how you read errors on the client
+#### 19. Update how you read errors on the client
 
 On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
@@ -16338,7 +18117,7 @@ try {
 }
 ```
 
-#### 18. Pass `HttpError` data in the options
+#### 20. Pass `HttpError` data in the options
 
 `HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
@@ -16358,7 +18137,7 @@ throw new HttpError(403, "Not allowed", {
 
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
-#### 19. Enjoy your updated Wasp app
+#### 21. Enjoy your updated Wasp app
 
 That's it!
 
@@ -20546,7 +22325,7 @@ By default, Wasp configures CORS in production to allow requests only from your 
 Add the server middleware configuration:
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp/spec"
+import { app, page, query, route } from "wasp/spec"
 import { getSomeData } from "./src/data" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }
@@ -20802,10 +22581,24 @@ DATABASE_URL=postgres://postgres:myDatabasePassword@localhost:5432/some_test_ser
 
 Now you can run Prisma Studio to browse and edit your production data:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run wasp -- db studio
+```
+
+**pnpm**
+
+```shell
+pnpm run wasp db studio
+```
+
+**Bun**
+
+```shell
+bun run wasp db studio
 ```
 
 **Global CLI**
@@ -20845,10 +22638,24 @@ This guide shows you how to test your Wasp application on other devices (phones,
 
 Run your application normally:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run dev
+```
+
+**pnpm**
+
+```shell
+pnpm run dev
+```
+
+**Bun**
+
+```shell
+bun run dev
 ```
 
 **Global CLI**
@@ -20877,10 +22684,28 @@ If you have multiple network interfaces, you'll see multiple Network URLs. Note 
 
 By default, Wasp tells the client and the server that they live on `localhost`, which other devices can't reach. Stop the app and start it again with the URLs the other devices will use:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run dev -- \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+```
+
+**pnpm**
+
+```shell
+pnpm run dev \
+  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+```
+
+**Bun**
+
+```shell
+bun run dev \
   --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
   --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
 ```
@@ -20908,7 +22733,7 @@ Add `allowedHosts` to the `server` section in your `vite.config.ts`:
 
 ```ts title="vite.config.ts"
 import { defineConfig } from "vite";
-import { wasp } from "wasp/client/vite";
+import { wasp } from "@wasp/wasp/vite";
 
 export default defineConfig({
   server: {
@@ -20981,8 +22806,22 @@ This guide shows you how to deploy your Wasp app's client to [Cloudflare](https:
 
 Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can log in by running:
 
+**npm**
+
 ```shell
 npx wrangler login
+```
+
+**pnpm**
+
+```shell
+pnpm dlx wrangler login
+```
+
+**Bun**
+
+```shell
+bunx wrangler login
 ```
 
 Before you continue, make sure you have [built the Wasp app](https://wasp.sh/docs/deployment/methods/cloud-providers#1-generating-deployable-code). We'll build the client web app next.
@@ -21032,8 +22871,22 @@ Keeping these files in the project root ensures they are tracked in your reposit
 
 Finally, deploy from your project root:
 
+**npm**
+
 ```shell
 npx wrangler deploy
+```
+
+**pnpm**
+
+```shell
+pnpm dlx wrangler deploy
+```
+
+**Bun**
+
+```shell
+bunx wrangler deploy
 ```
 
 That is it! Your client should be live at `https://my-wasp-app-client.<subdomain>.workers.dev`.
@@ -21392,16 +23245,44 @@ The `build.publish` path should point from the directory containing `netlify.tom
 
 We can now deploy the client with:
 
+**npm**
+
 ```shell
 npx netlify-cli deploy --filter wasp --no-build
+```
+
+**pnpm**
+
+```shell
+pnpm dlx netlify-cli deploy --filter wasp --no-build
+```
+
+**Bun**
+
+```shell
+bunx netlify-cli deploy --filter wasp --no-build
 ```
 
 Carefully follow the instructions: decide if you want to create a new app or use an existing one, pick the team under which your app will be deployed etc. Netlify CLI detects Wasp's generated server and SDK packages as workspaces, so `--filter wasp` makes that selection explicit. The `build.publish` setting still determines which files Netlify uploads. The `--no-build` flag is used because you already built the client with the right environment variables.
 
 The final step is to run:
 
+**npm**
+
 ```shell
 npx netlify-cli deploy --prod --filter wasp --no-build
+```
+
+**pnpm**
+
+```shell
+pnpm dlx netlify-cli deploy --prod --filter wasp --no-build
+```
+
+**Bun**
+
+```shell
+bunx netlify-cli deploy --prod --filter wasp --no-build
 ```
 
 That is it! Your client should be live at `https://<app-name>.netlify.app`.
@@ -21905,19 +23786,55 @@ To get started, follow these steps:
 
 We'll use [Supabase](https://supabase.com/) from the Vercel Marketplace. From your project root (which should now be linked to the server project), run:
 
+**npm**
+
 ```shell
 npx vercel integration add supabase
+```
+
+**pnpm**
+
+```shell
+pnpm dlx vercel integration add supabase
+```
+
+**Bun**
+
+```shell
+bunx vercel integration add supabase
 ```
 
 The first time, the CLI will ask you to accept the Marketplace terms in your browser. Open the link it prints, accept the terms and run the command again. Vercel creates a Supabase database, connects it to your server project and adds a set of `POSTGRES_*` and `SUPABASE_*` environment variables to it.
 
 Wasp expects the connection string in the `DATABASE_URL` environment variable, so we need to copy it over. Use the value of `POSTGRES_PRISMA_URL`: this is Supabase's transaction-mode pooler, which is the one [recommended for serverless](https://supabase.com/docs/guides/database/connecting-to-postgres#pooler-transaction-mode). You can use the CLI to copy the value from one environment variable to the other:
 
+**npm**
+
 ```shell
 npx vercel env run -- printenv POSTGRES_PRISMA_URL
 # Copy the line that starts with "postgres://"
 
 npx vercel env add --no-sensitive DATABASE_URL production
+# Paste it when prompted
+```
+
+**pnpm**
+
+```shell
+pnpm dlx vercel env run -- printenv POSTGRES_PRISMA_URL
+# Copy the line that starts with "postgres://"
+
+pnpm dlx vercel env add --no-sensitive DATABASE_URL production
+# Paste it when prompted
+```
+
+**Bun**
+
+```shell
+bunx vercel env run -- printenv POSTGRES_PRISMA_URL
+# Copy the line that starts with "postgres://"
+
+bunx vercel env add --no-sensitive DATABASE_URL production
 # Paste it when prompted
 ```
 
@@ -21973,8 +23890,22 @@ The Supabase database is linked to your Vercel account. If you remove the integr
 
 4. Deploy the server from your project root:
 
+   **npm**
+
    ```shell
    npx vercel deploy --prod
+   ```
+
+   **pnpm**
+
+   ```shell
+   pnpm dlx vercel deploy --prod
+   ```
+
+   **Bun**
+
+   ```shell
+   bunx vercel deploy --prod
    ```
 
    Vercel uploads the project, runs the build command (including the database migrations) and turns the bundled server into a function. Once it finishes, your server is live at `https://my-wasp-app-server.vercel.app`.
@@ -22010,15 +23941,45 @@ The client is deployed as a static site from the `.wasp/out/web-app/build` direc
 
 3. Next, create the Vercel project for the client:
 
+   **npm**
+
    ```shell
    npx vercel project add my-wasp-app-client
    ```
 
+   **pnpm**
+
+   ```shell
+   pnpm dlx vercel project add my-wasp-app-client
+   ```
+
+   **Bun**
+
+   ```shell
+   bunx vercel project add my-wasp-app-client
+   ```
+
 4. Finally, deploy the build directory to the client project:
+
+   **npm**
 
    ```shell
    cd .wasp/out/web-app/build
    npx vercel deploy --prod --yes --project my-wasp-app-client
+   ```
+
+   **pnpm**
+
+   ```shell
+   cd .wasp/out/web-app/build
+   pnpm dlx vercel deploy --prod --yes --project my-wasp-app-client
+   ```
+
+   **Bun**
+
+   ```shell
+   cd .wasp/out/web-app/build
+   bunx vercel deploy --prod --yes --project my-wasp-app-client
    ```
 
 That is it! Your app should be live at `https://my-wasp-app-client.vercel.app`.
@@ -22031,8 +23992,22 @@ When you make updates and need to redeploy:
 
 2. Deploy the server from the project root:
 
+   **npm**
+
    ```shell
    npx vercel deploy --prod
+   ```
+
+   **pnpm**
+
+   ```shell
+   pnpm dlx vercel deploy --prod
+   ```
+
+   **Bun**
+
+   ```shell
+   bunx vercel deploy --prod
    ```
 
 3. Rebuild the client from the project root:
@@ -22043,9 +24018,25 @@ When you make updates and need to redeploy:
 
    And then deploy the client with:
 
+   **npm**
+
    ```shell
    cd .wasp/out/web-app/build
    npx vercel deploy --prod --yes --project my-wasp-app-client
+   ```
+
+   **pnpm**
+
+   ```shell
+   cd .wasp/out/web-app/build
+   pnpm dlx vercel deploy --prod --yes --project my-wasp-app-client
+   ```
+
+   **Bun**
+
+   ```shell
+   cd .wasp/out/web-app/build
+   bunx vercel deploy --prod --yes --project my-wasp-app-client
    ```
 
 
@@ -22263,11 +24254,27 @@ The recipe's [**Local**](https://app.zerops.io/recipes/wasp-hello-world?environm
 2. In the Zerops dashboard, open the `db` service and copy the PostgreSQL user, password, port, and database name from **Environment variables**.
 3. Connect to the project network, then start Wasp with an explicit URL (do not put production credentials in `.env.server`):
 
+**Package manager**
+
 **npm**
 
 ```shell
 zcli vpn up
 DATABASE_URL="postgresql://<user>:<password>@db:<port>/<database>" npm run dev
+```
+
+**pnpm**
+
+```shell
+zcli vpn up
+DATABASE_URL="postgresql://<user>:<password>@db:<port>/<database>" pnpm run dev
+```
+
+**Bun**
+
+```shell
+zcli vpn up
+DATABASE_URL="postgresql://<user>:<password>@db:<port>/<database>" bun run dev
 ```
 
 **Global CLI**
@@ -22883,9 +24890,25 @@ nvm install 26.13.1
 
 In your project directory, install dependencies and build the app:
 
+**npm**
+
 ```shell
 npm ci
 npm run build
+```
+
+**pnpm**
+
+```shell
+pnpm install --frozen-lockfile
+pnpm run build
+```
+
+**Bun**
+
+```shell
+bun install --frozen-lockfile
+bun run build
 ```
 
 #### Step 9: Start the Database
@@ -23098,14 +25121,28 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 
 Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3 arctic@1
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3 arctic@1
+```
+
+**Bun**
+
+```shell
+bun add lucia@3 arctic@1
 ```
 
 Set up the auth configuration and API routes:
 
 ```ts title="main.wasp.ts"
-import { api, app, page, route } from "@wasp/spec"
+import { api, app, page, route } from "wasp/spec"
 import { authWithSpotify, authWithSpotifyCallback } from "./src/auth" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -23148,10 +25185,28 @@ GOOGLE_CLIENT_SECRET=x
 
 Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` instead. Wasp passes them to both the server and the client:
 
+**Package manager**
+
 **npm**
 
 ```shell
 npm run dev -- \
+  --client-port 3000 --client-url http://127.0.0.1:3000 \
+  --server-port 3001 --server-url http://127.0.0.1:3001
+```
+
+**pnpm**
+
+```shell
+pnpm run dev \
+  --client-port 3000 --client-url http://127.0.0.1:3000 \
+  --server-port 3001 --server-url http://127.0.0.1:3001
+```
+
+**Bun**
+
+```shell
+bun run dev \
   --client-port 3000 --client-url http://127.0.0.1:3000 \
   --server-port 3001 --server-url http://127.0.0.1:3001
 ```
@@ -23367,9 +25422,25 @@ This guide shows you how to implement file uploads in your Wasp application usin
 
 Install the Multer package and its types:
 
+**npm**
+
 ```shell
 npm install multer
 npm install --save-dev @types/multer
+```
+
+**pnpm**
+
+```shell
+pnpm add multer
+pnpm add --save-dev @types/multer
+```
+
+**Bun**
+
+```shell
+bun add multer
+bun add --dev @types/multer
 ```
 
 #### 2. Define the API endpoint in main.wasp.ts
@@ -23377,7 +25448,7 @@ npm install --save-dev @types/multer
 Create an API namespace with middleware configuration and the upload endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app, page, route } from "@wasp/spec"
+import { api, apiNamespace, app, page, route } from "wasp/spec"
 import { configureFileUploadMiddleware, uploadFile } from "./src/apis" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 
@@ -23540,8 +25611,22 @@ After creating each project, you'll receive a unique DSN (Data Source Name) that
 
 Install the Sentry SDKs:
 
+**npm**
+
 ```shell
 npm install @sentry/node @sentry/react
+```
+
+**pnpm**
+
+```shell
+pnpm add @sentry/node @sentry/react
+```
+
+**Bun**
+
+```shell
+bun add @sentry/node @sentry/react
 ```
 
 #### 3. Configure your Wasp file
@@ -23549,7 +25634,7 @@ npm install @sentry/node @sentry/react
 Add both the server and client setup functions to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { setupClient } from "./src/clientSetup" with { type: "ref" }
 import { setupServer } from "./src/serverSetup" with { type: "ref" }
 
@@ -23727,9 +25812,25 @@ This guide shows you how to add Swagger UI documentation to your Wasp APIs, maki
 
 Install the required packages:
 
+**npm**
+
 ```shell
 npm install swagger-jsdoc swagger-ui-express
 npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
+```
+
+**pnpm**
+
+```shell
+pnpm add swagger-jsdoc swagger-ui-express
+pnpm add --save-dev @types/swagger-jsdoc @types/swagger-ui-express
+```
+
+**Bun**
+
+```shell
+bun add swagger-jsdoc swagger-ui-express
+bun add --dev @types/swagger-jsdoc @types/swagger-ui-express
 ```
 
 #### 2. Configure the API namespace in main.wasp.ts
@@ -23737,7 +25838,7 @@ npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 Add an API namespace for the Swagger UI endpoint. Swagger UI serves its assets from the `swagger-ui-dist` package's folder, so also list that package in [`server.traceDeps`](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image). Otherwise the production Docker image leaves the assets out, and the UI stays blank:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp/spec"
+import { api, apiNamespace, app } from "wasp/spec"
 import { getStatus } from "./src/apis" with { type: "ref" }
 import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
 
@@ -24056,7 +26157,7 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 Enable WebSocket in your Wasp Spec with `autoConnect: false` since you'll manage connections manually:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import Main from "./src/MainPage" with { type: "ref" }
 import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 
@@ -24464,7 +26565,7 @@ page MainPage {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec";
+import { app, page, route } from "wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 
 export default app({
@@ -24500,7 +26601,7 @@ action createTask {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { action, app, query } from "@wasp/spec";
+import { action, app, query } from "wasp/spec";
 import { getTasks } from "./src/queries" with { type: "ref" };
 import { createTask } from "./src/actions" with { type: "ref" };
 
@@ -24536,7 +26637,7 @@ api barBaz {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp/spec";
+import { api, apiNamespace, app } from "wasp/spec";
 import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
 export default app({
@@ -24570,7 +26671,7 @@ job mySpecialJob {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp/spec";
+import { app, job } from "wasp/spec";
 import { foo } from "./src/jobs/bar" with { type: "ref" };
 
 export default app({
@@ -24602,7 +26703,7 @@ crud tasks {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp/spec";
+import { app, crud } from "wasp/spec";
 import { createTask } from "./src/actions" with { type: "ref" };
 
 export default app({
@@ -24643,7 +26744,7 @@ app todoApp {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec";
+import { app } from "wasp/spec";
 import App from "./src/App" with { type: "ref" };
 
 export default app({
@@ -24711,7 +26812,7 @@ app.query("getTasks", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp/spec";
+import { app, page, query, route } from "wasp/spec";
 import MainPage from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -24791,7 +26892,7 @@ export default app;
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp/spec";
+import { app, page, query, route } from "wasp/spec";
 import MainPage from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -24828,7 +26929,7 @@ app.api("barBaz", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp/spec";
+import { api, apiNamespace, app } from "wasp/spec";
 import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
 export default app({
@@ -24860,7 +26961,7 @@ app.job("mySpecialJob", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp/spec";
+import { app, job } from "wasp/spec";
 import { foo } from "./src/jobs/bar" with { type: "ref" };
 
 export default app({
@@ -24892,7 +26993,7 @@ app.crud("tasks", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp/spec";
+import { app, crud } from "wasp/spec";
 import { createTask } from "./src/actions" with { type: "ref" };
 
 export default app({
@@ -24938,7 +27039,7 @@ export default app;
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec";
+import { app } from "wasp/spec";
 import App from "./src/App" with { type: "ref" };
 
 export default app({
@@ -24987,8 +27088,22 @@ This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.co
 
 Install the Radix Themes package:
 
+**npm**
+
 ```shell
 npm install @radix-ui/themes
+```
+
+**pnpm**
+
+```shell
+pnpm add @radix-ui/themes
+```
+
+**Bun**
+
+```shell
+bun add @radix-ui/themes
 ```
 
 #### 2. Create a Root Component if it doesn't exist
@@ -24996,7 +27111,7 @@ npm install @radix-ui/themes
 Due to how Radix works, we'll need to have a single component that wraps all the pages in our app. In Wasp, this is done through the `rootComponent` configuration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { Layout } from "./src/Layout" with { type: "ref" }
 
 export default app({
@@ -25118,8 +27233,22 @@ Add a top-level `compilerOptions` block to your `tsconfig.json`:
 
 Go into your project directory and run:
 
+**npm**
+
 ```shell
 npx shadcn@latest init -b radix -p luma
+```
+
+**pnpm**
+
+```shell
+pnpm dlx shadcn@latest init -b radix -p luma
+```
+
+**Bun**
+
+```shell
+bunx shadcn@latest init -b radix -p luma
 ```
 
 This initializes Shadcn with the Radix component library and the Luma preset. You should see output like this:
@@ -25183,8 +27312,22 @@ In this example, we'll add the `Button` component.
 
 We'll add a button component with:
 
+**npm**
+
 ```shell
 npx shadcn@latest add button
+```
+
+**pnpm**
+
+```shell
+pnpm dlx shadcn@latest add button
+```
+
+**Bun**
+
+```shell
+bunx shadcn@latest add button
 ```
 
 #### 2. Adjust the `utils` import, if needed
@@ -25233,15 +27376,31 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 
 1. Install Tailwind and its Vite plugin.
 
+   **npm**
+
    ```shell
    npm install tailwindcss
    npm install -D @tailwindcss/vite
    ```
 
+   **pnpm**
+
+   ```shell
+   pnpm add tailwindcss
+   pnpm add --save-dev @tailwindcss/vite
+   ```
+
+   **Bun**
+
+   ```shell
+   bun add tailwindcss
+   bun add --dev @tailwindcss/vite
+   ```
+
 2. Add the Tailwind CSS Vite plugin to your `vite.config.ts` file:
 
    ```ts title="vite.config.ts"
-   import { wasp } from 'wasp/client/vite'
+   import { wasp } from '@wasp/wasp/vite'
    import tailwindcss from '@tailwindcss/vite'
    import { defineConfig } from 'vite'
 
@@ -25277,9 +27436,25 @@ Wasp doesn't require any special configuration to use Tailwind plugins. You can 
 
 For example, to add the [Tailwind Forms](https://github.com/tailwindlabs/tailwindcss-forms) and [Tailwind Typography](https://github.com/tailwindlabs/tailwindcss-typography) plugins, we can check the installation instructions on their respective documentation pages and follow them as usual:
 
+**npm**
+
 ```shell
 npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
+```
+
+**pnpm**
+
+```shell
+pnpm add --save-dev @tailwindcss/forms
+pnpm add --save-dev @tailwindcss/typography
+```
+
+**Bun**
+
+```shell
+bun add --dev @tailwindcss/forms
+bun add --dev @tailwindcss/typography
 ```
 
 ```css title="src/Main.css"
@@ -25309,7 +27484,7 @@ This guide shows you how to set up meta tags for your Wasp application to improv
 You can add meta tags to your application using the `head` property in your `app` spec. These tags will be included in the `<head>` section of your HTML.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -25469,6 +27644,8 @@ There are four main categories of issues (Performance, Accessibility, Best Pract
 
 A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's environment variables. [Testing locally](https://wasp.sh/docs/deployment/local-testing) shows how to set them up:
 
+**Package manager**
+
 **npm**
 
 ```shell
@@ -25483,7 +27660,37 @@ npx lighthouse http://localhost:3000 --preset=desktop --view
 # Remove the --preset=desktop argument to test the mobile experience instead.
 ```
 
+**pnpm**
+
+```shell
+# First, build and start the production build of your app:
+pnpm run build
+pnpm run preview
+
+# While the server is running, open another terminal and run Lighthouse:
+pnpm dlx lighthouse http://localhost:3000 --preset=desktop --view
+
+# You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
+# Remove the --preset=desktop argument to test the mobile experience instead.
+```
+
+**Bun**
+
+```shell
+# First, build and start the production build of your app:
+bun run build
+bun run preview
+
+# While the server is running, open another terminal and run Lighthouse:
+bunx lighthouse http://localhost:3000 --preset=desktop --view
+
+# You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
+# Remove the --preset=desktop argument to test the mobile experience instead.
+```
+
 **Global CLI**
+
+**npm**
 
 ```shell
 # First, build and start the production build of your app:
@@ -25492,6 +27699,34 @@ wasp build start
 
 # While the server is running, open another terminal and run Lighthouse:
 npx lighthouse http://localhost:3000 --preset=desktop --view
+
+# You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
+# Remove the --preset=desktop argument to test the mobile experience instead.
+```
+
+**pnpm**
+
+```shell
+# First, build and start the production build of your app:
+wasp build
+wasp build start
+
+# While the server is running, open another terminal and run Lighthouse:
+pnpm dlx lighthouse http://localhost:3000 --preset=desktop --view
+
+# You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
+# Remove the --preset=desktop argument to test the mobile experience instead.
+```
+
+**Bun**
+
+```shell
+# First, build and start the production build of your app:
+wasp build
+wasp build start
+
+# While the server is running, open another terminal and run Lighthouse:
+bunx lighthouse http://localhost:3000 --preset=desktop --view
 
 # You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
 # Remove the --preset=desktop argument to test the mobile experience instead.
@@ -25530,7 +27765,7 @@ Search engines and social platforms read `<meta>` tags from your HTML to decide 
 You can set tags for your whole app through the `head` field of your `app` declaration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   // ...
@@ -25595,7 +27830,7 @@ Most search engines (like Google) can also execute JavaScript when indexing a pa
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
@@ -25922,7 +28157,7 @@ You should read Google's guide on creating good content for more tips on what to
 The `@wasp/spec` package has everything you need to write your app's [Wasp Spec](https://wasp.sh/docs/features/spec): the `main.wasp.ts` file where you define your app's pages, routes, queries, actions, auth, and more.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec";
+import { app } from "wasp/spec";
 
 export default app({
   name: "todoApp",
@@ -25935,11 +28170,11 @@ export default app({
 
 #### In a Wasp app
 
-You don't need to install anything. Wasp apps come with `@wasp/spec` already listed in their `package.json`, and the Wasp CLI manages it for you.
+You don't need to install anything. The package comes with `@wasp/wasp`, which every Wasp app lists in its `package.json`, and you import it as `wasp/spec`.
 
 #### In a library
 
-If you are publishing a helper or library for the Wasp Spec, add `@wasp/spec` to both the `devDependencies` and the `peerDependencies` of your `package.json`. That way, you have a local copy during development, and your library uses the version installed in your users' Wasp projects:
+A library imports the package by its own name, `@wasp/spec`. If you are publishing a helper or library for the Wasp Spec, add `@wasp/spec` to both the `devDependencies` and the `peerDependencies` of your `package.json`. That way, you have a local copy during development, and your library uses the version installed in your users' Wasp projects:
 
 ```json title="package.json"
 {
@@ -25963,7 +28198,7 @@ Pass an `App` to the [app](#app-1) constructor and `export default` the result f
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "todoApp",
@@ -26160,7 +28395,7 @@ Configuration for the app's WebSocket support.
 ##### Example
 
 ```ts
-import { app, page, route } from '@wasp/spec'
+import { app, page, route } from 'wasp/spec'
 import MainPage from './src/MainPage' with { type: 'ref' }
 
 export default app({
@@ -26222,7 +28457,7 @@ See [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/ac
 ##### Example
 
 ```ts
-import { app, action } from "@wasp/spec"
+import { app, action } from "wasp/spec"
 import { createTask } from "./src/actions" with { type: "ref" }
 export default app({
   // ...
@@ -26299,7 +28534,7 @@ See [Configuring API middleware](https://wasp.sh/docs/advanced/server-customizat
 ##### Example
 
 ```ts
-import { api } from '@wasp/spec'
+import { api } from 'wasp/spec'
 import { barBaz } from './src/apis' with { type: 'ref' }
 
 api('GET', '/bar/baz', barBaz, { entities: ['Task'], auth: false })
@@ -26344,7 +28579,7 @@ Reference to an Express middleware config function for this namespace.
 ##### Example
 
 ```ts
-import { apiNamespace } from '@wasp/spec'
+import { apiNamespace } from 'wasp/spec'
 import { barMiddleware } from './src/apis' with { type: 'ref' }
 
 apiNamespace('/bar', { middlewareConfigFn: barMiddleware })
@@ -26391,7 +28626,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 ##### Example
 
 ```ts
-import { crud } from '@wasp/spec'
+import { crud } from 'wasp/spec'
 import { createTaskOverride } from './src/actions' with { type: 'ref' }
 
 crud('tasks', 'Task', {
@@ -26471,7 +28706,7 @@ Cron schedule that runs the job automatically.
 ##### Example
 
 ```ts
-import { job } from '@wasp/spec'
+import { job } from 'wasp/spec'
 import { foo } from './src/jobs/bar' with { type: 'ref' }
 
 job(foo, {
@@ -26528,7 +28763,7 @@ false
 ##### Example
 
 ```ts
-import { page } from '@wasp/spec'
+import { page } from 'wasp/spec'
 import MainPage from './src/MainPage' with { type: 'ref' }
 
 page(MainPage, { authRequired: true })
@@ -26583,7 +28818,7 @@ See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/qu
 ##### Example
 
 ```ts
-import { app, query } from "@wasp/spec"
+import { app, query } from "wasp/spec"
 import { getTasks } from './src/queries' with { type: 'ref' }
 
 export default app({
@@ -26666,7 +28901,7 @@ false
 **Example**
 
 ```ts
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
 
@@ -26690,7 +28925,7 @@ export default app({
 ##### Example
 
 ```ts
-import { page, route } from '@wasp/spec'
+import { page, route } from 'wasp/spec'
 import MainPage from './src/MainPage' with { type: 'ref' }
 
 route('MainRoute', '/', page(MainPage))
@@ -27138,7 +29373,7 @@ false
 ###### Example
 
 ```ts
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
 
@@ -27170,7 +29405,7 @@ This lets you define related elements separately (for example, one array per fea
 Nested arrays let you compose a spec from separate sub-specs:
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 const authSpec: Spec = [signupRoute, loginRoute];
 const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
@@ -27260,7 +29495,7 @@ The expected TypeScript type for the value from your app. The field using `Refer
 ##### Example
 
 ```ts
-import { app, query } from "@wasp/spec"
+import { app, query } from "wasp/spec"
 import { getTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -27338,7 +29573,7 @@ The import path must be relative to the `*.wasp.ts` file where it is used and re
 ##### Example
 
 ```ts
-import { page, ref } from "@wasp/spec"
+import { page, ref } from "wasp/spec"
 
 const MainPage = ref({
   importDefault: "MainPage",
@@ -27361,7 +29596,7 @@ Throw it from your own spec helper libraries when you want to report a configura
 ##### Example
 
 ```ts
-import { WaspSpecUserError } from "@wasp/spec"
+import { WaspSpecUserError } from "wasp/spec"
 
 export function requireEnv(name: string): string {
   const value = process.env[name]
@@ -27433,7 +29668,7 @@ In TypeScript, you can type each hook implementation with its matching type from
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   // ...
@@ -27576,7 +29811,7 @@ See [Client Config](https://wasp.sh/docs/advanced/client-customization/client-co
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
@@ -27774,7 +30009,7 @@ See [Databases](https://wasp.sh/docs/features/data/databases) for seeding and Pr
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import devSeed from "./src/dbSeeds" with { type: "ref" }
 import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
@@ -27850,7 +30085,7 @@ See the [Email auth docs](https://wasp.sh/docs/features/auth/email/overview) for
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { userSignupFields } from "./src/auth" with { type: "ref" }
 import {
   getVerificationEmailContent,
@@ -28023,7 +30258,7 @@ See [Sending Emails](https://wasp.sh/docs/features/email).
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   // ...
@@ -28190,7 +30425,7 @@ See [Server Config](https://wasp.sh/docs/advanced/server-customization/server-co
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
@@ -28283,7 +30518,7 @@ By default, Wasp stores only the user's provider-specific ID. Use `userSignupFie
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -28362,7 +30597,7 @@ Username and password auth configuration.
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { userSignupFields } from "./src/auth" with { type: "ref" }
 
 export default app({
@@ -28436,7 +30671,7 @@ See [WebSockets](https://wasp.sh/docs/features/websockets) for handler shape and
 ##### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({
@@ -28836,6 +31071,172 @@ export const userSignupFields = defineUserSignupFields({
 Supported social auth providers.
 
 
+## @wasp/wasp
+
+The `@wasp/wasp` package is what your project depends on to use Wasp. It brings the Wasp CLI and the packages your app needs. Its modules below are the ones you import in your config files:
+
+```ts title="vite.config.ts"
+import { wasp } from "@wasp/wasp/vite";
+```
+
+The code you import from your app's source files is in the [`wasp`](https://wasp.sh/docs/api/wasp) package, and the Wasp Spec is in [`@wasp/spec`](https://wasp.sh/docs/api/@wasp/spec).
+
+### Getting the package
+
+Every Wasp app lists `@wasp/wasp` in the `dependencies` of its `package.json`, so you don't need to install anything else.
+
+### Modules
+
+| Module                                           | Description                                                                                                                                                                                      |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [test](https://wasp.sh/docs/api/@wasp/wasp/test) | The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test). |
+| [vite](https://wasp.sh/docs/api/@wasp/wasp/vite) | The Vite plugin that your app's client needs.                                                                                                                                                    |
+
+
+## @wasp/wasp/test
+
+The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).
+
+### Type Aliases
+
+#### TestConfig
+
+> **TestConfig** = `NonNullable`<`ViteUserConfig`\[`"test"`]>
+
+The `test` options of your Vitest config, which [waspTestConfig](#wasptestconfig) takes and returns.
+
+### Functions
+
+#### waspTestConfig()
+
+> **waspTestConfig**(`options?`): `InlineConfig`
+
+Returns the Vitest options for the `test` section of your `vite.config.ts`, with the defaults a Wasp app needs:
+
+- `environment`: `"jsdom"`, a simulated browser, so your components can render.
+- `include`: the test files in your `src` folder (e.g. `TaskList.test.tsx` or `helpers.spec.js`).
+- `env`: a placeholder `REACT_APP_API_URL`, since your tests mock the server instead of running it.
+
+##### Parameters
+
+###### options?
+
+`InlineConfig`
+
+[Vitest options](https://vitest.dev/config/). They override the defaults, except `env`: Wasp merges it with the default `env`, and your variables take precedence.
+
+##### Returns
+
+`InlineConfig`
+
+##### Example
+
+```ts
+import { defineConfig } from "vitest/config";
+import { wasp } from "@wasp/wasp/vite";
+import { waspTestConfig } from "@wasp/wasp/test";
+
+export default defineConfig({
+  plugins: [wasp()],
+  test: waspTestConfig({
+    setupFiles: ["./src/test/setup.ts"],
+  }),
+});
+```
+
+##### See
+
+[Testing](https://wasp.sh/docs/advanced/testing)
+
+
+## @wasp/wasp/vite
+
+The Vite plugin that your app's client needs.
+
+### Interfaces
+
+#### WaspPluginOptions
+
+The options of the [wasp](#wasp) Vite plugin.
+
+##### Properties
+
+###### reactOptions?
+
+> `optional` **reactOptions?**: `Options`
+
+Options for the underlying [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react) plugin.
+
+This allows you to configure React-specific options like which files the plugin processes, the JSX runtime and import source, and the Fast Refresh host.
+
+### Functions
+
+#### wasp()
+
+> **wasp**(`options?`): [`PluginOption`](#pluginoption)
+
+The Vite plugin that sets up your client:
+
+- The configuration that Wasp full-stack apps need to work.
+- Environment variable validation.
+- Prevention of server imports in client code.
+- TypeScript type checking during production builds.
+
+You must use it in your `vite.config.ts` (or `vite.config.js`), and it must be the **first** plugin in the `plugins` array. Add any other plugins (like Tailwind CSS) after it.
+
+The plugin merges the rest of your Vite config with Wasp's defaults, but it enforces some values that Wasp needs, and throws an error if you set them to anything else. See the [enforced options](https://wasp.sh/docs/advanced/client-customization/custom-vite-config#enforced-options).
+
+##### Parameters
+
+###### options?
+
+[`WaspPluginOptions`](#wasppluginoptions)
+
+##### Returns
+
+[`PluginOption`](#pluginoption)
+
+##### Example
+
+```ts
+// vite.config.ts
+import { wasp } from "@wasp/wasp/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    wasp({
+      reactOptions: {
+        // Pass any @vitejs/plugin-react options here
+      },
+    }),
+  ],
+});
+```
+
+##### See
+
+[Custom Vite config](https://wasp.sh/docs/advanced/client-customization/custom-vite-config)
+
+### Referenced Types
+
+#### PluginOption
+
+> **PluginOption** = [`VitePluginOptionValue`](#vitepluginoptionvalue) | `Promise`<[`VitePluginOptionValue`](#vitepluginoptionvalue)>
+
+A Vite plugin, or a (possibly nested, possibly async) array of them.
+
+This is a simplified version of Vite's [`PluginOption`](https://vite.dev/guide/api-plugin) type, which is what you pass in the `plugins` array of your Vite config.
+
+---
+
+#### VitePluginOptionValue
+
+> **VitePluginOptionValue** = { `name`: `string`; } | `false` | `null` | `undefined` | [`PluginOption`](#pluginoption)\[]
+
+A Vite plugin object (simplified to its required `name`), a falsy value (which Vite ignores), or an array of [PluginOption](#pluginoption)s.
+
+
 ## wasp
 
 The `wasp` package is the Wasp SDK: the code you import from your app's source files to use Wasp's features, such as operations, auth, and the router.
@@ -28863,8 +31264,7 @@ You don't need to install anything, and the package isn't published to npm. The 
 | [client/crud](https://wasp.sh/docs/api/wasp/client/crud)             | Client-side APIs for the Queries and Actions of your [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.                                                                                                                                                                                                                                                                                                                               |
 | [client/operations](https://wasp.sh/docs/api/wasp/client/operations) | Client-side APIs for calling your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions).                                                                                                                                                                                                                                                                            |
 | [client/router](https://wasp.sh/docs/api/wasp/client/router)         | Type-safe links and URLs for the [routes](https://wasp.sh/docs/features/pages-and-routes) you declare in your Wasp Spec.                                                                                                                                                                                                                                                                                                                            |
-| [client/test](https://wasp.sh/docs/api/wasp/client/test)             | Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`wasp/test`](https://wasp.sh/docs/api/wasp/test).                                                                                                                                             |
-| [client/vite](https://wasp.sh/docs/api/wasp/client/vite)             | The Vite plugin that your app's client needs.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| [client/test](https://wasp.sh/docs/api/wasp/client/test)             | Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`@wasp/wasp/test`](https://wasp.sh/docs/api/@wasp/wasp/test).                                                                                                                                 |
 | [client/webSocket](https://wasp.sh/docs/api/wasp/client/webSocket)   | React hooks for using your app's [WebSocket](https://wasp.sh/docs/features/websockets) server from the client. Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                                                            |
 | [entities](https://wasp.sh/docs/api/wasp/entities)                   | Types for your app's [Entities](https://wasp.sh/docs/features/data/entities), which you can use on both the server and the client.                                                                                                                                                                                                                                                                                                                  |
 | [env](https://wasp.sh/docs/api/wasp/env)                             | Helper for defining the validation schemas of your app's environment variables.                                                                                                                                                                                                                                                                                                                                                                     |
@@ -28877,7 +31277,6 @@ You don't need to install anything, and the package isn't published to npm. The 
 | [server/jobs](https://wasp.sh/docs/api/wasp/server/jobs)             | Your app's [Jobs](https://wasp.sh/docs/features/jobs), which you can submit from your server code.                                                                                                                                                                                                                                                                                                                                                  |
 | [server/operations](https://wasp.sh/docs/api/wasp/server/operations) | Server-side APIs for your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions): the types for implementing them, and the functions for calling them from other server code.                                                                                                                                                                                        |
 | [server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket)   | Types for implementing your app's [WebSocket](https://wasp.sh/docs/features/websockets) server with [Socket.IO](https://socket.io/docs/v4/server-api/). Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                   |
-| [test](https://wasp.sh/docs/api/wasp/test)                           | The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).                                                                                                                                                                                                                                                    |
 
 
 ## wasp/auth
@@ -32212,7 +34611,7 @@ If the path has optional static segments, pass one of the paths that include or 
 
 ## wasp/client/test
 
-Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`wasp/test`](https://wasp.sh/docs/api/wasp/test).
+Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`@wasp/wasp/test`](https://wasp.sh/docs/api/@wasp/wasp/test).
 
 ### Functions
 
@@ -32553,94 +34952,6 @@ Adds request handlers, which take precedence over the existing ones.
 ###### Returns
 
 `void`
-
-
-## wasp/client/vite
-
-The Vite plugin that your app's client needs.
-
-### Interfaces
-
-#### WaspPluginOptions
-
-The options of the [wasp](#wasp) Vite plugin.
-
-##### Properties
-
-###### reactOptions?
-
-> `optional` **reactOptions?**: `Options`
-
-Options for the underlying [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react) plugin.
-
-This allows you to configure React-specific options like which files the plugin processes, the JSX runtime and import source, and the Fast Refresh host.
-
-### Functions
-
-#### wasp()
-
-> **wasp**(`options?`): [`PluginOption`](#pluginoption)
-
-The Vite plugin that sets up your client:
-
-- The configuration that Wasp full-stack apps need to work.
-- Environment variable validation.
-- Prevention of server imports in client code.
-- TypeScript type checking during production builds.
-
-You must use it in your `vite.config.ts` (or `vite.config.js`), and it must be the **first** plugin in the `plugins` array. Add any other plugins (like Tailwind CSS) after it.
-
-The plugin merges the rest of your Vite config with Wasp's defaults, but it enforces some values that Wasp needs, and throws an error if you set them to anything else. See the [enforced options](https://wasp.sh/docs/advanced/client-customization/custom-vite-config#enforced-options).
-
-##### Parameters
-
-###### options?
-
-[`WaspPluginOptions`](#wasppluginoptions)
-
-##### Returns
-
-[`PluginOption`](#pluginoption)
-
-##### Example
-
-```ts
-// vite.config.ts
-import { wasp } from "wasp/client/vite";
-import { defineConfig } from "vite";
-
-export default defineConfig({
-  plugins: [
-    wasp({
-      reactOptions: {
-        // Pass any @vitejs/plugin-react options here
-      },
-    }),
-  ],
-});
-```
-
-##### See
-
-[Custom Vite config](https://wasp.sh/docs/advanced/client-customization/custom-vite-config)
-
-### Referenced Types
-
-#### PluginOption
-
-> **PluginOption** = [`VitePluginOptionValue`](#vitepluginoptionvalue) | `Promise`<[`VitePluginOptionValue`](#vitepluginoptionvalue)>
-
-A Vite plugin, or a (possibly nested, possibly async) array of them.
-
-This is a simplified version of Vite's [`PluginOption`](https://vite.dev/guide/api-plugin) type, which is what you pass in the `plugins` array of your Vite config.
-
----
-
-#### VitePluginOptionValue
-
-> **VitePluginOptionValue** = { `name`: `string`; } | `false` | `null` | `undefined` | [`PluginOption`](#pluginoption)\[]
-
-A Vite plugin object (simplified to its required `name`), a falsy value (which Vite ignores), or an array of [PluginOption](#pluginoption)s.
 
 
 ## wasp/client/webSocket
@@ -37818,62 +40129,6 @@ The Prisma API for each Entity in your app, keyed by the Entity's name. For exam
 ###### Index Signature
 
 \[`EntityName`: `string`]: `any`
-
-
-## wasp/test
-
-The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).
-
-### Type Aliases
-
-#### TestConfig
-
-> **TestConfig** = `NonNullable`<`ViteUserConfig`\[`"test"`]>
-
-The `test` options of your Vitest config, which [waspTestConfig](#wasptestconfig) takes and returns.
-
-### Functions
-
-#### waspTestConfig()
-
-> **waspTestConfig**(`options?`): `InlineConfig`
-
-Returns the Vitest options for the `test` section of your `vite.config.ts`, with the defaults a Wasp app needs:
-
-- `environment`: `"jsdom"`, a simulated browser, so your components can render.
-- `include`: the test files in your `src` folder (e.g. `TaskList.test.tsx` or `helpers.spec.js`).
-- `env`: a placeholder `REACT_APP_API_URL`, since your tests mock the server instead of running it.
-
-##### Parameters
-
-###### options?
-
-`InlineConfig`
-
-[Vitest options](https://vitest.dev/config/). They override the defaults, except `env`: Wasp merges it with the default `env`, and your variables take precedence.
-
-##### Returns
-
-`InlineConfig`
-
-##### Example
-
-```ts
-import { defineConfig } from "vitest/config";
-import { wasp } from "wasp/client/vite";
-import { waspTestConfig } from "wasp/test";
-
-export default defineConfig({
-  plugins: [wasp()],
-  test: waspTestConfig({
-    setupFiles: ["./src/test/setup.ts"],
-  }),
-});
-```
-
-##### See
-
-[Testing](https://wasp.sh/docs/advanced/testing)
 
 
 ------

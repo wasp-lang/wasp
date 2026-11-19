@@ -109,16 +109,15 @@ getWaspNpmPackageDeclaration waspProjectDir =
         (Nothing, Just version) -> DeclaredInDevDependencies version
         (Nothing, Nothing) -> NotDeclared
 
--- | TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps stop
--- depending on dev tarballs, and only projects that the dev CLI creates
--- outside the repo do.
---
--- Whether the project depends on \@wasp/wasp through a `file:` tarball. Only
+-- | Whether the project depends on the unreleased \@wasp/wasp: through a
+-- `file:` tarball, or through the pnpm workspace of the Wasp repo. Only
 -- projects that develop Wasp itself do (see @Wasp.Cli.DevWaspNpmPackages@).
 dependsOnDevWaspNpmPackages :: PJ.PackageJson -> Bool
 dependsOnDevWaspNpmPackages packageJson =
-  maybe False ("file:" `isPrefixOf`) $
+  maybe False (\specifier -> any (`isPrefixOf` specifier) devSpecifierPrefixes) $
     M.lookup waspNpmPackageName (PJ.dependencies packageJson)
+  where
+    devSpecifierPrefixes = ["file:", "workspace:"]
 
 getDeclaredVersion :: WaspNpmPackageDeclaration -> Maybe String
 getDeclaredVersion = \case
@@ -131,12 +130,16 @@ data WaspNpmPackageScript
   = WaspSpecAnalyzerScript
   | WaspDeployScript
   | WaspStudioScript
+  | -- | Links the packages that come with \@wasp/wasp into the generated app
+    -- dir, where the generated code finds them under any package manager.
+    WaspDependencyLinksScript
 
 waspNpmPackageScriptExportName :: WaspNpmPackageScript -> String
 waspNpmPackageScriptExportName = \case
   WaspSpecAnalyzerScript -> "run-spec"
   WaspDeployScript -> "run-deploy"
   WaspStudioScript -> "run-studio"
+  WaspDependencyLinksScript -> "link-dependencies"
 
 -- | Run from the project dir, Node resolves the script through \@wasp/wasp's
 -- `exports`. Requires the scripts to handle `--eval` arguments, which have no

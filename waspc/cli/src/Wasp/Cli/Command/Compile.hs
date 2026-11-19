@@ -29,7 +29,7 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -68,7 +68,7 @@ compile = do
 -- along with the AppSpec it compiled.
 compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
 compileWithOptions options = do
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
   InWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir

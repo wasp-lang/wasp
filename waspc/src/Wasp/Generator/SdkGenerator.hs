@@ -26,6 +26,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.ImportAliases (writeImportAliasesTsConfig)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -34,7 +35,7 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genClientRouterApi)
-import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
+import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugin)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (genEnvValidation)
@@ -59,6 +60,8 @@ import Wasp.Util (checkExitSuccess, (<++>))
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
 buildSdk generatedAppDir = do
+  -- The generated server imports the SDK that this builds.
+  writeImportAliasesTsConfig generatedAppDir
   exitCode <-
     Job.run . Job.prefixWith Job.Wasp $
       Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.compileSdk)
@@ -87,7 +90,6 @@ genSdk spec =
       C.genFileCopy [relfile|server/errors/utils.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|test/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
@@ -115,7 +117,7 @@ genSdk spec =
     <++> genClientRouterApi spec
     <++> genEnvValidation spec
     <++> genClientApp spec
-    <++> genVitePlugins spec
+    <++> genVitePlugin spec
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
@@ -153,9 +155,7 @@ genEntitiesAndServerTypesDirs spec =
 genPackageJson :: Generator FileDraft
 genPackageJson =
   return $
-    C.mkTmplFdWithData
-      [relfile|package.json|]
-      (object ["sdkPackageName" .= C.sdkPackageName])
+    C.mkTmplFdWithData C.sdkPackageJsonInSdkTemplatesDir C.sdkPackageJsonTmplData
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =

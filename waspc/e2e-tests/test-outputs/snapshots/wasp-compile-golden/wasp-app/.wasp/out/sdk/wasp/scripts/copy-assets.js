@@ -6,7 +6,6 @@ const base = path.resolve(import.meta.dirname, "..")
 await copyAssets([
   "./auth/forms/**/*.css",
   "./client/app/components/**/*.css",
-  "./client/vite/virtual-files/files/**/*.*",
 ])
 
 async function copyAssets(globs) {

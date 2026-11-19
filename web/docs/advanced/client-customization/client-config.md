@@ -14,7 +14,7 @@ import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 You can configure the client using the `client` field inside the `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
@@ -42,7 +42,7 @@ It can be used for a variety of purposes, but the most common ones are:
 Let's define a common layout for your application:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -105,7 +105,7 @@ You need to import the [`Outlet`](https://reactrouter.com/8.0.1/api/components/O
 This is how to set up various providers that your application needs:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 
 export default app({
@@ -273,7 +273,7 @@ For the full description of the `setupFn` field, check the [`Client` API Referen
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "MyApp",

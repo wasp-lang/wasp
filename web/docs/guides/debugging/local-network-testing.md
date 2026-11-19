@@ -62,7 +62,7 @@ Add `allowedHosts` to the `server` section in your `vite.config.ts`:
 
 ```ts title="vite.config.ts"
 import { defineConfig } from "vite";
-import { wasp } from "wasp/client/vite";
+import { wasp } from "@wasp/wasp/vite";
 
 export default defineConfig({
   server: {

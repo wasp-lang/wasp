@@ -1,7 +1,7 @@
 # `packageManager` in package.json is for Cloudflare Pages, which builds web/.
 #
-# Still on npm:
-# - examples/ and the e2e test apps: Wasp apps require npm.
+# Not in the workspace:
+# - the e2e test apps, which test Wasp projects outside of a workspace.
 packages:
   - packages/auth
   - packages/cli
@@ -16,11 +16,14 @@ packages:
   - packages/wasp-app-runner
   - web
   - web/sdk-api-docs
+  - web/wasp-api-docs
   - web/tutorial-actions-executor
   - packages/cli/scripts/make-cli-npm-packages
   - waspc/starters-e2e-tests
   - waspc/tools
   - tasks
+  - examples/*
+  - examples/tutorials/*
 
 # `pnpm pack` replaces `catalog:` with the real version in published packages.
 catalog:
@@ -38,33 +41,51 @@ catalog:
 
 # Same as `min-release-age=7` in .npmrc, in minutes.
 minimumReleaseAge: 10080
+# Wasp publishes its own packages with each release. The example apps install
+# a new release on the day it comes out, to deploy it.
+minimumReleaseAgeExclude:
+  - "@wasp/*"
+
+# The example apps get the packages of this repo as copies, like a project
+# that installs them from npm, with the peer dependencies resolved from the
+# app. Linked, a package would resolve its peers (Vite, React) from its own
+# dev dependencies, a second copy next to the app's.
+# `pnpm install` refreshes the copies, so it has to run after the packages are
+# built (see the `build` task).
+injectWorkspacePackages: true
 
 # Install scripts we do not need: messages, or binaries that are optional
-# dependencies anyway. Prisma only gets here as a peer of @wasp/wasp, and
-# nothing in the repo runs it.
-# TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, they run
-# Prisma, so allow its builds then.
+# dependencies anyway. The example apps run Prisma, which needs its engines.
 allowBuilds:
-  "@prisma/client": false
-  "@prisma/engines": false
+  "@heroui/shared-utils": false
+  "@prisma/client": true
+  "@prisma/engines": true
   "@swc/core": false
   core-js: false
   esbuild: false
   fsevents: false
   msw: false
-  prisma: false
+  prisma: true
 
 # Third-party packages cannot resolve undeclared (phantom) dependencies
 # through `node_modules/.pnpm/node_modules`.
 hoist: false
 
-# typedoc resolves its plugins from its own location.
 packageExtensions:
+  # typedoc resolves its plugins from its own location.
   typedoc:
     dependencies:
       typedoc-plugin-markdown: "*"
       typedoc-docusaurus-theme: "*"
       typedoc-plugin-missing-exports: "*"
+  # Its types import React's types without listing them. An example app uses
+  # it, and with `hoist: false` it only finds what it lists.
+  flowbite-react:
+    peerDependencies:
+      "@types/react": "*"
+    peerDependenciesMeta:
+      "@types/react":
+        optional: true
 
 # Dev convenience only, a failed install here just warns. Scripts and CI
 # install explicitly.

@@ -4,8 +4,9 @@ module Wasp.Project.ExternalConfig
   )
 where
 
+import Control.Arrow (left)
 import StrongPath (Abs, Dir, Path')
-import Validation (validationToEither)
+import Validation (eitherToValidation, validationToEither)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Project.Common
   ( CompileError,
@@ -17,9 +18,12 @@ import Wasp.Project.ExternalConfig.RootTsConfig (parseAndValidateRootTsConfig)
 import Wasp.Project.ExternalConfig.SrcTsConfig (parseAndValidateSrcTsConfig)
 import Wasp.Project.ExternalConfig.ViteConfig (validateViteConfig)
 import Wasp.Project.ExternalConfig.WaspTsConfig (parseAndValidateWaspTsConfig)
+import Wasp.Project.PackageManager (PackageManager, detectPackageManager, readPinnedPackageManagerVersion, showUnsupportedPackageManagerError)
 
-newtype ExternalConfigs = ExternalConfigs
-  { _packageJson :: PackageJson
+data ExternalConfigs = ExternalConfigs
+  { _packageJson :: PackageJson,
+    _packageManager :: PackageManager,
+    _pinnedPackageManagerVersion :: Maybe String
   }
   deriving (Show)
 
@@ -35,11 +39,15 @@ parseAndValidateExternalConfigs waspDir TsConfigPaths {srcTsConfig, waspTsConfig
   maybeWaspTsConfigOrErrors <- traverse (parseAndValidateWaspTsConfig waspDir) waspTsConfig
   maybeRootTsConfigOrErrors <- traverse (parseAndValidateRootTsConfig waspDir) rootTsConfig
   unitOrViteConfigErrors <- validateViteConfig waspDir
+  pinnedPackageManagerVersion <- readPinnedPackageManagerVersion waspDir
+  packageManagerOrErrors <- eitherToValidation . left (pure . showUnsupportedPackageManagerError) <$> detectPackageManager waspDir
 
   return
     $ validationToEither
     $ ExternalConfigs
       <$> packageJsonOrErrors
+      <*> packageManagerOrErrors
+      <*> pure pinnedPackageManagerVersion
       <* srcTsConfigOrErrors
       <* sequenceA maybeWaspTsConfigOrErrors
       <* sequenceA maybeRootTsConfigOrErrors

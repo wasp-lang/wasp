@@ -8,15 +8,21 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import qualified StrongPath as SP
+import qualified System.Directory as SD
+import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.DevWaspNpmPackages (prepareDevWaspNpmPackagesForDockerBuild)
 import Wasp.Cli.Message (cliSendMessage)
+import qualified Wasp.Cli.PnpmWorkspaceFile as PnpmWorkspaceFile
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -29,12 +35,12 @@ import Wasp.Project.Common
     CompileWarning,
     WaspProjectDir,
     generatedAppDirInWaspProjectDir,
-    packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
     srcTsConfig,
     tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
+import Wasp.Project.PackageManager (PackageManager (..), detectPackageManagerOrDefault, getLockfileName, pnpmWorkspaceFileName)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 
 -- | Builds Wasp project that the current working directory is part of.
@@ -48,7 +54,7 @@ build :: Command ()
 build = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
   WaspNpmPackageAvailable <- require
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
@@ -97,7 +103,6 @@ build = ProjectLock.acquireExclusive $ do
           (buildDir </> castRel srcDirInWaspProjectDir)
 
       let packageJsonInBuildDir = buildDir </> castRel userPackageJsonInWaspProjectDir
-      let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
       let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigPath
 
       liftIO $
@@ -105,10 +110,9 @@ build = ProjectLock.acquireExclusive $ do
           (waspProjectDir </> userPackageJsonInWaspProjectDir)
           packageJsonInBuildDir
 
-      liftIO $
-        copyFile
-          (waspProjectDir </> packageLockJsonInWaspProjectDir)
-          packageLockJsonInBuildDir
+      packageManager <- liftIO $ detectPackageManagerOrDefault waspProjectDir
+      liftIO $ copyLockfileIfExists packageManager waspProjectDir buildDir
+      when (packageManager == Pnpm) $ liftIO $ writePnpmWorkspaceFile waspProjectDir buildDir
 
       -- We need the main tsconfig.json file since the built server's TS config
       -- extends from it.
@@ -117,7 +121,33 @@ build = ProjectLock.acquireExclusive $ do
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
 
-      ExceptT $ prepareDevWaspNpmPackagesForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir
+      ExceptT $ prepareDevWaspNpmPackagesForDockerBuild packageManager waspProjectDir buildDir
+
+    -- A project in a workspace has no lockfile of its own, its workspace root
+    -- does. The Dockerfile then installs without one.
+    copyLockfileIfExists packageManager waspProjectDir buildDir = do
+      let lockfileName = getLockfileName packageManager
+      let lockfileInProjectDir = SP.fromAbsDir waspProjectDir FP.</> lockfileName
+      doesLockfileExist <- SD.doesFileExist lockfileInProjectDir
+      when doesLockfileExist $ SD.copyFile lockfileInProjectDir (SP.fromAbsDir buildDir FP.</> lockfileName)
+
+    -- pnpm's settings, like the overrides and which packages may run install
+    -- scripts. A project in a workspace takes them from its workspace root,
+    -- without the root's list of workspace packages.
+    writePnpmWorkspaceFile waspProjectDir buildDir =
+      findInDirOrItsAncestors pnpmWorkspaceFileName (SP.fromAbsDir waspProjectDir) >>= \case
+        Nothing -> return ()
+        Just pnpmWorkspaceFile -> do
+          settings <- PnpmWorkspaceFile.removeTopLevelKey "packages" . T.unpack <$> T.IO.readFile pnpmWorkspaceFile
+          writeFile (SP.fromAbsDir buildDir FP.</> pnpmWorkspaceFileName) settings
+
+    findInDirOrItsAncestors fileName dir = do
+      let file = dir FP.</> fileName
+      let parentDir = FP.takeDirectory dir
+      doesFileExist <- SD.doesFileExist file
+      if doesFileExist
+        then return $ Just file
+        else if parentDir == dir then return Nothing else findInDirOrItsAncestors fileName parentDir
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->

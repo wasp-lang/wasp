@@ -10,8 +10,15 @@ env:
 
 jobs:
   test-starters:
-    name: Test starters
+    name: Test starters (${{ matrix.package-manager }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        package-manager:
+          - npm
+          - pnpm
+          - bun
     steps:
       - uses: actions/checkout@v7
         with:
@@ -26,8 +33,14 @@ jobs:
       - name: Install node dependencies
         run: pnpm install --filter starters-e2e-tests... && pnpm --filter @wasp/wasp-app-runner run build
 
+      # The other package managers come with the tools set up above.
+      - name: Install Bun
+        if: matrix.package-manager == 'bun'
+        run: npm install --global bun
+
       - name: Run starters e2e tests
         working-directory: waspc/starters-e2e-tests
         env:
           WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
-        run: pnpm run test:dev
+          PACKAGE_MANAGER: ${{ matrix.package-manager }}
+        run: pnpm run test:dev --package-manager "$PACKAGE_MANAGER"

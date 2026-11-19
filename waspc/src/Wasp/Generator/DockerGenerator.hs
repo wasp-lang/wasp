@@ -31,6 +31,14 @@ import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
+import Wasp.Project.PackageManager
+  ( PackageManager (..),
+    getLockfileName,
+    getPackageManagerName,
+    getSettingsFileNames,
+    makeInstallCommand,
+    makeLockedInstallCommand,
+  )
 import Wasp.Project.WaspNpmPackage (dependsOnDevWaspNpmPackages)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
@@ -49,19 +57,52 @@ genDockerfile spec = do
             [ "usingPrisma" .= hasEntities spec,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeVersion" .= show (getLowestNodeVersionUserAllows spec),
+              "installPackageManagerCommand" .= makeInstallPackageManagerCommand packageManager (AS.pinnedPackageManagerVersion spec),
+              "optionalInstallInputFiles" .= unwords (makeOptionalCopySource <$> installInputFileNames),
+              "installCommand" .= makeInstallCommandForDocker [],
+              -- Install scripts can read project files, so the first install
+              -- in the Dockerfile, which runs before the code is in place,
+              -- skips them.
+              "installWithoutScriptsCommand" .= makeInstallCommandForDocker ["--ignore-scripts"],
               "dependsOnDevWaspNpmPackages" .= dependsOnDevWaspNpmPackages (AS.packageJson spec),
               "devWaspNpmPackagesDir" .= SP.fromRelDir devWaspNpmPackagesDirInGeneratedAppDir,
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )
+  where
+    packageManager = AS.packageManager spec
+
+    installInputFileNames = getLockfileName packageManager : getSettingsFileNames packageManager
+
+    -- Follows the lockfile when the project has one. A project in a workspace
+    -- has none of its own, its workspace root does.
+    makeInstallCommandForDocker :: [String] -> String
+    makeInstallCommandForDocker flags =
+      "if [ -f "
+        ++ getLockfileName packageManager
+        ++ " ]; then "
+        ++ unwords (makeLockedInstallCommand packageManager : flags)
+        ++ "; else "
+        ++ unwords (makeInstallCommand packageManager : flags)
+        ++ "; fi"
+
+-- | The Node.js image only comes with npm.
+makeInstallPackageManagerCommand :: PackageManager -> Maybe String -> Maybe String
+makeInstallPackageManagerCommand packageManager pinnedVersion = case packageManager of
+  Npm -> Nothing
+  _ -> Just $ unwords [makeInstallCommand Npm, "--global", packageManagerName ++ maybe "" ("@" ++) pinnedVersion]
+  where
+    packageManagerName = getPackageManagerName packageManager
+
+-- | Docker fails to copy a file that doesn't exist, unless its name is a
+-- pattern. A pattern that matches only this name is the name with a
+-- character in square brackets.
+makeOptionalCopySource :: FilePath -> String
+makeOptionalCopySource fileName = init fileName ++ "[" ++ [last fileName] ++ "]"
 
 data DevWaspNpmPackagesDir
 
--- | TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps stop
--- depending on dev tarballs, and only projects that the dev CLI creates
--- outside the repo need this.
---
--- Where `wasp build` copies the dev tarballs of the unreleased Wasp npm
+-- | Where `wasp build` copies the dev tarballs of the unreleased Wasp npm
 -- packages (see @Wasp.Cli.DevWaspNpmPackages@), for the Dockerfile to copy
 -- them into the image.
 devWaspNpmPackagesDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir DevWaspNpmPackagesDir)

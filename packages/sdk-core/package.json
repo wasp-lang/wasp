@@ -34,6 +34,10 @@
     "./node/vite": {
       "types": "./dist/vite.d.mts",
       "default": "./dist/vite.mjs"
+    },
+    "./node/sdk": {
+      "types": "./dist/sdk.d.mts",
+      "default": "./dist/sdk.mjs"
     }
   },
   "files": [
@@ -50,6 +54,7 @@
     "@types/express": "^5.0.0",
     "@vitejs/plugin-react": "^6.0.3",
     "@wasp/auth": "workspace:^",
+    "@wasp/vite-ssr": "workspace:^",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
     "react": "^19.2.1",
@@ -61,6 +66,9 @@
   },
   "peerDependenciesMeta": {
     "@vitejs/plugin-react": {
+      "optional": true
+    },
+    "@wasp/vite-ssr": {
       "optional": true
     },
     "arctic": {
@@ -85,6 +93,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "@wasp/auth": "workspace:*",
+    "@wasp/vite-ssr": "workspace:*",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
     "react": "^19.2.1",

@@ -28,11 +28,23 @@
     "./package.json": "./package.json",
     "./run-spec": "./scripts/run-spec.js",
     "./run-deploy": "./scripts/run-deploy.js",
-    "./run-studio": "./scripts/run-studio.js"
+    "./run-studio": "./scripts/run-studio.js",
+    "./link-dependencies": "./scripts/link-dependencies.js",
+    "./vite": {
+      "types": "./lib/vite.d.ts",
+      "default": "./lib/vite.js"
+    },
+    "./test": {
+      "types": "./lib/test.d.ts",
+      "default": "./lib/test.js"
+    },
+    "./tsconfig.paths.json": "./tsconfig.paths.json"
   },
   "files": [
     "bin.js",
-    "scripts"
+    "lib",
+    "scripts",
+    "tsconfig.paths.json"
   ],
   "peerDependencies": {
     "@prisma/client": "6.19.3",

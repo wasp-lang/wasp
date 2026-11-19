@@ -50,6 +50,7 @@ import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
+import Wasp.Project.PackageManager (PackageManager)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.SemanticVersion as SV
 
@@ -68,6 +69,10 @@ data AppSpec = AppSpec
     prismaSchema :: Psl.Schema.Schema,
     -- | The contents of the package.json file found in the root directory of the wasp project.
     packageJson :: PackageJson,
+    -- | The package manager that installs the project's packages.
+    packageManager :: PackageManager,
+    -- | The version in the `packageManager` field of the project's package.json.
+    pinnedPackageManagerVersion :: Maybe String,
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),

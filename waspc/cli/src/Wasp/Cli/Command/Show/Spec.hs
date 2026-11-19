@@ -8,7 +8,7 @@ import Wasp.AppSpec.Inspectable (InspectableAppSpec (InspectableAppSpec))
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Compile (analyzeWithDiagnosticsOnStderr)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
 import Wasp.Version (getWaspCliNpmPackageVersion)
@@ -23,7 +23,7 @@ specShowSubcommand =
 
 analyzeAppSpec :: Command InspectableAppSpec
 analyzeAppSpec = do
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
   InWaspProject waspDir <- require
   WaspNpmPackageAvailable <- require
   InspectableAppSpec <$> analyzeWithDiagnosticsOnStderr waspDir <*> liftIO getWaspCliNpmPackageVersion
