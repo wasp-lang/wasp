@@ -11,6 +11,7 @@ import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (Requirable (checkRequirement), makeCommandError, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspProjectDependenciesStale, WaspSpecPackageOutdated))
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
@@ -40,6 +41,7 @@ instance Requirable WaspSpecAvailable where
             throwError $ if dependsOnLegacyWaspSpec then legacyWaspSpecError else missingDepsError
       legacyWaspSpecError =
         makeCommandError
+          WaspSpecPackageOutdated
           "Outdated Wasp spec package"
           $ "Wasp's spec package is now called "
             ++ styleCode "@wasp/spec"
@@ -56,6 +58,7 @@ instance Requirable WaspSpecAvailable where
             ++ "."
       missingDepsError =
         makeCommandError
+          WaspProjectDependenciesStale
           "Missing or stale dependencies in project"
           $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
 

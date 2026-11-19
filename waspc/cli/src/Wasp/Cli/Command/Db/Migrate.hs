@@ -15,6 +15,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Util.Parser (ArgsParser (..))
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspDbMigrationFailed))
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..))
@@ -44,7 +45,7 @@ migrateDatabase :: [EnvVar] -> MigrateArgs -> Path' Abs (Dir GeneratedAppDir) ->
 migrateDatabase envVars migrateArgs generatedAppDir dbMigrationsDir = do
   cliSendMessageC $ Msg.Start "Starting database migration..."
   liftIO (DbOps.migrateDevAndCopyToSource envVars dbMigrationsDir generatedAppDir migrateArgs) >>= \case
-    Left err -> throwError $ makeCommandError "Migrate dev failed" err
+    Left err -> throwError $ makeCommandError WaspDbMigrationFailed "Migrate dev failed" err
     Right () -> cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Database successfully migrated.")
 
 migrateArgsParser :: ArgsParser MigrateArgs

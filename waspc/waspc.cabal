@@ -195,6 +195,7 @@ library
     Wasp.Data
     Wasp.Db.Postgres
     Wasp.Diagnostic
+    Wasp.Diagnostic.ErrorId
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson

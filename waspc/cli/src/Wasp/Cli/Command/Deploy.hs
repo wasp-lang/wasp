@@ -10,6 +10,7 @@ import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspDeployFailed))
 import qualified Wasp.Project.Deployment
 
 deploy :: [String] -> Command ()
@@ -24,4 +25,4 @@ deploy cmdArgs = do
     -- our purposes.
     waspExePath <- getExecutablePath
     Wasp.Project.Deployment.deploy waspExePath waspProjectDir cmdArgs
-  either (throwError . makeCommandError "Deploy command failed") return deployResult
+  either (throwError . makeCommandError WaspDeployFailed "Deploy command failed") return deployResult

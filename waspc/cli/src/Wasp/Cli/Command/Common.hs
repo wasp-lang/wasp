@@ -13,6 +13,7 @@ import System.Directory (findExecutable)
 import Wasp.Cli.Command (Command, makeCommandError)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspExecutableNotFound))
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.IO as IOUtil
 
@@ -22,7 +23,7 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
     Just _ -> return ()
     Nothing ->
       E.throwError $
-        makeCommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
+        makeCommandError WaspExecutableNotFound ("Couldn't find `" <> exeName <> "` executable") explanationMsg
 
 deleteDirectoryIfExistsVerbosely :: Path' Abs (Dir d) -> Command ()
 deleteDirectoryIfExistsVerbosely dir = do

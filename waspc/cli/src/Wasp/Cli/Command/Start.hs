@@ -24,6 +24,7 @@ import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Cli.ProjectPorts (findProjectPorts)
 import Wasp.Cli.ProjectRunConfig (makeDevProjectRunConfig, showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspStartFailed))
 import qualified Wasp.Generator
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
@@ -91,7 +92,7 @@ start = withArguments startArgsParser $ \args ->
     case watchOrStartResult of
       Left () -> error "This should never happen, listening for file changes should never end but it did."
       Right startResult -> case startResult of
-        Left startError -> throwError $ makeCommandError "Start failed" startError
+        Left startError -> throwError $ makeCommandError WaspStartFailed "Start failed" startError
         Right () -> error "This should never happen, start should never end but it did."
   where
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()

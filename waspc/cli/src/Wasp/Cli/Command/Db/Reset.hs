@@ -16,6 +16,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Util.Parser (ArgsParser (..))
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspDbResetFailed))
 import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
@@ -34,7 +35,7 @@ reset resetArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig ->
 
   cliSendMessageC $ Msg.Start "Resetting the database..."
   liftIO (dbReset (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir resetArgs) >>= \case
-    Left errorMsg -> throwError $ makeCommandError "Database reset failed" errorMsg
+    Left errorMsg -> throwError $ makeCommandError WaspDbResetFailed "Database reset failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Database reset successfully!")
 
 resetArgsParser :: ArgsParser ResetArgs

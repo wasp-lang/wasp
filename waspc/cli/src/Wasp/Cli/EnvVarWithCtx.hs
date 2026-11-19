@@ -21,6 +21,7 @@ import System.Environment (getEnvironment)
 import Wasp.Cli.Command (Command, makeCommandError)
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument (..))
 import Wasp.Cli.Util.PathArgument (getFilePath)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspManagedEnvVarOverridden))
 import Wasp.Env (EnvVar, EnvVarName, addEnvVarsUnique, parseDotEnvFile)
 
 type EnvVarWithCtx = (EnvVarCtx, EnvVar)
@@ -59,7 +60,7 @@ addEnvVarsUniqueC incomingEnvVarSources existing =
 throwOverriddenVarsError :: [EnvVarWithCtx] -> Set EnvVarName -> Command a
 throwOverriddenVarsError envVarsWithCtx overriddenNames =
   throwError
-    $ makeCommandError "Can't override managed environment variables"
+    $ makeCommandError WaspManagedEnvVarOverridden "Can't override managed environment variables"
     $ "You specified the following environment variables, but Wasp sets them: "
       ++ intercalate ", " (showEnvVarWithCtx <$> overriddenEnvVars)
       ++ ". Please remove them so they don't cause conflicts when running."

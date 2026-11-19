@@ -19,7 +19,7 @@ cliSendMessage (Msg.Start msg) =
   waspSays $ asWaspStartMessage msg
 cliSendMessage (Msg.Diagnostic diagnostic) = case diagnostic.kind of
   Success -> waspSays $ asWaspSuccessMessage diagnostic.title
-  Error -> waspScreams $ asWaspFailureMessage (diagnostic.title ++ ":") ++ detailsText
+  Error _ -> waspScreams $ asWaspFailureMessage (diagnostic.title ++ ":") ++ detailsText
   Warning -> waspWarns $ asWaspWarningMessage (diagnostic.title ++ ":") ++ detailsText
   where
     detailsText = fromMaybe "" diagnostic.details

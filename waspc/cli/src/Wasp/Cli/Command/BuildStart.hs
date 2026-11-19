@@ -21,6 +21,7 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspBuildStartFailed, WaspClientBuildFailed, WaspServerBuildFailed))
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Util (checkExitSuccess)
@@ -49,12 +50,12 @@ buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
 buildAndStartServerAndClient appSpec config = do
   cliSendMessageC $ Msg.Start "Building client..."
   Job.run (Job.prefixWith Job.WebApp $ buildClient config)
-    >>= throwOnExitFailure "Building client failed." "Building the client"
+    >>= throwOnExitFailure WaspClientBuildFailed "Building client failed." "Building the client"
   cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Client built.")
 
   cliSendMessageC $ Msg.Start "Building server..."
   Job.run (Job.prefixWith Job.Server $ buildServer config)
-    >>= throwOnExitFailure "Building server failed." "Building the server"
+    >>= throwOnExitFailure WaspServerBuildFailed "Building server failed." "Building the server"
   cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Server built.")
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
@@ -68,12 +69,12 @@ buildAndStartServerAndClient appSpec config = do
         (Job.prefixWith Job.WebApp $ startClient config)
         (Job.prefixWith Job.Server $ startServer config)
   either
-    (throwOnExitFailure startErrorTitle "Serving the client")
-    (throwOnExitFailure startErrorTitle "Running the server")
+    (throwOnExitFailure WaspBuildStartFailed startErrorTitle "Serving the client")
+    (throwOnExitFailure WaspBuildStartFailed startErrorTitle "Running the server")
     clientOrServerExitCode
   where
     startErrorTitle = "Starting Wasp app failed."
 
-    throwOnExitFailure :: String -> String -> ExitCode -> Command ()
-    throwOnExitFailure errorTitle failedStep =
-      either (throwError . makeCommandError errorTitle) return . checkExitSuccess failedStep
+    throwOnExitFailure :: ErrorId -> String -> String -> ExitCode -> Command ()
+    throwOnExitFailure errorId errorTitle failedStep =
+      either (throwError . makeCommandError errorId errorTitle) return . checkExitSuccess failedStep

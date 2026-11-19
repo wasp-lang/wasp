@@ -22,6 +22,7 @@ import Wasp.Cli.ProjectLock.Handle
     projectLockFileInWaspProjectDir,
     releaseProjectLock,
   )
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspProjectLocked))
 
 -- | Runs the given action while holding an exclusive lock, so no other Wasp
 -- process can run at the same time. Throws a 'CommandError' if another process
@@ -59,7 +60,7 @@ acquire initialWatcherStatus action = do
 
 makeLockedProjectError :: Maybe ProjectLockData -> CommandError
 makeLockedProjectError maybeProjectLockData =
-  makeCommandError "Wasp project is already in use" $
+  makeCommandError WaspProjectLocked "Wasp project is already in use" $
     describeLockHolder ((.pid) <$> maybeProjectLockData)
       ++ " is already running for this project. Wait for it, or stop it and try again."
 

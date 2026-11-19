@@ -22,6 +22,7 @@ import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import Wasp.Cli.ProjectRunConfig (makeProjectRunConfig)
 import Wasp.Cli.Util.Parser (ArgsParser (..), getParserHelpMessage)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspBuildStartEnvVarsMissing))
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
@@ -82,6 +83,7 @@ makeBuildStartConfig appSpec args projectDir' = do
 
     noEnvVarsSourcesSpecifiedMsg =
       makeCommandError
+        WaspBuildStartEnvVarsMissing
         "No env vars specified"
         $ "You called "
           ++ styleCode (commandName buildStartArgsParser)

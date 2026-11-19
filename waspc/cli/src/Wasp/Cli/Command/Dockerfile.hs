@@ -10,6 +10,7 @@ import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspCompilationFailed))
 import Wasp.Project (compileAndRenderDockerfile)
 
 printDockerfile :: Command ()
@@ -18,6 +19,6 @@ printDockerfile = do
   WaspSpecAvailable <- require
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfile waspProjectDir (defaultCompileOptions waspProjectDir)
   either
-    (throwError . makeCommandError "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)
+    (throwError . makeCommandError WaspCompilationFailed "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)
     (liftIO . T.IO.putStrLn)
     dockerfileContentOrCompileErrors

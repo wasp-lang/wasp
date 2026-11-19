@@ -1,0 +1,43 @@
+module Wasp.Diagnostic.ErrorId (ErrorId (..)) where
+
+data ErrorId
+  = WaspBuildFailed
+  | WaspBuildStartEnvVarsMissing
+  | WaspBuildStartFailed
+  | WaspCliArgumentInvalid
+  | WaspClientBuildFailed
+  | WaspCompilationErrorsFound
+  | WaspCompilationFailed
+  | WaspCustomDbInUse
+  | WaspDbConnectionFailed
+  | WaspDbMigrationFailed
+  | WaspDbResetFailed
+  | WaspDbSeedFailed
+  | WaspDbSeedNameInvalid
+  | WaspDbSeedsNotDefined
+  | WaspDeployFailed
+  | WaspDevDbFailed
+  | WaspDevelopmentAppMissing
+  | WaspDockerBuildPreparationFailed
+  | WaspDockerNotRunning
+  | WaspExecutableNotFound
+  | WaspFreePortNotFound
+  | WaspInteractiveTerminalRequired
+  | WaspManagedEnvVarOverridden
+  | WaspNewProjectMigrationSkipped
+  | WaspNewsFetchFailed
+  | WaspNodeRequirementNotMet
+  | WaspProductionAppMissing
+  | WaspProjectCreationFailed
+  | WaspProjectDependenciesInstallFailed
+  | WaspProjectDependenciesStale
+  | WaspProjectLocked
+  | WaspProjectRootNotFound
+  | WaspRecompilationFailed
+  | WaspServerBuildFailed
+  | WaspSpecAnalysisFailed
+  | WaspSpecPackageOutdated
+  | WaspStartFailed
+  | WaspStudioFailed
+  | WaspTelemetryDisabled
+  | WaspWatcherCompilationFailed

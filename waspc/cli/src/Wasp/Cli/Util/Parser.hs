@@ -14,6 +14,7 @@ import qualified System.Exit as EC
 import Wasp.Cli.Command (Command, makeCommandError)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspCliArgumentInvalid, WaspInteractiveTerminalRequired))
 import qualified Wasp.Message as Msg
 import Wasp.Util.Interactive (InteractiveTerminal)
 import qualified Wasp.Util.Interactive as Interactive
@@ -27,7 +28,7 @@ withArguments :: ArgsParser a -> (a -> Command ()) -> Arguments -> Command ()
 withArguments argsParser onSuccess args =
   case parseArguments argsParser args of
     (ArgsParsed result) -> onSuccess result
-    (ParseFailure helpMessage) -> throwError $ makeCommandError "Parsing arguments failed" helpMessage
+    (ParseFailure helpMessage) -> throwError $ makeCommandError WaspCliArgumentInvalid "Parsing arguments failed" helpMessage
     (ShowHelp helpMessage) -> cliSendMessageC $ Msg.Info helpMessage
 
 getParserHelpMessage :: ArgsParser a -> String
@@ -48,7 +49,7 @@ requireInteractiveTerminal argsParser =
     Just terminal -> return terminal
     Nothing ->
       throwError
-        $ makeCommandError "Interactive terminal required"
+        $ makeCommandError WaspInteractiveTerminalRequired "Interactive terminal required"
         $ "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
           <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
           <> getParserHelpMessage argsParser

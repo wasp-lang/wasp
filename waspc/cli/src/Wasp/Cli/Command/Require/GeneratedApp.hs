@@ -12,6 +12,7 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, Requirable (checkRequirement), makeCommandError, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspDevelopmentAppMissing, WaspProductionAppMissing))
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Project.BuildType as BuildType
@@ -30,6 +31,7 @@ instance Requirable GeneratedAppIsDevelopment where
     where
       noDevelopmentCodeError =
         makeCommandError
+          WaspDevelopmentAppMissing
           "Built app does not exist"
           "You can build the app with the `wasp start` or `wasp compile` commands."
 
@@ -46,6 +48,7 @@ instance Requirable GeneratedAppIsProduction where
     where
       noProductionCodeError =
         makeCommandError
+          WaspProductionAppMissing
           "Built app does not exist"
           "You can build the app with the `wasp build` command."
 

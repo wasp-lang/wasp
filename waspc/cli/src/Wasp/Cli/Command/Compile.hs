@@ -36,6 +36,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Diagnostic as Diagnostic
+import Wasp.Diagnostic.ErrorId (ErrorId (WaspCompilationErrorsFound, WaspCompilationFailed, WaspSpecAnalysisFailed))
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
@@ -99,7 +100,7 @@ compileWithOptions options = do
     Right appSpec -> return (warnings, appSpec)
     Left compileErrors ->
       throwError
-        $ makeCommandError "Compilation of wasp project failed"
+        $ makeCommandError WaspCompilationFailed "Compilation of wasp project failed"
         $ show (length compileErrors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
@@ -132,7 +133,7 @@ printErrorsIfAny errs = do
   unless (null errs)
     $ cliSendMessage
     $ Msg.Diagnostic
-    $ Diagnostic.makeError "Your wasp project failed to compile"
+    $ Diagnostic.makeError WaspCompilationErrorsFound "Your wasp project failed to compile"
       & Diagnostic.setDetails (formatErrorOrWarningMessages errs)
 
 formatErrorOrWarningMessages :: [String] -> String
@@ -187,7 +188,7 @@ analyzeWithOptions waspProjectDir options = do
   case appSpecOrErrors of
     Left errors ->
       throwError $
-        makeCommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+        makeCommandError WaspSpecAnalysisFailed (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
     Right spec -> return spec
 
 -- | Like 'analyze', but keeps stdout free for machine-readable output:
