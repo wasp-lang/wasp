@@ -87,7 +87,7 @@ waspSpecEntityTypesTest =
     mainWaspTs :: T.Text -> T.Text
     mainWaspTs entityName =
       [trimming|
-        import { app, ref, route } from "@wasp/spec";
+        import { app, ref, route } from "wasp/spec";
 
         export default app({
           name: "enti",

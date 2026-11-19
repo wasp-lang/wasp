@@ -1,4 +1,4 @@
-import { action, job, page, query, route, type Spec } from "@wasp/spec";
+import { action, job, page, query, route, type Spec } from "wasp/spec";
 
 import {
   mySpecialJob,

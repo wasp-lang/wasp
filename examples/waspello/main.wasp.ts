@@ -1,5 +1,5 @@
-import { app, page, route } from "@wasp/spec";
 import { readFile } from "fs/promises";
+import { app, page, route } from "wasp/spec";
 import MainPage from "./src/cards/MainPage" with { type: "ref" };
 import Layout from "./src/Layout" with { type: "ref" };
 
