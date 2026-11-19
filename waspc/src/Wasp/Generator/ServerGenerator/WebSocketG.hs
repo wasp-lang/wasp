@@ -1,6 +1,5 @@
 module Wasp.Generator.ServerGenerator.WebSocketG
-  ( depsRequiredByWebSockets,
-    genWebSockets,
+  ( genWebSockets,
     mkWebSocketFnImport,
   )
 where
@@ -22,7 +21,6 @@ import Wasp.AppSpec.App.WebSocket (WebSocket)
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
   )
@@ -31,11 +29,6 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
-
-depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByWebSockets spec
-  | AS.WS.areWebSocketsUsed spec = AS.WS.serverDepsRequiredForWebSockets
-  | otherwise = []
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
