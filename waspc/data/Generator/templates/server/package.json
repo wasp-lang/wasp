@@ -10,9 +10,5 @@
     "start": "{=& devServerStartCommand =}",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}"
-  },
-  "engineStrict": true,
-  "engines": {
-    "node": "{=& nodeVersionRange =}"
   }
 }

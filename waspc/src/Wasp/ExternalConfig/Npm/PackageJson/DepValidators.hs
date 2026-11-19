@@ -1,7 +1,6 @@
 module Wasp.ExternalConfig.Npm.PackageJson.DepValidators
   ( DependencyType (..),
     makeRequiredDepValidator,
-    makeForbiddenDepValidator,
     inDependency,
   )
 where
@@ -54,22 +53,6 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
           ++ show pkgName
           ++ " with version "
           ++ show expectedPkgVersion
-          ++ "."
-
-makeForbiddenDepValidator :: DependencyType -> P.PackageName -> V.Validator P.PackageJson
-makeForbiddenDepValidator depType pkgName =
-  inDependency depType pkgName forbiddenValidator
-  where
-    forbiddenValidator :: V.Validator (Maybe P.PackageVersion)
-    forbiddenValidator Nothing = V.success
-    forbiddenValidator _ = forbiddenError
-
-    forbiddenError =
-      V.failure $
-        "Wasp doesn't allow a package named "
-          ++ show pkgName
-          ++ " to be present in "
-          ++ show (fst $ fieldForDepType depType)
           ++ "."
 
 -- | Runs the validator on a specific dependency of the given PackageJson
