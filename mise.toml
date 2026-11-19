@@ -86,12 +86,12 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 # `wasp-cli` and `run-wasp-app` commands that run the repo's dev versions.
 '_'.path = ["{{config_root}}/.config/mise/bin"]
 # The commands the e2e tests (waspc's, the starters', and the examples') use.
-# Both go through `PATH`, so CI jobs can put an installed binary in front of
-# them. Under `npm run`/`pnpm run`, `node_modules/.bin` comes first, so the
-# examples use the published runner they depend on, and the starters the
-# workspace's.
+# `wasp-cli` goes through `PATH`, so CI jobs can put an installed binary in
+# front of it. `run-wasp-app` is an absolute path, since the examples install
+# the published runner from npm into their `node_modules/.bin`, which `npm run`
+# puts first.
 WASP_CLI_CMD = "wasp-cli"
-WASP_APP_RUNNER_CLI_CMD = "run-wasp-app"
+WASP_APP_RUNNER_CLI_CMD = "{{config_root}}/.config/mise/bin/run-wasp-app"
 
 [settings]
 lockfile = true

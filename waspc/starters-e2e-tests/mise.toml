@@ -2,6 +2,5 @@
 
 [tasks.test]
 description = "Runs the starter templates' e2e tests with the local Wasp CLI."
-# The runner through the workspace link in `node_modules/.bin`.
-depends = ["//waspc:build", "//packages/wasp-app-runner:build"]
+depends = ["//waspc:build"]
 run = "pnpm run test:dev"
