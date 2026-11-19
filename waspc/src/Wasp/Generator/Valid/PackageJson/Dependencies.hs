@@ -11,30 +11,27 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
   ( DependencyType (..),
-    makeForbiddenDepValidator,
+    makeRequiredDepValidator,
   )
 import Wasp.Generator.OptionalNpmDeps (FeatureNpmDeps, getNpmDepsOfUsedFeatures)
 import qualified Wasp.Generator.OptionalNpmDeps as FeatureNpmDeps
-import Wasp.Generator.Valid.PackageJson.Common (forbiddenUserDeps)
+import Wasp.Generator.SdkGenerator.Common (sdkPackageName, sdkPackageSpecifier)
 import qualified Wasp.Validator as V
 
 dependenciesValidator :: AS.AppSpec -> V.Validator P.PackageJson
 dependenciesValidator spec =
   V.all
-    [ usedFeaturesDepsValidator,
-      forbiddenDepsValidator
+    [ sdkDepValidator,
+      usedFeaturesDepsValidator
     ]
   where
+    -- The user's code and the generated code import the generated SDK as a
+    -- package, so the project has to depend on it.
+    sdkDepValidator :: V.Validator P.PackageJson
+    sdkDepValidator = makeRequiredDepValidator Runtime (sdkPackageName, sdkPackageSpecifier)
+
     usedFeaturesDepsValidator :: V.Validator P.PackageJson
     usedFeaturesDepsValidator = V.all $ featureNpmDepsValidator <$> getNpmDepsOfUsedFeatures spec
-
-    forbiddenDepsValidator :: V.Validator P.PackageJson
-    forbiddenDepsValidator =
-      V.all $
-        [ makeForbiddenDepValidator depType pkgName
-        | depType <- [Runtime, Development],
-          pkgName <- forbiddenUserDeps
-        ]
 
 -- | Checks that the project lists the packages of a feature the app uses. npm
 -- checks their versions, because they are optional peer dependencies of
