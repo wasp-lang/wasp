@@ -3,6 +3,7 @@ module Wasp.Project.PackageManager
     supportedPackageManagers,
     getPackageManagerName,
     parsePackageManagerName,
+    parsePackageManagerFromUserAgent,
     getLockfileName,
     getSettingsFileNames,
     pnpmWorkspaceFileName,
@@ -60,6 +61,11 @@ getPackageManagerName = \case
 
 parsePackageManagerName :: String -> Maybe PackageManager
 parsePackageManagerName name = find ((== name) . getPackageManagerName) supportedPackageManagers
+
+-- | A package manager tells the commands it runs who it is through the
+-- `npm_config_user_agent` env var, e.g. "pnpm/10.0.0 npm/? node/v26.13.1 darwin arm64".
+parsePackageManagerFromUserAgent :: String -> Maybe PackageManager
+parsePackageManagerFromUserAgent = parsePackageManagerName . takeWhile (/= '/')
 
 -- | The lockfile that the package manager writes.
 getLockfileName :: PackageManager -> FilePath

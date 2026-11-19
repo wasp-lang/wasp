@@ -6,6 +6,7 @@ module Wasp.Cli.DevWaspNpmPackages
     devWaspNpmPackageSpecifier,
     checkDirectlyRunWaspCanCreateProjects,
     addDevWaspNpmPackageOverridesToPackageJsonFile,
+    getDevWaspNpmPackageOverrides,
     prepareDevWaspNpmPackagesForDockerBuild,
   )
 where
@@ -158,8 +159,12 @@ addDevWaspNpmPackageOverridesToPackageJsonFile tarballs packageJsonFile =
         & _Object . at "overrides" . non (object []) . _Object . at (Key.fromString packageName)
           ?~ String (T.pack specifier)
 
-    overrides :: [(PJ.PackageName, String)]
-    overrides = [(name, absTarballFileSpecifier tarball) | (name, tarball) <- dependencyTarballs tarballs]
+    overrides = getDevWaspNpmPackageOverrides tarballs
+
+-- | Each package that \@wasp/wasp brings, and the specifier of its dev tarball.
+getDevWaspNpmPackageOverrides :: DevWaspNpmPackageTarballs -> [(PJ.PackageName, String)]
+getDevWaspNpmPackageOverrides tarballs =
+  [(name, absTarballFileSpecifier tarball) | (name, tarball) <- dependencyTarballs tarballs]
 
 -- | Docker's build context is `.wasp/out/`, so we copy the tarballs into it,
 -- where the Dockerfile picks them up, and point the build's package.json at
