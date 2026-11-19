@@ -7,7 +7,12 @@ packages_dir="$repo_root/packages"
 
 # The packages this script packs. `cli` isn't here, because
 # `packages/cli/scripts/make-cli-npm-packages` packs it with its platform sub-packages.
+# The libs come first, in the order they depend on each other's build output.
 publish_packages=(
+  libs/auth
+  libs/sdk-core
+  libs/test-utils
+  libs/vite-ssr
   deploy
   spec
   studio
@@ -40,7 +45,8 @@ for package in "${publish_packages[@]}"; do
   echo "Building $package"
 
   pack_dir=$(mktemp -d)
-  package_output_dir="$output_dir/$(basename "$package")"
+  # `libs/auth` goes into `libs-auth`.
+  package_output_dir="$output_dir/${package//\//-}"
 
   cd "$packages_dir/$package"
 
