@@ -19,7 +19,7 @@ describe("client error handler", () => {
     );
   });
 
-  it("doesn't report an `HttpError`", () => {
+  it("doesn't report an `HttpError` with a status below 500", () => {
     handleClientError(new HttpError(404, "Not found"), {
       source: "window",
     });
@@ -27,17 +27,32 @@ describe("client error handler", () => {
     expect(console.error).not.toHaveBeenCalled();
   });
 
-  it("doesn't report an HTTP error that ky threw", () => {
-    const kyHttpError = new HTTPError(
-      new Response(null, { status: 401 }),
-      new Request("http://localhost:3001/foo"),
-      // The handler only looks at the error's type.
-      {} as ConstructorParameters<typeof HTTPError>[2],
+  it("reports an `HttpError` with a status of 500 or above", () => {
+    const error = new HttpError(502, "Bad gateway");
+
+    handleClientError(error, { source: "window" });
+
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(
+      "Unexpected error in window:",
+      error,
     );
+  });
+
+  it("doesn't report an HTTP error that ky threw with a status below 500", () => {
+    handleClientError(makeKyHttpError(401), { source: "window" });
+
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it("reports an HTTP error that ky threw with a status of 500 or above", () => {
+    const kyHttpError = makeKyHttpError(503);
 
     handleClientError(kyHttpError, { source: "window" });
 
-    expect(console.error).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(
+      "Unexpected error in window:",
+      kyHttpError,
+    );
   });
 
   it("reports the same error object only once", () => {
@@ -49,3 +64,12 @@ describe("client error handler", () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 });
+
+function makeKyHttpError(status: number): HTTPError {
+  return new HTTPError(
+    new Response(null, { status }),
+    new Request("http://localhost:3001/foo"),
+    // The handler only looks at the error's response.
+    {} as ConstructorParameters<typeof HTTPError>[2],
+  );
+}
