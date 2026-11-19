@@ -75,7 +75,7 @@ jobs:
         with:
           haskell: true
 
-      - name: Compile TS packages and libs
+      - name: Compile TS packages
         run: mise run build:dev-packages
 
       - name: Build external dependencies

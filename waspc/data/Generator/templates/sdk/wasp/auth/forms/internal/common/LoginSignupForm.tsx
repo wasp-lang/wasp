@@ -16,23 +16,23 @@ import {
   type AdditionalSignupField,
   type AdditionalSignupFieldRenderFn,
   type FormState,
-} from '@wasp/lib-sdk-core/browser'
+} from '@wasp/sdk-core/browser'
 
-import { useAuthContext } from '@wasp/lib-auth/browser'
+import { useAuthContext } from '@wasp/auth/browser'
 {=# enabledProviders.isEmailAuthEnabled =}
-import { emailFieldRules, emailInputProps } from '@wasp/lib-sdk-core/browser'
+import { emailFieldRules, emailInputProps } from '@wasp/sdk-core/browser'
 {=/ enabledProviders.isEmailAuthEnabled =}
 {=# isSocialAuthEnabled =}
-import * as SocialIcons from '@wasp/lib-sdk-core/browser'
-import { SocialButton } from '@wasp/lib-sdk-core/browser'
+import * as SocialIcons from '@wasp/sdk-core/browser'
+import { SocialButton } from '@wasp/sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
-import { getAuthErrorMessage, newPasswordFieldRules, passwordFieldRules } from '@wasp/lib-sdk-core/browser'
+import { getAuthErrorMessage, newPasswordFieldRules, passwordFieldRules } from '@wasp/sdk-core/browser'
 import { passwordValidationSchema } from '../../../validation.js'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-import { usernameFieldRules } from '@wasp/lib-sdk-core/browser'
+import { usernameFieldRules } from '@wasp/sdk-core/browser'
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
 {=# enabledProviders.isEmailAuthEnabled =}
@@ -62,7 +62,7 @@ const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
 {=/ enabledProviders.isMicrosoftAuthEnabled =}
 
-import type { LoginSignupFormFields } from '@wasp/lib-sdk-core/browser'
+import type { LoginSignupFormFields } from '@wasp/sdk-core/browser'
 
 
 // PRIVATE API

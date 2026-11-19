@@ -6,7 +6,7 @@
  * @module
  */
 
-import type { EmailFromField, SentMessageInfo } from "@wasp/lib-sdk-core/node";
+import type { EmailFromField, SentMessageInfo } from "@wasp/sdk-core/node";
 
 /**
  * Sends emails with the provider you set up in the `emailSender` field of the
@@ -71,11 +71,11 @@ export type Email = {
  *
  * It has the sender's `email` address, and optionally their `name`.
  */
-export type { EmailFromField } from "@wasp/lib-sdk-core/node";
+export type { EmailFromField } from "@wasp/sdk-core/node";
 
 /**
  * The status of a sent email, returned by
  * {@linkcode EmailSender.send | emailSender.send}. It varies depending on the
  * provider you use.
  */
-export type { SentMessageInfo } from "@wasp/lib-sdk-core/node";
+export type { SentMessageInfo } from "@wasp/sdk-core/node";

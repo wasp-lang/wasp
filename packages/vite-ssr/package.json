@@ -1,12 +1,12 @@
 {
-  "name": "@wasp/lib-vite-ssr",
+  "name": "@wasp/vite-ssr",
   "version": "0.27.0",
   "type": "module",
   "description": "Server-side rendering Vite plugins for Wasp apps.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
-    "directory": "packages/libs/vite-ssr"
+    "directory": "packages/vite-ssr"
   },
   "homepage": "https://wasp.sh/",
   "bugs": {
