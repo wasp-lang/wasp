@@ -341,7 +341,7 @@ const config: Config = {
         useCustomAnchors: true,
 
         // Documents types that our packages reference but don't export, e.g.
-        // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures. The
+        // the `@wasp/sdk-core` types used in the Wasp SDK's signatures. The
         // theme plugin puts them in a "Referenced Types" group.
         plugin: [
           "typedoc-plugin-missing-exports",

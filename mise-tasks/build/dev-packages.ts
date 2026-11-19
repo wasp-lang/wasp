@@ -32,17 +32,15 @@ import {
 } from "../../packages/cli/scripts/make-cli-npm-packages/src/generator/cli-package.ts";
 import { getCurrentPlatformTarget } from "../../packages/cli/scripts/make-cli-npm-packages/src/schema/output-data.ts";
 import {
+  buildWaspPackages,
   getPackageDirPath,
-  getPackageName,
-  WASP_MAIN_PACKAGE_DIR_NAME,
-  WASP_NPM_SUBPACKAGES_DIR_NAMES,
+  WASP_MAIN_PACKAGE_NAME,
+  WASP_NPM_SUBPACKAGE_NAMES,
 } from "../../waspc/tools/packages/utils.ts";
 import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
-  getRepoRootPath,
   getWaspcDirPath,
-  runCmd,
   runCmdAndGetStdout,
 } from "../../waspc/tools/utils.ts";
 
@@ -58,7 +56,7 @@ const DEV_CLI_SUB_PACKAGE_SOURCE_PATH = join(
 );
 
 // We pack `@wasp/cli` ourselves, with the dev CLI sub-package.
-const CLI_PACKAGE_DIR_NAME = "cli";
+const CLI_PACKAGE_NAME = "@wasp/cli";
 
 try {
   buildDevPackages();
@@ -72,23 +70,19 @@ function buildDevPackages(): void {
   rmSync(devPackagesDir, { recursive: true, force: true });
   mkdirSync(devPackagesDir, { recursive: true });
 
+  console.log("Building packages");
+  buildWaspPackages(WASP_NPM_SUBPACKAGE_NAMES);
+
   const dependencyTarballs: Record<string, string> = {};
-  for (const packageDirName of WASP_NPM_SUBPACKAGES_DIR_NAMES) {
-    const packageName = getPackageName(packageDirName);
-    console.log(`Building ${packageName}`);
-    runCmd(
-      "pnpm",
-      ["--filter", packageName, "--fail-if-no-match", "run", "build"],
-      { cwd: getRepoRootPath() },
-    );
+  for (const packageName of WASP_NPM_SUBPACKAGE_NAMES) {
     dependencyTarballs[packageName] =
-      packageDirName === CLI_PACKAGE_DIR_NAME
+      packageName === CLI_PACKAGE_NAME
         ? packDevCliPackage(devPackagesDir)
-        : packPackage(getPackageDirPath(packageDirName), devPackagesDir);
+        : packPackage(getPackageDirPath(packageName), devPackagesDir);
   }
 
   const waspTarball = packPackage(
-    getPackageDirPath(WASP_MAIN_PACKAGE_DIR_NAME),
+    getPackageDirPath(WASP_MAIN_PACKAGE_NAME),
     devPackagesDir,
   );
 

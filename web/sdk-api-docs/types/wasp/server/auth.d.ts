@@ -18,7 +18,7 @@
  * @module
  */
 
-import type { PossibleProviderData, ProviderName } from "@wasp/lib-sdk-core";
+import type { PossibleProviderData, ProviderName } from "@wasp/sdk-core";
 import type { Request } from "express";
 import type { PrismaClient } from "../server";
 import type { Email } from "./email";
@@ -194,7 +194,7 @@ export type ProviderId = {
 /**
  * The name of an auth method, as used in {@link ProviderId}.
  */
-export type { ProviderName } from "@wasp/lib-sdk-core";
+export type { ProviderName } from "@wasp/sdk-core";
 
 /**
  * The data Wasp stores for a user's
@@ -202,7 +202,7 @@ export type { ProviderName } from "@wasp/lib-sdk-core";
  *
  * @see [Accessing user data](https://wasp.sh/docs/features/auth/entities)
  */
-export type { EmailProviderData } from "@wasp/lib-sdk-core";
+export type { EmailProviderData } from "@wasp/sdk-core";
 
 /**
  * The data Wasp stores for a user's
@@ -211,14 +211,14 @@ export type { EmailProviderData } from "@wasp/lib-sdk-core";
  *
  * @see [Accessing user data](https://wasp.sh/docs/features/auth/entities)
  */
-export type { UsernameProviderData } from "@wasp/lib-sdk-core";
+export type { UsernameProviderData } from "@wasp/sdk-core";
 
 /**
  * The data Wasp stores for a user's
  * [social auth](https://wasp.sh/docs/features/auth/social-auth/overview)
  * identity. It's empty.
  */
-export type { OAuthProviderData } from "@wasp/lib-sdk-core";
+export type { OAuthProviderData } from "@wasp/sdk-core";
 
 /**
  * Creates a {@link ProviderId} that identifies a user's auth identity.
@@ -282,7 +282,7 @@ export declare function findAuthIdentity(
  * }
  * ```
  */
-export { getProviderData } from "@wasp/lib-sdk-core";
+export { getProviderData } from "@wasp/sdk-core";
 
 /**
  * Works like {@link getProviderData}, but it includes the hashed password. Use
@@ -291,7 +291,7 @@ export { getProviderData } from "@wasp/lib-sdk-core";
  *
  * @param providerData The `providerData` field of an `AuthIdentity` entity.
  */
-export { getProviderDataWithPassword } from "@wasp/lib-sdk-core";
+export { getProviderDataWithPassword } from "@wasp/sdk-core";
 
 /**
  * Prepares an auth method's data for saving in an `AuthIdentity` entity's
@@ -463,7 +463,7 @@ export declare function createUser(
  * };
  * ```
  */
-export { ensurePasswordIsPresent } from "@wasp/lib-sdk-core";
+export { ensurePasswordIsPresent } from "@wasp/sdk-core";
 
 /**
  * Checks that `args.password` is a valid password, and throws an `HttpError`
@@ -485,7 +485,7 @@ export declare function ensureValidPassword(args: object): void;
  *
  * @param args The data sent from the client.
  */
-export { ensureTokenIsPresent } from "@wasp/lib-sdk-core";
+export { ensureTokenIsPresent } from "@wasp/sdk-core";
 
 /**
  * Checks that `args.email` is present and a valid email address, and throws
@@ -501,7 +501,7 @@ export { ensureTokenIsPresent } from "@wasp/lib-sdk-core";
  *
  * @see [Default validations](https://wasp.sh/docs/features/auth/overview#default-validations)
  */
-export { ensureValidEmail } from "@wasp/lib-sdk-core";
+export { ensureValidEmail } from "@wasp/sdk-core";
 
 /**
  * Checks that `args.username` is present, and throws an `HttpError` with
@@ -515,7 +515,7 @@ export { ensureValidEmail } from "@wasp/lib-sdk-core";
  *
  * @see [Default validations](https://wasp.sh/docs/features/auth/overview#default-validations)
  */
-export { ensureValidUsername } from "@wasp/lib-sdk-core";
+export { ensureValidUsername } from "@wasp/sdk-core";
 
 // Email auth
 
@@ -692,7 +692,7 @@ export declare function isEmailResendAllowed<
  *
  * @see {@link "@wasp/spec"!EmailFlowConfig | EmailFlowConfig}
  */
-export type { GetVerificationEmailContentFn } from "@wasp/lib-sdk-core/node";
+export type { GetVerificationEmailContentFn } from "@wasp/sdk-core/node";
 
 /**
  * The type of the function that creates the content of the password reset
@@ -720,7 +720,7 @@ export type { GetVerificationEmailContentFn } from "@wasp/lib-sdk-core/node";
  *
  * @see {@link "@wasp/spec"!EmailFlowConfig | EmailFlowConfig}
  */
-export type { GetPasswordResetEmailContentFn } from "@wasp/lib-sdk-core/node";
+export type { GetPasswordResetEmailContentFn } from "@wasp/sdk-core/node";
 
 // Hooks
 

@@ -1,7 +1,7 @@
 import { getDefaultFromField } from "../helpers.js";
 import type { DummyEmailProvider, EmailSender } from "../types";
 
-import { colorize } from "@wasp/lib-sdk-core";
+import { colorize } from "@wasp/sdk-core";
 
 // PRIVATE API
 export function initDummyEmailSender(

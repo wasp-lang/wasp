@@ -10,4 +10,4 @@ export {
   HttpError,
   type HttpErrorData,
   type HttpErrorOptions,
-} from "@wasp/lib-sdk-core";
+} from "@wasp/sdk-core";
