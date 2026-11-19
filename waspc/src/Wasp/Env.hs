@@ -5,6 +5,7 @@ module Wasp.Env
     EnvVarName,
     EnvVarValue,
     parseDotEnvFile,
+    parseDotEnvContent,
     envVarsToDotEnvContent,
     nubEnvVars,
     formatEnvVarValue,
@@ -14,15 +15,14 @@ module Wasp.Env
   )
 where
 
-import qualified Configuration.Dotenv as Dotenv
-import Control.Exception (ErrorCall (ErrorCall))
+import Data.Char (isAlphaNum, isAscii, isSpace)
 import Data.Function (on)
-import Data.List (intercalate, nubBy)
+import Data.List (dropWhileEnd, intercalate, isInfixOf, isPrefixOf, isSuffixOf, nubBy)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as T
-import StrongPath (Abs, File, Path', fromAbsFile)
-import UnliftIO.Exception (catch, throwIO)
+import StrongPath (Abs, File, Path')
+import qualified Wasp.Util.IO as IOUtil
 
 type EnvVar = (EnvVarName, EnvVarValue)
 
@@ -31,13 +31,142 @@ type EnvVarName = String
 type EnvVarValue = String
 
 -- Reads the specified dotenv file and returns its values.
--- Crashes if file doesn't exist or it can't parse it.
+-- Crashes if file doesn't exist.
 parseDotEnvFile :: Path' Abs (File ()) -> IO [EnvVar]
 parseDotEnvFile envFile =
-  Dotenv.parseFile (fromAbsFile envFile)
-    -- Parse errors are returned from Dotenv.parseFile as ErrorCall, which Wasp compiler would
-    -- report as a bug in compiler, so we instead convert these to IOExceptions.
-    `catch` \(ErrorCall msg) -> throwIO $ userError $ "Failed to parse dot env file: " <> msg
+  parseDotEnvContent <$> IOUtil.readFile envFile
+
+-- | Parses dotenv content matching Node's `dotenv` package rules (Issue #4896):
+-- - Duplicate variable definitions: last definition wins.
+-- - `${VAR}` and `$(command)` are kept literally.
+-- - Unquoted values may contain spaces (trimmed, up to `#` or newline).
+-- - Single (`'`), double (`"`), and backtick (`` ` ``) quotes are supported.
+-- - Inside double quotes, `\n` and `\r` are expanded; `\"` is kept as `\"`.
+-- - Lines that are not definitions are skipped.
+parseDotEnvContent :: String -> [EnvVar]
+parseDotEnvContent = keepLastEnvVars . parseLines . normalizeNewlines
+  where
+    normalizeNewlines :: String -> String
+    normalizeNewlines ('\r' : '\n' : rest) = '\n' : normalizeNewlines rest
+    normalizeNewlines ('\r' : rest) = '\n' : normalizeNewlines rest
+    normalizeNewlines (c : rest) = c : normalizeNewlines rest
+    normalizeNewlines [] = []
+
+    keepLastEnvVars :: [EnvVar] -> [EnvVar]
+    keepLastEnvVars = reverse . nubEnvVars . reverse
+
+    parseLines :: String -> [EnvVar]
+    parseLines [] = []
+    parseLines s =
+      case parseDefinition s of
+        Just (envVar, rest) -> envVar : parseLines rest
+        Nothing -> parseLines (dropLine s)
+
+    parseDefinition :: String -> Maybe (EnvVar, String)
+    parseDefinition lineStart = do
+      let s1 = dropHorizontalSpace lineStart
+      (key, valStart) <- parseKeyAndSeparator s1
+      case dropJsSpace valStart of
+        q : afterOpenQuote
+          | isQuoteChar q,
+            Just (quotedVal, remainingLines) <- parseQuotedValue q afterOpenQuote ->
+              let finalVal = if q == '"' then expandDoubleQuoteNewlines quotedVal else quotedVal
+               in Just ((key, finalVal), remainingLines)
+        _ -> Just $ parseUnquotedValue key valStart
+
+    parseKeyAndSeparator :: String -> Maybe (EnvVarName, String)
+    parseKeyAndSeparator s
+      | "export" `isPrefixOf` s,
+        c : rest <- drop 6 s,
+        isJsSpace c,
+        Just result <- parseRawKeyAndSeparator (dropJsSpace rest) =
+          Just result
+      | otherwise = parseRawKeyAndSeparator s
+
+    parseRawKeyAndSeparator :: String -> Maybe (EnvVarName, String)
+    parseRawKeyAndSeparator s = do
+      let (key, afterKey) = span isKeyChar s
+      if null key
+        then Nothing
+        else do
+          valStart <- stripSeparator afterKey
+          Just (key, valStart)
+
+    stripSeparator :: String -> Maybe String
+    stripSeparator s =
+      case dropJsSpace s of
+        '=' : rest -> Just rest
+        _ -> case s of
+          ':' : c : rest | isJsSpace c -> Just rest
+          _ -> Nothing
+
+    parseQuotedValue :: Char -> String -> Maybe (String, String)
+    parseQuotedValue quoteChar = go []
+      where
+        go _ [] = Nothing
+        go acc ('\\' : c : rest)
+          | c == quoteChar =
+              case go (c : '\\' : acc) rest of
+                Just result -> Just result
+                Nothing -> closeQuote ('\\' : acc) rest
+        go acc (c : rest)
+          | c == quoteChar = closeQuote acc rest
+          | otherwise = go (c : acc) rest
+
+        closeQuote :: String -> String -> Maybe (String, String)
+        closeQuote acc rest =
+          let afterClose = dropHorizontalSpace rest
+           in case afterClose of
+                [] -> Just (reverse acc, [])
+                '\n' : nextLines -> Just (reverse acc, nextLines)
+                '#' : _ -> Just (reverse acc, dropLine afterClose)
+                _ -> Nothing
+
+    parseUnquotedValue :: EnvVarName -> String -> (EnvVar, String)
+    parseUnquotedValue key valStart =
+      let (currentLine, afterNewline) = break (== '\n') valStart
+          remainingLines = case afterNewline of
+            '\n' : rest -> rest
+            _ -> []
+          (beforeComment, _) = break (== '#') currentLine
+          trimmed = trimHorizontalSpace beforeComment
+          unwrapped = case trimmed of
+            q : inner
+              | isQuoteChar q,
+                not (null inner),
+                last inner == q ->
+                  init inner
+            _ -> trimmed
+          finalVal = case trimmed of
+            '"' : _ -> expandDoubleQuoteNewlines unwrapped
+            _ -> unwrapped
+       in ((key, finalVal), remainingLines)
+
+    expandDoubleQuoteNewlines :: String -> String
+    expandDoubleQuoteNewlines ('\\' : 'n' : rest) = '\n' : expandDoubleQuoteNewlines rest
+    expandDoubleQuoteNewlines ('\\' : 'r' : rest) = '\r' : expandDoubleQuoteNewlines rest
+    expandDoubleQuoteNewlines (c : rest) = c : expandDoubleQuoteNewlines rest
+    expandDoubleQuoteNewlines [] = []
+
+    dropLine :: String -> String
+    dropLine s = case break (== '\n') s of
+      (_, '\n' : rest) -> rest
+      (_, _) -> []
+
+    isHorizontalSpace :: Char -> Bool
+    isHorizontalSpace c = c /= '\n' && c /= '\r' && isJsSpace c
+
+    dropJsSpace :: String -> String
+    dropJsSpace = dropWhile isJsSpace
+
+    dropHorizontalSpace :: String -> String
+    dropHorizontalSpace = dropWhile isHorizontalSpace
+
+    trimHorizontalSpace :: String -> String
+    trimHorizontalSpace = dropWhileEnd isHorizontalSpace . dropHorizontalSpace
+
+    isKeyChar :: Char -> Bool
+    isKeyChar c = (isAscii c && isAlphaNum c) || c == '_' || c == '.' || c == '-'
 
 -- | Formats environment variables for .env file content.
 envVarsToDotEnvContent :: [EnvVar] -> T.Text
@@ -48,11 +177,127 @@ envVarsToDotEnvContent vars =
 
 formatEnvVarValue :: EnvVarValue -> EnvVarValue
 formatEnvVarValue rawValue
-  | needsQuoting rawValue = concat ["\"", rawValue, "\""]
-  | otherwise = rawValue
+  | not (needsQuoting rawValue) = rawValue
+  | canUseSingleQuotes = wrapInQuotes '\'' rawValue
+  | canUseBacktickQuotes = wrapInQuotes '`' rawValue
+  | canUseSingleLineSingleQuotes = wrapInQuotes '\'' rawValue
+  | canUseSingleLineBacktickQuotes = wrapInQuotes '`' rawValue
+  | otherwise = wrapInQuotes '"' escapedForDoubleQuotes
   where
     needsQuoting :: String -> Bool
-    needsQuoting val = ' ' `elem` val
+    needsQuoting val =
+      any isJsSpace val
+        || '#' `elem` val
+        || startsWithQuote val
+
+    startsWithQuote :: String -> Bool
+    startsWithQuote (q : _) = isQuoteChar q
+    startsWithQuote [] = False
+
+    hasDoubleQuoteConflict :: Bool
+    hasDoubleQuoteConflict =
+      hasLiteralNewlineEscape
+        || ( '"' `elem` rawValue
+               && ( '#' `elem` rawValue
+                      || startsWithQuote rawValue
+                      || not (canWrapSingleLineInQuote '"' escapedForDoubleQuotes)
+                  )
+           )
+
+    hasLiteralNewlineEscape :: Bool
+    hasLiteralNewlineEscape =
+      "\\n" `isInfixOf` rawValue || "\\r" `isInfixOf` rawValue
+
+    hasCarriageReturn :: Bool
+    hasCarriageReturn = '\r' `elem` rawValue
+
+    isSingleLineWithoutComment :: Bool
+    isSingleLineWithoutComment =
+      not hasCarriageReturn
+        && '\n' `notElem` rawValue
+        && '#' `notElem` rawValue
+
+    canUseSingleQuotes :: Bool
+    canUseSingleQuotes =
+      hasDoubleQuoteConflict && not hasCarriageReturn && canWrapInQuote '\'' rawValue
+
+    canUseBacktickQuotes :: Bool
+    canUseBacktickQuotes =
+      hasDoubleQuoteConflict && not hasCarriageReturn && canWrapInQuote '`' rawValue
+
+    -- Single-line values without '#' can safely be wrapped in single or
+    -- backtick quotes even when they contain that quote character internally,
+    -- as long as no interior quote at or before the first unescaped quote is
+    -- followed by JS whitespace containing a line separator (U+2028/U+2029).
+    -- The quoted parser then fails on the same line and the unquoted parser
+    -- strips the outer quotes without expanding literal \n or \r escapes.
+    canUseSingleLineSingleQuotes :: Bool
+    canUseSingleLineSingleQuotes =
+      hasDoubleQuoteConflict
+        && isSingleLineWithoutComment
+        && canWrapSingleLineInQuote '\'' rawValue
+
+    canUseSingleLineBacktickQuotes :: Bool
+    canUseSingleLineBacktickQuotes =
+      hasDoubleQuoteConflict
+        && isSingleLineWithoutComment
+        && canWrapSingleLineInQuote '`' rawValue
+
+    canWrapInQuote :: Char -> String -> Bool
+    canWrapInQuote quoteChar = go
+      where
+        go [] = True
+        go ('\\' : c : rest)
+          | c == quoteChar = go rest
+          | otherwise = go (c : rest)
+        go (c : rest)
+          | c == quoteChar = False
+          | otherwise = go rest
+
+    canWrapSingleLineInQuote :: Char -> String -> Bool
+    canWrapSingleLineInQuote quoteChar = go
+      where
+        go [] = True
+        go ('\\' : c : rest)
+          | c == quoteChar = not (closesAtLineSeparator rest) && go rest
+          | otherwise = go (c : rest)
+        go (c : rest)
+          | c == quoteChar = not (closesAtLineSeparator rest)
+          | otherwise = go rest
+
+        closesAtLineSeparator :: String -> Bool
+        closesAtLineSeparator s =
+          any isJsLineSeparator (takeWhile isJsSpace s)
+
+    -- When a quoted value ends with '\', dotenv preferentially treats the
+    -- closing quote as escaped (\', \", \`) and continues scanning across lines.
+    -- Appending a trailing comment containing an unescaped quote followed by a
+    -- non-comment character (e.g. #'_) forces the escaped-quote branch to fail
+    -- on the same line and backtrack to the actual closing quote.
+    wrapInQuotes :: Char -> String -> String
+    wrapInQuotes quoteChar body
+      | hasTrailingBackslash = concat [[quoteChar], body, [quoteChar, ' ', '#', quoteChar, '_']]
+      | otherwise = concat [[quoteChar], body, [quoteChar]]
+
+    hasTrailingBackslash :: Bool
+    hasTrailingBackslash = "\\" `isSuffixOf` rawValue
+
+    escapedForDoubleQuotes :: String
+    escapedForDoubleQuotes = concatMap escapeChar rawValue
+
+    escapeChar :: Char -> String
+    escapeChar '\n' = "\\n"
+    escapeChar '\r' = "\\r"
+    escapeChar c = [c]
+
+isQuoteChar :: Char -> Bool
+isQuoteChar c = c == '\'' || c == '"' || c == '`'
+
+isJsLineSeparator :: Char -> Bool
+isJsLineSeparator c = c == '\x2028' || c == '\x2029'
+
+isJsSpace :: Char -> Bool
+isJsSpace c = isSpace c || c == '\xFEFF' || isJsLineSeparator c
 
 nubEnvVars :: [EnvVar] -> [EnvVar]
 nubEnvVars = nubBy ((==) `on` fst)
