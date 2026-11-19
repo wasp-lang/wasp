@@ -5,8 +5,8 @@ import addWaspSourceHeader from "../common/addWaspSourceHeader";
 import EmailAndPassForm from "./components/EmailAndPassForm";
 import GoogleAuthButton from "./components/GoogleAuthButton";
 
-import { ClientHttpError } from "wasp/client";
 import { login, signup } from "wasp/client/auth";
+import { HttpError } from "wasp/errors";
 import mainLogo from "../common/waspello-logo.svg";
 import "./Signup.css";
 
@@ -30,7 +30,7 @@ const SignupPage = () => {
 
       navigate("/");
     } catch (error: unknown) {
-      if (error instanceof ClientHttpError && error.statusCode === 422) {
+      if (error instanceof HttpError && error.status === 422) {
         const description =
           typeof error.data?.message === "string"
             ? error.data.message

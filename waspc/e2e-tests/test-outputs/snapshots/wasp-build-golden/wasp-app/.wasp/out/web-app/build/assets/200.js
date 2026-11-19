@@ -95,12 +95,11 @@ function DefaultRootErrorBoundary() {
 var apiEventsEmitter = mitt();
 // node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
 /**
-* The base form of Wasp's HTTP errors. It holds the status code, the message,
-* and the data, which the server's and the client's errors have in common.
+* An error for an HTTP error response, which has a status code in the range
+* `[400, 600)`.
 *
-* It is abstract, so you create one of the classes that extend it. Use
-* `HttpError` itself to handle any of them, e.g. in code that runs on both the
-* server and the client.
+* Its `status`, `message`, and `data` are part of the response, so only put
+* information in them that is safe to show to the user.
 *
 * @typeParam Data The type of the error's `data`. It defaults to
 * {@link HttpErrorData}, an object with any fields.
@@ -109,8 +108,39 @@ var apiEventsEmitter = mitt();
 * ```ts
 * import { HttpError } from "wasp/errors";
 *
-* export function isNotFoundError(error: unknown): boolean {
-*   return error instanceof HttpError && error.statusCode === 404;
+* export const getTask = async ({ id }, context) => {
+*   if (!context.user) {
+*     throw new HttpError(401, "You must be logged in.");
+*   }
+*   // ...
+* };
+* ```
+*
+* @example
+* Sending extra information and response headers:
+*
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* throw new HttpError(429, "Too many requests", {
+*   data: { limitPerMinute: 60 },
+*   headers: { "Retry-After": "60" },
+* });
+* ```
+*
+* @example
+* Reading it on the client:
+*
+* ```ts
+* import { createTask } from "wasp/client/operations";
+* import { HttpError } from "wasp/errors";
+*
+* try {
+*   await createTask({ description: "Buy milk" });
+* } catch (error: unknown) {
+*   if (error instanceof HttpError && error.status === 429) {
+*     const retryAfter = error.response.headers.get("Retry-After");
+*   }
 * }
 * ```
 *
@@ -118,29 +148,42 @@ var apiEventsEmitter = mitt();
 */
 var HttpError = class extends Error {
 	/**
-	* The HTTP status code of the response, an integer in the range
-	* `[400, 600)`.
+	* The HTTP response the error stands for. Read the status code and the
+	* headers from it.
+	*
+	* Don't read its body, since it may already be consumed. Use `message` and
+	* `data` instead.
 	*/
-	statusCode;
+	response;
 	/**
 	* Extra information about the error, e.g. which form field is invalid.
 	* It is `undefined` if the error was created without it.
 	*/
 	data;
 	/**
-	* @param statusCode The HTTP status code. It must be an integer in the
-	* range `[400, 600)`, otherwise the constructor throws an `Error`.
-	* @param message The error message.
-	* @param data An object with any extra information about the error.
-	* @param options The standard `Error` options (e.g. `cause`).
+	* The HTTP status code of the response, an integer in the range
+	* `[400, 600)`.
 	*/
-	constructor(statusCode, message, data, options) {
+	get status() {
+		return this.response.status;
+	}
+	/**
+	* @deprecated Use {@link HttpError.status | status} instead.
+	*/
+	get statusCode() {
+		return this.status;
+	}
+	constructor(statusOrResponse, message, options = {}) {
 		super(message, options);
 		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
 		this.name = "HttpError";
-		if (!isHttpErrorStatusCode(statusCode)) throw new Error("statusCode has to be integer in range [400, 600).");
-		this.statusCode = statusCode;
-		this.data = data;
+		const status = typeof statusOrResponse === "number" ? statusOrResponse : statusOrResponse.status;
+		if (!isHttpErrorStatusCode(status)) throw new Error("The status of an HttpError has to be an integer in the range [400, 600).");
+		this.data = options.data;
+		this.response = typeof statusOrResponse === "number" ? Response.json(toHttpErrorBody(this), {
+			status,
+			headers: options.headers
+		}) : statusOrResponse;
 	}
 };
 /**
@@ -149,6 +192,15 @@ var HttpError = class extends Error {
 */
 function isHttpErrorStatusCode(value) {
 	return typeof value === "number" && Number.isInteger(value) && value >= 400 && value < 600;
+}
+/**
+* Builds the JSON body of the response of an {@link HttpError}.
+*/
+function toHttpErrorBody(error) {
+	return {
+		message: error.message,
+		data: error.data
+	};
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
@@ -226,7 +278,7 @@ function withWaspQueryDefaults(config) {
 }
 function shouldRetryQuery(failureCount, error) {
 	if (failureCount >= MAX_QUERY_RETRIES) return false;
-	return !(error instanceof HttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
+	return !(error instanceof HttpError && error.status >= 400 && error.status < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.status));
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";

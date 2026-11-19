@@ -1,5 +1,5 @@
-import { ClientHttpError } from "wasp/client";
 import { getTeapot, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export const ErrorsPage = () => {
@@ -9,10 +9,10 @@ export const ErrorsPage = () => {
     <FeatureContainer>
       <div className="space-y-4">
         <h2 className="feature-title">Errors</h2>
-        {error instanceof ClientHttpError && (
+        {error instanceof HttpError && (
           <dl className="card" data-testid="http-error">
             <dt>Status</dt>
-            <dd data-testid="status">{error.statusCode}</dd>
+            <dd data-testid="status">{error.status}</dd>
             <dt>Message</dt>
             <dd data-testid="message">{error.message}</dd>
             <dt>Reason</dt>

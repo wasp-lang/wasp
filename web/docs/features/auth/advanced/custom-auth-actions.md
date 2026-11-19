@@ -48,17 +48,17 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { ServerHttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new ServerHttpError(403, "This sign-up method is disabled")
+  throw new HttpError(403, "This sign-up method is disabled")
 }
 ```
 
 ```ts title="src/auth/signup.ts" auto-js
 import type { CustomSignup } from "wasp/server/operations";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import {
   createEmailVerificationLink,
   createProviderId,
@@ -100,7 +100,7 @@ export const customSignup: CustomSignup<
       // User already exists, handle accordingly
 
       // For example, throw an error or return a message
-      throw new ServerHttpError(400, "Email already exists.");
+      throw new HttpError(400, "Email already exists.");
 
       // Or, another example, you can check if the user is already
       // verified and re-send the verification email if not
@@ -108,7 +108,7 @@ export const customSignup: CustomSignup<
         existingAuthIdentity.providerData,
       );
       if (providerData.isEmailVerified)
-        throw new ServerHttpError(400, "Email already verified.");
+        throw new HttpError(400, "Email already verified.");
     }
 
     if (!providerData) {
@@ -148,7 +148,7 @@ export const customSignup: CustomSignup<
       });
     } catch (e: unknown) {
       console.error("Failed to send email verification email:", e);
-      throw new ServerHttpError(500, "Failed to send email verification email.");
+      throw new HttpError(500, "Failed to send email verification email.");
     }
   } catch (e: any) {
     return {
@@ -189,11 +189,11 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { ServerHttpError } from "wasp/server"
+import { HttpError } from "wasp/errors"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new ServerHttpError(403, "This sign-up method is disabled")
+  throw new HttpError(403, "This sign-up method is disabled")
 }
 ```
 

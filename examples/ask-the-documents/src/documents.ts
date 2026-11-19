@@ -10,7 +10,8 @@ import {
   type SearchDocuments,
 } from "wasp/server/operations";
 
-import { env, prisma, ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
+import { env, prisma } from "wasp/server";
 // @ts-ignore
 import openai from "openai";
 import { toSql } from "pgvector/utils";
@@ -33,7 +34,7 @@ export const embedDocument: EmbedDocument<
   EmbedDocumentOutput
 > = async (args, { user }) => {
   if (!user) {
-    throw new ServerHttpError(401, "You must be logged in to embed documents");
+    throw new HttpError(401, "You must be logged in to embed documents");
   }
   const { url, selector } = args;
 
@@ -74,7 +75,7 @@ export const searchDocuments: SearchDocuments<
   SearchDocumentsOutput
 > = async (args, { user }) => {
   if (!user) {
-    throw new ServerHttpError(401, "You must be logged in to search documents");
+    throw new HttpError(401, "You must be logged in to search documents");
   }
   const { query } = args;
 
@@ -118,7 +119,7 @@ export const deleteDocument: DeleteDocument<
   DeleteDocumentOutput
 > = async (args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401, "You must be logged in to delete documents");
+    throw new HttpError(401, "You must be logged in to delete documents");
   }
   const { id } = args;
   await context.entities.Document.delete({
@@ -134,7 +135,7 @@ export const deleteAllDocuments: DeleteAllDocuments<
   DeleteAllDocumentsOutput
 > = async (_args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401, "You must be logged in to delete documents");
+    throw new HttpError(401, "You must be logged in to delete documents");
   }
 
   await context.entities.Document.deleteMany();

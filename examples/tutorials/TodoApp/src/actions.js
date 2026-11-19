@@ -1,8 +1,8 @@
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 export const createTask = async (args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   return context.entities.Task.create({
     data: {
@@ -14,7 +14,7 @@ export const createTask = async (args, context) => {
 
 export const updateTask = async ({ id, isDone }, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   return context.entities.Task.update({
     where: { id, user: { id: context.user.id } },

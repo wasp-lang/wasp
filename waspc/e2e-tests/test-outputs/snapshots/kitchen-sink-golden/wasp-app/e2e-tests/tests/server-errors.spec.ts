@@ -15,19 +15,22 @@ test.describe("server errors", () => {
     });
   });
 
-  test("a ServerHttpError keeps its status, message, and data", async ({
+  test("an HttpError keeps its status, headers, message, and data", async ({
     request,
   }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/http`);
 
     expect(response.status()).toBe(418);
+    expect(response.headers()["content-type"]).toContain(
+      "application/vnd.teapot+json",
+    );
     expect(await response.json()).toEqual({
       message: "I'm a teapot",
       data: { reason: "short and stout" },
     });
   });
 
-  test("any other HttpError keeps its status, message, and data", async ({
+  test("a class that extends HttpError keeps its status, message, and data", async ({
     request,
   }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/custom-http`);
@@ -95,7 +98,9 @@ test.describe("server errors", () => {
     });
   });
 
-  test("a middleware error keeps its headers", async ({ request }) => {
+  test("the headers of an error replace the ones already set", async ({
+    request,
+  }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/rate-limit`);
 
     expect(response.status()).toBe(429);

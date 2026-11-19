@@ -1,6 +1,6 @@
 import { isValidEmail } from "@wasp/lib-auth";
 import * as z from "zod";
-import { ServerHttpError } from "../ServerHttpError.js";
+import { HttpError } from "../HttpError.js";
 
 export type PasswordValidationSchema = z.ZodType<string, string>;
 
@@ -44,7 +44,7 @@ export function ensureTokenIsPresent(args: object): void {
 }
 
 export function throwValidationError(message: string): void {
-  throw new ServerHttpError(422, "Validation failed", { message });
+  throw new HttpError(422, "Validation failed", { data: { message } });
 }
 
 const PASSWORD_MIN_LENGTH_MESSAGE = "Password must be at least 8 characters";

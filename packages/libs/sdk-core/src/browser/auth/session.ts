@@ -1,6 +1,12 @@
-import { isHTTPError, type HTTPError } from "ky";
-import { ClientHttpError } from "../../ClientHttpError.js";
-import { isHttpErrorBody, isHttpErrorStatusCode } from "../../HttpError.js";
+import {
+  isHTTPError as isKyHttpError,
+  type HTTPError as KyHttpError,
+} from "ky";
+import {
+  HttpError,
+  isHttpErrorBody,
+  isHttpErrorStatusCode,
+} from "../../HttpError.js";
 import { storage } from "../storage.js";
 import { apiEventsEmitter } from "./events.js";
 
@@ -50,10 +56,11 @@ if (typeof window !== "undefined") {
  * Takes an error that the
  * [`api`](https://wasp.sh/docs/api/wasp/client/api#api) client threw. If the
  * server answered with an error status that Wasp handles (400 to 599), returns
- * a {@link ClientHttpError}. Otherwise, returns the error unchanged.
+ * an {@link HttpError} whose `cause` is the error that `api` threw. Otherwise,
+ * returns the error unchanged.
  *
  * @param error The error that `api` threw.
- * @returns A `ClientHttpError`, or `error` unchanged.
+ * @returns An `HttpError`, or `error` unchanged.
  *
  * @example
  * ```ts
@@ -68,25 +75,22 @@ if (typeof window !== "undefined") {
  */
 export function handleApiError(error: unknown): unknown {
   // ky also throws for other non-2xx statuses, e.g. `0` for a redirect that
-  // wasn't followed, which a `ClientHttpError` can't hold.
-  if (isHTTPError(error) && isHttpErrorStatusCode(error.response.status)) {
-    return toClientHttpError(error);
+  // wasn't followed, which an `HttpError` can't hold.
+  if (isKyHttpError(error) && isHttpErrorStatusCode(error.response.status)) {
+    return toHttpError(error);
   }
   return error;
 }
 
-function toClientHttpError(kyHttpError: HTTPError): ClientHttpError {
-  const body = kyHttpError.data;
-  const { message, data } = isHttpErrorBody(body)
-    ? body
+function toHttpError(kyHttpError: KyHttpError): HttpError {
+  const { response } = kyHttpError;
+  // ky has already read the response's body into `data`.
+  const { message, data } = isHttpErrorBody(kyHttpError.data)
+    ? kyHttpError.data
     : // Something other than the Wasp server answered, e.g. a proxy.
       { message: kyHttpError.message, data: undefined };
 
-  return new ClientHttpError(kyHttpError.response.status, message, data, {
-    cause: kyHttpError,
-    request: kyHttpError.request,
-    response: kyHttpError.response,
-  });
+  return new HttpError(response, message, { data, cause: kyHttpError });
 }
 
 import { invalidateAndRemoveQueries } from "../operations/internal/resources.js";

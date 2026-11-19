@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "5c555813cdea7c1a9af2865acfc1df6528a451c1283eaaffd4167c087baee860"
+        "5c1d7c13182e40c662c0f8743b2297467086b825c41af07afdaaf2eec6ac795e"
     ],
     [
         [
@@ -109,7 +109,7 @@
             "file",
             "sdk/wasp/client/index.ts"
         ],
-        "ab2c39f07b7b95c4e0cb1b963b6e73bb65b9cbd553d8dd23c893893dd0e1f675"
+        "3282aa52ac89b35117e4a80f656a2c22b713fbd49c50f02c6abd3c145e3b7556"
     ],
     [
         [
@@ -270,7 +270,7 @@
             "file",
             "sdk/wasp/errors/index.ts"
         ],
-        "5a75af800a02584a84b1a6ff0fe3df8cc89b5f0628585d66bcf57c145bc5b412"
+        "38311cca15110fc87b4ae93e7632491a41b3e19990c52d4906f991194fd265f5"
     ],
     [
         [
@@ -340,35 +340,35 @@
             "file",
             "sdk/wasp/server/errors/httpErrors.ts"
         ],
-        "7abbd3b9e3b8602a0bd69d79d3208446e5693b6b0d68c3292a89fb17c45085c5"
+        "30d0f9907830936c5258a85d360d2324c493b987d1a2cd4aba8cf3b2740c605f"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "d5367fc6e2808c2ad274d3025caf80c4661d186d6a9af2c4a997c4a39fc459cf"
+        "db8094a3a4e7105661da08036e78959fe7a2c60df01170c27b0bad20a7862dd4"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/unknownErrors.ts"
         ],
-        "2944992b537c438c1c8e429d439c389d21ab04a7bde797759a681cb321941d4d"
+        "c0fac4e859ae7e61a73584ce6fc5c34cbad7a1c64e4579060fa89ae209ae49dc"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/utils.ts"
         ],
-        "a07f524b97323cd5258eda55f42999322636da5cfa8479c854c9b67171eb3a87"
+        "812cbe52b0836ce9ed95a0145e6f30febafdec13bf0c95593c112331b49c34cd"
     ],
     [
         [
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "b9bd68ffccbfdfa9781c442fcf9e4abfa4984cec8dcc00d7d62345814e5ae506"
+        "f05ecb73ff9650c9d298c4b538133bc2ed90accbe697132e9fccec4539f872d9"
     ],
     [
         [

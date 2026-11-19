@@ -1,8 +1,8 @@
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 export const getTasks = async (args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },

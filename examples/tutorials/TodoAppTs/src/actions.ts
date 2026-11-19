@@ -1,5 +1,5 @@
 import type { Task } from "wasp/entities";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
 type CreateTaskPayload = Pick<Task, "description">;
@@ -9,7 +9,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   return context.entities.Task.create({
     data: {
@@ -26,7 +26,7 @@ export const updateTask: UpdateTask<UpdateTaskPayload, Task> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   return context.entities.Task.update({
     where: { id, user: { id: context.user.id } },

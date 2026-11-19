@@ -1,11 +1,13 @@
 /**
- * The base of Wasp's HTTP errors, which the server's
- * {@linkcode "server"!ServerHttpError | ServerHttpError} and the client's
- * {@linkcode "client"!ClientHttpError | ClientHttpError} extend.
+ * `HttpError`, the error for HTTP error responses, and its types.
  *
  * You can import `wasp/errors` in both server and client code.
  *
  * @module
  */
 
-export { HttpError, type HttpErrorData } from "@wasp/lib-sdk-core";
+export {
+  HttpError,
+  type HttpErrorData,
+  type HttpErrorOptions,
+} from "@wasp/lib-sdk-core";

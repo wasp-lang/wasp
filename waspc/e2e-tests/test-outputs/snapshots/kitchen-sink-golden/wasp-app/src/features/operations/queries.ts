@@ -1,5 +1,5 @@
 import { type Task } from "wasp/entities";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type {
   GetNumTasks,
   GetSerializedObjects,
@@ -11,7 +11,7 @@ import { SERIALIZABLE_OBJECTS_FIXTURE } from "../../rpcTests/operations/fixtures
 
 export const getTasks = (async (_args, context) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
   console.log("user who made the query: ", context.user);
   console.log("TEST_ENV_VAR", process.env.TEST_ENV_VAR);
@@ -52,7 +52,7 @@ export const getTask: GetTask<Pick<Task, "id">, Task> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new ServerHttpError(401);
+    throw new HttpError(401);
   }
 
   const Task = context.entities.Task;
@@ -60,12 +60,12 @@ export const getTask: GetTask<Pick<Task, "id">, Task> = async (
   // and then manually check.
   const task = await Task.findUnique({ where, include: { user: true } });
   if (!task) {
-    throw new ServerHttpError(404);
+    throw new HttpError(404);
   }
   // 404 is used to 'hide' the current existence of a forbidden target resource as a security measure
   // for vulnerabilities like IDOR
   if (task.user.id !== context.user.id) {
-    throw new ServerHttpError(404);
+    throw new HttpError(404);
   }
 
   return task;

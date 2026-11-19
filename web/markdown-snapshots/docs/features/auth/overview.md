@@ -252,7 +252,7 @@ When authentication is enabled, all [queries and actions](https://wasp.sh/docs/f
 ```ts title="src/actions.ts"
 import type { Task } from "wasp/entities";
 import type { CreateTask } from "wasp/server/operations";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 type CreateTaskPayload = Pick<Task, "description">;
 
@@ -261,7 +261,7 @@ export const createTask: CreateTask<CreateTaskPayload, Task> = async (
   context,
 ) => {
   if (!context.user) {
-    throw new ServerHttpError(403);
+    throw new HttpError(403);
   }
 
   const Task = context.entities.Task;
@@ -311,7 +311,7 @@ import {
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
 } from "wasp/server/auth";
-import { ServerHttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { UpdatePassword } from "wasp/server/operations";
 
 export const updatePassword: UpdatePassword<
@@ -321,7 +321,7 @@ export const updatePassword: UpdatePassword<
   const providerId = createProviderId("email", args.email);
   const authIdentity = await findAuthIdentity(providerId);
   if (!authIdentity) {
-    throw new ServerHttpError(400, "Unknown user");
+    throw new HttpError(400, "Unknown user");
   }
 
   const providerData = getProviderDataWithPassword<"email">(
