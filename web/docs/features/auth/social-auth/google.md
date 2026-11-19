@@ -192,7 +192,7 @@ Yay, we've successfully set up Google Auth! 🎉
 
 ![Google Auth](/img/docs/features/auth/social-auth/google/google.png)
 
-Running <InlineWaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" /> and <InlineWaspCommand npm="npm run dev" global="wasp start" /> should now give you a working app with authentication.
+Running <InlineWaspCommand command="wasp db migrate-dev" /> and <InlineWaspCommand command="wasp start" /> should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../overview).
 
 ## Default Behaviour

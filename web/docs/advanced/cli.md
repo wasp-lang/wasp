@@ -32,7 +32,7 @@ To create a project without a global install, run `npx @wasp/cli@latest new`.
 
 The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
 
-<WaspCommand npm="npm run wasp -- db migrate-dev --name init" global="wasp db migrate-dev --name init" />
+<WaspCommand command="wasp db migrate-dev --name init" />
 
 :::caution Don't run `npx wasp`
 

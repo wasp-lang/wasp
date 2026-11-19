@@ -373,7 +373,7 @@ You don't need a global install to use Wasp. If you prefer shorter commands, and
 npm i -g @wasp/cli@latest
 ```
 
-Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`. So the version of the global CLI never conflicts with the project's Wasp version, and each of your projects can use a different one.
+Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`.
 
 Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. You can update the global CLI at any time to run these commands with the latest Wasp.
 
@@ -11175,7 +11175,7 @@ npm install date-fns
 
 This command will add the package in the `dependencies` section of your `package.json` file.
 
-You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't modify or remove them.
+You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't remove them.
 
 #### Using Packages that are Already Used by Wasp Internally
 
@@ -20357,8 +20357,8 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
   middlewareConfig.set(
     "cors",
     cors({
-      // Keep your app's own client URL, or the server blocks the Wasp client.
       origin: [
+        // Keep the origins Wasp allows by default.
         ...config.allowedCORSOrigins,
         "https://app.example.com",
         "https://admin.example.com",

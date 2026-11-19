@@ -20,7 +20,7 @@ Let's create and run our first Wasp app in 2 short steps:
 
    <Trackable event="CLI Command: Copy" command="wasp_new">
 
-   <WaspCommand npm="npx @wasp/cli@latest new" global="wasp new" />
+   <WaspCommand command="wasp new" />
 
    </Trackable>
 
@@ -30,7 +30,7 @@ Let's create and run our first Wasp app in 2 short steps:
 
    <Trackable event="CLI Command: Copy" command="wasp_start">
 
-   <WaspCommand npm={"cd <my-project-name>\nnpm run dev"} global={"cd <my-project-name>\nwasp start"} />
+   <WaspCommand command={"cd <my-project-name>\nwasp start"} />
 
    </Trackable>
 
@@ -81,7 +81,7 @@ Check [More Details](#more-details) section below if anything went wrong with th
 :::
 
 :::tip Having trouble running Wasp?
-  If you get stuck with a weird error while developing with Wasp, try running <InlineWaspCommand npm="npm run wasp -- clean" global="wasp clean" /> - this is the Wasp equivalent of "turning it off and on again"!
+  If you get stuck with a weird error while developing with Wasp, try running <InlineWaspCommand command="wasp clean" /> - this is the Wasp equivalent of "turning it off and on again"!
   Do however let us know about the issue on our GitHub repo or Discord server.
 :::
 
@@ -156,7 +156,7 @@ You don't need a global install to use Wasp. If you prefer shorter commands, and
 
 </Trackable>
 
-Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`. So the version of the global CLI never conflicts with the project's Wasp version, and each of your projects can use a different one.
+Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`.
 
 Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. You can update the global CLI at any time to run these commands with the latest Wasp.
 

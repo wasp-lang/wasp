@@ -59,35 +59,35 @@ See [Environment variables](./env-vars.md) for Wasp's environment file rules.
 
 If you are using SQLite, it doesn't need a separate database process. It's enough to apply the migrations:
 
-<WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
+<WaspCommand command="wasp db migrate-dev" />
 
 #### PostgreSQL
 
 If you are using PostgreSQL, it needs to be running. Start the Wasp dev database in one terminal:
 
-<WaspCommand npm="npm run wasp -- start db" global="wasp start db" />
+<WaspCommand command="wasp start db" />
 
 Then apply the migrations from another terminal:
 
-<WaspCommand npm="npm run wasp -- db migrate-dev" global="wasp db migrate-dev" />
+<WaspCommand command="wasp db migrate-dev" />
 
 Wasp gives each worktree a unique [development database](../features/data/databases.md#using-the-dev-database-provided-by-wasp) name and Docker volume.
 
 #### Seed data
 
-If your app needs to seed scaffold data, you can apply it with the <InlineWaspCommand npm="npm run wasp -- db seed <name>" global="wasp db seed <name>" /> command.
+If your app needs to seed scaffold data, you can apply it with the <InlineWaspCommand command="wasp db seed <name>" /> command.
 
 ### Start the app
 
 After the setup, the app should start successfully:
 
-<WaspCommand npm="npm run dev" global="wasp start" />
+<WaspCommand command="wasp start" />
 
 ## Running worktrees at the same time
 
-<InlineWaspCommand npm="npm run dev" global="wasp start" /> picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](./cli.md#project-commands).
+<InlineWaspCommand command="wasp start" /> picks free ports for your app automatically, starting from `3000` for the client and `3001` for the server, so apps from different worktrees can run at the same time. Wasp derives your app's dev URLs from those ports and sets them for you, so overriding them in `.env.server` or `.env.client` fails. If you need specific ports, use [`--client-port` and `--server-port`](./cli.md#project-commands).
 
-<InlineWaspCommand npm="npm run wasp -- start db" global="wasp start db" /> does the same for the dev database: it starts on port `5432` or the first free port after it, and <InlineWaspCommand npm="npm run dev" global="wasp start" /> finds the port on its own. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](./cli.md#project-commands).
+<InlineWaspCommand command="wasp start db" /> does the same for the dev database: it starts on port `5432` or the first free port after it, and <InlineWaspCommand command="wasp start" /> finds the port on its own. Each worktree gets its own database, so you can run them side by side. If you need a specific port, use [`--db-port`](./cli.md#project-commands).
 
 ## Extra resources
 

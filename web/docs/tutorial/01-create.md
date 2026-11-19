@@ -32,7 +32,7 @@ To setup a new Wasp project, run the following command in your terminal:
 
 <TutorialAction id="create-wasp-app" action="INIT_APP" starterTemplateName="minimal">
 
-<WaspCommand npm="npx @wasp/cli@latest new TodoApp -t minimal" global="wasp new TodoApp -t minimal" />
+<WaspCommand command="wasp new TodoApp -t minimal" />
 </TutorialAction>
 
 <small>
@@ -42,11 +42,10 @@ We are using the `minimal` template because we're going to implement the app fro
 
 Enter the newly created directory and start the development server:
 
-<WaspCommand npm={`cd TodoApp
-npm run dev`} global={`cd TodoApp
+<WaspCommand command={`cd TodoApp
 wasp start`} />
 
-<InlineWaspCommand npm="npm run dev" global="wasp start" /> will take a bit of time to start the server the first time you run it in a new project.
+<InlineWaspCommand command="wasp start" /> will take a bit of time to start the server the first time you run it in a new project.
 
 You will see log messages from the client, server, and database setting themselves up. When everything is ready, open the client URL that Wasp printed on startup in your browser. It's `http://localhost:3000` unless that port is taken. You will see a simple placeholder page:
 

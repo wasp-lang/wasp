@@ -19,7 +19,11 @@ export default function PackageManagerCommand(
 ): ReactNode {
   assertHasEveryPackageManagerCommand("PackageManagerCommand", commands);
 
-  if (PACKAGE_MANAGERS.length === 1) {
+  const distinctCommands = new Set(
+    PACKAGE_MANAGERS.map(({ name }) => commands[name]),
+  );
+  if (distinctCommands.size === 1) {
+    // Every package manager runs the same command, so there's nothing to pick.
     return <ShellCodeBlock command={commands[PACKAGE_MANAGERS[0].name]} />;
   }
   return (

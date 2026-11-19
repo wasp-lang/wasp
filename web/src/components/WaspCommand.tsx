@@ -1,61 +1,72 @@
-import CodeBlock from "@theme/CodeBlock";
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import { type ReactNode } from "react";
 import PackageManagerCommand from "./PackageManagerCommand";
+import { PACKAGE_MANAGERS } from "./packageManagers";
 import {
-  PACKAGE_MANAGERS,
-  type PackageManagerCommands,
-} from "./packageManagers";
+  runsWasp,
+  toPackageManagerCommands,
+  type WaspCli,
+} from "./toPackageManagerCommands";
 
-export type WaspCommandProps = PackageManagerCommands & {
-  /** The same command with the global Wasp CLI. */
-  global: string;
-};
+export interface WaspCommandProps {
+  /**
+   * The command as you'd run it with the global Wasp CLI and npm, e.g.
+   * `wasp start`.
+   */
+  command: string;
+}
 
 /** The tab group that remembers how the reader runs Wasp. */
 export const WASP_CLI_TAB_GROUP_ID = "wasp-cli";
-export const PACKAGE_MANAGER_TAB_VALUE = "package-manager";
-export const GLOBAL_CLI_TAB_VALUE = "global";
+
+const WASP_CLI_TABS: { waspCli: WaspCli; label: string }[] = [
+  {
+    waspCli: "project",
+    label:
+      PACKAGE_MANAGERS.length === 1
+        ? PACKAGE_MANAGERS[0].label
+        : "Package manager",
+  },
+  { waspCli: "global", label: "Global CLI" },
+];
 
 /**
  * Shows a Wasp command the way the reader prefers to run Wasp: through their
  * package manager, or with the global Wasp CLI, e.g.
- * `<WaspCommand npm="npm run dev" global="wasp start" />`. Write a multi-line
- * command as a string with `\n`.
+ * `<WaspCommand command="wasp start" />`. The command can have several lines.
  */
-export default function WaspCommand({
-  global,
-  ...packageManagerCommands
-}: WaspCommandProps): ReactNode {
-  assertHasGlobalCommand("WaspCommand", { global, ...packageManagerCommands });
+export default function WaspCommand({ command }: WaspCommandProps): ReactNode {
+  assertRunsWasp("WaspCommand", command);
 
   return (
     <Tabs groupId={WASP_CLI_TAB_GROUP_ID}>
-      <TabItem
-        value={PACKAGE_MANAGER_TAB_VALUE}
-        label={PACKAGE_MANAGER_TAB_LABEL}
-      >
-        <PackageManagerCommand {...packageManagerCommands} />
-      </TabItem>
-      <TabItem value={GLOBAL_CLI_TAB_VALUE} label="Global CLI">
-        <CodeBlock language="shell">{global.trim()}</CodeBlock>
-      </TabItem>
+      {WASP_CLI_TABS.map(({ waspCli, label }) => (
+        <TabItem key={waspCli} value={waspCli} label={label}>
+          <PackageManagerCommand
+            {...toPackageManagerCommands(command, waspCli)}
+          />
+        </TabItem>
+      ))}
     </Tabs>
   );
 }
 
-/** MDX props aren't type-checked, so a missing command only shows up here. */
-export function assertHasGlobalCommand(
+/**
+ * MDX props aren't type-checked, so a missing command only shows up here. A
+ * command without `wasp` doesn't depend on how the reader runs Wasp, so it
+ * doesn't belong in this component.
+ */
+export function assertRunsWasp(
   componentName: string,
-  commands: WaspCommandProps,
-): void {
-  if (!commands.global) {
+  command: string | undefined,
+): asserts command is string {
+  if (!command) {
+    throw new Error(`${componentName} is missing the \`command\` prop.`);
+  }
+  if (!runsWasp(command)) {
     throw new Error(
-      `${componentName} is missing the global command in: ${JSON.stringify(commands)}`,
+      `${componentName} got a command that doesn't run \`wasp\`: ${JSON.stringify(command)}. Use PackageManagerCommand or a code block instead.`,
     );
   }
 }
-
-const PACKAGE_MANAGER_TAB_LABEL =
-  PACKAGE_MANAGERS.length === 1 ? PACKAGE_MANAGERS[0].label : "Package manager";

@@ -1,7 +1,8 @@
 /**
  * The package managers the docs show commands for. Adding one here makes its
- * prop required in `PackageManagerCommand` and `WaspCommand`, so the docs build
- * fails until every command has its form for it.
+ * prop required in `PackageManagerCommand`, so the docs build fails until every
+ * command has its form for it. `toPackageManagerCommands` has to learn it too,
+ * which is where the commands of `WaspCommand` come from.
  */
 export const PACKAGE_MANAGERS = [{ name: "npm", label: "npm" }] as const;
 
