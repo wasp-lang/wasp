@@ -10,7 +10,7 @@ import { CardLink } from "@site/src/components/CardLink"
 
 # Optimizing for search and AI crawlers (SEO & GEO)
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Lighthouse: 13, "industry standards": new Date("2026-06-08") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Lighthouse: 13, "industry standards": new Date("2026-06-08") }} />
 
 Search engine optimization (SEO) and generative engine optimization (GEO) are about making your app visible and attractive to search engines, social media platforms, and AI assistants.
 
@@ -57,7 +57,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
-A straightforward way to run Lighthouse is through the command line:
+A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's environment variables. [Testing locally](../../deployment/local-testing.md) shows how to set them up:
 
 ```sh
 # First, build and start the production build of your app:
@@ -179,7 +179,7 @@ import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LandingRoute", "/", page(LandingPage), {
       // highlight-next-line
       prerender: true

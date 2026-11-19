@@ -5,7 +5,7 @@ import {
 import * as arctic from 'arctic';
 
 import type { ProviderConfig } from 'wasp/auth/providers/types';
-import { HttpError } from 'wasp/server';
+import { HttpError } from "wasp/errors";
 
 import { setOAuthCookieValue, getOAuthCookieValue } from './cookies.js';
 
@@ -112,7 +112,7 @@ function validateOAuthState(
 function createLoginExpiredError(provider: ProviderConfig): HttpError {
   return new HttpError(
     400,
-    `Your login attempt with ${provider.displayName} expired. Please try again.`
+    `Your login attempt with ${provider.displayName} expired. Please try again.`,
   );
 }
 
@@ -141,19 +141,15 @@ function getCode(
   // but some (e.g. Keycloak, Auth0) also send it when their own policy denies
   // the login.
   if (error === 'access_denied') {
-    throw new HttpError(
-      400,
-      `Login with ${provider.displayName} was cancelled or denied.`,
-      providerErrorDetails
-    );
+    throw new HttpError(400, `Login with ${provider.displayName} was cancelled or denied.`, {
+      data: providerErrorDetails,
+    });
   }
 
   if (error !== undefined || typeof code !== 'string' || code === '') {
-    throw new HttpError(
-      400,
-      `Unable to log in with ${provider.displayName}. Please try again later.`,
-      providerErrorDetails
-    );
+    throw new HttpError(400, `Unable to log in with ${provider.displayName}. Please try again later.`, {
+      data: providerErrorDetails,
+    });
   }
 
   return { code };

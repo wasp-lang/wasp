@@ -24,7 +24,7 @@
  */
 
 import type { QueryClientConfig, UseQueryResult } from "@tanstack/react-query";
-import type { Route } from "@wasp/lib-sdk-core";
+import type { HttpError, Route } from "@wasp/lib-sdk-core";
 
 /**
  * Calls a Query from a React component and keeps its result up to date.
@@ -88,7 +88,7 @@ export declare function useQuery<Input, Output>(
   query: Query<Input, Output>,
   queryArgs?: Input,
   options?: any,
-): UseQueryResult<Output, Error>;
+): UseQueryResult<Output, HttpError | Error>;
 
 /**
  * Adds extra behavior to an Action. Currently, it only supports specifying

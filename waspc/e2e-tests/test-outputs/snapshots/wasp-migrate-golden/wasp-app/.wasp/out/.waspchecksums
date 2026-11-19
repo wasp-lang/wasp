@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "58cc0e861b527405a8c2a5d09d1296d2fc276d53dfaf2cc27b65e2e4a6c5ed8d"
+        "cb75e01a6d03e5daf8a99a5b6c459d4a85f6a88894ed79890457028ec4d93620"
     ],
     [
         [
@@ -53,7 +53,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "065a9e07a5f0e9950c9de8760b1f711f0e099beb9564257ff68fe46838685ac7"
+        "cee7e189c197b77391278e5fa20d9d1f0aa504e9a03a7e32b7ca1f17b7f19ea8"
     ],
     [
         [
@@ -67,7 +67,7 @@
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "6bcaf8f893b0c1e55ee09411ddb6e36871ebae371fab829aa3046c48054c8bfb"
+        "638e359e4eac2287c2c36497002f0a2c4f037ad26a6ce6995cd7bdeca43dc1b4"
     ],
     [
         [
@@ -221,7 +221,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "c1f5639079fdc9860463228e7a68b5a8b82db324cee5514eb5833a7226dbd343"
+        "abb2f1cb9c0ade2440db46c2905ac0bbe851feae8ca789728890a2ff2c3d1a89"
     ],
     [
         [
@@ -275,9 +275,16 @@
     [
         [
             "file",
+            "sdk/wasp/errors/index.ts"
+        ],
+        "38311cca15110fc87b4ae93e7632491a41b3e19990c52d4906f991194fd265f5"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/package.json"
         ],
-        "1fb83a2f178a5a5a1a2c4ef222d13e789884815b85173a83db3ed8ca80226017"
+        "c1ce3b8e7687d97c86fe55c025e32b456cca8f296fadb90bb4a25cb8cf1976e1"
     ],
     [
         [
@@ -340,35 +347,35 @@
             "file",
             "sdk/wasp/server/errors/httpErrors.ts"
         ],
-        "2afe5d218b2e100871472f9bae27afd2de972c84e7c4d26f280b83dc30bf0b1d"
+        "30d0f9907830936c5258a85d360d2324c493b987d1a2cd4aba8cf3b2740c605f"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "afa8c3a0c3c4f65038dd2bc15c70ce25d002882633769266259ec1c250f907b6"
+        "db8094a3a4e7105661da08036e78959fe7a2c60df01170c27b0bad20a7862dd4"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/unknownErrors.ts"
         ],
-        "7c5787a2fc4b5cb862c8d5004061892627006c7688b383ee39ad69c3d1c199d1"
+        "c0fac4e859ae7e61a73584ce6fc5c34cbad7a1c64e4579060fa89ae209ae49dc"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/utils.ts"
         ],
-        "6ddbdd142ee3764cd9a6b928da9d38b413da6b080cd0258ba8f966d9762cb6f8"
+        "812cbe52b0836ce9ed95a0145e6f30febafdec13bf0c95593c112331b49c34cd"
     ],
     [
         [
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "db84e4671930ff007c64ea3850b1eaccd2647856ae96e5ea82ac2be6b8ec90af"
+        "f05ecb73ff9650c9d298c4b538133bc2ed90accbe697132e9fccec4539f872d9"
     ],
     [
         [
