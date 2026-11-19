@@ -8,11 +8,11 @@ spec_resolveSetupSteps :: Spec
 spec_resolveSetupSteps =
   describe "resolveSetupSteps" $ do
     it "prepares the Prisma CLI" $
-      resolveSetupSteps [PrismaCliReady] `shouldBe` [CheckNpmDepsInstalled, FormatPrismaSchema]
+      resolveSetupSteps [PrismaCliReady] `shouldBe` [CheckNpmDepsInstalled, LinkWaspDependencies, FormatPrismaSchema]
     it "builds the SDK and the Prisma client it imports" $
-      resolveSetupSteps [SdkReady] `shouldBe` [CheckNpmDepsInstalled, FormatPrismaSchema, GeneratePrismaClient, BuildSdk]
+      resolveSetupSteps [SdkReady] `shouldBe` [CheckNpmDepsInstalled, LinkWaspDependencies, FormatPrismaSchema, GeneratePrismaClient, BuildSdk]
     it "runs shared prerequisites once for multiple goals" $
-      resolveSetupSteps [SdkReady, PrismaCliReady] `shouldBe` [CheckNpmDepsInstalled, FormatPrismaSchema, GeneratePrismaClient, BuildSdk]
+      resolveSetupSteps [SdkReady, PrismaCliReady] `shouldBe` [CheckNpmDepsInstalled, LinkWaspDependencies, FormatPrismaSchema, GeneratePrismaClient, BuildSdk]
     it "runs every step for all goals" $
       resolveSetupSteps allSetupGoals `shouldBe` allSetupSteps
     it "runs each step after its prerequisites" $

@@ -53,6 +53,9 @@ COPY --link sdk .wasp/out/sdk
 COPY --link server .wasp/out/server
 COPY --link src ./src
 RUN npm ci
+# The generated code imports the packages that come with @wasp/wasp, and finds
+# them through these links.
+RUN node node_modules/@wasp/wasp/scripts/link-dependencies.js
 WORKDIR /app/.wasp/out/server
 {=# usingPrisma =}
 RUN npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
