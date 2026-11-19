@@ -6,7 +6,7 @@
 The `@wasp/spec` package has everything you need to write your app's [Wasp Spec](https://wasp.sh/docs/features/spec): the `main.wasp.ts` file where you define your app's pages, routes, queries, actions, auth, and more.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec";
+import { app } from "wasp/spec";
 
 export default app({
   name: "todoApp",
@@ -19,11 +19,11 @@ export default app({
 
 ### In a Wasp app
 
-You don't need to install anything. Wasp apps come with `@wasp/spec` already listed in their `package.json`, and the Wasp CLI manages it for you.
+You don't need to install anything. The package comes with `@wasp/wasp`, which every Wasp app lists in its `package.json`, and you import it as `wasp/spec`.
 
 ### In a library
 
-If you are publishing a helper or library for the Wasp Spec, add `@wasp/spec` to both the `devDependencies` and the `peerDependencies` of your `package.json`. That way, you have a local copy during development, and your library uses the version installed in your users' Wasp projects:
+A library imports the package by its own name, `@wasp/spec`. If you are publishing a helper or library for the Wasp Spec, add `@wasp/spec` to both the `devDependencies` and the `peerDependencies` of your `package.json`. That way, you have a local copy during development, and your library uses the version installed in your users' Wasp projects:
 
 ```json title="package.json"
 {
@@ -47,7 +47,7 @@ Pass an `App` to the [app](#app-1) constructor and `export default` the result f
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "todoApp",
@@ -244,7 +244,7 @@ Configuration for the app's WebSocket support.
 #### Example
 
 ```ts
-import { app, page, route } from '@wasp/spec'
+import { app, page, route } from 'wasp/spec'
 import MainPage from './src/MainPage' with { type: 'ref' }
 
 export default app({
@@ -306,7 +306,7 @@ See [Using Entities in Actions](https://wasp.sh/docs/features/data/operations/ac
 #### Example
 
 ```ts
-import { app, action } from "@wasp/spec"
+import { app, action } from "wasp/spec"
 import { createTask } from "./src/actions" with { type: "ref" }
 export default app({
   // ...
@@ -383,7 +383,7 @@ See [Configuring API middleware](https://wasp.sh/docs/advanced/server-customizat
 #### Example
 
 ```ts
-import { api } from '@wasp/spec'
+import { api } from 'wasp/spec'
 import { barBaz } from './src/apis' with { type: 'ref' }
 
 api('GET', '/bar/baz', barBaz, { entities: ['Task'], auth: false })
@@ -428,7 +428,7 @@ Reference to an Express middleware config function for this namespace.
 #### Example
 
 ```ts
-import { apiNamespace } from '@wasp/spec'
+import { apiNamespace } from 'wasp/spec'
 import { barMiddleware } from './src/apis' with { type: 'ref' }
 
 apiNamespace('/bar', { middlewareConfigFn: barMiddleware })
@@ -475,7 +475,7 @@ Use [reference imports](https://wasp.sh/docs/features/spec#reference-imports) wh
 #### Example
 
 ```ts
-import { crud } from '@wasp/spec'
+import { crud } from 'wasp/spec'
 import { createTaskOverride } from './src/actions' with { type: 'ref' }
 
 crud('tasks', 'Task', {
@@ -555,7 +555,7 @@ Cron schedule that runs the job automatically.
 #### Example
 
 ```ts
-import { job } from '@wasp/spec'
+import { job } from 'wasp/spec'
 import { foo } from './src/jobs/bar' with { type: 'ref' }
 
 job(foo, {
@@ -612,7 +612,7 @@ false
 #### Example
 
 ```ts
-import { page } from '@wasp/spec'
+import { page } from 'wasp/spec'
 import MainPage from './src/MainPage' with { type: 'ref' }
 
 page(MainPage, { authRequired: true })
@@ -667,7 +667,7 @@ See [Using Entities in Queries](https://wasp.sh/docs/features/data/operations/qu
 #### Example
 
 ```ts
-import { app, query } from "@wasp/spec"
+import { app, query } from "wasp/spec"
 import { getTasks } from './src/queries' with { type: 'ref' }
 
 export default app({
@@ -750,7 +750,7 @@ false
 **Example**
 
 ```ts
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
 
@@ -774,7 +774,7 @@ export default app({
 #### Example
 
 ```ts
-import { page, route } from '@wasp/spec'
+import { page, route } from 'wasp/spec'
 import MainPage from './src/MainPage' with { type: 'ref' }
 
 route('MainRoute', '/', page(MainPage))
@@ -1222,7 +1222,7 @@ false
 ###### Example
 
 ```ts
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
 
@@ -1254,7 +1254,7 @@ This lets you define related elements separately (for example, one array per fea
 Nested arrays let you compose a spec from separate sub-specs:
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 const authSpec: Spec = [signupRoute, loginRoute];
 const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
@@ -1344,7 +1344,7 @@ The expected TypeScript type for the value from your app. The field using `Refer
 #### Example
 
 ```ts
-import { app, query } from "@wasp/spec"
+import { app, query } from "wasp/spec"
 import { getTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
@@ -1422,7 +1422,7 @@ The import path must be relative to the `*.wasp.ts` file where it is used and re
 #### Example
 
 ```ts
-import { page, ref } from "@wasp/spec"
+import { page, ref } from "wasp/spec"
 
 const MainPage = ref({
   importDefault: "MainPage",
@@ -1445,7 +1445,7 @@ Throw it from your own spec helper libraries when you want to report a configura
 #### Example
 
 ```ts
-import { WaspSpecUserError } from "@wasp/spec"
+import { WaspSpecUserError } from "wasp/spec"
 
 export function requireEnv(name: string): string {
   const value = process.env[name]
@@ -1517,7 +1517,7 @@ In TypeScript, you can type each hook implementation with its matching type from
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   // ...
@@ -1660,7 +1660,7 @@ See [Client Config](https://wasp.sh/docs/advanced/client-customization/client-co
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import Root from "./src/Root" with { type: "ref" }
 import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
@@ -1858,7 +1858,7 @@ See [Databases](https://wasp.sh/docs/features/data/databases) for seeding and Pr
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import devSeed from "./src/dbSeeds" with { type: "ref" }
 import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
@@ -1934,7 +1934,7 @@ See the [Email auth docs](https://wasp.sh/docs/features/auth/email/overview) for
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { userSignupFields } from "./src/auth" with { type: "ref" }
 import {
   getVerificationEmailContent,
@@ -2107,7 +2107,7 @@ See [Sending Emails](https://wasp.sh/docs/features/email).
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   // ...
@@ -2274,7 +2274,7 @@ See [Server Config](https://wasp.sh/docs/advanced/server-customization/server-co
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
@@ -2367,7 +2367,7 @@ By default, Wasp stores only the user's provider-specific ID. Use `userSignupFie
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
@@ -2446,7 +2446,7 @@ Username and password auth configuration.
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { userSignupFields } from "./src/auth" with { type: "ref" }
 
 export default app({
@@ -2520,7 +2520,7 @@ See [WebSockets](https://wasp.sh/docs/features/websockets) for handler shape and
 #### Example
 
 ```ts
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({

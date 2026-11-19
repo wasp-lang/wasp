@@ -15,7 +15,6 @@
     "./client/operations": "./dist/client/operations/index.js",
     "./client/router": "./dist/client/router/index.js",
     "./client/test": "./dist/client/test/index.js",
-    "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     "./core/serialization": "./dist/core/serialization/index.js",
     "./entities": "./dist/entities/index.js",
@@ -42,7 +41,6 @@
     "./server/types": "./dist/server/types/index.js",
     "./server/utils": "./dist/server/utils.js",
     "./server/webSocket": "./dist/server/webSocket/index.js",
-    "./test": "./dist/test/index.js",
     "./types": "./dist/types/index.js"
   },
   "name": "wasp",
