@@ -1,0 +1,25 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+
+  // Document the package as the `@wasp/wasp` package that Wasp apps depend on.
+  "name": "@wasp/wasp",
+
+  // `README.md` is for people looking at this package in the repo.
+  "readme": "docs.md",
+
+  "disableSources": true,
+  "excludeInternal": true,
+
+  // Don't document types from `node_modules`, only the ones of the Wasp
+  // packages, which `typedoc-plugin-missing-exports` pulls in.
+  "excludeExternals": true,
+
+  // Document the types that `typedoc-plugin-missing-exports` pulls in next to
+  // the exports that reference them, instead of in a separate `<internal>`
+  // module.
+  "placeInternalsInOwningModule": true,
+
+  // One module per import path, e.g. `vite.d.ts` documents `@wasp/wasp/vite`.
+  "entryPoints": ["./types/**/*.d.ts"],
+  "exclude": ["node_modules/**"],
+}

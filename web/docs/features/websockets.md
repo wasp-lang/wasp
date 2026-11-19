@@ -31,7 +31,7 @@ WebSockets need the Socket.IO packages in your project:
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({

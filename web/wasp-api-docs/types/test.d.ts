@@ -1,7 +1,7 @@
 /**
  * The helper for configuring [Vitest](https://vitest.dev/) to test your
  * client code. The helpers you use inside your tests are in
- * {@linkcode "client/test"! | wasp/client/test}.
+ * [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).
  *
  * @module
  */
@@ -26,8 +26,8 @@ import type { TestConfig } from "@wasp/test-utils/config";
  * @example
  * ```ts
  * import { defineConfig } from "vitest/config";
- * import { wasp } from "wasp/client/vite";
- * import { waspTestConfig } from "wasp/test";
+ * import { wasp } from "@wasp/wasp/vite";
+ * import { waspTestConfig } from "@wasp/wasp/test";
  *
  * export default defineConfig({
  *   plugins: [wasp()],

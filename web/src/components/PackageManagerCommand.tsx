@@ -3,11 +3,18 @@ import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import { type ReactNode } from "react";
 import {
-  assertHasEveryPackageManagerCommand,
   PACKAGE_MANAGER_TAB_GROUP_ID,
   PACKAGE_MANAGERS,
   type PackageManagerCommands,
 } from "./packageManagers";
+import { fromNpmCommand } from "./toPackageManagerCommands";
+
+/**
+ * The command for npm, from which the other package managers' commands follow.
+ * Pass another package manager's command only when it isn't what follows.
+ */
+type PackageManagerCommandProps = Pick<PackageManagerCommands, "npm"> &
+  Partial<PackageManagerCommands>;
 
 /**
  * Shows a shell command in the reader's preferred package manager, e.g.
@@ -15,9 +22,18 @@ import {
  * as a string with `\n`.
  */
 export default function PackageManagerCommand(
-  commands: PackageManagerCommands,
+  props: PackageManagerCommandProps,
 ): ReactNode {
-  assertHasEveryPackageManagerCommand("PackageManagerCommand", commands);
+  // MDX props aren't type-checked, so a missing command only shows up here.
+  if (!props.npm) {
+    throw new Error(
+      `PackageManagerCommand is missing the npm command in: ${JSON.stringify(props)}`,
+    );
+  }
+  const commands: PackageManagerCommands = {
+    ...fromNpmCommand(props.npm),
+    ...props,
+  };
 
   const distinctCommands = new Set(
     PACKAGE_MANAGERS.map(({ name }) => commands[name]),
