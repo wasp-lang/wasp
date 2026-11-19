@@ -4,7 +4,7 @@
     <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
     <p>The fastest way to develop full-stack web apps with React & Node.js.</p>
   </div>
-  <br />
+  <br /> TEST
   <!-- BADGES -->
   <div align=center>
     <a href="https://github.com/wasp-lang/wasp/blob/main/LICENSE"><img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp"></a>
