@@ -464,7 +464,7 @@ if (error instanceof HttpError && error.status === 429) {
 
 The body of the `Response` is already read into `message` and `data`, so don't read it again.
 
-To look at the [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `Request` as `request`.
+To look at the [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) that failed, use `error.cause.request`. The `cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw.
 
 ### Using Entities in Actions
 
