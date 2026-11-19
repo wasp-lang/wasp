@@ -15,6 +15,7 @@ import { CardLink } from '@site/src/components/CardLink';
 import KeycloakData from '../entities/_keycloak-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+import SocialAuthPackages from './_social-auth-packages.md';
 
 # Keycloak
 
@@ -37,6 +38,8 @@ Enabling Keycloak Authentication comes down to a series of steps:
 <WaspFileStructureNote />
 
 ### 1. Adding Keycloak Auth to Your Wasp File
+
+<SocialAuthPackages />
 
 Let's start by properly configuring the Auth object:
 
