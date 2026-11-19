@@ -43,11 +43,16 @@ export function reportUnexpectedServerError(
 export function sendErrorResponse(response: Response, error: unknown): void {
   const httpError = error instanceof HttpError ? error : toHttpError(error);
 
-  for (const [name, value] of httpError.response.headers) {
-    // Express sets the content type itself when it sends the body.
-    if (name !== "content-type") {
-      response.append(name, value);
+  const { headers } = httpError.response;
+  for (const [name, value] of headers) {
+    // `Set-Cookie` can repeat, so we set all of its values at once below.
+    if (name !== "set-cookie") {
+      response.set(name, value);
     }
+  }
+  const cookies = headers.getSetCookie();
+  if (cookies.length > 0) {
+    response.set("Set-Cookie", cookies);
   }
   response.status(httpError.status).json(toHttpErrorBody(httpError));
 }
