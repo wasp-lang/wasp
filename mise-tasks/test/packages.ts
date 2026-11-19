@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-//MISE description="Run tests on Wasp packages (spec, deploy, etc.)."
+//MISE description="Run tests on Wasp packages (spec, deploy, sdk-core, etc.)."
 /// <reference types="node" />
 
 import {
+  buildWaspPackages,
   getPackageDirPath,
-  isWaspLibPackageName,
   WASP_PACKAGE_NAMES,
 } from "../../waspc/tools/packages/utils.ts";
 import { getPackageJson, runCmd } from "../../waspc/tools/utils.ts";
@@ -12,11 +12,10 @@ import { getPackageJson, runCmd } from "../../waspc/tools/utils.ts";
 testPackages();
 
 function testPackages(): void {
-  // `mise run test:libs` tests the Wasp libs.
-  const packageNames = WASP_PACKAGE_NAMES.filter(
-    (packageName) => !isWaspLibPackageName(packageName),
-  );
-  for (const packageName of packageNames) {
+  // Some packages' tests import the build output of the packages they depend on.
+  console.log("Building packages");
+  buildWaspPackages(WASP_PACKAGE_NAMES);
+  for (const packageName of WASP_PACKAGE_NAMES) {
     testPackage(packageName);
   }
 }

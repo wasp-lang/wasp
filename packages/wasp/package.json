@@ -64,14 +64,14 @@
     "vite": "^8.1.0"
   },
   "dependencies": {
+    "@wasp/auth": "workspace:*",
     "@wasp/cli": "workspace:*",
     "@wasp/deploy": "workspace:*",
-    "@wasp/lib-auth": "workspace:*",
-    "@wasp/lib-sdk-core": "workspace:*",
-    "@wasp/lib-test-utils": "workspace:*",
-    "@wasp/lib-vite-ssr": "workspace:*",
+    "@wasp/sdk-core": "workspace:*",
     "@wasp/spec": "workspace:*",
-    "@wasp/studio": "workspace:*"
+    "@wasp/studio": "workspace:*",
+    "@wasp/test-utils": "workspace:*",
+    "@wasp/vite-ssr": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

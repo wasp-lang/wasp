@@ -1,8 +1,7 @@
 import { join } from "node:path";
-import { getPackageJson, getRepoRootPath } from "../utils.ts";
+import { getPackageJson, getRepoRootPath, runCmd } from "../utils.ts";
 
 const WASP_NPM_SCOPE = "@wasp/";
-const WASP_LIB_PACKAGE_NAME_PREFIX = `${WASP_NPM_SCOPE}lib-`;
 
 // `@wasp/wasp`, the package Wasp projects depend on.
 export const WASP_MAIN_PACKAGE_NAME = `${WASP_NPM_SCOPE}wasp`;
@@ -11,8 +10,7 @@ const waspMainPackageJson = getPackageJson(
   getPackageDirPath(WASP_MAIN_PACKAGE_NAME),
 );
 
-// The packages `@wasp/wasp` always brings, e.g. `@wasp/cli`, `@wasp/spec` and
-// the Wasp libs.
+// The packages `@wasp/wasp` always brings, e.g. `@wasp/cli` and `@wasp/spec`.
 export const REQUIRED_WASP_NPM_SUBPACKAGE_NAMES: string[] = Object.keys(
   waspMainPackageJson.dependencies ?? {},
 ).filter(isWaspPackageName);
@@ -39,22 +37,33 @@ export const WASP_PACKAGE_NAMES: string[] = [
   ...WASP_NPM_SUBPACKAGE_NAMES,
 ];
 
-/** `@wasp/cli` is in `packages/cli`, and `@wasp/lib-auth` in `packages/libs/auth`. */
+/** `@wasp/cli` is in `packages/cli`. */
 export function getPackageDirPath(packageName: string): string {
-  const packagesDirPath = join(getRepoRootPath(), "packages");
-  return isWaspLibPackageName(packageName)
-    ? join(
-        packagesDirPath,
-        "libs",
-        packageName.slice(WASP_LIB_PACKAGE_NAME_PREFIX.length),
-      )
-    : join(packagesDirPath, packageName.slice(WASP_NPM_SCOPE.length));
-}
-
-export function isWaspLibPackageName(packageName: string): boolean {
-  return packageName.startsWith(WASP_LIB_PACKAGE_NAME_PREFIX);
+  return join(
+    getRepoRootPath(),
+    "packages",
+    packageName.slice(WASP_NPM_SCOPE.length),
+  );
 }
 
 function isWaspPackageName(packageName: string): boolean {
   return packageName.startsWith(WASP_NPM_SCOPE);
+}
+
+/**
+ * Builds the packages in dependency order, so each one finds the build output
+ * of the packages it depends on.
+ */
+export function buildWaspPackages(packageNames: string[]): void {
+  runCmd(
+    "pnpm",
+    [
+      ...packageNames.flatMap((packageName) => ["--filter", packageName]),
+      "--fail-if-no-match",
+      "run",
+      "--if-present",
+      "build",
+    ],
+    { cwd: getRepoRootPath(), stdio: "inherit" },
+  );
 }

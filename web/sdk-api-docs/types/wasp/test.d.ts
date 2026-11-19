@@ -6,7 +6,7 @@
  * @module
  */
 
-import type { TestConfig } from "@wasp/lib-test-utils/config";
+import type { TestConfig } from "@wasp/test-utils/config";
 
 /**
  * Returns the Vitest options for the `test` section of your `vite.config.ts`,

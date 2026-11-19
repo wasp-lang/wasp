@@ -32,6 +32,7 @@ import {
 } from "../../packages/cli/scripts/make-cli-npm-packages/src/generator/cli-package.ts";
 import { getCurrentPlatformTarget } from "../../packages/cli/scripts/make-cli-npm-packages/src/schema/output-data.ts";
 import {
+  buildWaspPackages,
   getPackageDirPath,
   WASP_MAIN_PACKAGE_NAME,
   WASP_NPM_SUBPACKAGE_NAMES,
@@ -39,9 +40,7 @@ import {
 import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
-  getRepoRootPath,
   getWaspcDirPath,
-  runCmd,
   runCmdAndGetStdout,
 } from "../../waspc/tools/utils.ts";
 
@@ -71,14 +70,11 @@ function buildDevPackages(): void {
   rmSync(devPackagesDir, { recursive: true, force: true });
   mkdirSync(devPackagesDir, { recursive: true });
 
+  console.log("Building packages");
+  buildWaspPackages(WASP_NPM_SUBPACKAGE_NAMES);
+
   const dependencyTarballs: Record<string, string> = {};
   for (const packageName of WASP_NPM_SUBPACKAGE_NAMES) {
-    console.log(`Building ${packageName}`);
-    runCmd(
-      "pnpm",
-      ["--filter", packageName, "--fail-if-no-match", "run", "build"],
-      { cwd: getRepoRootPath() },
-    );
     dependencyTarballs[packageName] =
       packageName === CLI_PACKAGE_NAME
         ? packDevCliPackage(devPackagesDir)
