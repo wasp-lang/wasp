@@ -42,9 +42,7 @@ The `build.publish` path should point from the directory containing `netlify.tom
 
 We can now deploy the client with:
 
-```shell
-npx netlify-cli deploy --filter wasp --no-build
-```
+<PackageManagerCommand npm="npx netlify-cli deploy --filter wasp --no-build" />
 
 <small>
   Carefully follow the instructions: decide if you want to create a new app or use an existing one, pick the team under which your app will be deployed etc. Netlify CLI detects Wasp's generated server and SDK packages as workspaces, so `--filter wasp` makes that selection explicit. The `build.publish` setting still determines which files Netlify uploads. The `--no-build` flag is used because you already built the client with the right environment variables.
@@ -52,9 +50,7 @@ npx netlify-cli deploy --filter wasp --no-build
 
 The final step is to run:
 
-```shell
-npx netlify-cli deploy --prod --filter wasp --no-build
-```
+<PackageManagerCommand npm="npx netlify-cli deploy --prod --filter wasp --no-build" />
 
 That is it! Your client should be live at `https://<app-name>.netlify.app`.
 
@@ -93,14 +89,11 @@ Here's an example configuration file to help you get started. This example workf
           with:
             node-version: "{minimumNodeJsVersion}"
 
-        - name: Install Wasp
-          run: npm i -g @wasp/cli@{latestWaspVersion} # Change to your Wasp version
-
-        - name: Wasp Install
-          run: wasp install
+        - name: Install app dependencies
+          run: npm ci
 
         - name: Wasp Build
-          run: wasp build
+          run: npm run build
 
         - name: Build the client
           run: REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build

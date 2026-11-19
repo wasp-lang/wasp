@@ -111,7 +111,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "{pinnedLatestWaspVersion}"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -157,15 +156,11 @@ jobs:
         with:
           node-version: "{minimumNodeJsVersion}"
 
-      - name: Install Wasp
-        shell: bash
-        run: npm i -g @wasp/cli@${{ env.WASP_VERSION }}
-
       - name: Install Wasp app dependencies
-        run: wasp install
+        run: npm ci
 
       - name: Build Wasp app
-        run: wasp build
+        run: npm run build
 
       - name: (client) Build
         run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build

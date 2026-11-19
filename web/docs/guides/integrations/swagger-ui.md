@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Swagger UI
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "swagger-jsdoc": "6", "swagger-ui-express": "5" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", "swagger-jsdoc": "6", "swagger-ui-express": "5" }} />
 
 This guide shows you how to add Swagger UI documentation to your Wasp APIs, making it easy to explore and test your endpoints.
 
@@ -19,10 +19,7 @@ This guide shows you how to add Swagger UI documentation to your Wasp APIs, maki
 
 Install the required packages:
 
-```bash
-npm install swagger-jsdoc swagger-ui-express
-npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
-```
+<PackageManagerCommand npm={"npm install swagger-jsdoc swagger-ui-express\nnpm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express"} />
 
 ### 2. Configure the API namespace in main.wasp.ts
 
@@ -35,7 +32,6 @@ import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   // highlight-start

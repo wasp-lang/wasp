@@ -11,7 +11,7 @@ index 0735bbe..da377bb 100644
  
  export default app({
    name: "TodoApp",
-@@ -10,5 +11,6 @@ export default app({
+@@ -9,5 +10,6 @@ export default app({
    spec: [
      route("RootRoute", "/", page(MainPage)),
      query(getTasks, { entities: ["Task"] }),
