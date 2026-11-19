@@ -1,6 +1,20 @@
 import { isHTTPError as isKyHttpError } from "ky";
 import { HttpError } from "../HttpError.js";
 
+/**
+ * Where an unexpected client error surfaced.
+ *
+ * - `"render"`: While rendering a page or the root component.
+ *   `componentStack` lists the components that led to the error, when React
+ *   provides it.
+ * - `"window"`: In the browser's `error` and `unhandledrejection` events,
+ *   e.g. an error thrown in an event handler or a rejected promise nobody
+ *   caught.
+ * - `"oauthCallback"`: While finishing an OAuth login.
+ * - `"authForm"`: While submitting one of Wasp's Auth UI forms.
+ * - `"optimisticUpdate"`: In the `updateQuery` function of an optimistic
+ *   update.
+ */
 export type ClientErrorContext =
   | { source: "render"; componentStack?: string }
   | { source: "window" }
