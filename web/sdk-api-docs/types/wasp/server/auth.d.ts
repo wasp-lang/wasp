@@ -250,7 +250,7 @@ export declare function createProviderId(
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  * import { createProviderId, findAuthIdentity } from "wasp/server/auth";
  *
  * const providerId = createProviderId("email", args.email);
@@ -335,7 +335,7 @@ export declare function sanitizeAndSerializeProviderData<
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  * import {
  *   createProviderId,
  *   findAuthIdentity,
@@ -642,7 +642,7 @@ export declare function sendPasswordResetEmail(
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  * import { getProviderData, isEmailResendAllowed } from "wasp/server/auth";
  *
  * const providerData = getProviderData<"email">(authIdentity.providerData);
@@ -819,7 +819,7 @@ interface OnAfterLoginHookParams extends CommonAuthHookParams {
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  * import type { OnBeforeSignupHook } from "wasp/server/auth";
  *
  * export const onBeforeSignup: OnBeforeSignupHook = async ({
@@ -968,7 +968,7 @@ export type OnBeforeOAuthRedirectHook = (
  *
  * @example
  * ```ts
- * import { HttpError } from "wasp/server";
+ * import { HttpError } from "wasp/errors";
  * import type { OnBeforeLoginHook } from "wasp/server/auth";
  *
  * export const onBeforeLogin: OnBeforeLoginHook = async ({

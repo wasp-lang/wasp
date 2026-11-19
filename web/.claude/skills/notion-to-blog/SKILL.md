@@ -48,7 +48,7 @@ Notion links to another block on the same page look like `https://app.notion.com
 
 ### Step 3: Download and optimize images
 
-1. Create directory: `web/static/img/<post-slug>/`
+1. Create directory: `web/static/img/blog/YYYY-MM-DD-<slug>/` (same name as the MDX file created in step 4)
 2. Download all images using `curl` (Notion URLs are temporary signed S3 URLs — download immediately).
 3. Give images descriptive names based on their context/caption.
 4. Convert all images to WebP using `cwebp -q 85` for smaller file sizes.
@@ -63,7 +63,7 @@ Create `web/blog/YYYY-MM-DD-<slug>.mdx` following these conventions:
 ---
 title: "Post Title"
 authors: [authorHandle]  # from web/blog/authors.yml
-image: /img/<post-slug>/banner.webp
+image: /img/blog/YYYY-MM-DD-<slug>/banner.webp
 tags: [wasp, tag2, tag3]  # 3-6 lowercase tags
 keywords: ["keyword1", "keyword2", ...]  # 10+ for SEO
 description: "SEO summary under 160 chars."

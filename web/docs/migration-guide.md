@@ -524,6 +524,83 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 12. Enjoy your updated Wasp app
+### 12. Import `HttpError` from `wasp/errors`
+
+The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/queries.ts"
+    import { HttpError } from "wasp/server"
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/queries.ts"
+    // highlight-next-line
+    import { HttpError } from "wasp/errors"
+    ```
+  </TabItem>
+</Tabs>
+
+### 13. Update how you read errors on the client
+
+On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
+
+- Its `data` is the `data` you passed on the server. Before, `data` held the whole response body, so you had to read `error.data.data`.
+- It is part of the documented public API, so you can rely on checking for it with `instanceof`.
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/SignupPage.tsx"
+    try {
+      await signup({ username, password })
+    } catch (error: any) {
+      if (error.statusCode === 422) {
+        setErrorMessage(error.data.data.message)
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/SignupPage.tsx"
+    // highlight-next-line
+    import { HttpError } from "wasp/errors"
+
+    try {
+      await signup({ username, password })
+    } catch (error: unknown) {
+      // highlight-next-line
+      if (error instanceof HttpError && error.status === 422) {
+        // highlight-next-line
+        setErrorMessage(String(error.data?.message))
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 14. Pass `HttpError` data in the options
+
+`HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/queries.ts"
+    throw new HttpError(403, "Not allowed", { reason: "NOT_OWNER" })
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/queries.ts"
+    throw new HttpError(403, "Not allowed", {
+      // highlight-next-line
+      data: { reason: "NOT_OWNER" },
+    })
+    ```
+  </TabItem>
+</Tabs>
+
+Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
+
+### 15. Enjoy your updated Wasp app
 
 That's it!

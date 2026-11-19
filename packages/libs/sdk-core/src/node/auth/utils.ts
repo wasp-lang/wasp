@@ -45,5 +45,5 @@ export async function ensurePasswordIsHashed<PN extends ProviderName>(
 }
 
 export function createInvalidCredentialsError(message?: string): HttpError {
-  return new HttpError(401, "Invalid credentials", { message });
+  return new HttpError(401, "Invalid credentials", { data: { message } });
 }

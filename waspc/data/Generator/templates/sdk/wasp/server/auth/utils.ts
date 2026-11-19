@@ -9,7 +9,8 @@ import {
 export { doFakeWork, createInvalidCredentialsError, sanitizeAndSerializeProviderData } from '@wasp/lib-sdk-core/node'
 
 import { ensurePasswordIsHashed } from '@wasp/lib-sdk-core/node'
-import { prisma, HttpError } from '../index.js'
+import { HttpError } from '@wasp/lib-sdk-core'
+import { prisma } from '../index.js'
 import type {
   {= userEntityUpper =},
   {= authEntityUpper =},
@@ -156,7 +157,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
   // Prisma code P2002 is for unique constraint violations.
   if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
     throw new HttpError(422, 'Save failed', {
-      message: `user with the same identity already exists`,
+      data: { message: `user with the same identity already exists` },
     })
   }
 
@@ -166,7 +167,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
     // to know about it.
     console.error(e)
     throw new HttpError(422, 'Save failed', {
-      message: 'there was a database error'
+      data: { message: 'there was a database error' },
     })
   }
 
@@ -177,7 +178,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
     console.error(e)
     console.info('🐝 This error can happen if you did\'t run the database migrations.')
     throw new HttpError(500, 'Save failed', {
-      message: `there was a database error`,
+      data: { message: `there was a database error` },
     })
   }
 
@@ -188,7 +189,7 @@ export function rethrowPossibleAuthError(e: unknown): void {
    but you didn't specify the "onDelete" behaviour to either "Cascade" or "SetNull".
    Read more at: https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions`)
     throw new HttpError(500, 'Save failed', {
-      message: `there was a database error`,
+      data: { message: `there was a database error` },
     })
   }
 

@@ -394,22 +394,23 @@ Here's what you have to do differently:
 
 ### Error Handling
 
-For security reasons, Wasp hides the details of exceptions thrown in the Action's NodeJS implementation: by default, the client gets a generic response with the HTTP status code `500`. In development, the response also includes the original message and stack trace.
-Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Action's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+1. If it is an `HttpError`, the client receives the error as is, with its status code, `message`, and `data`.
+2. If it has a valid `status` or `statusCode` field, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw, the client receives the closest `HttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
+3. If it is anything else, the client receives a generic `500 Internal Server Error`.
+
+In the last two cases, Wasp hides the error's details, so you don't leak sensitive information by accident. The exception is development, where the response also includes the error's message and stack to help you debug. Wasp also logs these errors on the server when their status code is `500` or above.
+
+To send error details to the client, throw an `HttpError`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/actions.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const createTask = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
@@ -417,26 +418,53 @@ If you do want to pass additional error information to the client, you can const
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/actions.ts"
     import { type CreateTask } from "wasp/server/operations"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const createTask: CreateTask = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
 </Tabs>
 
-To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+To also set response headers, e.g. `Retry-After`, pass `headers` in the options:
 
 ```js
-throw new HttpError(429, "Too many requests", undefined, {
-  headers: { "Retry-After": "60" },
-})
+throw new HttpError(429, "Too many requests", { headers: { "Retry-After": "60" } })
 ```
+
+Only put information in an `HttpError` that is safe to show to the user.
+
+On the client, the failed Action throws an `HttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
+
+```ts title="src/NewTaskForm.tsx" auto-js
+import { createTask } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+async function handleSubmit(description: string) {
+  try {
+    await createTask({ description });
+  } catch (error: unknown) {
+    if (error instanceof HttpError && error.status === 403) {
+      window.alert(error.message);
+    }
+  }
+}
+```
+
+#### Reading the Error's `Request` and `Response`
+
+On the client, an `HttpError` also has the [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) that the server sent. Use it when you need more than the status code, `message`, and `data`, for example to read a response header:
+
+```ts
+if (error instanceof HttpError && error.status === 429) {
+  const retryAfter = error.response.headers.get("Retry-After");
+}
+```
+
+The body of the `Response` is already read into `message` and `data`, so don't read it again.
+
+To look at the [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) that failed, use `error.cause.request`. The `cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw.
 
 ### Using Entities in Actions
 
@@ -587,10 +615,10 @@ Here are the key differences between Queries and Actions:
 />
 
 <CardLink
-  to="../../../api/wasp/server#httperror"
+  to="../../../api/wasp/errors#httperror"
   kind="api"
   title="HttpError"
-  description="The error you throw to send an HTTP error response to the client."
+  description="The error for an HTTP error response, which you throw on the server and read on the client."
 />
 
 ### The `useAction` Hook and Optimistic Updates
