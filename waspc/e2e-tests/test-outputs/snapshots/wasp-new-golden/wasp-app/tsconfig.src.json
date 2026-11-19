@@ -1,4 +1,5 @@
 {
+  "extends": "@wasp/wasp/tsconfig.paths.json",
   "compilerOptions": {
     "module": "esnext",
     "composite": true,

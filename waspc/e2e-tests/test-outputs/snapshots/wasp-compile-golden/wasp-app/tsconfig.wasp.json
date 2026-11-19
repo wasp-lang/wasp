@@ -1,4 +1,5 @@
 {
+  "extends": "@wasp/wasp/tsconfig.paths.json",
   "compilerOptions": {
     "skipLibCheck": true,
     "target": "ES2025",

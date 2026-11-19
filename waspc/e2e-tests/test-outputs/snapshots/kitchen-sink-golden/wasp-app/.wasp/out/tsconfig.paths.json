@@ -1,0 +1,132 @@
+{
+    "compilerOptions": {
+        "paths": {
+            "wasp/auth": [
+                "./sdk/wasp/dist/auth/index"
+            ],
+            "wasp/auth/providers": [
+                "./sdk/wasp/dist/auth/providers/index"
+            ],
+            "wasp/auth/providers/types": [
+                "./sdk/wasp/dist/auth/providers/types"
+            ],
+            "wasp/auth/user": [
+                "./sdk/wasp/dist/auth/user"
+            ],
+            "wasp/auth/validation": [
+                "./sdk/wasp/dist/auth/validation"
+            ],
+            "wasp/client": [
+                "./sdk/wasp/dist/client/index"
+            ],
+            "wasp/client/api": [
+                "./sdk/wasp/dist/api/index"
+            ],
+            "wasp/client/app": [
+                "./sdk/wasp/dist/client/app/index"
+            ],
+            "wasp/client/app/layout": [
+                "./sdk/wasp/dist/client/app/layout"
+            ],
+            "wasp/client/app/router": [
+                "./sdk/wasp/dist/client/app/router"
+            ],
+            "wasp/client/auth": [
+                "./sdk/wasp/dist/client/auth/index"
+            ],
+            "wasp/client/crud": [
+                "./sdk/wasp/dist/client/crud/index"
+            ],
+            "wasp/client/operations": [
+                "./sdk/wasp/dist/client/operations/index"
+            ],
+            "wasp/client/router": [
+                "./sdk/wasp/dist/client/router/index"
+            ],
+            "wasp/client/test": [
+                "./sdk/wasp/dist/client/test/index"
+            ],
+            "wasp/client/webSocket": [
+                "./sdk/wasp/dist/client/webSocket/index"
+            ],
+            "wasp/core/serialization": [
+                "./sdk/wasp/dist/core/serialization/index"
+            ],
+            "wasp/entities": [
+                "./sdk/wasp/dist/entities/index"
+            ],
+            "wasp/env": [
+                "./sdk/wasp/dist/env/index"
+            ],
+            "wasp/errors": [
+                "./sdk/wasp/dist/errors/index"
+            ],
+            "wasp/serialization": [
+                "./sdk/wasp/dist/serialization/index"
+            ],
+            "wasp/server": [
+                "./sdk/wasp/dist/server/index"
+            ],
+            "wasp/server/api": [
+                "./sdk/wasp/dist/server/api/index"
+            ],
+            "wasp/server/auth": [
+                "./sdk/wasp/dist/server/auth/index"
+            ],
+            "wasp/server/auth/jwt": [
+                "./sdk/wasp/dist/server/auth/jwt"
+            ],
+            "wasp/server/auth/password": [
+                "./sdk/wasp/dist/server/auth/password"
+            ],
+            "wasp/server/auth/session": [
+                "./sdk/wasp/dist/server/auth/session"
+            ],
+            "wasp/server/auth/utils": [
+                "./sdk/wasp/dist/server/auth/utils"
+            ],
+            "wasp/server/core/auth": [
+                "./sdk/wasp/dist/server/core/auth"
+            ],
+            "wasp/server/crud": [
+                "./sdk/wasp/dist/server/crud/index"
+            ],
+            "wasp/server/crud/*": [
+                "./sdk/wasp/dist/server/crud/*"
+            ],
+            "wasp/server/email": [
+                "./sdk/wasp/dist/server/email/index"
+            ],
+            "wasp/server/email/core/types": [
+                "./sdk/wasp/dist/server/email/core/types"
+            ],
+            "wasp/server/errors": [
+                "./sdk/wasp/dist/server/errors/index"
+            ],
+            "wasp/server/jobs": [
+                "./sdk/wasp/dist/server/jobs/index"
+            ],
+            "wasp/server/jobs/core/pgBoss": [
+                "./sdk/wasp/dist/server/jobs/core/pgBoss/index"
+            ],
+            "wasp/server/middleware": [
+                "./sdk/wasp/dist/server/middleware/index"
+            ],
+            "wasp/server/operations": [
+                "./sdk/wasp/dist/server/operations/index"
+            ],
+            "wasp/server/types": [
+                "./sdk/wasp/dist/server/types/index"
+            ],
+            "wasp/server/utils": [
+                "./sdk/wasp/dist/server/utils"
+            ],
+            "wasp/server/webSocket": [
+                "./sdk/wasp/dist/server/webSocket/index"
+            ],
+            "wasp/types": [
+                "./sdk/wasp/dist/types/index"
+            ]
+        }
+    }
+}
