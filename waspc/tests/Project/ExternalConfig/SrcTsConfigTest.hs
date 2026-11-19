@@ -12,6 +12,19 @@ spec_SrcTsConfig = do
     it "returns no errors for a valid tsconfig" $
       validate validTsConfig `shouldBe` []
 
+    it "returns an error when it doesn't extend the generated tsconfig" $ do
+      assertReturnsValidationErrorMentioningField "extends" $ validTsConfig {T.extends = Nothing}
+      assertReturnsValidationErrorMentioningField "extends" $
+        validTsConfig {T.extends = Just (T.TsConfigExtends ["./tsconfig.base.json"])}
+
+    it "accepts other extended configs next to the generated one" $
+      validate (validTsConfig {T.extends = Just (T.TsConfigExtends ["./tsconfig.base.json", "@wasp/wasp/tsconfig.paths.json"])})
+        `shouldBe` []
+
+    it "returns an error when it sets its own `paths`"
+      $ assertReturnsValidationErrorMentioningField "paths"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.paths = Just mempty})}
+
     it "returns an error when a compilerOption has a wrong value"
       $ assertReturnsValidationErrorMentioningField "moduleResolution"
       $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.moduleResolution = Just "nodenext"})}
@@ -100,7 +113,8 @@ assertReturnsValidationErrorMentioningField fieldName config =
 validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
-    { T.compilerOptions = Just validCompilerOptions,
+    { T.extends = Just (T.TsConfigExtends ["@wasp/wasp/tsconfig.paths.json"]),
+      T.compilerOptions = Just validCompilerOptions,
       T.include = Just ["src", ".wasp/out/types/app"],
       T.exclude = Just ["**/*.wasp.ts"],
       T.files = Nothing,
