@@ -53,6 +53,7 @@ module ShellCommands
     TestContext (..),
     inTestWaspProjectDir,
     createTestWaspProject,
+    createTestWaspProjectWithPackageManager,
     SnapshotTestContext (..),
     createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
@@ -75,6 +76,7 @@ import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirI
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
+import Wasp.Project.PackageManager (PackageManager, getPackageManagerName)
 
 -- TODO: In future, find a good way to test `wasp-cli start`.
 
@@ -166,6 +168,10 @@ waspCliNewWithPipedAnswersFails appName starterTemplate =
 waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName starterTemplate =
   return $ unwords ["$WASP_CLI_CMD", "new", appName, "-t", show starterTemplate]
+
+waspCliNewWithPackageManager :: PackageManager -> String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewWithPackageManager packageManager appName starterTemplate =
+  (++ " --package-manager " ++ getPackageManagerName packageManager) <$> waspCliNew appName starterTemplate
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "$WASP_CLI_CMD completion"
@@ -404,6 +410,11 @@ createTestWaspProject :: StarterTemplate -> ShellCommandBuilder TestContext Shel
 createTestWaspProject template = do
   context <- ask
   waspCliNew context.waspProjectContext.waspProjectName template
+
+createTestWaspProjectWithPackageManager :: PackageManager -> StarterTemplate -> ShellCommandBuilder TestContext ShellCommand
+createTestWaspProjectWithPackageManager packageManager template = do
+  context <- ask
+  waspCliNewWithPackageManager packageManager context.waspProjectContext.waspProjectName template
 
 assertCommandOutputContains ::
   ShellCommandBuilder context ShellCommand ->
