@@ -8,7 +8,7 @@ import Control.Monad (unless)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions, withSetupGoals)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsDevelopment (GeneratedAppIsDevelopment))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -52,7 +52,7 @@ throwIfDbConnectionNotEstablished projectRunConfig = do
   unless dbIsRunning $ throwError noDbError
   where
     noDbError =
-      CommandError
+      makeCommandError
         "Can not connect to database"
         ( "The database needs to be running in order to execute this command."
             ++ " You can easily start a managed dev database with `wasp start db`."

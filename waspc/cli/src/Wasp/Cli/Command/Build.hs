@@ -13,7 +13,7 @@ import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -75,11 +75,11 @@ build = ProjectLock.acquireExclusive $ do
   liftIO $ printCompilationResult (warnings, errors)
   unless (null errors)
     $ throwError
-    $ CommandError "Building of wasp project failed"
+    $ makeCommandError "Building of wasp project failed"
     $ show (length errors) ++ " errors found."
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
-    Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
+    Left err -> throwError $ makeCommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
 
   cliSendMessageC

@@ -10,7 +10,7 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import StrongPath.Operations
 import System.Directory (findExecutable)
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, makeCommandError)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Diagnostic as Diagnostic
 import qualified Wasp.Message as Msg
@@ -22,7 +22,7 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
     Just _ -> return ()
     Nothing ->
       E.throwError $
-        CommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
+        makeCommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
 
 deleteDirectoryIfExistsVerbosely :: Path' Abs (Dir d) -> Command ()
 deleteDirectoryIfExistsVerbosely dir = do

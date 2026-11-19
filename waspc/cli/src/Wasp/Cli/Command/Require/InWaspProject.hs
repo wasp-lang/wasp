@@ -12,7 +12,7 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement))
+import Wasp.Cli.Command (Requirable (checkRequirement), makeCommandError)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
 
@@ -46,7 +46,7 @@ instance Requirable InWaspProject where
             findWaspProjectRoot parentDir
 
       notFoundError =
-        CommandError
+        makeCommandError
           "Wasp command failed"
           ( "Couldn't find wasp project root - make sure"
               ++ " you are running this command from a Wasp project."

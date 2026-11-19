@@ -27,7 +27,7 @@ import qualified StrongPath as SP
 import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -99,7 +99,7 @@ compileWithOptions options = do
     Right appSpec -> return (warnings, appSpec)
     Left compileErrors ->
       throwError
-        $ CommandError "Compilation of wasp project failed"
+        $ makeCommandError "Compilation of wasp project failed"
         $ show (length compileErrors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
@@ -187,7 +187,7 @@ analyzeWithOptions waspProjectDir options = do
   case appSpecOrErrors of
     Left errors ->
       throwError $
-        CommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+        makeCommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
     Right spec -> return spec
 
 -- | Like 'analyze', but keeps stdout free for machine-readable output:

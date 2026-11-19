@@ -9,7 +9,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
@@ -91,7 +91,7 @@ start = withArguments startArgsParser $ \args ->
     case watchOrStartResult of
       Left () -> error "This should never happen, listening for file changes should never end but it did."
       Right startResult -> case startResult of
-        Left startError -> throwError $ CommandError "Start failed" startError
+        Left startError -> throwError $ makeCommandError "Start failed" startError
         Right () -> error "This should never happen, start should never end but it did."
   where
     onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()

@@ -11,7 +11,7 @@ import Data.Foldable (for_)
 import Data.Maybe (isJust)
 import qualified StrongPath as SP
 import qualified System.Environment as ENV
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, makeCommandError)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Telemetry.Common (ensureTelemetryCacheDirExists)
@@ -55,7 +55,7 @@ telemetry = do
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  when telemetryDisabled $ throwError $ CommandError "Telemetry failed" "Telemetry disabled by user."
+  when telemetryDisabled $ throwError $ makeCommandError "Telemetry failed" "Telemetry disabled by user."
 
   telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
 

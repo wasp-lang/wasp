@@ -25,7 +25,7 @@ import qualified Wasp.AppSpec.Operation as Operation
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -148,7 +148,7 @@ studio = do
   result <- liftIO $ do
     Wasp.Project.Studio.startStudio $ SP.toFilePath waspStudioDataJsonFilePath
 
-  either (throwError . CommandError "Studio command failed") return result
+  either (throwError . makeCommandError "Studio command failed") return result
   where
     getLinkedEntitiesData spec entityRefs =
       map

@@ -6,7 +6,7 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text.IO as T.IO
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -18,6 +18,6 @@ printDockerfile = do
   WaspSpecAvailable <- require
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfile waspProjectDir (defaultCompileOptions waspProjectDir)
   either
-    (throwError . CommandError "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)
+    (throwError . makeCommandError "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)
     (liftIO . T.IO.putStrLn)
     dockerfileContentOrCompileErrors
