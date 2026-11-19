@@ -4,7 +4,7 @@ import { useAuth } from "../../auth";
 import { api } from "../../../api";
 import {
   FullPageWrapper,
-  handleClientError,
+  reportClientError,
   initSession,
   MessageError,
   MessageLoading,
@@ -63,7 +63,7 @@ function useOAuthCallbackHandler() {
       }
       await initSession(data.sessionId);
     } catch (error: unknown) {
-      handleClientError(error, { source: "oauthCallback" });
+      reportClientError(error, { source: "oauthCallback" });
       setCallbackError("Unable to login with the OAuth provider.");
     } finally {
       setisCallbackLoading(false);

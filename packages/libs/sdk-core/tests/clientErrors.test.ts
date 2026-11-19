@@ -1,6 +1,6 @@
 import { HTTPError } from "ky";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { handleClientError } from "../src/browser/errors";
+import { reportClientError } from "../src/browser/errors";
 import { HttpError } from "../src/HttpError";
 
 describe("client error handler", () => {
@@ -11,7 +11,7 @@ describe("client error handler", () => {
   it("reports an unexpected error with its source", () => {
     const error = new Error("Unexpected");
 
-    handleClientError(error, { source: "render" });
+    reportClientError(error, { source: "render" });
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Unexpected error in render:",
@@ -20,7 +20,7 @@ describe("client error handler", () => {
   });
 
   it("doesn't report an `HttpError` with a status below 500", () => {
-    handleClientError(new HttpError(404, "Not found"), {
+    reportClientError(new HttpError(404, "Not found"), {
       source: "window",
     });
 
@@ -30,7 +30,7 @@ describe("client error handler", () => {
   it("reports an `HttpError` with a status of 500 or above", () => {
     const error = new HttpError(502, "Bad gateway");
 
-    handleClientError(error, { source: "window" });
+    reportClientError(error, { source: "window" });
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Unexpected error in window:",
@@ -39,7 +39,7 @@ describe("client error handler", () => {
   });
 
   it("doesn't report an HTTP error that ky threw with a status below 500", () => {
-    handleClientError(makeKyHttpError(401), { source: "window" });
+    reportClientError(makeKyHttpError(401), { source: "window" });
 
     expect(console.error).not.toHaveBeenCalled();
   });
@@ -47,7 +47,7 @@ describe("client error handler", () => {
   it("reports an HTTP error that ky threw with a status of 500 or above", () => {
     const kyHttpError = makeKyHttpError(503);
 
-    handleClientError(kyHttpError, { source: "window" });
+    reportClientError(kyHttpError, { source: "window" });
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Unexpected error in window:",
@@ -58,8 +58,8 @@ describe("client error handler", () => {
   it("reports the same error object only once", () => {
     const error = new Error("Unexpected");
 
-    handleClientError(error, { source: "render" });
-    handleClientError(error, { source: "window" });
+    reportClientError(error, { source: "render" });
+    reportClientError(error, { source: "window" });
 
     expect(console.error).toHaveBeenCalledTimes(1);
   });

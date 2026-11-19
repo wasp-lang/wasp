@@ -61,8 +61,8 @@ export {
   type UseQueryFor,
 } from "./crud/operations.js";
 export {
-  handleClientError,
   listenForUncaughtClientErrors,
+  reportClientError,
   type ClientErrorContext,
 } from "./errors.js";
 export { useEffectOnce } from "./hooks.js";

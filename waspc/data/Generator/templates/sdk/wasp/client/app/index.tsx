@@ -4,7 +4,7 @@ export { WaspApp } from './components/WaspApp'
 
 // PRIVATE API (web-app)
 export {
-  handleClientError,
+  reportClientError,
   listenForUncaughtClientErrors,
 } from '@wasp/lib-sdk-core/browser'
 

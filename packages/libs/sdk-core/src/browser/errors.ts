@@ -12,15 +12,16 @@ export type ClientErrorContext =
 const handledErrors = new WeakSet<object>();
 
 /**
- * Reports an unexpected client error, once per error object.
+ * Reports a client error if it is unexpected, once per error object.
  *
- * It skips an {@link HttpError} and ky's `HTTPError` with a status below 500,
- * because they come from an error response that the server sent on purpose.
+ * An {@link HttpError} or ky's `HTTPError` with a status below 500 is
+ * expected, because it comes from an error response that the server sent on
+ * purpose.
  *
  * @param error The thrown value.
  * @param context Where the error surfaced.
  */
-export function handleClientError(
+export function reportClientError(
   error: unknown,
   context: ClientErrorContext,
 ): void {
@@ -41,12 +42,13 @@ function isExpectedHttpError(error: unknown): boolean {
     return error.status < 500;
   }
   // Users who call `api` without `handleApiError` get ky's error instead of
-  // an `HttpError`.
+  // an `HttpError`. ky also throws it for statuses below 400, e.g. for a
+  // redirect that wasn't followed.
   return isKyHttpError(error) && error.response.status < 500;
 }
 
 /**
- * Passes the errors that reach the window to {@link handleClientError}, e.g.
+ * Passes the errors that reach the window to {@link reportClientError}, e.g.
  * errors thrown in event handlers and rejected promises that nobody awaited.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
@@ -54,12 +56,12 @@ function isExpectedHttpError(error: unknown): boolean {
  */
 export function listenForUncaughtClientErrors(): void {
   window.addEventListener("error", (event: ErrorEvent) => {
-    handleClientError(event.error ?? event.message, { source: "window" });
+    reportClientError(event.error ?? event.message, { source: "window" });
   });
   window.addEventListener(
     "unhandledrejection",
     (event: PromiseRejectionEvent) => {
-      handleClientError(event.reason, { source: "window" });
+      reportClientError(event.reason, { source: "window" });
     },
   );
 }

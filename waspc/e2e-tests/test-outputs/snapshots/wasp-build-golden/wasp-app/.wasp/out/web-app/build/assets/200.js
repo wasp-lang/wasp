@@ -183,15 +183,16 @@ function toHttpErrorBody(error) {
 // node_modules/@wasp/lib-sdk-core/dist/browser/errors.mjs
 var handledErrors = /* @__PURE__ */ new WeakSet();
 /**
-* Reports an unexpected client error, once per error object.
+* Reports a client error if it is unexpected, once per error object.
 *
-* It skips an {@link HttpError} and ky's `HTTPError` with a status below 500,
-* because they come from an error response that the server sent on purpose.
+* An {@link HttpError} or ky's `HTTPError` with a status below 500 is
+* expected, because it comes from an error response that the server sent on
+* purpose.
 *
 * @param error The thrown value.
 * @param context Where the error surfaced.
 */
-function handleClientError(error, context) {
+function reportClientError(error, context) {
 	if (isExpectedHttpError(error)) return;
 	if (typeof error === "object" && error !== null) {
 		if (handledErrors.has(error)) return;
@@ -204,7 +205,7 @@ function isExpectedHttpError(error) {
 	return isHTTPError(error) && error.response.status < 500;
 }
 /**
-* Passes the errors that reach the window to {@link handleClientError}, e.g.
+* Passes the errors that reach the window to {@link reportClientError}, e.g.
 * errors thrown in event handlers and rejected promises that nobody awaited.
 *
 * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
@@ -212,10 +213,10 @@ function isExpectedHttpError(error) {
 */
 function listenForUncaughtClientErrors() {
 	window.addEventListener("error", (event) => {
-		handleClientError(event.error ?? event.message, { source: "window" });
+		reportClientError(event.error ?? event.message, { source: "window" });
 	});
 	window.addEventListener("unhandledrejection", (event) => {
-		handleClientError(event.reason, { source: "window" });
+		reportClientError(event.reason, { source: "window" });
 	});
 }
 function reportUnexpectedClientError(error, context) {
@@ -240,7 +241,7 @@ function FullPageWrapper({ children, className }) {
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
 	useEffect(() => {
-		handleClientError(error, { source: "render" });
+		reportClientError(error, { source: "render" });
 	}, [error]);
 	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
@@ -616,7 +617,7 @@ startTransition(() => {
 	});
 });
 function reportRenderError(error, { componentStack }) {
-	handleClientError(error, {
+	reportClientError(error, {
 		source: "render",
 		componentStack
 	});
