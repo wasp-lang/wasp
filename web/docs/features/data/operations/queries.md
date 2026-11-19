@@ -409,22 +409,23 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 ### Error Handling
 
-For security reasons, Wasp hides the details of exceptions thrown in the Query's NodeJS implementation: by default, the client gets a generic response with the HTTP status code `500`. In development, the response also includes the original message and stack trace.
-Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
+When your Query's NodeJS implementation throws an error, Wasp checks what kind of error it is, in this order:
 
-If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
+1. If it is an `HttpError`, the client receives the error as is, with its status code, `message`, and `data`.
+2. If it has a valid `status` or `statusCode` field, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw, the client receives the closest `HttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
+3. If it is anything else, the client receives a generic `500 Internal Server Error`.
+
+In the last two cases, Wasp hides the error's details, so you don't leak sensitive information by accident. The exception is development, where the response also includes the error's message and stack to help you debug. Wasp also logs these errors on the server when their status code is `500` or above.
+
+To send error details to the client, throw an `HttpError`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/queries.js"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
@@ -432,29 +433,52 @@ If you do want to pass additional error information to the client, you can const
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
     import { type GetAllTasks } from "wasp/server/operations"
-    import { HttpError } from "wasp/server"
+    import { HttpError } from "wasp/errors"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: "bar" } // data
-      )
+      throw new HttpError(403, "You can't do this!", { data: { foo: "bar" } })
     }
     ```
   </TabItem>
 </Tabs>
 
-The client receives the `HttpError`'s status code, `message`, and `data`, and rethrows the error as a `WaspHttpError` with `statusCode`, `message`, and `data`. On the client, `data` holds the whole response body (`{ message, data }`), so the `data` you passed to the `HttpError` is at `error.data.data`.
-This happens for every status code, so only put information in them that is safe to show to the user.
-
-To also set response headers, e.g. `Retry-After`, pass them in the options argument:
+To also set response headers, e.g. `Retry-After`, pass `headers` in the options:
 
 ```js
-throw new HttpError(429, "Too many requests", undefined, {
-  headers: { "Retry-After": "60" },
-})
+throw new HttpError(429, "Too many requests", { headers: { "Retry-After": "60" } })
 ```
+
+Only put information in an `HttpError` that is safe to show to the user.
+
+On the client, the failed Query throws an `HttpError` with the same status code, `message`, and `data`. Other unexpected failures, like a network error, throw generic `Error` instances, so make sure the error is an instance of `HttpError` before reading these fields:
+
+```tsx title="src/MainPage.tsx" auto-js
+import { getAllTasks, useQuery } from "wasp/client/operations";
+import { HttpError } from "wasp/errors";
+
+export const MainPage = () => {
+  const { data: tasks, error } = useQuery(getAllTasks);
+
+  if (error instanceof HttpError && error.status === 403) {
+    return <div>{error.message}</div>;
+  }
+  // ...
+};
+```
+
+#### Reading the Error's `Request` and `Response`
+
+On the client, an `HttpError` also has the [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) that the server sent. Use it when you need more than the status code, `message`, and `data`, for example to read a response header:
+
+```ts
+if (error instanceof HttpError && error.status === 429) {
+  const retryAfter = error.response.headers.get("Retry-After");
+}
+```
+
+The body of the `Response` is already read into `message` and `data`, so don't read it again.
+
+To look at the [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) that failed, use `error.cause.request`. The `cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw.
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.
@@ -562,10 +586,10 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 />
 
 <CardLink
-  to="../../../api/wasp/server#httperror"
+  to="../../../api/wasp/errors#httperror"
   kind="api"
   title="HttpError"
-  description="The error you throw to send an HTTP error response to the client."
+  description="The error for an HTTP error response, which you throw on the server and read on the client."
 />
 
 ### The `useQuery` Hook

@@ -55,7 +55,7 @@ Run the conversion script, if it hasn't been run yet (see usage above).
 
 **Images:** Medium does not support webp. Convert webp images to jpg for later manual upload:
 ```bash
-for f in static/img/<slug>/*.webp; do sips -s format jpeg "$f" --out ".claude/skills/crossposting/scripts/output/$(basename "${f%.webp}.jpg")"; done
+for f in static/img/blog/<post-file-name>/*.webp; do sips -s format jpeg "$f" --out ".claude/skills/crossposting/scripts/output/$(basename "${f%.webp}.jpg")"; done
 ```
 
 ### 2. Navigate to `https://medium.com/new-story`

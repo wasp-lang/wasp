@@ -21,8 +21,8 @@
  *
  * {@link login}, {@link signup}, {@link verifyEmail},
  * {@link requestPasswordReset}, and {@link resetPassword} reject with a
- * {@link "client/api"!WaspHttpError | WaspHttpError} if the server responds
- * with an error, instead of resolving with `success: false`.
+ * {@linkcode "errors"!HttpError | HttpError} if the server responds with an
+ * error, instead of resolving with `success: false`.
  *
  * @module
  */

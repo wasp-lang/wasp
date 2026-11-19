@@ -1,6 +1,7 @@
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import {
   type ThrowConcealedError,
+  type ThrowCustomHttpError,
   type ThrowHttpError,
   type ThrowRateLimitError,
   type ThrowUnavailableError,
@@ -13,7 +14,20 @@ export const throwUnexpectedError: ThrowUnexpectedError = async () => {
 };
 
 export const throwHttpError: ThrowHttpError = async () => {
-  throw new HttpError(418, "I'm a teapot", { reason: "short and stout" });
+  throw new HttpError(418, "I'm a teapot", {
+    data: { reason: "short and stout" },
+    headers: { "Content-Type": "application/vnd.teapot+json" },
+  });
+};
+
+class PaymentRequiredError extends HttpError<{ plan: string }> {
+  constructor(plan: string) {
+    super(402, "Payment required", { data: { plan } });
+  }
+}
+
+export const throwCustomHttpError: ThrowCustomHttpError = async () => {
+  throw new PaymentRequiredError("pro");
 };
 
 // The errors below have the shape that Express middleware create with the
@@ -27,7 +41,9 @@ export const throwConcealedError: ThrowConcealedError = async () => {
   });
 };
 
-export const throwRateLimitError: ThrowRateLimitError = async () => {
+export const throwRateLimitError: ThrowRateLimitError = async (_req, res) => {
+  // The header of the error has to replace this one.
+  res.set("Retry-After", "5");
   throw Object.assign(new Error("Too many requests, slow down"), {
     status: 429,
     statusCode: 429,
