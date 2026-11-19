@@ -16,6 +16,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
 - Wasp now requires Vite 8.3. ([#5322](https://github.com/wasp-lang/wasp/pull/5322))
+- `wasp studio` now shows the app that `wasp start` is running, and follows your changes to it, so run `wasp start` first. (FIXME PR LINK)
 
 ### 🎉 New Features
 

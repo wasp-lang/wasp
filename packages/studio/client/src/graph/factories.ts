@@ -1,6 +1,6 @@
 import { Edge, Node, Position } from "@xyflow/react";
 
-// Node data comes untyped from the Wasp Studio data file.
+// Node data comes untyped from the app's spec.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type StudioNode = Node<Record<string, any>>;
 

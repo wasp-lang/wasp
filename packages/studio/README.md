@@ -1,48 +1,18 @@
 # Wasp Studio
 
-Wasp Studio has two components:
+Wasp Studio shows a Wasp app as a graph of its pages, routes, operations, APIs, jobs, and entities.
 
-- the server
-- the client
+It has two components:
 
-To develop the studio, you need to run both of them. First, run the server, then the client.
+- the client, a page that reads the app's spec from the server that `wasp start` runs, at `/__wasp/spec`. The server only has this route in development.
+- the server, which `wasp studio` runs to serve the client on `http://localhost:4000`.
 
-### Server
-
-Install dependencies:
-
-```bash
-pnpm install
-```
-
-Running the server for some data file:
-
-```bash
-pnpm run dev -d <path_to_data_file>
-```
-
-For example, running the server with the data file from the `examples` directory:
-
-```bash
-pnpm run dev -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
-```
-
-Wasp CLI generates the `.wasp-studio-data.json` file when the `wasp studio` command is run.
-You can run the `wasp studio` once to get the file generated, and then run the studio in development mode.
-
-### Client
-
-Install dependencies:
+To develop the studio, run `wasp start` in a Wasp app, and then run the client in development mode:
 
 ```bash
 cd client
 pnpm install
-```
-
-Running the client:
-
-```bash
 pnpm run dev
 ```
 
-Then open `http://localhost:5173` in your browser.
+Then open `http://localhost:4000` in your browser. To try the server, run `pnpm run build` and then `pnpm run start`.

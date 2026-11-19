@@ -1,13 +1,15 @@
 import "@xyflow/react/dist/style.css";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useMemo } from "react";
 
 import { Logo } from "./Logo";
-import { useSocket } from "./socket";
+import { useSpec } from "./spec";
+import { getStudioData } from "./studioData";
 
 const Flow = lazy(() => import("./Flow"));
 
 export default function App() {
-  const { data, isConnected } = useSocket();
+  const { decls, isConnected } = useSpec();
+  const data = useMemo(() => decls && getStudioData(decls), [decls]);
 
   return (
     <div className="h-full">

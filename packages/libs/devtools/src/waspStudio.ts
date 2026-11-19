@@ -41,7 +41,7 @@ export function waspStudio(): Plugin {
           WASP_STUDIO_URL,
           () => session.status === "running",
         );
-        return WASP_STUDIO_URL;
+        return getStudioPageUrl();
       },
     },
   });
@@ -93,4 +93,15 @@ function withDockCategory<Context extends { docks: object }>(
     get: (target, property) =>
       property === "docks" ? docks : Reflect.get(target, property),
   });
+}
+
+/**
+ * The Wasp Studio page reads the app's spec from the app's server, so we tell
+ * it where that is. `wasp start` passes the server URL to the Vite process.
+ */
+function getStudioPageUrl(): string {
+  const url = new URL(WASP_STUDIO_URL);
+  const serverUrl = process.env["REACT_APP_API_URL"];
+  if (serverUrl) url.searchParams.set("serverUrl", serverUrl);
+  return url.href;
 }

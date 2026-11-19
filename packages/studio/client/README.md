@@ -1,6 +1,6 @@
 # Wasp Studio Client
 
-It's a React + Vite app that connects via WebSocket to the Wasp Studio Server.
+It's a React + Vite app that reads the app's spec from the server that `wasp start` runs (`/__wasp/spec`), and shows it as a graph.
 
 ### Development
 
@@ -10,8 +10,10 @@ Install deps:
 pnpm install
 ```
 
-Make sure you are running the Wasp Studio Server locally. And then run:
+Run `wasp start` in a Wasp app, and then run:
 
 ```
 pnpm run dev
 ```
+
+The page reads from the server at `http://localhost:3001`. Pass `?serverUrl=<url>` to use another one.
