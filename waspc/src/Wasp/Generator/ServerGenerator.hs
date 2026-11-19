@@ -42,7 +42,6 @@ import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
-import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -118,7 +117,7 @@ genPackageJson spec =
       (C.asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= serverPackageName,
+            [ "packageName" .= C.serverPackageName,
               "serverBundleCommand" .= serverBundleCommand,
               "devServerStartCommand" .= devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
