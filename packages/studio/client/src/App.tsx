@@ -1,6 +1,7 @@
 import "@xyflow/react/dist/style.css";
 import { lazy, Suspense } from "react";
 
+import { Loading } from "./Loading";
 import { Logo } from "./Logo";
 import { useSocket } from "./socket";
 
@@ -43,16 +44,6 @@ export default function App() {
           {data ? <Flow data={data} /> : <Loading />}
         </Suspense>
       </div>
-    </div>
-  );
-}
-
-function Loading() {
-  return (
-    <div className="flex h-full items-center justify-center">
-      <p className="text-wasp-g5 font-mono text-sm tracking-widest uppercase">
-        // Loading...
-      </p>
     </div>
   );
 }
