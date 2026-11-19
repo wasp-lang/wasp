@@ -1,5 +1,5 @@
-module Wasp.Cli.Command.CreateNewProject.NpmInstall
-  ( installProjectNpmDependencies,
+module Wasp.Cli.Command.CreateNewProject.InstallDependencies
+  ( installProjectDependencies,
   )
 where
 
@@ -13,26 +13,26 @@ import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.Project.PackageManager (PackageManager, getPackageManagerName, makeInstallCommand)
 import Wasp.Util (checkExitSuccess, secondsToMicroSeconds)
 
--- | Runs `npm install` in the project, and reports progress while it runs.
-installProjectNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies projectDir =
-  Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
+-- | Installs the project's packages with its package manager, and reports
+-- progress while it runs.
+installProjectDependencies :: PackageManager -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectDependencies packageManager projectDir =
+  Job.run (Job.prefixWith Job.Wasp $ installDependenciesAndReport packageManager projectDir)
     <&> checkExitSuccess "Project setup"
 
-{- HLINT ignore installNpmDependenciesAndReport "Avoid npm and npx" -}
-
-installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
-installNpmDependenciesAndReport projectDir = do
-  Job.emitOutput Job.Stdout "Starting npm install\n"
+installDependenciesAndReport :: PackageManager -> Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
+installDependenciesAndReport packageManager projectDir = do
+  Job.emitOutput Job.Stdout $ T.pack $ "Starting " ++ makeInstallCommand packageManager ++ "\n"
 
   either absurd id
     <$> Job.race
       reportInstallationProgress
       ( Job.fromProc
           $ Job.setCwd projectDir
-          $ Job.proc "npm" ["install"]
+          $ Job.proc (getPackageManagerName packageManager) ["install"]
       )
 
 reportInstallationProgress :: Job.Job Void
@@ -45,7 +45,7 @@ reportInstallationProgress =
       liftIO $ threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =
-      [ "Still installing npm dependencies!",
+      [ "Still installing dependencies!",
         "Installation going great - we'll get there soon!",
         "The installation is taking a while, but we'll get there!",
         "Yup, still not done installing.",
