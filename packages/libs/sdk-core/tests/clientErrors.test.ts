@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { reportClientError } from "../src/browser/errors";
 import { HttpError } from "../src/HttpError";
 
-describe("client error handler", () => {
+describe("reportClientError", () => {
   beforeEach(() => {
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
@@ -69,7 +69,7 @@ function makeKyHttpError(status: number): HTTPError {
   return new HTTPError(
     new Response(null, { status }),
     new Request("http://localhost:3001/foo"),
-    // The handler only looks at the error's response.
+    // `reportClientError` only reads the error's response.
     {} as ConstructorParameters<typeof HTTPError>[2],
   );
 }

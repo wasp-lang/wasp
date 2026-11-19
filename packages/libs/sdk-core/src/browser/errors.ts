@@ -8,7 +8,7 @@ export type ClientErrorContext =
   | { source: "authForm" }
   | { source: "optimisticUpdate" };
 
-// The handler can receive the same error more than once.
+// The same error can be reported from more than one place.
 const handledErrors = new WeakSet<object>();
 
 /**
