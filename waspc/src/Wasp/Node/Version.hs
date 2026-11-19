@@ -4,13 +4,13 @@ module Wasp.Node.Version
     oldestWaspSupportedNodeVersion,
     nodeTypesVersionRangeMatchingNodeMajor,
     isRangeInWaspSupportedRange,
-    checkUserNodeAndNpmMeetWaspRequirements,
+    checkUserNodeMeetsWaspRequirements,
+    checkUserNpmMeetsWaspRequirements,
     getUserNodeVersion,
     getUserNpmVersion,
   )
 where
 
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import Data.Conduit.Process.Typed (ExitCode (..))
 import Data.Functor ((<&>))
 import System.IO.Error (catchIOError, isDoesNotExistError)
@@ -43,16 +43,13 @@ type VersionCheckResult = Either ErrorMessage ()
 
 type ErrorMessage = String
 
-{- HLINT ignore checkUserNodeAndNpmMeetWaspRequirements "Avoid npm and npx" -}
+checkUserNodeMeetsWaspRequirements :: IO VersionCheckResult
+checkUserNodeMeetsWaspRequirements = checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion
 
-checkUserNodeAndNpmMeetWaspRequirements :: IO VersionCheckResult
-checkUserNodeAndNpmMeetWaspRequirements =
-  runExceptT $
-    mapM_
-      ExceptT
-      [ checkUserToolVersion "node" ["--version"] oldestWaspSupportedNodeVersion,
-        checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
-      ]
+{- HLINT ignore checkUserNpmMeetsWaspRequirements "Avoid npm and npx" -}
+
+checkUserNpmMeetsWaspRequirements :: IO VersionCheckResult
+checkUserNpmMeetsWaspRequirements = checkUserToolVersion "npm" ["--version"] oldestWaspSupportedNpmVersion
 
 checkUserToolVersion :: String -> [String] -> SV.Version -> IO VersionCheckResult
 checkUserToolVersion commandName commandArgs oldestSupportedToolVersion =

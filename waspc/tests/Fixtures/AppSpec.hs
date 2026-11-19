@@ -9,6 +9,7 @@ import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.Project.BuildType as BuildType
+import qualified Wasp.Project.PackageManager as PackageManager
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 
 basicAppSpec :: AS.AppSpec
@@ -24,6 +25,7 @@ basicAppSpec =
             Npm.PackageJson.devDependencies = M.empty,
             Npm.PackageJson.workspaces = Nothing
           },
+      AS.packageManager = PackageManager.Npm,
       AS.buildType = BuildType.Development,
       AS.migrationsDir = Nothing,
       AS.devEnvVarsClient = [],
