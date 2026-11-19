@@ -78,6 +78,15 @@ export const studioData = {
       "entities": [],
       "httpRoute": {
         "method": "GET",
+        "path": "/errors/custom-http"
+      },
+      "name": "throwCustomHttpError"
+    },
+    {
+      "auth": false,
+      "entities": [],
+      "httpRoute": {
+        "method": "GET",
         "path": "/errors/concealed"
       },
       "name": "throwConcealedError"
@@ -231,6 +240,12 @@ export const studioData = {
         }
       ],
       "name": "getTextUppercaseRequests",
+      "type": "query"
+    },
+    {
+      "auth": false,
+      "entities": [],
+      "name": "getTeapot",
       "type": "query"
     },
     {
@@ -510,6 +525,10 @@ export const studioData = {
       "name": "ApisPage"
     },
     {
+      "authRequired": null,
+      "name": "ErrorsPage"
+    },
+    {
       "authRequired": true,
       "name": "ListPage"
     },
@@ -650,6 +669,13 @@ export const studioData = {
       "path": "/apis",
       "toPage": {
         "name": "ApisPage"
+      }
+    },
+    {
+      "name": "ErrorsRoute",
+      "path": "/errors",
+      "toPage": {
+        "name": "ErrorsPage"
       }
     },
     {
