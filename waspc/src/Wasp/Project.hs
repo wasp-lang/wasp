@@ -5,6 +5,7 @@ module Wasp.Project
     CompileResult (..),
     compileResultWarningsAndErrors,
     compile,
+    compileAnalyzedProject,
     CompileError,
     CompileWarning,
     analyzeWaspProject,
@@ -41,9 +42,19 @@ compile ::
   Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
   IO CompileResult
-compile waspDir outDir options = do
+compile waspDir outDir options =
+  analyzeWaspProject waspDir options >>= compileAnalyzedProject waspDir outDir options
+
+-- | Like 'compile', but for a project that was already analyzed.
+compileAnalyzedProject ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' Abs (Dir Generator.GeneratedAppDir) ->
+  CompileOptions ->
+  (Either [CompileError] AS.AppSpec, [CompileWarning]) ->
+  IO CompileResult
+compileAnalyzedProject waspDir outDir options analysisResult = do
   compileResult <-
-    analyzeWaspProject waspDir options >>= \case
+    case analysisResult of
       (Left analyzerErrors, analyzerWarnings) ->
         return
           CompileResult

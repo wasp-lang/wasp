@@ -6,6 +6,9 @@ module Wasp.Cli.Command.Compile
     compileCommand,
     compile,
     compileWithOptions,
+    AnalyzedProject (..),
+    analyzeProject,
+    generateProject,
     compileIOWithOptions,
     defaultCompileOptions,
     withSetupGoals,
@@ -67,7 +70,21 @@ compile = do
 -- Finally, throws if there was a compile error, otherwise returns any compile warnings
 -- along with the AppSpec it compiled.
 compileWithOptions :: CompileOptions -> Command ([CompileWarning], AS.AppSpec)
-compileWithOptions options = do
+compileWithOptions options = analyzeProject options >>= generateProject
+
+-- | A project analyzed by 'analyzeProject', ready for 'generateProject'.
+data AnalyzedProject = AnalyzedProject
+  { options :: CompileOptions,
+    appSpec :: AS.AppSpec,
+    analyzerWarnings :: [CompileWarning]
+  }
+
+-- | The first part of 'compileWithOptions': analyzes the project, so the caller
+-- can use its 'AS.AppSpec' before 'generateProject' generates its code.
+-- If the analysis fails, it reports the compilation as failed and throws, like
+-- 'compileWithOptions' does.
+analyzeProject :: CompileOptions -> Command AnalyzedProject
+analyzeProject options = do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
 
@@ -88,16 +105,42 @@ compileWithOptions options = do
       $ "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+  liftIO (Wasp.Project.analyzeWaspProject waspProjectDir options) >>= \case
+    (Right appSpec, analyzerWarnings) -> return AnalyzedProject {options, appSpec, analyzerWarnings}
+    analysisResult@(Left analyzerErrors, _) -> do
+      compileResult <- liftIO $ Wasp.Project.compileAnalyzedProject waspProjectDir outDir options analysisResult
+      liftIO $ printCompilationResult $ compileResultWarningsAndErrors compileResult
+      throwCompilationFailed analyzerErrors
+
+-- | The second part of 'compileWithOptions': generates the code of the analyzed
+-- project and sets it up. Prints a report on how the whole compilation went,
+-- then throws if there was a compile error, otherwise returns any compile
+-- warnings along with the AppSpec it compiled.
+generateProject :: AnalyzedProject -> Command ([CompileWarning], AS.AppSpec)
+generateProject analyzedProject = do
+  InWaspProject waspProjectDir <- require
+
+  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
+
+  compileResult <-
+    liftIO $
+      Wasp.Project.compileAnalyzedProject
+        waspProjectDir
+        outDir
+        analyzedProject.options
+        (Right analyzedProject.appSpec, analyzedProject.analyzerWarnings)
   let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
   liftIO $ printCompilationResult (warnings, errors)
   case _compileOutcome compileResult of
     Right appSpec -> return (warnings, appSpec)
-    Left compileErrors ->
-      throwError
-        $ CommandError "Compilation of wasp project failed"
-        $ show (length compileErrors) ++ " errors found"
+    Left compileErrors -> throwCompilationFailed compileErrors
+
+throwCompilationFailed :: [CompileError] -> Command a
+throwCompilationFailed compileErrors =
+  throwError
+    $ CommandError "Compilation of wasp project failed"
+    $ show (length compileErrors) ++ " errors found"
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
 -- reports it as success if there was no errors, or if a failure if there were errors,
