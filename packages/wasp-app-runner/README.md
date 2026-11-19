@@ -103,10 +103,10 @@ When using the `build` mode:
 
 ## Development
 
-When developing, use the `wasp-app-runner` command that mise puts on your `PATH` inside the repo. It builds the TypeScript code if it changed, and then runs the `./bin/index.js` script from the directory you call it in:
+When developing, use the `run-wasp-app` command that mise puts on your `PATH` inside the repo. It builds the TypeScript code if it changed, and then runs the `./bin/index.js` script from the directory you call it in:
 
 ```
-wasp-app-runner <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
+run-wasp-app <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
 ```
 
 ## Publishing

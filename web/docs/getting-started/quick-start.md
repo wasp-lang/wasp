@@ -194,10 +194,11 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
   <TabItem value="source">
     If the other methods are not working for you or your OS is not supported, you can try building Wasp from the source.
 
-    To build from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [mise](https://mise.jdx.dev/getting-started.html) on your machine and bootstrap the repo:
+    To build from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [mise](https://mise.jdx.dev/getting-started.html) on your machine and then run these commands from the repo:
 
     ```shell
     mise bootstrap
+    mise run //waspc:build
     ```
 
     You can then run your build with `mise x -- wasp-cli`, or run `mise run //waspc:install` to install it globally as `wasp-cli`.
