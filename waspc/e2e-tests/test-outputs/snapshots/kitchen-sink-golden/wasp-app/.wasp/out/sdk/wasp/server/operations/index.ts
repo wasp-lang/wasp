@@ -15,6 +15,8 @@ export { getSerializedObjects } from './queries/index.js'
 
 export { getTextUppercaseRequests } from './queries/index.js'
 
+export { getTeapot } from './queries/index.js'
+
 export { getDate } from './queries/index.js'
 
 export { getAnythingNoAuth } from './queries/index.js'

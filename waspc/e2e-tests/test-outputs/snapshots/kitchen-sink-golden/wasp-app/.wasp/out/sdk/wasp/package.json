@@ -14,7 +14,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.0.0",
     "@types/nodemailer": "^8.0.0"
   },
   "exports": {
@@ -38,6 +38,7 @@
     "./core/serialization": "./dist/core/serialization/index.js",
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
+    "./errors": "./dist/errors/index.js",
     "./serialization": "./dist/serialization/index.js",
     "./server": "./dist/server/index.js",
     "./server/api": "./dist/server/api/index.js",

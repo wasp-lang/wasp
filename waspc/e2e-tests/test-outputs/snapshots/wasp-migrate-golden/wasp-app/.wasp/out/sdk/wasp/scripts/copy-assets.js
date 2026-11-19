@@ -12,7 +12,6 @@ await copyAssets([
 async function copyAssets(globs) {
   const sourceFiles = await Array.fromAsync(fs.glob(globs, { cwd: base }))
   const { copied, skipped } = await copyChangedFiles(sourceFiles)
-  console.log(`[copy-assets] ${copied} copied, ${skipped} skipped`)
 }
 
 async function copyChangedFiles(sourceFiles) {

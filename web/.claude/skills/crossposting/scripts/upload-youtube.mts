@@ -1,14 +1,14 @@
-#!/usr/bin/env npx tsx
+#!/usr/bin/env node
 
 /**
- * upload-youtube.ts — Upload videos to YouTube via the Data API v3
+ * upload-youtube.mts — Upload videos to YouTube via the Data API v3
  *
  * Usage (CLI):
- *   npx tsx upload-youtube.ts --auth                              # One-time OAuth setup
- *   npx tsx upload-youtube.ts <video> --title "..." [options]     # Upload a video
+ *   node upload-youtube.mts --auth                              # One-time OAuth setup
+ *   node upload-youtube.mts <video> --title "..." [options]     # Upload a video
  *
  * Usage (module):
- *   import { authorize, uploadVideo } from "./upload-youtube.js";
+ *   import { authorize, uploadVideo } from "./upload-youtube.mts";
  *   await authorize();
  *   const result = await uploadVideo("video.mp4", { title: "My Video" });
  *
@@ -204,14 +204,12 @@ async function getAccessToken(): Promise<string> {
   const { clientId, clientSecret } = getClientCredentials();
 
   if (!existsSync(TOKEN_FILE)) {
-    throw new Error("Not authenticated. Run: npx tsx upload-youtube.ts --auth");
+    throw new Error("Not authenticated. Run: node upload-youtube.mts --auth");
   }
 
   const stored: TokenResponse = JSON.parse(readFileSync(TOKEN_FILE, "utf-8"));
   if (!stored.refresh_token) {
-    throw new Error(
-      "Invalid token file. Run: npx tsx upload-youtube.ts --auth",
-    );
+    throw new Error("Invalid token file. Run: node upload-youtube.mts --auth");
   }
 
   const resp = await fetch(TOKEN_URL, {
@@ -381,12 +379,12 @@ export async function uploadVideo(
 // ─── CLI ────────────────────────────────────────────────────────────────────
 
 function printHelp(): void {
-  console.log(`upload-youtube.ts — Upload videos to YouTube via the Data API v3
+  console.log(`upload-youtube.mts — Upload videos to YouTube via the Data API v3
 
 Usage:
-  npx tsx upload-youtube.ts --auth                              One-time OAuth setup
-  npx tsx upload-youtube.ts --whoami                             Check authenticated channel
-  npx tsx upload-youtube.ts <video> [options]                   Upload a video
+  node upload-youtube.mts --auth                              One-time OAuth setup
+  node upload-youtube.mts --whoami                             Check authenticated channel
+  node upload-youtube.mts <video> [options]                   Upload a video
 
 Options:
   --title "..."         Video title (defaults to filename)
@@ -402,7 +400,7 @@ Setup:
   1. Create a Google Cloud project and enable YouTube Data API v3
   2. Create OAuth 2.0 credentials (Desktop app type)
   3. Add YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET to ~/.zshrc
-  4. Run: npx tsx upload-youtube.ts --auth
+  4. Run: node upload-youtube.mts --auth
   5. Authorize in the browser (one-time)`);
 }
 

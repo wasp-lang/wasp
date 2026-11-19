@@ -8,7 +8,7 @@ description: Crosspost Wasp blog articles (MDX) to DEV.to and Medium.
 Converts a Wasp blog MDX file to clean markdown, HTML, and Medium-ready chunks. Output is saved to `.claude/skills/crossposting/scripts/output/`.
 
 ```bash
-npx tsx .claude/skills/crossposting/scripts/convert-mdx.ts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]
+node .claude/skills/crossposting/scripts/convert-mdx.mts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]
 ```
 
 **Output files (always written):**
@@ -31,9 +31,9 @@ npx tsx .claude/skills/crossposting/scripts/convert-mdx.ts <path-to-mdx-file> [-
 
 1. Create Google Cloud project → enable YouTube Data API v3 → create OAuth 2.0 Desktop credentials
 2. Add `YOUTUBE_CLIENT_ID` and `YOUTUBE_CLIENT_SECRET` to `~/.zshrc`
-3. Run `npx tsx .claude/skills/crossposting/scripts/upload-youtube.ts --auth` → authorize in browser (select @wasplang channel if prompted)
+3. Run `node .claude/skills/crossposting/scripts/upload-youtube.mts --auth` → authorize in browser (select @wasplang channel if prompted)
 4. Refresh token stored in `~/.youtube-upload-tokens.json`
-5. Check channel: `npx tsx .claude/skills/crossposting/scripts/upload-youtube.ts --whoami`. Wrong channel? Delete token file and re-auth.
+5. Check channel: `node .claude/skills/crossposting/scripts/upload-youtube.mts --whoami`. Wrong channel? Delete token file and re-auth.
 
 ---
 
@@ -55,7 +55,7 @@ Run the conversion script, if it hasn't been run yet (see usage above).
 
 **Images:** Medium does not support webp. Convert webp images to jpg for later manual upload:
 ```bash
-for f in static/img/<slug>/*.webp; do sips -s format jpeg "$f" --out ".claude/skills/crossposting/scripts/output/$(basename "${f%.webp}.jpg")"; done
+for f in static/img/blog/<post-file-name>/*.webp; do sips -s format jpeg "$f" --out ".claude/skills/crossposting/scripts/output/$(basename "${f%.webp}.jpg")"; done
 ```
 
 ### 2. Navigate to `https://medium.com/new-story`

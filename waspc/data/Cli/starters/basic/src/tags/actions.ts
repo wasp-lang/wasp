@@ -1,5 +1,5 @@
 import { Tag } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { CreateTag } from "wasp/server/operations";
 
 type CreateTagArgs = Pick<Tag, "name" | "color">;

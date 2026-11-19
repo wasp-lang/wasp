@@ -1,5 +1,5 @@
 import { Tag, Task } from "wasp/entities";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { type GetTasks } from "wasp/server/operations";
 
 export type TaskWithTags = Task & { tags: Tag[] };

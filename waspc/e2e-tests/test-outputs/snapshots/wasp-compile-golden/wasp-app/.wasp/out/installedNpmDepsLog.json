@@ -22,7 +22,7 @@
             "devDependencies": [
                 {
                     "name": "@types/node",
-                    "version": "^24.0.0"
+                    "version": "^26.0.0"
                 },
                 {
                     "name": "@types/react",
@@ -73,7 +73,7 @@
         "devDependencies": [
             {
                 "name": "@types/node",
-                "version": "^24.0.0"
+                "version": "^26.0.0"
             }
         ]
     },
@@ -98,12 +98,12 @@
         ],
         "devDependencies": [
             {
-                "name": "@tsconfig/node24",
+                "name": "@tsconfig/node26",
                 "version": "latest"
             },
             {
                 "name": "@types/node",
-                "version": "^24.0.0"
+                "version": "^26.0.0"
             }
         ]
     }

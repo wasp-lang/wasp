@@ -251,7 +251,7 @@ When authentication is enabled, all [queries and actions](https://wasp.sh/docs/f
 ```ts title="src/actions.ts"
 import type { Task } from "wasp/entities";
 import type { CreateTask } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 
 type CreateTaskPayload = Pick<Task, "description">;
 
@@ -310,7 +310,7 @@ import {
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
 } from "wasp/server/auth";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import type { UpdatePassword } from "wasp/server/operations";
 
 export const updatePassword: UpdatePassword<

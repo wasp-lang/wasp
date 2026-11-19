@@ -78,7 +78,7 @@
             "devDependencies": [
                 {
                     "name": "@playwright/test",
-                    "version": "1.55.1"
+                    "version": "1.64.1"
                 },
                 {
                     "name": "@tailwindcss/forms",
@@ -114,7 +114,7 @@
                 },
                 {
                     "name": "@types/node",
-                    "version": "^24.0.0"
+                    "version": "^26.0.0"
                 },
                 {
                     "name": "@types/react",
@@ -213,7 +213,7 @@
         "devDependencies": [
             {
                 "name": "@types/node",
-                "version": "^24.0.0"
+                "version": "^26.0.0"
             },
             {
                 "name": "@types/nodemailer",
@@ -250,12 +250,12 @@
         ],
         "devDependencies": [
             {
-                "name": "@tsconfig/node24",
+                "name": "@tsconfig/node26",
                 "version": "latest"
             },
             {
                 "name": "@types/node",
-                "version": "^24.0.0"
+                "version": "^26.0.0"
             }
         ]
     }

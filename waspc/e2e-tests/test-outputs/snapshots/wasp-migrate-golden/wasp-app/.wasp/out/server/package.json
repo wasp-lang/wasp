@@ -7,12 +7,12 @@
     "@wasp/lib-vite-ssr": "file:../libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz"
   },
   "devDependencies": {
-    "@tsconfig/node24": "latest",
-    "@types/node": "^24.0.0"
+    "@tsconfig/node26": "latest",
+    "@types/node": "^26.0.0"
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=24.22.1"
+    "node": ">=26.13.1"
   },
   "name": "@wasp/generated-server",
   "private": true,

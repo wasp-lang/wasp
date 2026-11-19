@@ -10,6 +10,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `app()` in `main.wasp.ts` no longer takes a `wasp: { version }` field. The `@wasp/wasp` version in `package.json` decides which Wasp a project runs. ([#5269](https://github.com/wasp-lang/wasp/pull/5269))
 - `wasp.overriddenDeps` no longer works for packages that come with `@wasp/wasp`, like React, Vite or Express. Use npm's `overrides` instead. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
 - React, Vite, Express and the other packages that come with `@wasp/wasp` are now its peer dependencies, so Wasp projects no longer work with npm's `legacy-peer-deps` or `omit=peer` settings. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
+- Wasp now requires Node.js >=26.13.1 (previously >=24.22.1) and `@types/node` `^26.0.0`. ([#5329](https://github.com/wasp-lang/wasp/pull/5329))
 - The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
@@ -18,12 +19,18 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
+- `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
+- `HttpError`'s third argument is now an options object, so its data is passed as `new HttpError(403, "Not allowed", { data })`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
+- On the client, failed requests now throw an `HttpError`, whose `data` is the `data` the error was thrown with on the server. Before, they threw an undocumented error whose `data` held the whole response body. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 
 ### 🎉 New Features
 
 - A globally installed `wasp` now runs the Wasp version of the project you call it in, so each project keeps the version it installed. ([#5265](https://github.com/wasp-lang/wasp/pull/5265))
+- The server and the client now share one `HttpError` class, exported from `wasp/errors`. Client code can check for it with `instanceof`, and read the response's headers from its `response`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
+- `HttpError`'s status code is now available as `status`. `statusCode` still works, but is deprecated. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - When running multiple Wasp instances in the same project, processes will wait for each other to finish compiling, and reuse the compilation if possible. ([#4947](https://github.com/wasp-lang/wasp/pull/4947))
-- The `basic` starter has a refreshed look, and a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
+- We've refreshed the look of our starter templates, Wasp Studio, and the "wrong port" page, to match the design of our website. ([#5040](https://github.com/wasp-lang/wasp/pull/5040), [#5101](https://github.com/wasp-lang/wasp/pull/5101), [#5178](https://github.com/wasp-lang/wasp/pull/5178), [#5328](https://github.com/wasp-lang/wasp/pull/5328))
+- The `basic` starter now has a built-in tutorial to help you kickstart development on your app. Older projects are unaffected. ([#5040](https://github.com/wasp-lang/wasp/pull/5040))
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
 - New Wasp projects come with `dev`, `build`, `preview` and `wasp` npm scripts, so `npm run dev` starts the app without a global Wasp CLI. ([#5271](https://github.com/wasp-lang/wasp/pull/5271))
@@ -44,6 +51,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp now runs subprocesses more robustly, reducing the likelihood of orphaned processes when a command is stopped. ([#5015](https://github.com/wasp-lang/wasp/pull/5015))
 - Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
+- Wasp Studio no longer draws nodes on top of each other when their contents are wider than their name (e.g. an API with a long route). ([#5360](https://github.com/wasp-lang/wasp/pull/5360))
 
 ### 🔧 Small improvements
 
@@ -52,7 +60,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `useQuery` no longer retries Queries that fail with a `4xx` status code (other than `408` and `429`), so client errors show up right away. ([#5131](https://github.com/wasp-lang/wasp/pull/5131))
 - Added `wasp help` and `wasp db help` (also `--help` and `-h`) command to explictly print the CLI usage. ([#5134](https://github.com/wasp-lang/wasp/pull/5134))
 - During development, errors from the Vite dev server are now also logged to the browser console and shown on the error page. ([#5136](https://github.com/wasp-lang/wasp/pull/5136))
-- The `minimal` starter has a refreshed look. Existing apps are not affected. ([#5101](https://github.com/wasp-lang/wasp/pull/5101))
 - `wasp start db` now fails right away with a clear error when it can't connect to the Docker daemon. ([#5144](https://github.com/wasp-lang/wasp/pull/5144))
 - The page shown when opening the server's URL in the browser during development now has a refreshed look. ([#5178](https://github.com/wasp-lang/wasp/pull/5178))
 - Wasp no longer installs its own copy of Prisma on the first `wasp compile`, which saves about 200 MB of disk space. ([#5202](https://github.com/wasp-lang/wasp/pull/5202))
@@ -63,6 +70,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 ### 📖 Documentation
 
 - The [API Reference](https://wasp.sh/docs/api) now documents everything you can import from `wasp/...` (e.g. `wasp/client/operations`, `wasp/server`), next to the Wasp Spec. ([#5148](https://github.com/wasp-lang/wasp/pull/5148))
+- We've updated the styling snippets of our tutorial so the resulting app matches wasp.sh's visual style. ([#5103](https://github.com/wasp-lang/wasp/pull/5103))
 
 ## 0.26.1
 
