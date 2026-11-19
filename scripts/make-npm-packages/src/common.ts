@@ -11,10 +11,9 @@ export function copyStaticFiles(
   console.group("Copying static files...");
 
   for (const fileName of fileNames) {
-    fs.copyFileSync(
-      path.join(sourceDir, fileName),
-      path.join(destDir, fileName),
-    );
+    fs.cpSync(path.join(sourceDir, fileName), path.join(destDir, fileName), {
+      recursive: true,
+    });
     console.log(`Copied ${fileName}`);
   }
 
