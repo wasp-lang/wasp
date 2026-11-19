@@ -87,7 +87,7 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   }
   packageJson.version = nextVersion;
 
-  // The packages depend on each other (e.g. sdk-core on lib-auth), so we must
+  // The packages depend on each other (e.g. `@wasp/sdk-core` on `@wasp/auth`), so we must
   // update version numbers in dependencies as well.
   for (const deps of [
     packageJson.dependencies,

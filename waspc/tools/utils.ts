@@ -14,12 +14,6 @@ export function getWaspcDirPath(): string {
   return fileURLToPath(new URL("..", import.meta.url));
 }
 
-export function discoverSubDirs(baseDirPath: string): string[] {
-  return readdirSync(baseDirPath, { withFileTypes: true })
-    .filter((dirEntry) => dirEntry.isDirectory())
-    .map((dir) => join(baseDirPath, dir.name));
-}
-
 export type PackageJson = {
   name: string;
   version: string;

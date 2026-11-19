@@ -3,13 +3,16 @@
 # Still on npm:
 # - examples/ and the e2e test apps: Wasp apps require npm.
 packages:
+  - packages/auth
   - packages/cli
   - packages/deploy
+  - packages/sdk-core
   - packages/spec
   - packages/studio
   - packages/studio/client
+  - packages/test-utils
+  - packages/vite-ssr
   - packages/wasp
-  - packages/libs/*
   - packages/wasp-app-runner
   - web
   - web/sdk-api-docs

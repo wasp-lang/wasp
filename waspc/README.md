@@ -188,9 +188,8 @@ Analyzer reads the TypeScript config and Prisma schema, collects application cod
 AppSpec is passed to the Generator, which based on it decides how to generate a web app.
 Output of Generator is a list of FileDrafts, where each FileDraft explains how to create a file on the disk.
 Therefore, Generator doesn't generate anything itself, instead it provides instructions (FileDrafts) on how to generate the web app.
-FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`). Alongside mustache templates,
-generated apps use internal npm packages (WaspLibs) that contain core logic and are unit tested. WaspLibs come with
-`@wasp/wasp` (see [WaspLibs](#wasplibs) for more details).
+FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`). The logic that
+doesn't depend on the app is in the packages the generated code imports (see [`packages/README.md`](../packages/README.md#packages-the-generated-code-imports)).
 
 Generator is split into multiple generators: ServerGenerator for server code, SdkGenerator for the client and server SDK, and DbGenerator for database setup.
 
@@ -283,10 +282,6 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 `waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `<repo>/packages/` and are normal npm projects. See [`packages/README.md`](../packages/README.md) for how the projects are expected to be set up.
 
 The project's `@wasp/wasp` brings these packages, and `waspc` runs them through it. Wasp projects in this repo depend on dev tarballs of them under `waspc/.dev-packages/`. After you change a package, run `mise run build:dev-packages`, then run `mise run reinstall-dev-wasp-app-deps` from the project's directory to reinstall it.
-
-### WaspLibs
-
-WaspLibs are internal npm packages located under [`packages/libs/`](../packages/libs/). `@wasp/wasp` depends on them, so they are installed into the project with it. A more detailed description of WaspLibs can be found in the [`packages/libs/README.md`](../packages/libs/README.md).
 
 ## Tests
 

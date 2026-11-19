@@ -8,7 +8,7 @@ export {
   registerClientOnErrorFn,
   reportClientError,
   reportRenderError,
-} from "@wasp/lib-sdk-core/browser";
+} from "@wasp/sdk-core/browser";
 
 {=# isAuthEnabled =}
 // PRIVATE API (web-app)

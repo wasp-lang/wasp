@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { WaspPluginOptions as LibWaspPluginOptions } from "@wasp/lib-sdk-core/node/vite";
+import type { WaspPluginOptions as LibWaspPluginOptions } from "@wasp/sdk-core/node/vite";
 
 /**
  * A Vite plugin, or a (possibly nested, possibly async) array of them.

@@ -1,12 +1,12 @@
 {
-  "name": "@wasp/lib-sdk-core",
+  "name": "@wasp/sdk-core",
   "version": "0.27.0",
   "type": "module",
   "description": "The core of the Wasp SDK.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wasp-lang/wasp.git",
-    "directory": "packages/libs/sdk-core"
+    "directory": "packages/sdk-core"
   },
   "homepage": "https://wasp.sh/",
   "bugs": {
@@ -49,7 +49,7 @@
     "@tanstack/react-query": "~4.42.0",
     "@types/express": "^5.0.0",
     "@vitejs/plugin-react": "^6.0.3",
-    "@wasp/lib-auth": "workspace:^",
+    "@wasp/auth": "workspace:^",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
     "react": "^19.2.1",
@@ -84,7 +84,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
-    "@wasp/lib-auth": "workspace:*",
+    "@wasp/auth": "workspace:*",
     "arctic": "^1.2.1",
     "ky": "^2.0.0",
     "react": "^19.2.1",
