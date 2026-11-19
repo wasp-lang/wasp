@@ -84,14 +84,44 @@ export class HttpError<
   }
 
   /**
+   * Creates the error together with its response.
+   *
    * @param status The HTTP status code. It must be an integer in the range
    * `[400, 600)`, otherwise the constructor throws an `Error`.
    * @param message The error message.
-   * @param options The data, the headers for the response or the response
-   * itself, and the standard `Error` options (e.g. `cause`).
+   * @param options The data, the headers for the response, and the standard
+   * `Error` options (e.g. `cause`).
    */
   constructor(
     status: number,
+    message?: string,
+    options?: HttpErrorOptions<Data>,
+  );
+  /**
+   * Creates the error for an existing response, e.g. one a client received.
+   *
+   * @param response The response the error stands for. Its status must be in
+   * the range `[400, 600)`, otherwise the constructor throws an `Error`.
+   * @param message The error message.
+   * @param options The data and the standard `Error` options (e.g. `cause`).
+   *
+   * @example
+   * ```ts
+   * import { HttpError } from "wasp/errors";
+   *
+   * const response = await fetch("https://api.example.com/tasks");
+   * if (!response.ok) {
+   *   throw new HttpError(response, "Could not load the tasks.");
+   * }
+   * ```
+   */
+  constructor(
+    response: Response,
+    message?: string,
+    options?: Omit<HttpErrorOptions<Data>, "headers">,
+  );
+  constructor(
+    statusOrResponse: number | Response,
     message?: string,
     options: HttpErrorOptions<Data> = {},
   ) {
@@ -105,23 +135,24 @@ export class HttpError<
     // A class that extends `HttpError` can set its own name.
     this.name = "HttpError";
 
+    const status =
+      typeof statusOrResponse === "number"
+        ? statusOrResponse
+        : statusOrResponse.status;
     if (!isHttpErrorStatusCode(status)) {
-      throw new Error("`status` has to be an integer in the range [400, 600).");
-    }
-    if (options.response && !isHttpErrorStatusCode(options.response.status)) {
       throw new Error(
-        "`options.response.status` has to be an integer in the range [400, 600).",
+        "The status of an HttpError has to be an integer in the range [400, 600).",
       );
     }
-    throwIfUnknownOption(options);
 
     this.data = options.data;
     this.response =
-      options.response ??
-      Response.json(toHttpErrorBody(this), {
-        status,
-        headers: options.headers,
-      });
+      typeof statusOrResponse === "number"
+        ? Response.json(toHttpErrorBody(this), {
+            status,
+            headers: options.headers,
+          })
+        : statusOrResponse;
   }
 }
 
@@ -138,7 +169,7 @@ export type HttpErrorData = { [fieldName: string]: unknown };
 
 /**
  * The options of an {@link HttpError}. It takes the standard `Error` options
- * (e.g. `cause`), and what the error's response consists of.
+ * (e.g. `cause`), the data, and the headers of the error's response.
  *
  * @typeParam Data The type of `data`.
  *
@@ -174,40 +205,6 @@ export interface HttpErrorOptions<Data extends HttpErrorData = HttpErrorData>
    * ```
    */
   headers?: HeadersInit;
-
-  /**
-   * An existing response for the error to stand for, e.g. one a client
-   * received. Without it, the error builds its own response from its status,
-   * message, data, and `headers`.
-   *
-   * If you pass it, its status and headers take precedence over the `status`
-   * argument and the `headers` option. Its status must be in the range
-   * `[400, 600)` too.
-   */
-  response?: Response;
-}
-
-const HTTP_ERROR_OPTION_NAMES = new Set([
-  "data",
-  "headers",
-  "response",
-  "cause",
-]);
-
-// TODO: Remove this check a few versions after Wasp 0.27, when apps no longer
-// pass data the old way.
-//
-// Before 0.27, the third argument was the data itself. Without this check,
-// code that still passes it that way would lose its data without any error.
-function throwIfUnknownOption(options: object): void {
-  const unknownOptionName = Object.keys(options).find(
-    (optionName) => !HTTP_ERROR_OPTION_NAMES.has(optionName),
-  );
-  if (unknownOptionName !== undefined) {
-    throw new Error(
-      `Unknown HttpError option "${unknownOptionName}". To send data with the error, pass it as the "data" option.`,
-    );
-  }
 }
 
 /**

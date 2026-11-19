@@ -151,37 +151,19 @@ var HttpError = class extends Error {
 	get statusCode() {
 		return this.status;
 	}
-	/**
-	* @param status The HTTP status code. It must be an integer in the range
-	* `[400, 600)`, otherwise the constructor throws an `Error`.
-	* @param message The error message.
-	* @param options The data, the headers for the response or the response
-	* itself, and the standard `Error` options (e.g. `cause`).
-	*/
-	constructor(status, message, options = {}) {
+	constructor(statusOrResponse, message, options = {}) {
 		super(message, options);
 		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
 		this.name = "HttpError";
-		if (!isHttpErrorStatusCode(status)) throw new Error("`status` has to be an integer in the range [400, 600).");
-		if (options.response && !isHttpErrorStatusCode(options.response.status)) throw new Error("`options.response.status` has to be an integer in the range [400, 600).");
-		throwIfUnknownOption(options);
+		const status = typeof statusOrResponse === "number" ? statusOrResponse : statusOrResponse.status;
+		if (!isHttpErrorStatusCode(status)) throw new Error("The status of an HttpError has to be an integer in the range [400, 600).");
 		this.data = options.data;
-		this.response = options.response ?? Response.json(toHttpErrorBody(this), {
+		this.response = typeof statusOrResponse === "number" ? Response.json(toHttpErrorBody(this), {
 			status,
 			headers: options.headers
-		});
+		}) : statusOrResponse;
 	}
 };
-var HTTP_ERROR_OPTION_NAMES = /* @__PURE__ */ new Set([
-	"data",
-	"headers",
-	"response",
-	"cause"
-]);
-function throwIfUnknownOption(options) {
-	const unknownOptionName = Object.keys(options).find((optionName) => !HTTP_ERROR_OPTION_NAMES.has(optionName));
-	if (unknownOptionName !== void 0) throw new Error(`Unknown HttpError option "${unknownOptionName}". To send data with the error, pass it as the "data" option.`);
-}
 /**
 * Checks that a value is a status code an {@link HttpError} accepts, which is
 * an integer in the range `[400, 600)`.

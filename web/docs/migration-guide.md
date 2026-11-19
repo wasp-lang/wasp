@@ -572,8 +572,6 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
   </TabItem>
 </Tabs>
 
-If you pass the data the old way, `HttpError` throws an error that tells you so.
-
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
 ### 14. Enjoy your updated Wasp app
