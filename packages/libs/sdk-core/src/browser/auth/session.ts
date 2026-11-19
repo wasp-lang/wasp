@@ -90,11 +90,7 @@ function toHttpError(kyHttpError: KyHttpError): HttpError {
     : // Something other than the Wasp server answered, e.g. a proxy.
       { message: kyHttpError.message, data: undefined };
 
-  return new HttpError(response.status, message, {
-    data,
-    response,
-    cause: kyHttpError,
-  });
+  return new HttpError(response, message, { data, cause: kyHttpError });
 }
 
 import { invalidateAndRemoveQueries } from "../operations/internal/resources.js";
