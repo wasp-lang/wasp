@@ -1,20 +1,23 @@
-module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
+module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugin) where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import Data.Maybe (fromJust)
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
-import Wasp.Generator.Common (makeJsArrayFromHaskellList)
-import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualFilesG (genVirtualFiles)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
@@ -23,54 +26,44 @@ import Wasp.Project.Common
   )
 import Wasp.Project.Env (dotEnvClient)
 import Wasp.Util ((<++>))
-import Wasp.Util.Js (makeJsStringLiteral)
 
-genVitePlugins :: AppSpec -> Generator [FileDraft]
-genVitePlugins spec =
-  sequence
-    [ genViteIndex,
-      genWaspPlugin spec,
-      genWaspConfigPlugin spec,
-      genVirtualUserModulesPlugin spec
-    ]
-    <++> genVirtualWaspModulesPlugin spec
+-- | The Vite plugin itself is static code in the \@wasp/sdk-core package. Here
+-- we generate what it reads from the app: its config and the virtual files.
+genVitePlugin :: AppSpec -> Generator [FileDraft]
+genVitePlugin spec = sequence [genGeneratedViteConfig spec] <++> genVirtualFiles spec
 
-genViteIndex :: Generator FileDraft
-genViteIndex = return $ C.mkTmplFd tmplPath
+-- | Keep in sync with the @GeneratedViteConfig@ type in \@wasp/sdk-core.
+genGeneratedViteConfig :: AppSpec -> Generator FileDraft
+genGeneratedViteConfig spec =
+  return $
+    createTextFileDraft
+      (C.sdkRootDirInGeneratedAppDir </> C.viteDirInSdkRootDir </> [relfile|config.json|])
+      (TL.toStrict $ TLE.decodeUtf8 $ AesonPretty.encodePretty generatedViteConfig)
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|index.ts|]
-
-genWaspPlugin :: AppSpec -> Generator FileDraft
-genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
-    tmplData =
+    generatedViteConfig =
       object
-        [ "clientEntryPointPath" .= clientEntryPointPath,
+        [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
+          "clientBuildDir" .= SP.fromRelDir viteBuildDirPath,
+          "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
           "clientEnvFileName" .= SP.fromRelFile dotEnvClient,
           "clientEnvSchemaValidationModulePath" .= clientEnvSchemaValidationModulePath,
-          "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir,
+          "srcDir" .= SP.fromRelDir srcDirInWaspProjectDir,
           "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
+          "clientEntryPointPath" .= clientEntryPointPath,
+          "routesEntryPointPath" .= routesEntryPointPath,
           "ssrEntryPointPath" .= ssrEntryPointPath,
+          "ssrPaths" .= concatMap AS.Route.prerender (AS.getRoutes spec),
           "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
-          "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
+          "depsExcludedFromOptimization" .= depsExcludedFromOptimization,
+          "virtualUserModules"
+            .= VUM.mkVirtualUserModulePathMap
+              GJI.extImportToRelativeSrcImportFromViteExecution
+              (VUM.getClientVirtualUserModules spec)
         ]
-    prerenderPaths =
-      concatMap AS.Route.prerender (AS.getRoutes spec)
-    clientEnvSchemaValidationModulePath = SP.fromRelFileP . fromJust . SP.relFileToPosix $ clientEnvSchemaValidationModuleDir
-    clientEnvSchemaValidationModuleDir = generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]
 
-genWaspConfigPlugin :: AppSpec -> Generator FileDraft
-genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspConfig.ts|]
-    tmplData =
-      object
-        [ "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec)),
-          "clientPortEnvVarName" .= WebApp.clientPortEnvVarName,
-          "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
-          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization
-        ]
+    clientEnvSchemaValidationModulePath =
+      SP.fromRelFileP . fromJust . SP.relFileToPosix $
+        generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]
 
     depsExcludedFromOptimization =
       -- Why do we exclude Wasp SDK from optimization?
