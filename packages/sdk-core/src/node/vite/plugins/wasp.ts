@@ -8,6 +8,7 @@ import {
 } from "../generatedViteConfig.js";
 import { detectServerImports } from "./detectServerImports.js";
 import { envFile } from "./envFile.js";
+import { externalWaspDependencies } from "./externalWaspDependencies.js";
 import { sdkImports } from "./sdkImports.js";
 import { typescriptCheck } from "./typescriptCheck.js";
 import { validateEnv } from "./validateEnv.js";
@@ -24,7 +25,8 @@ export interface WaspPluginOptions {
  * app, so Vite has to run from the project dir.
  */
 export function wasp(options?: WaspPluginOptions): PluginOption {
-  const sdkDir = getSdkDir(getGeneratedAppDir(process.cwd()));
+  const generatedAppDir = getGeneratedAppDir(process.cwd());
+  const sdkDir = getSdkDir(generatedAppDir);
   const generatedViteDir = getGeneratedViteDir(sdkDir);
   const generatedConfig = readGeneratedViteConfig(generatedViteDir);
 
@@ -36,6 +38,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     // other plugins may depend on its configuration.
     waspConfig(generatedConfig),
     sdkImports(sdkDir),
+    externalWaspDependencies(generatedAppDir),
     virtualUserModules(generatedConfig.virtualUserModules),
     virtualWaspModules(generatedConfig, generatedViteDir),
     envFile(generatedConfig.clientEnvFileName),

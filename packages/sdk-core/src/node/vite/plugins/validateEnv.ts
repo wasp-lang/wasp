@@ -80,6 +80,11 @@ export function validateEnv(
         },
         logLevel: "silent",
         optimizeDeps: { noDiscovery: true, include: [] },
+        // A plugin can still add to `optimizeDeps.include`, which makes this
+        // server pre-bundle dependencies. Its config differs from the main
+        // server's, so in a shared cache dir each would throw away the
+        // other's pre-bundled dependencies on every start.
+        cacheDir: path.join(resolvedConfig.cacheDir, "wasp-validate-env"),
         clearScreen: false,
       });
 

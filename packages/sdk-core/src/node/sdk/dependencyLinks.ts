@@ -23,6 +23,8 @@ type PackageJson = {
   peerDependencies?: Record<string, string>;
 };
 
+const linksDirInGeneratedAppDir = "node_modules";
+
 /** A link's path, and the path it points at. */
 type Links = ReadonlyMap<string, string>;
 
@@ -43,7 +45,7 @@ export function linkWaspDependencies({
   projectDir: string;
   generatedAppDir: string;
 }): void {
-  const linksDir = path.join(generatedAppDir, "node_modules");
+  const linksDir = path.join(generatedAppDir, linksDirInGeneratedAppDir);
   const waspPackageJson = readPackageJson(waspPackageDir);
   const dependencyNames = [
     ...Object.keys(waspPackageJson.dependencies ?? {}),
@@ -66,6 +68,44 @@ export function linkWaspDependencies({
   }
 
   syncLinks(linksDir, links);
+}
+
+/**
+ * Whether the import is of a package that Wasp linked into the generated app
+ * dir, e.g. `zod/v4`.
+ *
+ * Bundlers use this to leave such imports for Node to resolve when the code
+ * runs. A package's path doesn't tell them that: a package manager can keep a
+ * package outside of any `node_modules`, e.g. a package of the project's own
+ * workspace.
+ */
+export function isWaspDependencyImport(
+  generatedAppDir: string,
+  importSpecifier: string,
+): boolean {
+  const packageName = getImportedPackageName(importSpecifier);
+  return (
+    packageName !== undefined &&
+    fs.existsSync(
+      path.join(generatedAppDir, linksDirInGeneratedAppDir, packageName),
+    )
+  );
+}
+
+/**
+ * The name of the package that the import is of, e.g. `@wasp/auth` for
+ * `@wasp/auth/browser`. `undefined` when it imports a file by its path.
+ */
+export function getImportedPackageName(
+  importSpecifier: string,
+): string | undefined {
+  if (importSpecifier.startsWith(".") || path.isAbsolute(importSpecifier)) {
+    return undefined;
+  }
+  const [scopeOrName, nameInScope] = importSpecifier.split("/");
+  return importSpecifier.startsWith("@")
+    ? `${scopeOrName}/${nameInScope}`
+    : scopeOrName;
 }
 
 /**
