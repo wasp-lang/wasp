@@ -8,6 +8,7 @@
     "preview": "wasp build start"
   },
   "dependencies": {
+    "@prisma/client": "6.19.3",
     "@wasp/wasp": "__waspNpmPackageVersion__",
     "lucia": "^3.0.1",
     "react": "^19.2.1",

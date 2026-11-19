@@ -4,9 +4,13 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext,
+    assertCommandOutputContains,
     assertCommandOutputContainsAll,
     createTestWaspProject,
+    createTestWaspProjectWithPackageManager,
     inTestWaspProjectDir,
+    waspCliCompile,
+    waspCliNew,
     waspCliNewWithPipedAnswersFails,
   )
 import StrongPath (Dir, File, Path', Rel, (</>))
@@ -17,6 +21,7 @@ import Wasp.Generator.DbGenerator.Common (dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import Wasp.Project.Db.Dev.Sqlite (devDbFileInDbRootDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
+import Wasp.Project.PackageManager (PackageManager (Pnpm))
 
 waspNewTest :: Test
 waspNewTest =
@@ -27,6 +32,27 @@ waspNewTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir [assertDirectoryDoesNotExist dbMigrationsDirInWaspProjectDir]
+            ]
+        ),
+      TestCase
+        "create-minimal-with-pnpm"
+        ( sequence
+            [ createTestWaspProjectWithPackageManager Pnpm minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ return "[ -f pnpm-workspace.yaml ]",
+                  return "[ -f pnpm-lock.yaml ]",
+                  return "[ ! -f .npmrc ]",
+                  return "[ ! -f package-lock.json ]",
+                  waspCliCompile
+                ]
+            ]
+        ),
+      TestCase
+        "create-with-unknown-package-manager-fails"
+        ( sequence
+            [ assertCommandOutputContains
+                (("! " ++) <$> waspCliNewWithPackageManagerName "yarn" "wasp-app" minimalStarterTemplate)
+                "Wasp doesn't work with the package manager 'yarn'"
             ]
         ),
       TestCase
@@ -64,6 +90,9 @@ waspNewTest =
         --   (sequence [waspCliNewWithPipedAnswersFails "wasp-app" SaaS])
     ]
   where
+    waspCliNewWithPackageManagerName packageManagerName appName starterTemplate =
+      (++ " --package-manager " ++ packageManagerName) <$> waspCliNew appName starterTemplate
+
     devDbFileInWaspProjectDir =
       generatedAppDirInWaspProjectDir </> dbRootDirInGeneratedAppDir </> devDbFileInDbRootDir
 
