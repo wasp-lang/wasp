@@ -1,4 +1,4 @@
-import type { EmailFromField } from '@wasp/lib-sdk-core/node'
+import type { EmailFromField } from '@wasp/sdk-core/node'
 
 // PRIVATE API
 export function getDefaultFromField(): EmailFromField {

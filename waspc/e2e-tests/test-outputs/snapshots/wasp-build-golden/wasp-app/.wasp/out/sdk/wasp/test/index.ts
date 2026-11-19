@@ -2,4 +2,4 @@
 export {
   waspTestConfig,
   type TestConfig,
-} from "@wasp/lib-test-utils/config";
+} from "@wasp/test-utils/config";

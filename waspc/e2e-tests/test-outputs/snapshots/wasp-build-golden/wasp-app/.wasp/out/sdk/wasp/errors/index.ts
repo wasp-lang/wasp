@@ -3,7 +3,7 @@ export {
   HttpError,
   type HttpErrorData,
   type HttpErrorOptions,
-} from "@wasp/lib-sdk-core";
+} from "@wasp/sdk-core";
 
 // PUBLIC API
 // Undocumented: the wire format of an `HttpError`, for clients that don't use
@@ -13,4 +13,4 @@ export {
   isHttpErrorStatusCode,
   toHttpErrorBody,
   type HttpErrorBody,
-} from "@wasp/lib-sdk-core";
+} from "@wasp/sdk-core";
