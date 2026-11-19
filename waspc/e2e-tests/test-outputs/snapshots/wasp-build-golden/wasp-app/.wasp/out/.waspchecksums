@@ -30,9 +30,16 @@
     [
         [
             "file",
+            "libs/devtools/wasp-lib-devtools-0.27.0.tgz"
+        ],
+        "e5ed261ac81b40e7436af05517fe6193a49a893476fa9a8dff2da7679875f1ce"
+    ],
+    [
+        [
+            "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "5c1d7c13182e40c662c0f8743b2297467086b825c41af07afdaaf2eec6ac795e"
+        "56e56ae47f2cb79918586c35194bfb657e6fd72f4fac094255773b02764abab7"
     ],
     [
         [
@@ -46,7 +53,7 @@
             "file",
             "libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz"
         ],
-        "df16313ed5f0aea191f51b631556c568c009bc55a16525ef39bfd9ec02bcbb5c"
+        "ba0ecd7b244e45df0dcc90e407e519e58b8e2a1458a1d5669413d1d2d8f4ce9e"
     ],
     [
         [
@@ -184,9 +191,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/vite/devtools.ts"
+        ],
+        "179f607948ecd039ed1e4e2a85372c2615fbf7650d6997607710e99cb14eb43d"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/vite/index.ts"
         ],
-        "798863095032767223d0d0e9a08572c4208093fad41f7f50c189929e7d744476"
+        "bc32732bbc416122366173df8bafe5760a80c8a409b9a9d66b96a0f5976d05ee"
     ],
     [
         [
@@ -207,7 +221,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "e4cf4041f7e3f367f45620de80815fa2d9dfff91a0da0feb3254a834fb994fce"
+        "89f5c6dca826e2dbfc2ae35483a7784feba5751786d43bd5f5121ab69d859f93"
     ],
     [
         [
@@ -277,7 +291,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "c1ce3b8e7687d97c86fe55c025e32b456cca8f296fadb90bb4a25cb8cf1976e1"
+        "90af88f97c317f0aa0efc0ae83b7816c693c00423316d2b4abfe7f8ff7ef7202"
     ],
     [
         [
@@ -515,7 +529,7 @@
             "file",
             "server/package.json"
         ],
-        "63d2497388fc58dfc51be578d6061b55d5489cee9277d01db25a0259ae85ea6a"
+        "cf12d31914ac11c5dbc6543e334899c18dc829cc043ace8e4c9c5228746849a6"
     ],
     [
         [
