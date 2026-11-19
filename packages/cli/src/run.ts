@@ -8,7 +8,12 @@ import {
   type CliPackageData,
   type CliSubPackageAPI,
 } from "./package-data.js";
-import { readJsonFromPackageRoot } from "./package-root.js";
+import {
+  doesFileExistInPackageRoot,
+  packageRootDir,
+  readJsonFromPackageRoot,
+} from "./package-root.js";
+import { getRepoDevSubPackage } from "./repo-dev-sub-package.js";
 
 interface PackageJson {
   version: string;
@@ -32,6 +37,11 @@ export async function runWaspCli(): Promise<number> {
 async function getSubPackage(
   packageJson: PackageJson,
 ): Promise<CliSubPackageAPI> {
+  if (!doesFileExistInPackageRoot(packageDataFileName)) {
+    debug("No CLI package data, so this is the repo's own @wasp/cli.");
+    return getRepoDevSubPackage(packageRootDir);
+  }
+
   debug("Loading CLI package data...");
 
   const data = await readPackageData();
@@ -189,7 +199,9 @@ async function readPackageJson(): Promise<PackageJson> {
   return readJsonFromPackageRoot("package.json");
 }
 
-// `data.json` doesn't exist at dev time, only in the built package.
+// It doesn't exist at dev time, only in the built package.
+const packageDataFileName = "data.json";
+
 async function readPackageData(): Promise<CliPackageData> {
-  return readJsonFromPackageRoot("data.json");
+  return readJsonFromPackageRoot(packageDataFileName);
 }

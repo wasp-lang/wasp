@@ -102,11 +102,7 @@ makeOptionalCopySource fileName = init fileName ++ "[" ++ [last fileName] ++ "]"
 
 data DevWaspNpmPackagesDir
 
--- | TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps stop
--- depending on dev tarballs, and only projects that the dev CLI creates
--- outside the repo need this.
---
--- Where `wasp build` copies the dev tarballs of the unreleased Wasp npm
+-- | Where `wasp build` copies the dev tarballs of the unreleased Wasp npm
 -- packages (see @Wasp.Cli.DevWaspNpmPackages@), for the Dockerfile to copy
 -- them into the image.
 devWaspNpmPackagesDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir DevWaspNpmPackagesDir)
