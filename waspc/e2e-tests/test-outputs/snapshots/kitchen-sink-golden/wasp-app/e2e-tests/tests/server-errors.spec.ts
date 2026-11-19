@@ -98,7 +98,9 @@ test.describe("server errors", () => {
     });
   });
 
-  test("the headers of an error replace the ones already set", async ({ request }) => {
+  test("the headers of an error replace the ones already set", async ({
+    request,
+  }) => {
     const response = await request.get(`${WASP_SERVER_URL}/errors/rate-limit`);
 
     expect(response.status()).toBe(429);
