@@ -2767,7 +2767,7 @@ if (error instanceof HttpError && error.status === 429) {
 
 The body of the response is already read into `message` and `data`, so don't read it again.
 
-To look at the request that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `request`.
+To look at the request that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `request` that failed.
 
 When a Query fails, `useQuery` retries it a few times before giving up. Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt. To change this, set `retry` for a [single Query](https://wasp.sh/docs/api/wasp/client/operations#usequery) or [for all Queries](https://wasp.sh/docs/advanced/client-customization/client-config#overriding-default-behaviour-for-queries).
 
@@ -3188,7 +3188,7 @@ if (error instanceof HttpError && error.status === 429) {
 
 The body of the response is already read into `message` and `data`, so don't read it again.
 
-To look at the request that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `request`.
+To look at the request that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `request` that failed.
 
 #### Using Entities in Actions
 
@@ -15465,8 +15465,6 @@ import { HttpError } from "wasp/errors"
 
 #### 12. Update how you read errors on the client
 
-**If your client code doesn't read the fields of errors that operations or auth actions throw (e.g. `error.data`), you can skip this step.**
-
 On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
 - Its `data` is the `data` you passed on the server. Before, `data` held the whole response body, so you had to read `error.data.data`.
@@ -15499,8 +15497,6 @@ try {
 ```
 
 #### 13. Pass `HttpError` data in the options
-
-**If you never pass a third argument to `HttpError`, you can skip this step.**
 
 `HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 

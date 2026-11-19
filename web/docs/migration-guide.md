@@ -517,8 +517,6 @@ The server and the client now use the same `HttpError` class, so it moved from `
 
 ### 12. Update how you read errors on the client
 
-**If your client code doesn't read the fields of errors that operations or auth actions throw (e.g. `error.data`), you can skip this step.**
-
 On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
 - Its `data` is the `data` you passed on the server. Before, `data` held the whole response body, so you had to read `error.data.data`.
@@ -555,8 +553,6 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
 </Tabs>
 
 ### 13. Pass `HttpError` data in the options
-
-**If you never pass a third argument to `HttpError`, you can skip this step.**
 
 `HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
