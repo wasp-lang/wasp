@@ -2,6 +2,21 @@
   "name": "@wasp/lib-sdk-core",
   "version": "0.27.0",
   "type": "module",
+  "description": "The core of the Wasp SDK.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/libs/sdk-core"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
   "license": "MIT",
   "exports": {
     ".": {
@@ -48,6 +63,9 @@
     "@vitejs/plugin-react": {
       "optional": true
     },
+    "arctic": {
+      "optional": true
+    },
     "vite": {
       "optional": true
     }
@@ -79,6 +97,9 @@
     "vite": "^8.1.0",
     "vitest": "catalog:",
     "zod": "^4.3.6"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "sideEffects": [
     "**/*.css",

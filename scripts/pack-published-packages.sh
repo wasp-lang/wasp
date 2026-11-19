@@ -5,7 +5,8 @@ set -euxo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 packages_dir="$repo_root/packages"
 
-# The packages this script packs, by their dir in `packages/`.
+# The packages this script packs, by their dir in `packages/`, where
+# `@wasp/lib-auth` is in `libs/auth`.
 # It packs all the `@wasp/*` packages published at the Wasp version, except
 # `@wasp/cli`, which `packages/cli/scripts/make-cli-npm-packages` packs.
 # Keep in sync with `waspc/tools/packages/utils.ts`.
@@ -17,7 +18,7 @@ while IFS= read -r package; do publish_packages+=("$package"); done < <(
       (.dependencies // {} | keys[]),
       (.peerDependenciesMeta // {} | to_entries[] | select(.value.optional) | .key)
     ]
-    | map(select(startswith("@wasp/") and . != "@wasp/cli") | ltrimstr("@wasp/"))
+    | map(select(startswith("@wasp/") and . != "@wasp/cli") | ltrimstr("@wasp/") | sub("^lib-"; "libs/"))
     | unique[]
   ' "$packages_dir/wasp/package.json"
 )
@@ -52,7 +53,8 @@ for package in "${publish_packages[@]}"; do
   echo "Packing $package"
 
   pack_dir=$(mktemp -d)
-  package_output_dir="$output_dir/$(basename "$package")"
+  # `libs/auth` goes into `libs-auth`.
+  package_output_dir="$output_dir/${package//\//-}"
 
   cd "$packages_dir/$package"
 

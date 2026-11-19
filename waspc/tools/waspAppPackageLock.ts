@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { getPackageName, WASP_PACKAGE_DIR_NAMES } from "./packages/utils.ts";
+import { WASP_PACKAGE_NAMES } from "./packages/utils.ts";
 
 /**
  * TODO(#4824): Once the generated code stops being npm workspaces, it has no
@@ -18,7 +18,7 @@ export const GENERATED_WASP_PATHS = [
 // TODO(#2262): Drop these once the repo's Wasp apps join the pnpm workspace.
 // The dev Wasp npm packages, which the repo's Wasp apps install from `file:`
 // tarballs (see `mise-tasks/build/dev-packages.ts`).
-const DEV_WASP_NPM_PACKAGE_NAMES = WASP_PACKAGE_DIR_NAMES.map(getPackageName);
+const DEV_WASP_NPM_PACKAGE_NAMES = WASP_PACKAGE_NAMES;
 
 type PackageLockEntry = { dependencies?: Record<string, string> };
 
