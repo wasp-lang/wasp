@@ -18,24 +18,17 @@ Every package that `@wasp/wasp` brings has the Wasp compiler's version, e.g. `0.
 
 ## Build outputs
 
-Wasp projects in this repo depend on the dev tarballs under `waspc/.dev-packages/`, a build
-output (gitignored). `mise run build:dev-packages` builds and packs `wasp` and every package it
-depends on into it.
+The Wasp projects in this repo, the examples, are part of the pnpm workspace and depend on
+`@wasp/wasp` through `workspace:*`. Projects outside of the workspace, like the ones `wasp-cli new`
+creates, depend on the dev tarballs under `waspc/.dev-packages/`, a build output (gitignored).
+`mise run build:dev-packages` builds and packs `wasp` and every package it depends on into it.
 
 Then use `mise run wasp-cli` as normal, or `mise run install` and then `wasp-cli`. A globally
 installed `wasp-cli` needs `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` only for `wasp-cli new`,
 so that the new project depends on the dev packages. `mise run install` prints the exact command.
 
-After you change a package, a Wasp app in this repo has to install it again. Run
-`mise run build:dev-packages`, then from the root of the app:
-
-```bash
-mise run reinstall-dev-wasp-app-deps
-```
-
-This command removes the entries of the dev Wasp npm packages from `package-lock.json` and runs
-`npm install`. `npm` would otherwise fail on the repacked tarballs, since their content changed
-while their version didn't.
+After you change a package, run `mise run build`. It builds the packages and runs `pnpm install`,
+which refreshes the copies of them that pnpm gives to the Wasp apps in this repo.
 
 ### Adding a new package
 

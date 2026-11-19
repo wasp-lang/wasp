@@ -34,9 +34,12 @@ jobs:
 
       - uses: $/.github/actions/setup-dev-wasp-packages
 
+      # The examples are in the repo's pnpm workspace. `...` also installs the
+      # workspace packages the example depends on.
       - name: Install app dependencies
-        working-directory: examples/${{ matrix.example }}
-        run: mise run reinstall-dev-wasp-app-deps
+        env:
+          EXAMPLE: ${{ matrix.example }}
+        run: pnpm install --filter "./examples/${EXAMPLE}..."
 
       - name: Compile project for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
@@ -44,7 +47,7 @@ jobs:
 
       - name: Run unit tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
-        run: npm run test:unit --if-present
+        run: pnpm run --if-present test:unit
 
       - name: Setup project environment for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
@@ -69,7 +72,7 @@ jobs:
           WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
-        run: npm run test:e2e
+        run: pnpm run test:e2e
 
       - name: Run BUILD e2e tests for ${{ matrix.example }}
         # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
@@ -79,4 +82,4 @@ jobs:
           WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: build
-        run: npm run test:e2e
+        run: pnpm run test:e2e

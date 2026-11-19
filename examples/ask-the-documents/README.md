@@ -50,11 +50,10 @@ This is an example Wasp app that supports:
 
 ### Installing with the development version of Wasp
 
-<!-- TODO(#2262): Remove this section once the examples join the pnpm workspace. -->
-
-In this repo, the example depends on the development version of Wasp, which isn't on npm, so `npm install` fails. Build Wasp from source instead (see [`waspc/README.md`](../../waspc/README.md)), and then install against it from this directory:
+In this repo, the example is part of the repo's pnpm workspace and depends on the development version of Wasp, which isn't on npm. Build Wasp from source (see [`waspc/README.md`](../../waspc/README.md)), which also installs the example's dependencies:
 
 ```sh
 mise run build
-mise run reinstall-dev-wasp-app-deps
 ```
+
+Run the commands above with `pnpm` instead of `npm` then. To use the example outside of this repo, set `@wasp/wasp` in its `package.json` to a released Wasp version.
