@@ -12,7 +12,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions, withSetupGoals)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsDevelopment (GeneratedAppIsDevelopment))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Compile (waitEnsureCompile)
 import Wasp.Cli.ProjectRunConfig (makeDefaultDevProjectRunConfig)
@@ -45,7 +45,7 @@ throwIfDbConnectionNotEstablished projectRunConfig = do
   GeneratedAppIsDevelopment outDir <- require
   -- Testing the connection runs Prisma, so it requires Node.js and npm to be
   -- present.
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
 
   dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection (ServerGenerator.makeEnvVars projectRunConfig) outDir
 

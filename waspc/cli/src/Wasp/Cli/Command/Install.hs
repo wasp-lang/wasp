@@ -5,14 +5,16 @@ where
 
 import Control.Monad.Except (throwError)
 import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Project.PackageManager (defaultPackageManager, makeInstallCommand)
 import Wasp.Util.Terminal (styleCode)
 
 -- | TODO: Remove this stub in Wasp 0.28.
 --
--- Wasp 0.27 dropped `wasp install`, because `npm install` installs Wasp now.
+-- Wasp 0.27 dropped `wasp install`, because the project's package manager
+-- installs Wasp now.
 -- This stub tells the scripts that still call it what to run instead.
 install :: Command ()
 install =
   throwError
     $ CommandError "The `wasp install` command was removed"
-    $ "Run " ++ styleCode "npm install" ++ " instead."
+    $ "Run " ++ styleCode (makeInstallCommand defaultPackageManager) ++ ", or the install command of your package manager, instead."

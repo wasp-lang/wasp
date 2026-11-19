@@ -13,7 +13,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.DevWaspNpmPackages (prepareDevWaspNpmPackagesForDockerBuild)
 import Wasp.Cli.Message (cliSendMessage)
@@ -48,7 +48,7 @@ build :: Command ()
 build = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
   WaspNpmPackageAvailable <- require
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
