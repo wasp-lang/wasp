@@ -9,7 +9,7 @@ import {
   MessageError,
   MessageLoading,
   useEffectOnce,
-} from "@wasp/lib-sdk-core/browser";
+} from "@wasp/sdk-core/browser";
 
 const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 

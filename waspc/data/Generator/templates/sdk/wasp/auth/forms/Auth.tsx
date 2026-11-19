@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { useState, useMemo } from 'react'
-import { AuthContext, type ErrorMessage } from '@wasp/lib-auth/browser'
+import { AuthContext, type ErrorMessage } from '@wasp/auth/browser'
 import styles from './Auth.module.css'
 import {
   FormMessageError as MessageError,
@@ -8,7 +8,7 @@ import {
   tokenObjToCSSVars,
   type CustomizationOptions,
   type AdditionalSignupFields,
-} from '@wasp/lib-sdk-core/browser'
+} from '@wasp/sdk-core/browser'
 
 import type { State } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
