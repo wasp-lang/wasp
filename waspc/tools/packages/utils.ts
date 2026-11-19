@@ -40,6 +40,10 @@ export function getPackageDirPath(packageDirName: string): string {
   return join(getRepoRootPath(), "packages", packageDirName);
 }
 
+export function getPackageName(packageDirName: string): string {
+  return `${WASP_NPM_SCOPE}${packageDirName}`;
+}
+
 function getWaspPackageDirNames(packageNames: string[]): string[] {
   return packageNames
     .filter((packageName) => packageName.startsWith(WASP_NPM_SCOPE))
