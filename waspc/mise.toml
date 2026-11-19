@@ -28,19 +28,26 @@ run = "node tools/get-waspc-version.ts"
 
 # Wasp CLI
 
-# `raw_args` forwards every argument, including `--help`, to the wrapped tool.
-[tasks.wasp-cli]
+# `raw_args` forwards every argument, including `--help`, to the wrapped tool,
+# `raw` connects it to the terminal, and `quiet` hides mise's own output, so it
+# behaves like an installed binary.
+# Doesn't depend on `build`: the e2e tests run it concurrently, and `cabal run`
+# builds the Haskell project anyway. Run `mise run build` after changing the TS
+# packages or libs.
+# `-v0` silences cabal's own logs.
+[tasks.run]
 description = "Runs the dev version of wasp executable in the current directory while forwarding arguments. Builds the project (hs) first if needed."
 dir = "{{cwd}}"
 raw_args = true
-run = "{{vars.wasp_cli_dev}}"
+raw = true
+quiet = true
+run = 'cabal -v0 --project-dir="{{config_root}}" run wasp-cli --'
 
 # Testing
 
 [tasks.test]
 description = "Executes all waspc tests (unit + e2e + cli). Builds the project first if needed."
 depends = ["^build"]
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 run = "cabal test"
 
 [tasks."test:unit"]
@@ -53,7 +60,6 @@ run = 'cabal test waspc-tests --test-option=--hide-successes --test-option=--pat
 description = "Executes only waspc e2e tests. Builds the project first if needed."
 # The generated apps use the built libs and packages.
 depends = ["^build"]
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 run = "cabal test waspc-e2e-tests --test-option=--hide-successes"
 
 [tasks."test:e2e:accept-all"]

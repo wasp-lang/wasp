@@ -26,8 +26,8 @@ under `waspc/data/Generator/libs/`. Those directories are build outputs (gitigno
   it into `waspc/data/Generator/libs/<name>/`.
 
 `mise run //waspc:build` runs all of these first, in dependency order, and skips the ones whose
-sources haven't changed. So do `mise run //waspc:wasp-cli` and the waspc e2e tests. Then use
-`mise run //waspc:wasp-cli` as normal, or `mise run //waspc:install` and then `wasp-cli`.
+sources haven't changed. So do the waspc e2e tests. Then use `wasp-cli` (which mise puts on
+`PATH` inside the repo) as normal.
 
 ### Adding a new package that `waspc` runs
 

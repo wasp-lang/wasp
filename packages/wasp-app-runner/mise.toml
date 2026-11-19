@@ -5,3 +5,12 @@ description = "Builds the Wasp App Runner CLI."
 sources = ["src/**", "package.json", "tsconfig.json", "{{vars.repo_dir}}/pnpm-lock.yaml"]
 outputs = ["dist/**"]
 run = "pnpm run build"
+
+[tasks.run]
+description = "Runs the Wasp App Runner CLI in the current directory while forwarding arguments. Builds it first if needed."
+depends = ["build"]
+dir = "{{cwd}}"
+raw_args = true
+raw = true
+quiet = true
+run = 'node "{{config_root}}/bin/index.js"'

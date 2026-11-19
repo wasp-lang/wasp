@@ -1,9 +1,6 @@
 import Control.Concurrent (getNumCapabilities)
-import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
 import SnapshotTest (testTreeFromSnapshotTest)
-import StrongPath ((</>))
-import qualified StrongPath as SP
-import System.Environment (lookupEnv, setEnv)
+import System.Environment (lookupEnv)
 import System.Info (os)
 import System.Process (callCommand)
 import Test (testTreeFromTest)
@@ -46,20 +43,8 @@ main = do
   if os == "mingw32"
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else do
-      ensureE2eTestsEnvironment
       warmUpWaspCli
       e2eTests >>= defaultMain
-
-ensureE2eTestsEnvironment :: IO ()
-ensureE2eTestsEnvironment = do
-  existing <- lookupEnv "WASP_CLI_CMD"
-  case existing of
-    Just _ -> return ()
-    Nothing -> do
-      -- Runs the tests using the current state of the `waspc` project.
-      waspcDir <- getWaspcDirPath
-      let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
-      setEnv "WASP_CLI_CMD" devWaspCliCmd
 
 -- | Builds the dev Wasp CLI once, serially, before the snapshot tests start
 -- invoking it concurrently (via 'pooledMapConcurrentlyN' in 'e2eTests').

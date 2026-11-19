@@ -82,6 +82,12 @@ ormolu.os = ["linux/x64", "darwin", "windows/x64"]
 # Prisma dependencies
 "apk:openssl" = "latest"
 
+[env]
+# `wasp-cli` and `wasp-app-runner` commands that run the repo's dev versions.
+'_'.path = ["{{config_root}}/.config/mise/bin"]
+WASP_CLI_CMD = "wasp-cli"
+WASP_APP_RUNNER_CLI_CMD = "run-wasp-app"
+
 [settings]
 lockfile = true
 experimental = true # Needed for backend plugins (mise-ghcup and mise-cabal) to work.
@@ -100,8 +106,6 @@ compile = false
 # so the tasks use these absolute paths instead.
 repo_dir = "{{config_root}}"
 waspc_dir = "{{config_root}}/waspc"
-wasp_cli_dev = "{{config_root}}/waspc/tools/wasp-cli-dev"
-wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
 
 # Installs the workspace dependencies before `mise run` and `mise exec` when
 # they are out of date.
@@ -191,11 +195,9 @@ run = 'node "{{vars.waspc_dir}}/tools/packages/build.ts"'
 
 [task_templates."wasp:example:test"]
 description = "Runs the example's e2e tests with the local Wasp CLI."
-depends = ["//waspc:build", "//packages/wasp-app-runner:build"]
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
+depends = ["//waspc:build"]
 run = [
   "[ ! -f .env.server.example ] || [ -f .env.server ] || cp .env.server.example .env.server",
-  '"$WASP_CLI_CMD" install',
+  "wasp-cli install",
   "npm run test",
 ]

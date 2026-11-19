@@ -26,6 +26,4 @@ jobs:
 
       - name: Run starters e2e tests
         working-directory: waspc/starters-e2e-tests
-        env:
-          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
         run: pnpm run test:dev

@@ -103,14 +103,11 @@ When using the `build` mode:
 
 ## Development
 
-When developing, you can run the script directly from the local directory without installing it globally:
+When developing, use the `wasp-app-runner` command that mise puts on your `PATH` inside the repo. It builds the TypeScript code if it changed, and then runs the `./bin/index.js` script from the directory you call it in:
 
 ```
-pnpm install
-pnpm run start -- <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
+wasp-app-runner <mode> [--path-to-app <path>] [--wasp-cli-cmd <command>] [--db-image <image>]
 ```
-
-`pnpm run start` runs `pnpm run build` to build the TypeScript code and then runs the `./bin/index.js` script.
 
 ## Publishing
 

@@ -2,7 +2,6 @@ module FileSystem
   ( GitRootDir,
     WaspcDir,
     getWaspcDirPath,
-    waspCliDevToolInWaspcDir,
     SeedsDir,
     seedsDirInWaspProjectDir,
     seedsFileInSeedsDir,
@@ -47,9 +46,6 @@ getWaspcDirPath = do
   -- Just a little extra safeguard here since we are doing destructive file ops.
   unless (takeFileName absCwd == "waspc") (error "Expecting test process to be invoked from waspc dir")
   SP.parseAbsDir absCwd
-
-waspCliDevToolInWaspcDir :: Path' (Rel WaspcDir) File'
-waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev|]
 
 waspcDirInGitRootDir :: Path' (Rel GitRootDir) (Dir WaspcDir)
 waspcDirInGitRootDir = [reldir|waspc|]
