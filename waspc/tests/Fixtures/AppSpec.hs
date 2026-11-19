@@ -1,7 +1,6 @@
 module Fixtures.AppSpec where
 
 import qualified Data.Map as M
-import qualified Data.Set as S
 import Fixtures.Paths (systemSPRoot)
 import NeatInterpolation (trimming)
 import StrongPath (relfile)
@@ -9,7 +8,6 @@ import qualified StrongPath as SP
 import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
-import qualified Wasp.Generator.NpmWorkspaces as NW
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 
@@ -24,7 +22,7 @@ basicAppSpec =
           { Npm.PackageJson.name = "testApp",
             Npm.PackageJson.dependencies = M.empty,
             Npm.PackageJson.devDependencies = M.empty,
-            Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs
+            Npm.PackageJson.workspaces = Nothing
           },
       AS.buildType = BuildType.Development,
       AS.migrationsDir = Nothing,
