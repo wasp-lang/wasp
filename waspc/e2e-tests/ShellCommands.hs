@@ -42,6 +42,7 @@ module ShellCommands
     waspCliDeps,
     waspCliDeploy,
     npmInstall,
+    useDevWaspNpmPackages,
     assertCommandOutputContains,
     assertCommandOutputContainsAll,
     skipIfDockerDisabled,
@@ -65,11 +66,13 @@ import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, fromRelFile, parent, (</>))
 import System.FilePath (joinPath)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
+import Wasp.Cli.DevWaspNpmPackages (devWaspNpmPackagesDirEnvVarName, devWaspNpmPackagesManifestFile)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
@@ -292,6 +295,35 @@ waspCliStudio = return "$WASP_CLI_CMD studio"
 
 npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 npmInstall = return "npm install"
+
+-- | TODO(#2262): Once the examples join the pnpm workspace, they depend on
+-- \@wasp/wasp through `workspace:*`, which doesn't hold in the test dir either.
+-- Decide then how a copied example gets the dev packages.
+--
+-- Points the project at the dev Wasp npm package tarballs by their absolute
+-- paths. Projects copied from the repo, e.g. the examples, point at them
+-- relative to their place in the repo, which doesn't hold in the test dir.
+-- `wasp new` does the same for a new project (see "Wasp.Cli.DevWaspNpmPackages").
+useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
+useDevWaspNpmPackages =
+  return $ "eval \"npm pkg set $(jq -r '" ++ npmPkgSetArgsJqProgram ++ "' \"" ++ devPackagesDir ++ "/" ++ fromRelFile devWaspNpmPackagesManifestFile ++ "\")\""
+  where
+    -- One shell-quoted `<field>=file:<tarball>` argument per tarball that the
+    -- dev packages manifest lists.
+    npmPkgSetArgsJqProgram =
+      "[\"dependencies."
+        ++ waspNpmPackageName
+        ++ "="
+        ++ tarballSpecifier ".waspTarball"
+        ++ "\"]"
+        ++ " + [.dependencyTarballs | to_entries[] | \"overrides.\\(.key)="
+        ++ tarballSpecifier ".value"
+        ++ "\"]"
+        ++ " | @sh"
+
+    tarballSpecifier tarballFileJqPath = "file:\\(env." ++ devWaspNpmPackagesDirEnvVarName ++ ")/\\(" ++ tarballFileJqPath ++ ")"
+
+    devPackagesDir = "$" ++ devWaspNpmPackagesDirEnvVarName
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
