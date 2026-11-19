@@ -76,7 +76,7 @@ writeViteConfigOverridingForcedOptions = do
     (context.waspProjectDir </> [relfile|vite.config.ts|])
     [trimming|
       import { defineConfig } from "vite";
-      import { wasp } from "wasp/client/vite";
+      import { wasp } from "@wasp/wasp/vite";
 
       export default defineConfig({
         plugins: [wasp()],

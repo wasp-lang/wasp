@@ -13,6 +13,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp projects no longer use npm workspaces, and depend on the generated `wasp` package through `"wasp": "file:.wasp/out/sdk/wasp"` in `package.json` instead. ([#5388](https://github.com/wasp-lang/wasp/pull/5388))
 - Wasp projects now list the packages that only some features need, like `lucia` for auth or `pg-boss` for jobs, in their `package.json`. Wasp's compiler names the missing ones and the command that installs them. ([#5387](https://github.com/wasp-lang/wasp/pull/5387))
 - Wasp no longer runs `npm install` after compiling a project. ([#5389](https://github.com/wasp-lang/wasp/pull/5389))
+- The Wasp Vite plugin and the Vitest config helper are now imported from `@wasp/wasp/vite` and `@wasp/wasp/test` (previously `wasp/client/vite` and `wasp/test`). ([#5409](https://github.com/wasp-lang/wasp/pull/5409))
 - Wasp now requires Node.js >=26.13.1 (previously >=24.22.1) and `@types/node` `^26.0.0`. ([#5329](https://github.com/wasp-lang/wasp/pull/5329))
 - The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))

@@ -23,8 +23,6 @@ data ServerTemplatesDir
 
 data ViteDir
 
-data VitePluginsDir
-
 mkTmplFdWithDstAndData ::
   Path' (Rel SdkTemplatesDir) File' ->
   Path' (Rel SdkRootDir) File' ->
@@ -80,8 +78,8 @@ getRegisteredOperationTypeName operation = "Registered" ++ getGenericOperationDe
 viteDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ViteDir)
 viteDirInSdkTemplatesDir = [reldir|client/vite|]
 
-vitePluginsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir VitePluginsDir)
-vitePluginsDirInSdkTemplatesDir = viteDirInSdkTemplatesDir </> [reldir|plugins|]
+viteDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir ViteDir)
+viteDirInSdkRootDir = [reldir|client/vite|]
 
 sdkPackageName :: String
 sdkPackageName = "wasp"

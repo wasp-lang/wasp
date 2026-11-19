@@ -7,6 +7,7 @@ module Wasp.Generator.SdkGenerator.VirtualUserModules
     getServerVirtualUserModules,
     extImportToVirtualUserModuleJsImportPath,
     mkVirtualUserModulePluginData,
+    mkVirtualUserModulePathMap,
     mkVirtualUserModulesDeclarationData,
     nubByModuleId, -- Exported for testing.
     nubByDeclaredExport, -- Exported for testing.
@@ -15,6 +16,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as Aeson.Key
 import Data.Function (on)
 import Data.List (nubBy)
 import Data.Maybe (maybeToList)
@@ -31,7 +33,7 @@ import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
-import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), defaultExportName, getJsImportPathStringFromPath)
+import Wasp.JsImport (JsImport, JsImportPath (RawImportName, RelativeImportPath), defaultExportName, getJsImportPathString, getJsImportPathStringFromPath)
 import Wasp.Util.Js (makeJsStringLiteral)
 
 {-
@@ -191,6 +193,15 @@ mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
   object
     [ "virtualModuleId" .= makeJsStringLiteral (getVirtualUserModuleId virtualUserModule),
       "importJson" .= extImportToImportJson (extImport virtualUserModule)
+    ]
+
+-- | Maps the ID of each virtual user module to the path of the user's module.
+mkVirtualUserModulePathMap :: (EI.ExtImport -> JsImport) -> [VirtualUserModule] -> Aeson.Value
+mkVirtualUserModulePathMap extImportToJsImport virtualUserModules =
+  object
+    [ Aeson.Key.fromString (getVirtualUserModuleId virtualUserModule)
+        .= getJsImportPathString (extImportToJsImport $ extImport virtualUserModule)
+    | virtualUserModule <- virtualUserModules
     ]
 
 -- | Data for virtual user modules ambient module declaration.

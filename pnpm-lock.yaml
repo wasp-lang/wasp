@@ -380,6 +380,9 @@ importers:
       '@wasp/auth':
         specifier: workspace:*
         version: link:../auth
+      '@wasp/vite-ssr':
+        specifier: workspace:*
+        version: link:../vite-ssr
       arctic:
         specifier: ^1.2.1
         version: 1.9.2
