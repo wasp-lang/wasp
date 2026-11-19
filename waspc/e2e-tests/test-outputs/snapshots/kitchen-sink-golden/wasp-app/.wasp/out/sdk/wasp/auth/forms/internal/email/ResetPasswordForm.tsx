@@ -1,10 +1,10 @@
-import { useAuthContext } from '@wasp/lib-auth/browser'
+import { useAuthContext } from '@wasp/auth/browser'
 import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
 
 import { resetPassword } from '../../../email/actions/passwordReset.js'
 import { passwordValidationSchema } from '../../../validation.js'
-import { Form, FormItemGroup, FormLabel, FormPasswordInput, SubmitButton, FormError, getAuthErrorMessage, newPasswordFieldRules } from '@wasp/lib-sdk-core/browser'
+import { Form, FormItemGroup, FormLabel, FormPasswordInput, SubmitButton, FormError, getAuthErrorMessage, newPasswordFieldRules } from '@wasp/sdk-core/browser'
 
 type ResetPasswordFormFields = { password: string; passwordConfirmation: string };
 
