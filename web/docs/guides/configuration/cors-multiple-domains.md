@@ -36,7 +36,7 @@ By default, Wasp configures CORS in production to allow requests only from your 
 Add the server middleware configuration:
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp/spec"
+import { app, page, query, route } from "wasp/spec"
 import { getSomeData } from "./src/data" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }

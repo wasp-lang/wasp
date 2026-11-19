@@ -1,0 +1,12 @@
+{
+  "name": "wasp-package-api-docs",
+  "type": "module",
+  "description": "The package your project depends on to use Wasp.",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "@wasp/sdk-core": "workspace:*",
+    "@wasp/test-utils": "workspace:*",
+    "vitest": "catalog:"
+  }
+}

@@ -44,10 +44,10 @@ export function docusaurusTabsToMdast(
   state: hastToMdast.State,
   tabs: hast.Element,
 ): mdast.RootContent[] {
-  const tabsLabels = hastSelect
-    .selectAll('[role="tab"]', tabs)
-    .map((tab) => hastTextContent(tab).trim());
-  const tabsPanels = hastSelect.selectAll('[role="tabpanel"]', tabs);
+  const tabsLabels = selectOwnElements('[role="tab"]', tabs).map((tab) =>
+    hastTextContent(tab).trim(),
+  );
+  const tabsPanels = selectOwnElements('[role="tabpanel"]', tabs);
   assert(
     tabsLabels.length === tabsPanels.length,
     "<Tabs> label count does not equal panel count.",
@@ -76,6 +76,25 @@ export function docusaurusTabsToMdast(
     },
     ...state.all(panel),
   ]);
+}
+
+/**
+ * Selects the elements of these tabs, without the ones of tabs nested in a
+ * panel. Those get converted when their panel does.
+ */
+function selectOwnElements(
+  selector: string,
+  tabs: hast.Element,
+): hast.Element[] {
+  const nestedTabs = hastSelect
+    .selectAll(`.${DOCUSAURUS_TABS_CLASS}`, tabs)
+    .filter((element) => element !== tabs);
+  const nestedElements = new Set(
+    nestedTabs.flatMap((nested) => hastSelect.selectAll(selector, nested)),
+  );
+  return hastSelect
+    .selectAll(selector, tabs)
+    .filter((element) => !nestedElements.has(element));
 }
 
 /**

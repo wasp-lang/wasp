@@ -9,9 +9,9 @@ This guide provides an overview of the Wasp CLI commands, arguments, and options
 
 ## Running Wasp commands
 
-Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version in `package.json` is the project's Wasp version. You run that Wasp through npm, or through the global Wasp CLI.
+Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version in `package.json` is the project's Wasp version. You run that Wasp through your package manager, or through the global Wasp CLI.
 
-**npm.** Wasp projects come with npm scripts that run the project's Wasp:
+**Package manager.** Wasp projects come with `package.json` scripts that run the project's Wasp. With npm:
 
 | Script | Runs |
 | --- | --- |
@@ -21,6 +21,8 @@ Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version 
 | `npm run wasp -- <command>` | any other Wasp command |
 
 npm reads the flags after `npm run <script>` as its own, so pass Wasp's arguments after `--`, e.g. `npm run wasp -- db migrate-dev --name init`.
+
+With pnpm or Bun, run the same scripts with `pnpm run` or `bun run`, and pass Wasp's arguments without the `--`, e.g. `pnpm run wasp db migrate-dev --name init`.
 
 **Global CLI.** If you'd rather type `wasp <command>` directly, install the Wasp CLI globally:
 
@@ -103,7 +105,7 @@ Newsletter: https://wasp.sh/#signup
 
 - Use `wasp new` to start the interactive mode for setting up a new Wasp project.
 
-This will prompt you to input the project name and to select a template. The chosen template will then be used to generate the project directory with the specified name.
+This will prompt you to input the project name, to select a template and to choose a package manager. The chosen template will then be used to generate the project directory with the specified name.
 
 ```
 $ wasp new
@@ -117,6 +119,11 @@ Choose a starter template
 [3] saas
     Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more.
     Check out https://opensaas.sh/ for more details.
+▸ 1
+Choose a package manager
+[1] npm (default)
+[2] pnpm
+[3] bun
 ▸ 1
 
 🐝 --- Creating your project from the "basic" template... -------------------------
@@ -142,7 +149,9 @@ To run your new app, do:
     npm run dev
 ```
 
-- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the npm scripts fail with `wasp: command not found`.
+- To choose the package manager without the prompt, pass `--package-manager` with `npm`, `pnpm` or `bun`, e.g. `wasp new MyFirstProject --package-manager pnpm`. Without it, Wasp uses the package manager that ran it, e.g. pnpm for `pnpm dlx @wasp/cli@latest new MyFirstProject`, and npm otherwise. Read more in [Package managers](./dependencies.md#package-managers).
+
+- `wasp new` installs the project's packages for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run the install command of your package manager yourself, e.g. `npm install`. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the `package.json` scripts fail with `wasp: command not found`.
 
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.

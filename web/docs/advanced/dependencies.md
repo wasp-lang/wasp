@@ -1,7 +1,7 @@
 ---
-title: "Dependencies: npm packages and overrides in Wasp"
+title: "Dependencies: npm packages, package managers and overrides in Wasp"
 sidebar_label: Dependencies
-description: Add npm packages to a Wasp project in package.json, install the packages Wasp features need, override a version Wasp manages with npm overrides, and change the 7-day min-release-age.
+description: Add npm packages to a Wasp project in package.json, use npm, pnpm or Bun, install the packages Wasp features need, override a version Wasp manages, and change the 7-day minimum release age.
 ---
 
 # Dependencies
@@ -10,7 +10,7 @@ In a Wasp project, dependencies are defined in a standard way for JavaScript pro
 
 ### Adding a New Dependency
 
-To add a new package, like `date-fns` (a great date handling library), you use `npm`:
+To add a new package, like `date-fns` (a great date handling library), you use your package manager:
 
 <PackageManagerCommand npm="npm install date-fns" />
 
@@ -18,13 +18,40 @@ This command will add the package in the `dependencies` section of your `package
 
 You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't remove them.
 
-One of them is `wasp`, with the value `file:.wasp/out/sdk/wasp`. It points at the code Wasp generates for your app, and your `wasp/...` imports resolve to it.
+### Package managers {#package-managers}
+
+Wasp works with npm, pnpm and Bun. It doesn't work with Yarn.
+
+When you create a project, <InlineWaspCommand command="wasp new" /> asks which package manager you want. You can also pass it, e.g. `--package-manager pnpm`. Without it, Wasp uses the package manager that ran it, so `pnpm dlx @wasp/cli@latest new my-app` creates a pnpm project.
+
+In an existing project, Wasp goes by the `packageManager` field of your `package.json`, then by the lockfile it finds (`package-lock.json`, `pnpm-lock.yaml` or `bun.lock`), and assumes npm otherwise. It uses that package manager in the commands it tells you to run and in the Dockerfile it generates. Wasp never installs packages itself, so you run the install command after you change `package.json` or pull your teammates' changes.
+
+To move an existing project to another package manager:
+
+1. Delete `node_modules` and the old lockfile.
+2. Move the settings of the old package manager. New npm projects come with an `.npmrc` and an `allowScripts` field in `package.json`. In pnpm, both go into `pnpm-workspace.yaml`:
+
+   ```yaml title="pnpm-workspace.yaml"
+   minimumReleaseAge: 10080
+   minimumReleaseAgeExclude:
+     - "@wasp/*"
+   allowBuilds:
+     "@prisma/client": true
+     "@prisma/engines": true
+     esbuild: true
+     prisma: true
+   ```
+
+3. Add `@prisma/client` to your `package.json`, in the version of your `prisma` package, if it isn't there yet.
+4. Install the packages with the new package manager, and commit its lockfile.
 
 ### Using Packages that are Already Used by Wasp Internally
 
-Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run <InlineWaspCommand command="wasp deps" /> to see them.
+Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so your package manager installs them. Run <InlineWaspCommand command="wasp deps" /> to see them.
 
-npm has to install peer dependencies for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
+To import one of them in your own code, add it to your `package.json` in the version that <InlineWaspCommand command="wasp deps" /> shows. npm also lets you import them without listing them, but pnpm doesn't, and a different version than Wasp's ends up as a second copy of the package.
+
+With npm, peer dependencies have to be installed for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
 
 ### Packages that Wasp features need {#feature-packages}
 
@@ -72,7 +99,7 @@ If you find the need to override any dependency, we'd appreciate for you to [pos
 
 :::
 
-To override a dependency that Wasp uses, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
+To override a dependency that Wasp uses, use the overrides of your package manager. npm and Bun read the [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field of `package.json`, and pnpm reads [`overrides`](https://pnpm.io/settings#overrides) in `pnpm-workspace.yaml`. With npm, if you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 <Tabs>
   <TabItem value="before" label="Before">
@@ -104,12 +131,12 @@ To override a dependency that Wasp uses, use npm's [`overrides`](https://docs.np
 
 ### Supply Chain Protection
 
-New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
+New npm projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default, and new pnpm projects have the same setting, [`minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage), in `pnpm-workspace.yaml`. This prevents the package manager from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
 
-The same `.npmrc` excludes Wasp's own `@wasp/*` packages with `min-release-age-exclude[]=@wasp/*`, so you can upgrade Wasp on the day a release comes out. Keep this line when you edit the file.
+The same file excludes Wasp's own `@wasp/*` packages, so you can upgrade Wasp on the day a release comes out. Keep that setting when you edit the file.
 
-If you need to install a recently published package, you can temporarily override this by passing the flag directly:
+If you need to install a recently published package, adjust the value in that file. With npm, you can also override it for one command by passing the flag directly:
 
-<PackageManagerCommand npm="npm install some-package --min-release-age=0" />
-
-Or you can adjust the value in your project's `.npmrc` file.
+```sh
+npm install some-package --min-release-age=0
+```

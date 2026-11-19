@@ -26,7 +26,7 @@ Install the Multer package and its types:
 Create an API namespace with middleware configuration and the upload endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app, page, route } from "@wasp/spec"
+import { api, apiNamespace, app, page, route } from "wasp/spec"
 import { configureFileUploadMiddleware, uploadFile } from "./src/apis" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 

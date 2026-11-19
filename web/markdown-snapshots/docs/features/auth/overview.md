@@ -8,7 +8,7 @@ Auth is an essential piece of any serious application. That's why Wasp provides 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "MyApp",
@@ -32,8 +32,22 @@ Read more about the `auth` field options in the [API Reference](#api-reference) 
 
 Auth needs the `lucia` package in your project. Install it if you haven't already:
 
+**npm**
+
 ```shell
 npm install lucia@3
+```
+
+**pnpm**
+
+```shell
+pnpm add lucia@3
+```
+
+**Bun**
+
+```shell
+bun add lucia@3
 ```
 
 Social auth methods, like `google` and `gitHub` above, also need the `arctic` package. Each auth method's page lists what to install.
@@ -121,7 +135,7 @@ When declaring a page, you can set the `authRequired` property.
 If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `auth.onAuthFailedRedirectTo` field.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import Main from "./src/pages/Main" with { type: "ref" }
 
 export default app({
@@ -188,7 +202,7 @@ There are two ways to access the `user` object on the client:
 If the page's spec sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import Account from "./src/pages/Account" with { type: "ref" }
 
 export default app({
@@ -300,7 +314,7 @@ When users log in, Wasp creates a session for them and stores it in the database
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp/spec"
+import { action, app } from "wasp/spec"
 import { updatePassword } from "./src/auth" with { type: "ref" }
 
 export default app({
@@ -375,7 +389,7 @@ Since Wasp's definition of valid email addresses is wider than the HTML5 grammar
 You can replace the default password rules with your own [Zod](https://zod.dev) schema. Set the `passwordValidationSchema` field on the `email` or `usernameAndPassword` auth method:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { passwordValidationSchema } from "./src/auth/password" with { type: "ref" }
 
 export default app({
@@ -456,7 +470,7 @@ First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `mai
 For example, if you are using [Username & Password](https://wasp.sh/docs/features/auth/username-and-pass/overview), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
