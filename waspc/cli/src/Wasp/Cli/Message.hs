@@ -1,5 +1,6 @@
 module Wasp.Cli.Message (cliSendMessage) where
 
+import Data.Maybe (fromMaybe)
 import Wasp.Cli.Common (waspSays, waspScreams, waspWarns)
 import Wasp.Cli.Terminal
   ( asWaspFailureMessage,
@@ -7,6 +8,7 @@ import Wasp.Cli.Terminal
     asWaspSuccessMessage,
     asWaspWarningMessage,
   )
+import Wasp.Diagnostic (Diagnostic (..), DiagnosticKind (..))
 import qualified Wasp.Message as Msg
 
 -- | Send a message using the CLI
@@ -15,9 +17,9 @@ cliSendMessage (Msg.Info msg) =
   waspSays msg
 cliSendMessage (Msg.Start msg) =
   waspSays $ asWaspStartMessage msg
-cliSendMessage (Msg.Success msg) =
-  waspSays $ asWaspSuccessMessage msg
-cliSendMessage (Msg.Failure title msg) =
-  waspScreams $ asWaspFailureMessage (title ++ ":") ++ msg
-cliSendMessage (Msg.Warning title msg) =
-  waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
+cliSendMessage (Msg.Diagnostic diagnostic) = case diagnostic.kind of
+  Success -> waspSays $ asWaspSuccessMessage diagnostic.title
+  Error -> waspScreams $ asWaspFailureMessage (diagnostic.title ++ ":") ++ detailsText
+  Warning -> waspWarns $ asWaspWarningMessage (diagnostic.title ++ ":") ++ detailsText
+  where
+    detailsText = fromMaybe "" diagnostic.details
