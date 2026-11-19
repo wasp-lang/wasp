@@ -26,7 +26,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/home.wasp.ts",
       [
-        `import { page } from "@wasp/spec";`,
+        `import { page } from "wasp/spec";`,
         `import MainPage from "../MainPage" with { type: "ref" };`,
         ``,
         `export const homePage = page(MainPage);`,
@@ -35,7 +35,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/tasks.wasp.ts",
       [
-        `import { action } from "@wasp/spec";`,
+        `import { action } from "wasp/spec";`,
         `import { archive } from "../adminOperations" with { type: "ref" };`,
         ``,
         `export const splitTitle = "Split Demo";`,
@@ -46,7 +46,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/faq.wasp.ts",
       [
-        `import { page } from "@wasp/spec";`,
+        `import { page } from "wasp/spec";`,
         `import { splitTitle } from "./tasks.wasp";`,
         `import FaqPage from "./faq/FaqPage" with { type: "ref" };`,
         ``,
@@ -60,7 +60,7 @@ describe("Wasp TS spec pipeline", () => {
 
     const result = project.analyzeSpec(
       [
-        `import { app } from "@wasp/spec";`,
+        `import { app } from "wasp/spec";`,
         `import { homePage } from "./src/features/home.wasp";`,
         `import { archiveAction, splitTitle } from "./src/features/tasks.wasp";`,
         `import { faqPage } from "./src/features/faq.wasp";`,
@@ -81,7 +81,7 @@ describe("Wasp TS spec pipeline", () => {
 
     const result = project.analyzeSpec(
       [
-        `import { app } from "@wasp/spec";`,
+        `import { app } from "wasp/spec";`,
         ``,
         `export const oops: string = 123;`,
         ``,
@@ -106,7 +106,7 @@ describe("Wasp TS spec pipeline", () => {
 
     const result = project.analyzeSpec(
       [
-        `import { app, WaspSpecUserError } from "@wasp/spec";`,
+        `import { app, WaspSpecUserError } from "wasp/spec";`,
         ``,
         `function requireEnv(name: string): string {`,
         `  throw new WaspSpecUserError(\`Missing environment variable '\${name}'.\`);`,
@@ -136,7 +136,7 @@ describe("Wasp TS spec pipeline", () => {
 
     const result = project.analyzeSpec(
       [
-        `import { app } from "@wasp/spec";`,
+        `import { app } from "wasp/spec";`,
         `import * as ops from "./src/operations" with { type: "ref" };`,
         ``,
         `export default app({`,
@@ -198,6 +198,13 @@ function scaffoldProject({
         strict: true,
         allowJs: true,
         noEmit: true,
+        // In a Wasp project, the tsconfig of `@wasp/wasp` sets these.
+        paths: {
+          "wasp/spec": ["./node_modules/@wasp/spec/dist/src/index.d.ts"],
+          "wasp/spec/internal": [
+            "./node_modules/@wasp/spec/dist/src/internal.d.ts",
+          ],
+        },
       },
       include: ["main.wasp.ts", "**/*.wasp.ts"],
     }),

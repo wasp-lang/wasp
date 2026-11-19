@@ -2,6 +2,7 @@ import { unrun } from "unrun";
 import { WaspSpecUserError } from "../spec/waspSpecUserError.js";
 import { transformWaspTsSpecFilesPlugin } from "./transformWaspTsSpecFilesPlugin/index.js";
 import { typecheckPlugin } from "./typecheckPlugin/index.js";
+import { waspSpecImportsPlugin } from "./waspSpecImportsPlugin.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,
@@ -14,6 +15,7 @@ export async function loadWaspTsSpecDefaultExport({
     path: specPath,
     inputOptions: {
       plugins: [
+        waspSpecImportsPlugin(),
         transformWaspTsSpecFilesPlugin(),
         typecheckPlugin({ tsconfigPath }),
       ],

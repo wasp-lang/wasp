@@ -1,4 +1,4 @@
-import { api, page, query, route, type Spec } from "@wasp/spec";
+import { api, page, query, route, type Spec } from "wasp/spec";
 
 import {
   throwConcealedError,

@@ -2,7 +2,7 @@ module Generator.ImportAliasesTest where
 
 import Data.Aeson ((.:))
 import qualified Data.Aeson as Aeson
-import Data.List (stripPrefix)
+import Data.List (isPrefixOf, stripPrefix)
 import qualified Data.Map as M
 import Data.Maybe (mapMaybe)
 import Test.Hspec
@@ -28,8 +28,8 @@ spec_makeSdkImportAliases = do
     makeSdkImportAliases (M.fromList [("./server/crud/*", "./dist/server/crud/*.js")])
       `shouldBe` M.fromList [("wasp/server/crud/*", ["./sdk/wasp/dist/server/crud/*"])]
 
--- | The project's tsconfig extends the tsconfig of \@wasp/wasp, which has to
--- map every import that the generated SDK exports.
+-- | The project's tsconfig files extend the tsconfig of \@wasp/wasp, which
+-- has to map every import that the generated SDK exports.
 spec_waspNpmPackageTsConfig :: Spec
 spec_waspNpmPackageTsConfig = do
   describe "packages/wasp/tsconfig.paths.json" $ do
@@ -38,6 +38,14 @@ spec_waspNpmPackageTsConfig = do
       packageAliases <- readWaspNpmPackageTsConfigPaths
       let packageSdkAliases = M.mapMaybe (mapM $ stripPrefix sdkPathPrefixInPackageTsConfig) packageAliases
       packageSdkAliases `shouldBe` M.map (mapMaybe $ stripPrefix sdkPathPrefixInGeneratedTsConfig) generatedSdkAliases
+
+    it "maps the Wasp Spec imports to the types that the package re-exports" $ do
+      packageAliases <- readWaspNpmPackageTsConfigPaths
+      M.filterWithKey (\importSpecifier _ -> "wasp/spec" `isPrefixOf` importSpecifier) packageAliases
+        `shouldBe` M.fromList
+          [ ("wasp/spec", ["./lib/spec.d.ts"]),
+            ("wasp/spec/internal", ["./lib/spec-internal.d.ts"])
+          ]
   where
     -- The tsconfig of the package finds the generated app dir from the dir of
     -- the tsconfig that extends it, which is the project's.

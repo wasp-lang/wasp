@@ -14,7 +14,7 @@ import { FromRegister } from "./register.js";
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  *
  * export default app({
  *   name: "todoApp",
@@ -107,7 +107,7 @@ export type DeploymentMode = "split";
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  *
  * export default app({
  *   // ...
@@ -263,7 +263,7 @@ type SocialAuthMethodName =
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  * import { userSignupFields } from "./src/auth" with { type: "ref" }
  *
  * export default app({
@@ -293,7 +293,7 @@ export interface UsernameAndPasswordConfig extends LocalAuthMethodConfig {}
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  * import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
  *
  * export default app({
@@ -338,7 +338,7 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  * import { userSignupFields } from "./src/auth" with { type: "ref" }
  * import {
  *   getVerificationEmailContent,
@@ -482,7 +482,7 @@ export interface EmailFlowConfig {
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  * import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
  *
  * export default app({
@@ -576,7 +576,7 @@ export interface Server {
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  * import Root from "./src/Root" with { type: "ref" }
  * import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
  *
@@ -691,7 +691,7 @@ export interface Client {
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  * import devSeed from "./src/dbSeeds" with { type: "ref" }
  * import { setUpPrisma } from "./src/prisma" with { type: "ref" }
  *
@@ -748,7 +748,7 @@ export interface Db {
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  *
  * export default app({
  *   // ...
@@ -803,7 +803,7 @@ export interface EmailFromField {
  *
  * @example
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  * import { webSocketFn } from "./src/webSocket" with { type: "ref" }
  *
  * export default app({
@@ -848,7 +848,7 @@ export interface WebSocket {
  * @example
  * Nested arrays let you compose a spec from separate sub-specs:
  * ```ts
- * import { app } from "@wasp/spec"
+ * import { app } from "wasp/spec"
  *
  * const authSpec: Spec = [signupRoute, loginRoute];
  * const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
@@ -939,7 +939,7 @@ export interface Route extends BaseSpecElement<"route"> {
    *
    * @example
    * ```ts
-   * import { app, page, route } from "@wasp/spec"
+   * import { app, page, route } from "wasp/spec"
    * import { LandingPage } from "./src/LandingPage" with { type: "ref" }
    * import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
    *
@@ -1315,7 +1315,7 @@ type Entities = FromRegister<"entities", {}>;
  *
  * @example
  * ```ts
- * import { app, query } from "@wasp/spec"
+ * import { app, query } from "wasp/spec"
  * import { getTasks } from "./src/queries" with { type: "ref" }
  *
  * export default app({
