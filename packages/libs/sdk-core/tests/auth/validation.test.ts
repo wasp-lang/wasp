@@ -59,7 +59,7 @@ describe.each([
 
 function validationError(message: string) {
   return expect.objectContaining({
-    statusCode: 422,
+    status: 422,
     message: "Validation failed",
     data: { message },
   });

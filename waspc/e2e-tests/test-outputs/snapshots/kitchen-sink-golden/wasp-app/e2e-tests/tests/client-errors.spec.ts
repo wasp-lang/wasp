@@ -56,6 +56,23 @@ test.describe("client errors", () => {
         "client.onError got an error from render: Thrown while rendering",
       ]);
   });
+
+  test("reports an error that the app's own error boundary caught", async ({
+    page,
+  }) => {
+    const reports = collectClientErrorReports(page);
+    await page.goto("/errors/client");
+
+    await page
+      .getByRole("button", { name: "Throw inside an error boundary" })
+      .click();
+
+    await expect(page.getByText("The widget failed.")).toBeVisible();
+    await expectSingleReport(reports, {
+      source: "render",
+      message: "Thrown while rendering",
+    });
+  });
 });
 
 function collectClientErrorReports(page: Page): string[] {

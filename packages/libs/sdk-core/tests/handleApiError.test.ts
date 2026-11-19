@@ -14,7 +14,7 @@ describe("handleApiError", () => {
 
     expect(error).toBeInstanceOf(HttpError);
     expect(error).toMatchObject({
-      statusCode: 403,
+      status: 403,
       message: "Not allowed",
       data: { reason: "not the owner" },
       response: kyHttpError.response,
@@ -29,7 +29,7 @@ describe("handleApiError", () => {
 
     expect(error).toBeInstanceOf(HttpError);
     expect(error).toMatchObject({
-      statusCode: 502,
+      status: 502,
       message: kyHttpError.message,
       data: undefined,
       response: kyHttpError.response,

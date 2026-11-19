@@ -9,7 +9,7 @@ import {
 // Missing SubmitButton export
 // import { SubmitButton } from 'wasp/client/auth'
 import { useForm } from "react-hook-form";
-import { HttpError } from "wasp/client";
+import { HttpError } from "wasp/errors";
 import { Alert } from "../../../components/Alert";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";

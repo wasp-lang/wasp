@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { Component, type ReactNode, useState } from "react";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export const ClientErrorsPage = () => {
   const [shouldThrowWhileRendering, setShouldThrowWhileRendering] =
+    useState(false);
+  const [shouldThrowInsideErrorBoundary, setShouldThrowInsideErrorBoundary] =
     useState(false);
 
   return (
@@ -28,6 +30,12 @@ export const ClientErrorsPage = () => {
           Throw while rendering
         </Button>
         {shouldThrowWhileRendering && <ThrowWhileRendering />}
+        <Button onClick={() => setShouldThrowInsideErrorBoundary(true)}>
+          Throw inside an error boundary
+        </Button>
+        <WidgetErrorBoundary>
+          {shouldThrowInsideErrorBoundary && <ThrowWhileRendering />}
+        </WidgetErrorBoundary>
       </div>
     </FeatureContainer>
   );
@@ -35,4 +43,23 @@ export const ClientErrorsPage = () => {
 
 function ThrowWhileRendering(): never {
   throw new Error("Thrown while rendering");
+}
+
+class WidgetErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  override state = { hasError: false };
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  override render(): ReactNode {
+    return this.state.hasError ? (
+      <p>The widget failed.</p>
+    ) : (
+      this.props.children
+    );
+  }
 }

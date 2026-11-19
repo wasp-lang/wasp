@@ -10,7 +10,7 @@ import { STATUS_CODES } from "node:http";
 import {
   getErrorDetails,
   toHeadersInit,
-  type NodeResponseHeaders,
+  type UnknownErrorHeaders,
 } from "./utils.js";
 
 // PRIVATE API (server)
@@ -18,7 +18,7 @@ export interface HttpErrorsError extends Error {
   status: number;
   statusCode: number;
   expose: boolean;
-  headers?: NodeResponseHeaders;
+  headers?: UnknownErrorHeaders;
 }
 
 // PRIVATE API (server)
@@ -53,17 +53,10 @@ export function toHttpError(
 ): Wasp.HttpError {
   const options = { headers: toHeadersInit(error.headers) };
   if (error.expose) {
-    return new Wasp.HttpError(
-      error.statusCode,
-      error.message,
-      undefined,
-      options,
-    );
+    return new Wasp.HttpError(error.statusCode, error.message, options);
   }
-  return new Wasp.HttpError(
-    error.statusCode,
-    STATUS_CODES[error.statusCode],
-    includeErrorDetails ? getErrorDetails(error) : undefined,
-    options,
-  );
+  return new Wasp.HttpError(error.statusCode, STATUS_CODES[error.statusCode], {
+    data: includeErrorDetails ? getErrorDetails(error) : undefined,
+    ...options,
+  });
 }
