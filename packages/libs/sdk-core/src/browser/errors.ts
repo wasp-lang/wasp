@@ -49,7 +49,7 @@ export function registerClientOnErrorFn(onErrorFn: ClientOnErrorFn): void {
   clientOnErrorFn = onErrorFn;
 }
 
-// The handler can receive the same error more than once.
+// The same error can be reported from more than one place.
 const handledErrors = new WeakSet<object>();
 
 /**

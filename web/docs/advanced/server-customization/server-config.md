@@ -1,5 +1,5 @@
 ---
-title: "Server config in Wasp: setupFn, onError and middleware"
+title: "Server config in Wasp: setupFn, onError, and middleware"
 sidebar_label: Server config
 description: "Configure the Wasp server in the app spec: a setupFn runs on start, for example to add a custom route, onError receives unexpected errors, and middlewareConfigFn changes global middleware."
 ---
@@ -186,7 +186,7 @@ A few things to keep in mind:
 
 - An [`HttpError`](../../features/data/operations/queries.md#error-handling) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
 - The function can be async. The server exits after a `"startup"` or `"dbSeed"` error, and Wasp waits for the function to finish before that. For every other error, Wasp doesn't wait for it.
-- If the function itself throws, Wasp logs that error and carries on.
+- If the function itself throws, Wasp logs that error and keeps running.
 
 For the full description of the `onError` field, check the [`Server` API Reference](../../api/@wasp/spec.md#onerror-1).
 

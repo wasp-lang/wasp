@@ -22,6 +22,7 @@ export {
   type SendGridProvider,
   type SentMessageInfo,
 } from "./email/types.js";
+export { type ServerErrorContext, type ServerOnErrorFn } from "./errors.js";
 export { defineHandler, redirect } from "./http/handlers.js";
 export { PG_BOSS_EXECUTOR_NAME } from "./jobs/pgBoss.js";
 export {

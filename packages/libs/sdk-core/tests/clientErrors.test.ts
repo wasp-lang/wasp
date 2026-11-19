@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("client error handler", () => {
+describe("reportClientError", () => {
   let HttpError: typeof import("../src/HttpError").HttpError;
   let KyHttpError: typeof import("ky").HTTPError;
   let reportClientError: typeof import("../src/browser/errors").reportClientError;
@@ -119,7 +119,7 @@ describe("client error handler", () => {
     return new KyHttpError(
       new Response(null, { status }),
       new Request("http://localhost:3001/foo"),
-      // The handler only looks at the error's response.
+      // `reportClientError` only reads the error's response.
       {} as ConstructorParameters<typeof KyHttpError>[2],
     );
   }

@@ -542,7 +542,7 @@ export interface Server {
    * request is not unexpected, so Wasp doesn't call the function for it.
    *
    * The function can be async. Wasp waits for it before the server exits
-   * because of a startup error.
+   * after a `"startup"` or `"dbSeed"` error.
    *
    * In TypeScript, you can type the function with the `ServerOnErrorFn` type
    * from `wasp/server`, which lists every `source`.

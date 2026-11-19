@@ -86,7 +86,7 @@ export const onServerError: ServerOnErrorFn = async (error, context) => {
 };
 ```
 
-Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds. It doesn't call it for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
+Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds. Wasp doesn't call `onServerError` for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
 
 :::note
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
@@ -121,7 +121,7 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 };
 ```
 
-Sentry catches errors in event handlers and unhandled promise rejections on its own, and it doesn't send an error it already has a second time. `onClientError` adds the errors Sentry can't see, like an error thrown while rendering a page, which Wasp's error page catches.
+Sentry catches errors in event handlers and unhandled promise rejections on its own. When `onClientError` passes Sentry an error it already caught, Sentry sends it only once. `onClientError` adds the errors Sentry can't see, like an error thrown while rendering a page, which Wasp's error page catches.
 
 ### 6. Set up environment variables
 

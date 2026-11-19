@@ -1,7 +1,7 @@
 ---
-title: "Client configuration: root component, setupFn and onError"
+title: "Client configuration: root component, setupFn, and onError"
 sidebar_label: Client configuration
-description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, an error function, query defaults and a base directory."
+description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, an error function, query defaults, and a base directory."
 ---
 
 import BaseDirEnvNote from './_baseDirEnvNote.md'
@@ -298,19 +298,19 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 | `source`             | The error surfaced...                                                                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------- |
 | `"render"`           | while rendering a page or the root component. The context also has `componentStack`, when React provides it. |
-| `"window"`           | in an event handler, or as a rejected promise nobody caught (the browser's `error` and `unhandledrejection` events). |
+| `"window"`           | in an event handler, or as a rejected promise nobody caught. These are the browser's `error` and `unhandledrejection` events. |
 | `"oauthCallback"`    | while finishing an OAuth login.                                                                         |
 | `"authForm"`         | while submitting one of Wasp's Auth UI forms.                                                           |
 | `"optimisticUpdate"` | in the `updateQuery` function of an optimistic update.                                                  |
 
 A few things to keep in mind:
 
-- Wasp calls the function for an [`HttpError`](../../features/data/operations/queries.md#error-handling), or for the error the `api` client throws, only when its status is 500 or above. A lower status means the server sent the error on purpose. An error of the Wasp server with a status of 500 or above also reaches [`server.onError`](../server-customization/server-config.md#handling-unexpected-errors).
+- Wasp calls the function for an [`HttpError`](../../features/data/operations/queries.md#error-handling), or for the error the `api` client throws, only when its status is 500 or above. A lower status means the server sent the error on purpose.
 - Wasp doesn't call the function for a failed Query or Action that your code handles. A failed Action that nobody catches reaches it as a `"window"` error.
 - Wasp calls the function once per error, even if the error surfaces in more than one place.
 - Wasp calls the function for every render error, including the ones your own error boundaries catch.
 - Wasp doesn't call the function while [prerendering](../prerendering.md) pages.
-- If the function itself throws, Wasp logs that error and carries on.
+- If the function itself throws, Wasp logs that error and keeps running.
 
 For the full description of the `onError` field, check the [`Client` API Reference](../../api/@wasp/spec.md#onerror).
 

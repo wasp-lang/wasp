@@ -1,23 +1,12 @@
 import { HttpError, toHttpErrorBody } from "@wasp/lib-sdk-core";
+import type {
+  ServerErrorContext,
+  ServerOnErrorFn,
+} from "@wasp/lib-sdk-core/node";
 import type { Response } from "express";
 import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";
 import * as unknownErrors from "./unknownErrors.js";
-
-// PUBLIC API
-export type ServerErrorContext =
-  | { source: "request" }
-  | { source: "job"; jobName: string }
-  | { source: "webSocket" }
-  | { source: "oauth" }
-  | { source: "startup" }
-  | { source: "dbSeed" };
-
-// PUBLIC API
-export type ServerOnErrorFn = (
-  error: unknown,
-  context: ServerErrorContext,
-) => void | Promise<void>;
 
 let serverOnErrorFn: ServerOnErrorFn | undefined;
 
