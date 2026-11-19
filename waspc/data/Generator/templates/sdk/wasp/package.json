@@ -159,7 +159,5 @@
       "client/api": ["api/index.ts"]
     }
   },
-  "license": "ISC",
-  {=& depsChunk =},
-  {=& devDepsChunk =}
+  "license": "ISC"
 }

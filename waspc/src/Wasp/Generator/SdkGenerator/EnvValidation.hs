@@ -1,6 +1,5 @@
 module Wasp.Generator.SdkGenerator.EnvValidation
   ( genEnvValidation,
-    depsRequiredByEnvValidation,
   )
 where
 
@@ -12,7 +11,6 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
@@ -78,9 +76,3 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = getApp spec
-
-depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
-depsRequiredByEnvValidation =
-  Npm.Dependency.fromList
-    [ ("zod", "^4.3.6")
-    ]

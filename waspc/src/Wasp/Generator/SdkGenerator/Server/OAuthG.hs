@@ -1,18 +1,12 @@
 module Wasp.Generator.SdkGenerator.Server.OAuthG
   ( genOAuth,
-    depsRequiredByOAuth,
   )
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import Data.Maybe (fromJust, isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
-import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import qualified Wasp.AppSpec.Valid as AS.Valid
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider, microsoftAuthProvider, slackAuthProvider)
 import Wasp.Generator.AuthProviders.OAuth
   ( OAuthAuthProvider,
@@ -98,12 +92,6 @@ genOAuthConfig provider =
         ]
 
     providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
-
-depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByOAuth spec =
-  [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
-  where
-    maybeAuth = AS.App.auth $ AS.Valid.getApp spec
 
 serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
