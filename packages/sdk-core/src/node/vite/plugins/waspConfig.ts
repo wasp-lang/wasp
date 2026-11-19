@@ -1,5 +1,5 @@
-{{={= =}=}}
 import type { PluginOption } from "vite";
+import type { GeneratedViteConfig } from "../generatedViteConfig.js";
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -14,20 +14,24 @@ import type { PluginOption } from "vite";
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
-const forcedOptions = {
-  base: {=& baseDir =},
-  envPrefix: "REACT_APP_",
-  "build.outDir": "{= clientBuildDirPath =}",
-  // Heads up! The env referred to by `clientPortEnvVarName` is empty during
-  // `build`, so it's not persisted in the final output.
-  "server.port": envVarAsNumber("{= clientPortEnvVarName =}"),
-  "server.strictPort": true,
-  // `vite preview` falls back to `server` for most options, but not for `port`
-  // (it has its own default), so we have to set it separately.
-  "preview.port": envVarAsNumber("{= clientPortEnvVarName =}"),
-} as const;
+type ForcedOptions = ReturnType<typeof getForcedOptions>;
 
-const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
+function getForcedOptions(generatedConfig: GeneratedViteConfig) {
+  return {
+    base: generatedConfig.baseDir,
+    envPrefix: "REACT_APP_",
+    "build.outDir": generatedConfig.clientBuildDir,
+    // Heads up! The env referred to by `clientPortEnvVarName` is empty during
+    // `build`, so it's not persisted in the final output.
+    "server.port": envVarAsNumber(generatedConfig.clientPortEnvVarName),
+    "server.strictPort": true,
+    // `vite preview` falls back to `server` for most options, but not for `port`
+    // (it has its own default), so we have to set it separately.
+    "preview.port": envVarAsNumber(generatedConfig.clientPortEnvVarName),
+  } as const;
+}
+
+const forcedOptionHints: Partial<Record<keyof ForcedOptions, string>> = {
   base: "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config.",
   "server.port":
     "To run the client on a different port, use `wasp start --client-port <port>`.",
@@ -35,18 +39,20 @@ const forcedOptionHints: Partial<Record<keyof typeof forcedOptions, string>> = {
     "To run the client on a different port, use `wasp build start --client-port <port>`.",
 };
 
-export function waspConfig(): PluginOption {
+export function waspConfig(generatedConfig: GeneratedViteConfig): PluginOption {
+  const forcedOptions = getForcedOptions(generatedConfig);
+
   return {
     name: "wasp:config",
     enforce: "pre",
     config(config) {
-      throwIfOverridingForcedOptions(config);
+      throwIfOverridingForcedOptions(config, forcedOptions);
 
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions["base"],
         optimizeDeps: {
-          exclude: {=& depsExcludedFromOptimization =}
+          exclude: generatedConfig.depsExcludedFromOptimization,
         },
         server: {
           port: forcedOptions["server.port"],
@@ -83,12 +89,15 @@ function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {
   return userValue ?? defaultValue;
 }
 
-function throwIfOverridingForcedOptions(config: Record<string, any>): void {
+function throwIfOverridingForcedOptions(
+  config: Record<string, any>,
+  forcedOptions: ForcedOptions,
+): void {
   const conflicts: string[] = [];
   for (const [path, forcedValue] of Object.entries(forcedOptions)) {
     const userValue = getByPath(config, path);
     if (userValue !== undefined && userValue !== forcedValue) {
-      const hint = forcedOptionHints[path as keyof typeof forcedOptions];
+      const hint = forcedOptionHints[path as keyof ForcedOptions];
       conflicts.push(
         `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp requires ${JSON.stringify(forcedValue)}` +
           (hint ? `\n    ${hint}` : ""),

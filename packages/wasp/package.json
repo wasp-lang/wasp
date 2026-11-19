@@ -28,10 +28,19 @@
     "./package.json": "./package.json",
     "./run-spec": "./scripts/run-spec.js",
     "./run-deploy": "./scripts/run-deploy.js",
-    "./run-studio": "./scripts/run-studio.js"
+    "./run-studio": "./scripts/run-studio.js",
+    "./vite": {
+      "types": "./lib/vite.d.ts",
+      "default": "./lib/vite.js"
+    },
+    "./test": {
+      "types": "./lib/test.d.ts",
+      "default": "./lib/test.js"
+    }
   },
   "files": [
     "bin.js",
+    "lib",
     "scripts"
   ],
   "peerDependencies": {
