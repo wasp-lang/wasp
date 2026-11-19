@@ -167,8 +167,8 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
   middlewareConfig.set(
     "cors",
     cors({
-      // Keep the origins Wasp already allows, then add your own.
       origin: [
+        // Keep the origins Wasp allows by default.
         ...config.allowedCORSOrigins,
         "https://app.example.com",
         "https://admin.example.com",
