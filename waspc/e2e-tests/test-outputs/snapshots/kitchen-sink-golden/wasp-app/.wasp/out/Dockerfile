@@ -32,9 +32,8 @@ FROM base AS server-builder
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
 COPY --link package.json package-lock.json ./
-COPY --link server/package.json .wasp/out/server/
-COPY --link sdk/wasp/package.json .wasp/out/sdk/wasp/
-COPY --link libs .wasp/out/libs
+# Unreleased Wasp npm packages, which the project depends on through tarballs.
+COPY --link dev-packages/ .wasp/out/dev-packages/
 # Install scripts can read project files, so the full install runs again below,
 # once the code is in place. This first install fills npm's cache, so the
 # second one doesn't download the packages again.
