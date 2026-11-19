@@ -20,12 +20,12 @@ config objects and orchestrate the use of these libs.
 ## Lib Version
 
 We version the libraries as the current Wasp compiler version e.g. `0.19.2`.
-They are considered to be an implementation detail of the Wasp CLI, so their version
-is whatever version the Wasp CLI is.
+They are considered to be an implementation detail of Wasp, so their version
+is whatever version Wasp is.
 
-When the Wasp CLI is shipped, the libs are packaged and shipped with it in the
-`waspc/data/Generator/libs/` folder, and the Wasp CLI uses these local copies of the libs
-when generating the Wasp app.
+We publish the libs to npm with each Wasp release. `@wasp/wasp` depends on them at its own
+version, so a project gets them when it installs `@wasp/wasp`, and the generated code imports
+them from the project's `node_modules`.
 
 ## Lib Exports Naming Convention
 
@@ -78,26 +78,20 @@ Which would expose the following import paths:
 
 Wasp Libs are npm libraries you develop in isolation and test them using unit tests.
 
-When you want to test how they integrate with the Wasp CLI and the generated app,
-you need to make sure the Wasp CLI can find them.
-To do that, you need to pack the compiled libs into the `waspc/data/Generator/libs/` folder, which is
-packaged with the Wasp CLI.
-Run `mise run build:libs` to compile the libs and pack them into `waspc/data/Generator/libs/`.
-Then you can use `mise run wasp-cli` as you normally would.
+When you want to test how they integrate with the generated app, the app has to install the
+libs you built. The Wasp apps in this repo depend on dev tarballs of `@wasp/wasp` and the
+packages it brings, the libs included.
 
-### `npm` cache busting
-
-`npm` caches the installed packages based on their version. Since we don't change the lib version with each code change, rebuilding the libs and installing them in a Wasp app will install the old cached version.
-
-To bust the cache, use the `bust-libs-cache` command from the root of the Wasp app:
+Run `mise run build:dev-packages` to compile the libs and pack them into `waspc/.dev-packages/`.
+Then reinstall them from the root of the Wasp app:
 
 ```bash
-mise run bust-libs-cache
+mise run reinstall-dev-wasp-app-deps
 ```
 
-This command removes all `@wasp/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
-and reinstalls packages. It's faster than deleting the entire `node_modules` directory and removing
-the `package-lock.json` file since it only targets Wasp lib packages.
+This command removes the entries of the dev Wasp npm packages from `package-lock.json` and runs
+`npm install`. `npm` would otherwise fail on the repacked tarballs, since their content changed
+while their version didn't.
 
 ## Adding a New Lib
 
@@ -106,12 +100,11 @@ Create a directory in this folder to contain the new package.
 Keep in mind:
 
 - `package.json` should have a `build` script that compiles the package to
-  `dist/`. `mise run build:libs` and `mise run test:libs` run it for every lib in
-  dependency order, so a lib never has to build itself on install.
+  `dist/`. `mise run build:dev-packages` and `mise run test:libs` run it, so a lib never
+  has to build itself on install.
 - `package.json` should include a `files` field that specifies which files
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
-The package will be packaged using `pnpm pack` by the `mise run build:libs` script.
-
-Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
-module so that the Wasp CLI knows about it.
+Then add the lib to the `dependencies` of `packages/wasp/package.json` and follow the rest
+of [Adding a new package](../README.md#adding-a-new-package-that-waspc-runs) (the publish
+script and the `overrides` of the example apps).

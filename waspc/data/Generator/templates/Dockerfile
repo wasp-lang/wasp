@@ -35,7 +35,10 @@ WORKDIR /app
 COPY --link package.json package-lock.json ./
 COPY --link server/package.json .wasp/out/server/
 COPY --link sdk/wasp/package.json .wasp/out/sdk/wasp/
-COPY --link libs .wasp/out/libs
+{=# dependsOnDevWaspNpmPackages =}
+# Unreleased Wasp npm packages, which the project depends on through tarballs.
+COPY --link {= devWaspNpmPackagesDir =} .wasp/out/{= devWaspNpmPackagesDir =}
+{=/ dependsOnDevWaspNpmPackages =}
 # Install scripts can read project files, so the full install runs again below,
 # once the code is in place. This first install fills npm's cache, so the
 # second one doesn't download the packages again.
