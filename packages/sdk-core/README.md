@@ -4,12 +4,12 @@ App-independent code used by the generated Wasp SDK.
 
 Entry points:
 
-- `@wasp/lib-sdk-core`
-- `@wasp/lib-sdk-core/node`
-- `@wasp/lib-sdk-core/browser`
-- `@wasp/lib-sdk-core/node/vite`
+- `@wasp/sdk-core`
+- `@wasp/sdk-core/node`
+- `@wasp/sdk-core/browser`
+- `@wasp/sdk-core/node/vite`
 
-See the [Wasp libs conventions](../README.md) for development and packaging.
+See the [parent README](../README.md#packages-the-generated-code-imports) for development and packaging.
 
 Builds preserve individual modules and use `.mjs` / `.d.mts` extensions to identify ESM explicitly.
 Type export checks run during the build.

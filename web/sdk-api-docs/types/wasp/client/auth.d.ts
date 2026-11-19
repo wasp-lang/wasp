@@ -28,11 +28,11 @@
  */
 
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { PasswordValidationSchema, Query } from "@wasp/lib-sdk-core";
+import type { PasswordValidationSchema, Query } from "@wasp/sdk-core";
 import type {
   AdditionalSignupFields,
   CustomizationOptions,
-} from "@wasp/lib-sdk-core/browser";
+} from "@wasp/sdk-core/browser";
 import type { JSX } from "react";
 import type { AuthUser } from "../auth";
 import type {
@@ -408,7 +408,7 @@ export declare function VerifyEmailForm(
  *
  * @see [Customizing the Auth UI](https://wasp.sh/docs/features/auth/ui)
  */
-export type { CustomizationOptions } from "@wasp/lib-sdk-core/browser";
+export type { CustomizationOptions } from "@wasp/sdk-core/browser";
 
 /**
  * A wrapper for a form field, which groups its label, input, and error.
@@ -419,7 +419,7 @@ export type { CustomizationOptions } from "@wasp/lib-sdk-core/browser";
  *
  * @component
  */
-export { FormItemGroup } from "@wasp/lib-sdk-core/browser";
+export { FormItemGroup } from "@wasp/sdk-core/browser";
 
 /**
  * A form field label, styled like the rest of the Auth UI. Use it to build
@@ -429,7 +429,7 @@ export { FormItemGroup } from "@wasp/lib-sdk-core/browser";
  *
  * @component
  */
-export { FormLabel } from "@wasp/lib-sdk-core/browser";
+export { FormLabel } from "@wasp/sdk-core/browser";
 
 /**
  * A text input, styled like the rest of the Auth UI. Use it to build the extra
@@ -439,7 +439,7 @@ export { FormLabel } from "@wasp/lib-sdk-core/browser";
  *
  * @component
  */
-export { FormInput } from "@wasp/lib-sdk-core/browser";
+export { FormInput } from "@wasp/sdk-core/browser";
 
 /**
  * A password input with a button that shows or hides the password, styled like
@@ -450,7 +450,7 @@ export { FormInput } from "@wasp/lib-sdk-core/browser";
  *
  * @component
  */
-export { FormPasswordInput } from "@wasp/lib-sdk-core/browser";
+export { FormPasswordInput } from "@wasp/sdk-core/browser";
 
 /**
  * A textarea, styled like the rest of the Auth UI. Use it to build the extra
@@ -460,7 +460,7 @@ export { FormPasswordInput } from "@wasp/lib-sdk-core/browser";
  *
  * @component
  */
-export { FormTextarea } from "@wasp/lib-sdk-core/browser";
+export { FormTextarea } from "@wasp/sdk-core/browser";
 
 /**
  * A form field error message, styled like the rest of the Auth UI. Use it to
@@ -470,7 +470,7 @@ export { FormTextarea } from "@wasp/lib-sdk-core/browser";
  *
  * @component
  */
-export { FormError } from "@wasp/lib-sdk-core/browser";
+export { FormError } from "@wasp/sdk-core/browser";
 
 // Email and username auth
 
