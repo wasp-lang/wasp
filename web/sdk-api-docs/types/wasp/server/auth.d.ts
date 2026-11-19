@@ -651,9 +651,10 @@ export declare function sendPasswordResetEmail(
  *   "passwordResetSentAt",
  * );
  * if (!isResendAllowed) {
- *   throw new HttpError(*     400, *     `Please wait ${timeLeft} seconds before trying again.`, {
- *     data: *,
- *   });
+ *   throw new HttpError(
+ *     400,
+ *     `Please wait ${timeLeft} seconds before trying again.`,
+ *   );
  * }
  * ```
  */
