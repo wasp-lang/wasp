@@ -113,7 +113,7 @@ waspDbSeedTest =
     mainWaspTsWithSingleSeed :: T.Text
     mainWaspTsWithSingleSeed =
       [trimming|
-        import { app, page, route } from "@wasp/spec";
+        import { app, page, route } from "wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { $seedScriptThatPopulatesTasksTableName } from "./src/db/$seedScriptThatPopulatesTasksTableName" with { type: "ref" };
 
@@ -133,7 +133,7 @@ waspDbSeedTest =
     mainWaspTsWithMultipleSeeds :: T.Text
     mainWaspTsWithMultipleSeeds =
       [trimming|
-        import { app, page, route } from "@wasp/spec";
+        import { app, page, route } from "wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { $seedScriptThatPopulatesTasksTableName } from "./src/db/$seedScriptThatPopulatesTasksTableName" with { type: "ref" };
         import { $seedScriptThatAssertsTasksTableIsEmptyName } from "./src/db/$seedScriptThatAssertsTasksTableIsEmptyName" with { type: "ref" };
@@ -215,7 +215,7 @@ waspDbSeedTest =
     mainWaspTsWithServerEnvSeed :: T.Text
     mainWaspTsWithServerEnvSeed =
       [trimming|
-        import { app, page, route } from "@wasp/spec";
+        import { app, page, route } from "wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { $seedScriptThatAssertsServerEnvName } from "./src/db/$seedScriptThatAssertsServerEnvName" with { type: "ref" };
 

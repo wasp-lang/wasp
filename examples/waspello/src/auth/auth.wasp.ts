@@ -1,4 +1,4 @@
-import { page, route, type Spec } from "@wasp/spec";
+import { page, route, type Spec } from "wasp/spec";
 
 import LoginPage from "./LoginPage" with { type: "ref" };
 import SignupPage from "./SignupPage" with { type: "ref" };

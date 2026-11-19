@@ -5,6 +5,7 @@ module Wasp.NpmPackageNames
     waspNpmPackageName,
     waspCliNpmPackageName,
     waspSpecNpmPackageName,
+    waspSpecImportSpecifier,
   )
 where
 
@@ -20,3 +21,8 @@ waspCliNpmPackageName = waspNpmScope ++ "cli"
 
 waspSpecNpmPackageName :: String
 waspSpecNpmPackageName = waspNpmScope ++ "spec"
+
+-- | What a project imports the Wasp Spec through. It is a TypeScript alias for
+-- the \@wasp/spec package, which comes with \@wasp/wasp.
+waspSpecImportSpecifier :: String
+waspSpecImportSpecifier = "wasp/spec"

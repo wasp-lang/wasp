@@ -108,7 +108,9 @@
       "wasp/server/webSocket": [
         "${configDir}/.wasp/out/sdk/wasp/dist/server/webSocket/index"
       ],
-      "wasp/types": ["${configDir}/.wasp/out/sdk/wasp/dist/types/index"]
+      "wasp/types": ["${configDir}/.wasp/out/sdk/wasp/dist/types/index"],
+      "wasp/spec": ["./lib/spec.d.ts"],
+      "wasp/spec/internal": ["./lib/spec-internal.d.ts"]
     }
   }
 }
