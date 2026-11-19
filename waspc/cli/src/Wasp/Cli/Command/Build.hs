@@ -22,6 +22,7 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
+import qualified Wasp.Diagnostic as Diagnostic
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (allSetupGoals)
 import qualified Wasp.Message as Msg
@@ -64,7 +65,8 @@ build = ProjectLock.acquireExclusive $ do
       $ "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
     cliSendMessageC
-      $ Msg.Success
+      $ Msg.Diagnostic
+      $ Diagnostic.makeSuccess
       $ "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
@@ -81,7 +83,8 @@ build = ProjectLock.acquireExclusive $ do
     Right () -> return ()
 
   cliSendMessageC
-    $ Msg.Success
+    $ Msg.Diagnostic
+    $ Diagnostic.makeSuccess
     $ "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do

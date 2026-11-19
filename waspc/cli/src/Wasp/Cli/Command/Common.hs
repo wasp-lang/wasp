@@ -12,6 +12,7 @@ import StrongPath.Operations
 import System.Directory (findExecutable)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import qualified Wasp.Diagnostic as Diagnostic
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.IO as IOUtil
 
@@ -30,8 +31,8 @@ deleteDirectoryIfExistsVerbosely dir = do
   if dirExist
     then do
       liftIO $ IOUtil.removeDirectory dir
-      cliSendMessageC $ Msg.Success $ "Deleted the " ++ dirName ++ " directory."
+      cliSendMessageC $ Msg.Diagnostic $ Diagnostic.makeSuccess $ "Deleted the " ++ dirName ++ " directory."
     else do
-      cliSendMessageC $ Msg.Success $ "Nothing to delete: The " ++ dirName ++ " directory does not exist."
+      cliSendMessageC $ Msg.Diagnostic $ Diagnostic.makeSuccess $ "Nothing to delete: The " ++ dirName ++ " directory does not exist."
   where
     dirName = SP.toFilePath $ basename dir

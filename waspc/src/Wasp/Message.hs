@@ -1,5 +1,7 @@
 module Wasp.Message (Message (..), SendMessage) where
 
+import Wasp.Diagnostic (Diagnostic)
+
 -- This module defines a simple protocol for sending progress messages to a
 -- UI (like the CLI).
 -- The idea is that we want to report on phases that start, end either in
@@ -9,6 +11,6 @@ module Wasp.Message (Message (..), SendMessage) where
 -- This protocol is for sending messages for display in a UI.
 -- If you need success or failure another purpose use return values.
 
-data Message = Info String | Start String | Success String | Failure String String | Warning String String
+data Message = Info String | Start String | Diagnostic Diagnostic
 
 type SendMessage = Message -> IO ()

@@ -20,6 +20,7 @@ import Wasp.Cli.FileSystem
     waspInstallationDirInHomeDir,
   )
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
+import qualified Wasp.Diagnostic as Diagnostic
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -48,7 +49,7 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
           else Just <$> requireInteractiveTerminal uninstallArgsParser
       cliSendMessageC $ Msg.Start "Removing Wasp data..."
       liftIO $ removeWaspPaths confirmationTerminal waspPathsToRemove
-      cliSendMessageC $ Msg.Success "Removed Wasp data."
+      cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Removed Wasp data.")
 
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"

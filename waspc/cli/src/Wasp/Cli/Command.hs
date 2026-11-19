@@ -34,9 +34,11 @@ import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
+import Data.Function ((&))
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
+import qualified Wasp.Diagnostic as Diagnostic
 import qualified Wasp.Message as Msg
 import Wasp.Util.IO.Retry (MonadRetry (..))
 import qualified Wasp.Util.Interactive as Interactive
@@ -55,7 +57,7 @@ runCommand cmd =
       putStrLn "Aborted."
       exitFailure
     Right (Left cmdError) -> do
-      cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
+      cliSendMessage $ Msg.Diagnostic $ Diagnostic.makeError (_errorTitle cmdError) & Diagnostic.setDetails (_errorMsg cmdError)
       exitFailure
     Right (Right _) -> return ()
 
