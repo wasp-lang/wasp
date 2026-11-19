@@ -5,29 +5,25 @@ Basic starter is a well-rounded template that showcases the most important bits 
 ## Prerequisites
 
 - **Node.js** (newest LTS version recommended): We recommend install Node through a Node version manager, e.g. `nvm`.
-- **Wasp** (latest version): Install via
-  ```sh
-  npm i -g @wasp/cli@latest
-  ```
 
 ## Using the template
 
 You can use this template through the Wasp CLI:
 
 ```bash
-wasp new <project-name>
+npx @wasp/cli@latest new <project-name>
 # or
-wasp new <project-name> -t basic
+npx @wasp/cli@latest new <project-name> -t basic
 ```
 
 ## Development
 
-After cloning the project, run `wasp install`.
+After cloning the project, run `npm install`.
 
 To start the application locally for development or preview purposes:
 
-1. Run `wasp db migrate-dev` to migrate the database to the latest migration
-2. Run `wasp start` to start the Wasp application.
+1. Run `npm run wasp -- db migrate-dev` to migrate the database to the latest migration.
+2. Run `npm run dev` to start the Wasp application.
 3. The application should be running on `localhost:3000`. Open it in your browser, and the welcome page will walk you through your next steps.
 
 ### Removing the welcome page

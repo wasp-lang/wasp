@@ -18,7 +18,6 @@ import { FromRegister } from "./register.js";
  *
  * export default app({
  *   name: "todoApp",
- *   wasp: { version: "^0.24.0" },
  *   title: "ToDo App",
  *   head: ["<link rel='icon' href='/favicon.ico' />"],
  *   spec: [],
@@ -32,12 +31,6 @@ export interface App {
    * Must not contain spaces.
    */
   name: string;
-  /**
-   * Wasp metadata.
-   *
-   * This will get checked against the Wasp CLI.
-   */
-  wasp: Wasp;
   /**
    * App title.
    *
@@ -97,18 +90,6 @@ export interface Deployment {
  * Supported app deployment modes.
  */
 export type DeploymentMode = "split";
-
-/**
- * Wasp compiler metadata used by the app.
- */
-export interface Wasp {
-  /**
-   * The Wasp version this app is built for, as an npm-compatible
-   * [SemVer range](https://github.com/npm/node-semver#ranges)
-   * (e.g. `"^0.24.0"`).
-   */
-  version: string;
-}
 
 /**
  * Authentication configuration and lifecycle hooks.

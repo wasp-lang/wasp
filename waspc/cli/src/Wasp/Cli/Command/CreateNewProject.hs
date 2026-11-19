@@ -29,12 +29,13 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Db.Migrate (migrateDev)
-import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.DevWaspNpmPackages (checkDirectlyRunWaspCanCreateProjects)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
+import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -46,12 +47,13 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject = withArguments newProjectArgsParser $ \args -> do
   ValidNodeAndNpm <- require
+  liftIO checkDirectlyRunWaspCanCreateProjects
+    >>= either (throwError . CommandError "Can't create a project with this Wasp binary") return
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
   let absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
       needsMigration = newProjectDescription._template.metadata._migratesDbOnCreation
 
   createProjectOnDisk newProjectDescription
-  -- TODO consider removing if we start doing `wasp install` automatically
   areDepsInstalled <- liftIO $ installDepsForNewProject absWaspProjectDir
 
   isDbMigrated <-
@@ -63,8 +65,8 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
   liftIO
     $ printExtraInstructionsForProject
-    $ ["wasp install" | not areDepsInstalled]
-      ++ ["wasp db migrate-dev" | needsMigration && not isDbMigrated]
+    $ ["npm install" | not areDepsInstalled]
+      ++ ["npm run wasp -- db migrate-dev" | needsMigration && not isDbMigrated]
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
@@ -79,7 +81,7 @@ createProjectOnDisk
 -- | Returns whether the dependencies got installed.
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
 installDepsForNewProject absWaspProjectDir =
-  installIO absWaspProjectDir >>= \case
+  installProjectNpmDependencies absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
       putStrLn $

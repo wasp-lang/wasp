@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Adding `<meta>` tags to your Wasp app
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27" }} />
 
 This guide shows you how to set up meta tags for your Wasp application to improve SEO and enable rich previews when your app is shared on platforms like Slack, X, or Discord.
 
@@ -24,7 +24,6 @@ import { app } from "@wasp/spec"
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
   title: "My App",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
