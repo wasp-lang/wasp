@@ -184,22 +184,23 @@ var handledErrors = /* @__PURE__ */ new WeakSet();
 /**
 * Reports an unexpected client error, once per error object.
 *
-* It skips an {@link HttpError} and ky's `HTTPError`, because both come from
-* an error response that the server sent on purpose.
+* It skips an {@link HttpError} and ky's `HTTPError` with a status below 500,
+* because they come from an error response that the server sent on purpose.
 *
 * @param error The thrown value.
 * @param context Where the error surfaced.
 */
 function handleClientError(error, context) {
-	if (isHttpErrorResponse(error)) return;
+	if (isExpectedHttpError(error)) return;
 	if (typeof error === "object" && error !== null) {
 		if (handledErrors.has(error)) return;
 		handledErrors.add(error);
 	}
 	reportUnexpectedClientError(error, context);
 }
-function isHttpErrorResponse(error) {
-	return error instanceof HttpError || isHTTPError(error);
+function isExpectedHttpError(error) {
+	if (error instanceof HttpError) return error.status < 500;
+	return isHTTPError(error) && error.response.status < 500;
 }
 /**
 * Passes the errors that reach the window to {@link handleClientError}, e.g.

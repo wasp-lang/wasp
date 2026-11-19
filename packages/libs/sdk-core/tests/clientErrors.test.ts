@@ -42,7 +42,7 @@ describe("client error handler", () => {
     });
   });
 
-  it("doesn't report an `HttpError`", () => {
+  it("doesn't report an `HttpError` with a status below 500", () => {
     const onErrorFn = vi.fn();
     registerClientOnErrorFn(onErrorFn);
 
@@ -54,20 +54,38 @@ describe("client error handler", () => {
     expect(onErrorFn).not.toHaveBeenCalled();
   });
 
-  it("doesn't report an HTTP error that ky threw", () => {
+  it("reports an `HttpError` with a status of 500 or above", () => {
     const onErrorFn = vi.fn();
     registerClientOnErrorFn(onErrorFn);
-    const kyHttpError = new KyHttpError(
-      new Response(null, { status: 401 }),
-      new Request("http://localhost:3001/foo"),
-      // The handler only looks at the error's type.
-      {} as ConstructorParameters<typeof KyHttpError>[2],
-    );
+    const error = new HttpError(502, "Bad gateway");
 
-    handleClientError(kyHttpError, { source: "window" });
+    handleClientError(error, { source: "window" });
+
+    expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
+      source: "window",
+    });
+  });
+
+  it("doesn't report an HTTP error that ky threw with a status below 500", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
+
+    handleClientError(makeKyHttpError(401), { source: "window" });
 
     expect(console.error).not.toHaveBeenCalled();
     expect(onErrorFn).not.toHaveBeenCalled();
+  });
+
+  it("reports an HTTP error that ky threw with a status of 500 or above", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
+    const kyHttpError = makeKyHttpError(503);
+
+    handleClientError(kyHttpError, { source: "window" });
+
+    expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(kyHttpError, {
+      source: "window",
+    });
   });
 
   it("reports the same error object only once", () => {
@@ -96,4 +114,13 @@ describe("client error handler", () => {
       ),
     );
   });
+
+  function makeKyHttpError(status: number): InstanceType<typeof KyHttpError> {
+    return new KyHttpError(
+      new Response(null, { status }),
+      new Request("http://localhost:3001/foo"),
+      // The handler only looks at the error's response.
+      {} as ConstructorParameters<typeof KyHttpError>[2],
+    );
+  }
 });

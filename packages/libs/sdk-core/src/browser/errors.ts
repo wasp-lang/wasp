@@ -55,8 +55,8 @@ const handledErrors = new WeakSet<object>();
 /**
  * Reports an unexpected client error, once per error object.
  *
- * It skips an {@link HttpError} and ky's `HTTPError`, because both come from
- * an error response that the server sent on purpose.
+ * It skips an {@link HttpError} and ky's `HTTPError` with a status below 500,
+ * because they come from an error response that the server sent on purpose.
  *
  * @param error The thrown value.
  * @param context Where the error surfaced.
@@ -65,7 +65,7 @@ export function handleClientError(
   error: unknown,
   context: ClientErrorContext,
 ): void {
-  if (isHttpErrorResponse(error)) {
+  if (isExpectedHttpError(error)) {
     return;
   }
   if (typeof error === "object" && error !== null) {
@@ -77,10 +77,13 @@ export function handleClientError(
   reportUnexpectedClientError(error, context);
 }
 
-// Users who call `api` without `handleApiError` get ky's error instead of
-// an `HttpError`.
-function isHttpErrorResponse(error: unknown): boolean {
-  return error instanceof HttpError || isKyHttpError(error);
+function isExpectedHttpError(error: unknown): boolean {
+  if (error instanceof HttpError) {
+    return error.status < 500;
+  }
+  // Users who call `api` without `handleApiError` get ky's error instead of
+  // an `HttpError`.
+  return isKyHttpError(error) && error.response.status < 500;
 }
 
 /**
