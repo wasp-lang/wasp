@@ -31,24 +31,33 @@ FROM base AS server-builder
 # `python3` fixes the issue.
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
-COPY --link package.json package-lock.json ./
+# A name with square brackets is a pattern, so Docker skips the file when the
+# project doesn't have it.
+COPY --link package.json package-lock.jso[n] ./
 # Unreleased Wasp npm packages, which the project depends on through tarballs.
 COPY --link dev-packages/ .wasp/out/dev-packages/
 # Install scripts can read project files, so the full install runs again below,
-# once the code is in place. This first install fills npm's cache, so the
-# second one doesn't download the packages again.
-RUN npm ci --ignore-scripts
+# once the code is in place. This first install fills the package manager's
+# cache, so the second one doesn't download the packages again.
+RUN if [ -f package-lock.json ]; then npm ci --ignore-scripts; else npm install --ignore-scripts; fi
 COPY --link db/schema.prisma .wasp/out/db/
 # We mirror the same directory structure as the Wasp project.
 COPY --link tsconfig*.json ./
+# The project's tsconfig and the server's extend this one.
+COPY --link tsconfig.paths.json .wasp/out/
 COPY --link types .wasp/out/types
 COPY --link sdk .wasp/out/sdk
 COPY --link server .wasp/out/server
 COPY --link src ./src
-RUN npm ci
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+# The generated code imports the packages that come with @wasp/wasp, and finds
+# them through these links.
+RUN node node_modules/@wasp/wasp/scripts/link-dependencies.js
 WORKDIR /app/.wasp/out/server
-RUN npx prisma generate --schema='../db/schema.prisma'
-# Building the server should come after Prisma generation.
+# The Prisma CLI is among the packages linked above.
+RUN ../node_modules/.bin/prisma generate --schema='../db/schema.prisma'
+# Building the server should come after Prisma generation. npm only runs the
+# script here, whatever the project's package manager is.
 RUN npm run bundle && node prepareProduction.ts
 
 
@@ -58,7 +67,7 @@ FROM base AS server-production
 ENV NODE_ENV=production
 WORKDIR /app/.wasp/out/server
 # `production/` already contains every package the server needs, so this
-# stage needs no `npm install`.
+# stage installs nothing.
 # Dependencies and the bundle are separate layers, so a code change only ships
 # the small bundle layer.
 COPY --link --from=server-builder /app/.wasp/out/server/production/node_modules ./node_modules
