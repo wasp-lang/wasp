@@ -1,6 +1,5 @@
 {{={= =}=}}
 {
-  "extends": "@tsconfig/node{= majorNodeVersion =}/tsconfig.json",
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
@@ -16,8 +15,6 @@
     // resolution reflect that.
     "module": "preserve",
     "moduleResolution": "bundler",
-    // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
-    // them here to be explicit.
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "dist",
