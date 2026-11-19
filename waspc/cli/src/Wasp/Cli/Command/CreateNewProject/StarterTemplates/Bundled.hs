@@ -18,7 +18,7 @@ createProjectOnDiskFromBundledTemplate ::
   NewProjectDescription -> Path' Rel' Dir' -> IO ()
 createProjectOnDiskFromBundledTemplate newProjectDescription templatePath = do
   copyBundledTemplateToNewProjectDir templatePath
-  replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) absWaspProjectDir
+  replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) (_packageManager newProjectDescription) absWaspProjectDir
   where
     copyBundledTemplateToNewProjectDir :: Path' Rel' Dir' -> IO ()
     copyBundledTemplateToNewProjectDir templateDir = do
