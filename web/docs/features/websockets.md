@@ -24,6 +24,10 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 
 ## Turn On WebSockets in Your Wasp File
 
+WebSockets need the Socket.IO packages in your project:
+
+<PackageManagerCommand npm="npm install socket.io@4 socket.io-client@4 @socket.io/component-emitter@4" />
+
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 ```ts title="main.wasp.ts"

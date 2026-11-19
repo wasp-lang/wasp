@@ -76,6 +76,12 @@ export default app({
 ```
 </TutorialAction>
 
+Auth needs the `lucia` package in your project, so install it:
+
+<TutorialAction id="install-auth-packages" action="INSTALL_PACKAGES" packageSpecifiers="lucia@3" />
+
+<PackageManagerCommand npm="npm install lucia@3" />
+
 Don't forget to update the database schema by running:
 
 <TutorialAction id="migration-add-user" action="MIGRATE_DB" />
