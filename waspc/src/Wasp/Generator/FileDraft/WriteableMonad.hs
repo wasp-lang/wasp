@@ -15,7 +15,6 @@ import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (Exception, catch)
 import qualified UnliftIO.Exception as E
 import qualified Wasp.Generator.Templates as Templates
-import qualified Wasp.Generator.WaspLibs.Common as WaspLibs
 
 -- TODO: Should we use DI via data instead of typeclasses?
 --   https://news.ycombinator.com/item?id=10392044
@@ -71,8 +70,6 @@ class (MonadIO m) => WriteableMonad m where
     Aeson.Value ->
     m Text
 
-  getLibsSourceDirAbsPath :: m (Path' Abs (Dir WaspLibs.LibsSourceDir))
-
   throwIO :: (Exception e) => e -> m a
 
 instance WriteableMonad IO where
@@ -103,5 +100,4 @@ instance WriteableMonad IO where
   getTemplateFileAbsPath = Templates.getTemplateFileAbsPath
   getTemplatesDirAbsPath = Templates.getTemplatesDirAbsPath
   compileAndRenderTemplate = Templates.compileAndRenderTemplate
-  getLibsSourceDirAbsPath = WaspLibs.getAbsLibsSourceDirPath
   throwIO = E.throwIO

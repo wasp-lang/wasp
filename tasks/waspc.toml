@@ -5,7 +5,7 @@
 
 [build]
 description = "Builds the Haskell project + all sub-projects (i.e. TS packages). Run with the `BUILD_STATIC=1` env to build statically."
-run = [{ task = "build:libs" }, { task = "build:dev-packages" }, { task = "build:hs" }]
+run = [{ task = "build:dev-packages" }, { task = "build:hs" }]
 
 ["build:hs"]
 description = "Builds the Haskell project only. Run with the `BUILD_STATIC=1` env to build statically."
@@ -17,7 +17,6 @@ run = "cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 description = "Installs the wasp executable as 'wasp-cli' globally on the machine."
 dir = "waspc"
 run = [
-  { task = "build:libs" },
   { task = "build:dev-packages" },
   "cabal install --overwrite-policy=always",
   # `wasp-cli new` creates projects that depend on the dev Wasp npm packages,

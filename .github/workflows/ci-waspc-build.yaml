@@ -132,9 +132,9 @@ jobs:
           BUILD_STATIC: ${{ matrix.env.static && '1' || '' }}
           TARBALL_NAME: ${{ steps.compute-artifact-names.outputs.tarball-name }}
         run: |
-          # The released binary package holds the binary and the libs, so it
-          # doesn't need the dev Wasp npm packages that `mise run build` also packs.
-          mise run build:libs
+          # The released binary package holds only the binary and its data
+          # files, so it doesn't need the dev Wasp npm packages that
+          # `mise run build` also packs.
           mise run build:hs
           mkdir -p artifacts
           ./tools/make_binary_package.sh "artifacts/${TARBALL_NAME}"
