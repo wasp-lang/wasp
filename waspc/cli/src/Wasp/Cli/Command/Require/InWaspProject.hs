@@ -28,7 +28,8 @@ newtype InWaspProject = InWaspProject (Path' Abs (Dir WaspProjectDir)) deriving 
 instance Requirable InWaspProject where
   checkRequirement = do
     -- Recursively searches up from CWD until @.wasproot@ file is found, or
-    -- throw an error if it is never found.
+    -- throw an error if it is never found. Keep in sync with
+    -- `findWaspProjectDir` in @packages/cli/src/project-wasp-cli.ts@.
     currentDir <- fromJust . SP.parseAbsDir <$> liftIO getCurrentDirectory
     findWaspProjectRoot currentDir
     where
