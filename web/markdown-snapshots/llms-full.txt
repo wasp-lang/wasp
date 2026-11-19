@@ -12700,8 +12700,11 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+import { app } from "@wasp/spec";
+import {
+  myMiddlewareConfigFn,
+  mySetupFunction,
+} from "./src/myServerSetupCode" with { type: "ref" };
 
 export default app({
   name: "MyApp",
@@ -12710,7 +12713,7 @@ export default app({
     middlewareConfigFn: myMiddlewareConfigFn,
   },
   // ...
-})
+});
 ```
 
 ### Setup Function
@@ -12782,15 +12785,15 @@ For the full description of the `setupFn` field, check the [`Server` API Referen
 `onError` declares a function that Wasp calls with every unexpected error on the server. Wasp logs the error first, so use the function for anything on top of that, like sending the error to an error tracking service.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { onServerError } from "./src/serverErrors" with { type: "ref" }
+import { app } from "@wasp/spec";
+import { onServerError } from "./src/serverErrors" with { type: "ref" };
 
 export default app({
   // ...
   server: {
     onError: onServerError,
   },
-})
+});
 ```
 
 The function receives the error and a context whose `source` says where the error happened:
@@ -12813,7 +12816,7 @@ export const onServerError: ServerOnErrorFn = (error, context) => {
 | `"job"`       | in a [Job](https://wasp.sh/docs/features/jobs). The context also has `jobName`. |
 | `"webSocket"` | while authenticating a WebSocket connection.                                    |
 | `"oauth"`     | during an OAuth login.                                                          |
-| `"startup"`   | while starting the server, e.g. in `setupFn`.                                   |
+| `"startup"`   | while starting the server, after your code has loaded, e.g. in `setupFn`.       |
 | `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                       |
 
 A few things to keep in mind:
@@ -32856,7 +32859,7 @@ Where an unexpected server error happened.
 - `"job"`: In a Job. `jobName` is the name of the Job.
 - `"webSocket"`: While authenticating a WebSocket connection.
 - `"oauth"`: During an OAuth login.
-- `"startup"`: While starting the server, e.g. in `server.setupFn`.
+- `"startup"`: While starting the server, after your code has loaded, e.g. in `server.setupFn`.
 - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
 
 ---

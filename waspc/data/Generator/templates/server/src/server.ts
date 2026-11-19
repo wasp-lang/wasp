@@ -3,10 +3,7 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import {
-  registerServerOnErrorFn,
-  reportUnexpectedServerError,
-} from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors";
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
@@ -16,6 +13,7 @@ import { ServerSetupFnContext } from 'wasp/server/types'
 
 {=# onErrorFn.isDefined =}
 {=& onErrorFn.importStatement =}
+import { registerServerOnErrorFn } from "wasp/server/errors";
 import type { ServerOnErrorFn } from 'wasp/server'
 {=/ onErrorFn.isDefined =}
 

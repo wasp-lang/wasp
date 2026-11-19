@@ -2,10 +2,7 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import {
-  registerServerOnErrorFn,
-  reportUnexpectedServerError,
-} from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors";
 
 
 

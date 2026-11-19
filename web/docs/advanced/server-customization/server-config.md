@@ -12,8 +12,11 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+import { app } from "@wasp/spec";
+import {
+  myMiddlewareConfigFn,
+  mySetupFunction,
+} from "./src/myServerSetupCode" with { type: "ref" };
 
 export default app({
   name: "MyApp",
@@ -22,7 +25,7 @@ export default app({
     middlewareConfigFn: myMiddlewareConfigFn,
   },
   // ...
-})
+});
 ```
 
 ## Setup Function
@@ -52,6 +55,7 @@ As an example, adding a custom route would look something like:
       })
     }
     ```
+
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
@@ -69,6 +73,7 @@ As an example, adding a custom route would look something like:
       })
     }
     ```
+
   </TabItem>
 </Tabs>
 
@@ -103,6 +108,7 @@ Dummy example of such function and its usage:
       return queryDataFromSomeResource(args, someResource)
     }
     ```
+
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
@@ -132,6 +138,7 @@ Dummy example of such function and its usage:
       return queryDataFromSomeResource(args, someResource)
     }
     ```
+
   </TabItem>
 </Tabs>
 
@@ -148,39 +155,39 @@ For the full description of the `setupFn` field, check the [`Server` API Referen
 `onError` declares a function that Wasp calls with every unexpected error on the server. Wasp logs the error first, so use the function for anything on top of that, like sending the error to an error tracking service.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { onServerError } from "./src/serverErrors" with { type: "ref" }
+import { app } from "@wasp/spec";
+import { onServerError } from "./src/serverErrors" with { type: "ref" };
 
 export default app({
   // ...
   server: {
     onError: onServerError,
   },
-})
+});
 ```
 
 The function receives the error and a context whose `source` says where the error happened:
 
 ```ts title="src/serverErrors.ts" auto-js
-import { type ServerOnErrorFn } from "wasp/server"
+import { type ServerOnErrorFn } from "wasp/server";
 
 export const onServerError: ServerOnErrorFn = (error, context) => {
   if (context.source === "job") {
-    console.log(`The ${context.jobName} job failed.`)
+    console.log(`The ${context.jobName} job failed.`);
   }
   // Let's pretend errorTracker is implemented below or imported from another file.
-  errorTracker.capture(error, { source: context.source })
-}
+  errorTracker.capture(error, { source: context.source });
+};
 ```
 
-| `source`      | The error happened...                                               |
-| ------------- | ------------------------------------------------------------------- |
-| `"request"`   | while handling a request to an Operation, API, or auth route.       |
-| `"job"`       | in a [Job](../../features/jobs.md). The context also has `jobName`. |
-| `"webSocket"` | while authenticating a WebSocket connection.                        |
-| `"oauth"`     | during an OAuth login.                                              |
-| `"startup"`   | while starting the server, e.g. in `setupFn`.                       |
-| `"dbSeed"`    | in a database seed function, when running `wasp db seed`.           |
+| `source`      | The error happened...                                                     |
+| ------------- | ------------------------------------------------------------------------- |
+| `"request"`   | while handling a request to an Operation, API, or auth route.             |
+| `"job"`       | in a [Job](../../features/jobs.md). The context also has `jobName`.       |
+| `"webSocket"` | while authenticating a WebSocket connection.                              |
+| `"oauth"`     | during an OAuth login.                                                    |
+| `"startup"`   | while starting the server, after your code has loaded, e.g. in `setupFn`. |
+| `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                 |
 
 A few things to keep in mind:
 

@@ -26,7 +26,8 @@ export type ServerOnErrorFn = (
  * - `"job"`: In a Job. `jobName` is the name of the Job.
  * - `"webSocket"`: While authenticating a WebSocket connection.
  * - `"oauth"`: During an OAuth login.
- * - `"startup"`: While starting the server, e.g. in `server.setupFn`.
+ * - `"startup"`: While starting the server, after your code has loaded, e.g.
+ *   in `server.setupFn`.
  * - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
  */
 export type ServerErrorContext =

@@ -2,16 +2,14 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import {
-  registerServerOnErrorFn,
-  reportUnexpectedServerError,
-} from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors";
 
 import { serverSetup } from "../../../../src/serverSetup"
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
 import { onServerError } from "../../../../src/features/errors/serverOnError"
+import { registerServerOnErrorFn } from "wasp/server/errors";
 import type { ServerOnErrorFn } from 'wasp/server'
 
 import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'

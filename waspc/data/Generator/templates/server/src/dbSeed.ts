@@ -7,13 +7,11 @@
 //   maintaining access to logic from the server/ .
 
 import { prisma, DbSeedFn } from 'wasp/server'
-import {
-  registerServerOnErrorFn,
-  reportUnexpectedServerError,
-} from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors";
 
 {=# onErrorFn.isDefined =}
 {=& onErrorFn.importStatement =}
+import { registerServerOnErrorFn } from "wasp/server/errors";
 import type { ServerOnErrorFn } from 'wasp/server'
 {=/ onErrorFn.isDefined =}
 
