@@ -10,12 +10,12 @@ module Wasp.Generator.Setup
   )
 where
 
-import Control.Monad (forM_, when)
+import Control.Monad (forM_, unless, when)
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
 import Data.Either (fromLeft)
-import Data.List (nub)
+import Data.List (intercalate, nub)
 import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
@@ -23,10 +23,10 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
+import Wasp.Generator.InstalledNpmDeps (findNotInstalledNpmDeps)
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import qualified Wasp.Generator.NodeCommand as NodeCommand
 import qualified Wasp.Generator.NodeCommands as NodeCommands
-import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
@@ -46,7 +46,7 @@ allSetupGoals = [minBound .. maxBound]
 
 -- | Setup steps that a goal might need post code generation.
 data SetupStep
-  = InstallNpmDeps
+  = CheckNpmDepsInstalled
   | FormatPrismaSchema
   | WarnIfDbNeedsMigration
   | GeneratePrismaClient
@@ -59,18 +59,18 @@ allSetupSteps = [minBound .. maxBound]
 
 -- | The prerequisite steps that must run before the provided step.
 --
--- 'InstallNpmDeps' installs the node modules of the whole project (user project,
--- SDK, generated server), so the steps that use installed packages depend on it.
+-- 'CheckNpmDepsInstalled' makes sure the project has the packages the
+-- generated code needs, so the steps that use installed packages depend on it.
 -- 'FormatPrismaSchema' matters for the steps that compare schema checksums.
 prerequisites :: SetupStep -> [SetupStep]
-prerequisites InstallNpmDeps = []
-prerequisites FormatPrismaSchema = [InstallNpmDeps]
-prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
-prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
+prerequisites CheckNpmDepsInstalled = []
+prerequisites FormatPrismaSchema = [CheckNpmDepsInstalled]
+prerequisites WarnIfDbNeedsMigration = [CheckNpmDepsInstalled, FormatPrismaSchema]
+prerequisites GeneratePrismaClient = [CheckNpmDepsInstalled, FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
-prerequisites BuildSdk = [InstallNpmDeps, GeneratePrismaClient]
+prerequisites BuildSdk = [CheckNpmDepsInstalled, GeneratePrismaClient]
 -- Runs `tsc`, and the user code imports the SDK.
-prerequisites TypeCheckUserCode = [InstallNpmDeps, BuildSdk]
+prerequisites TypeCheckUserCode = [CheckNpmDepsInstalled, BuildSdk]
 
 type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
@@ -91,7 +91,7 @@ resolveSetupSteps :: [SetupGoal] -> [SetupStep]
 resolveSetupSteps = withPrerequisites . concatMap stepsForGoal
 
 stepsForGoal :: SetupGoal -> [SetupStep]
-stepsForGoal PrismaCliReady = [InstallNpmDeps, FormatPrismaSchema]
+stepsForGoal PrismaCliReady = [CheckNpmDepsInstalled, FormatPrismaSchema]
 stepsForGoal DbMigrationsChecked = [WarnIfDbNeedsMigration]
 stepsForGoal SdkReady = [BuildSdk]
 stepsForGoal UserCodeTypeChecked = [TypeCheckUserCode]
@@ -105,7 +105,7 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
 
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of
-  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
+  CheckNpmDepsInstalled -> checkNpmDepsInstalled spec
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
@@ -116,12 +116,18 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
   BuildSdk -> buildSdk generatedAppDir sendMessage
   TypeCheckUserCode -> typeCheckUserCode spec sendMessage
 
-installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-installDependencies spec generatedAppDir sendMessage = do
-  result <- liftIO $ installNpmDependenciesWithInstallRecord spec generatedAppDir
-  case result of
-    Left npmInstallError -> throwError [npmInstallError]
-    Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
+-- | Fails when a package the generated code needs isn't installed. Wasp
+-- leaves installing to the user.
+checkNpmDepsInstalled :: AppSpec -> Setup ()
+checkNpmDepsInstalled spec = do
+  notInstalledPackageNames <- liftIO $ findNotInstalledNpmDeps spec
+  unless (null notInstalledPackageNames) $
+    throwError
+      [ GenericGeneratorError $
+          "Your project lists these packages, but they are not installed: "
+            ++ intercalate ", " notInstalledPackageNames
+            ++ ". Run `npm install`."
+      ]
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do
