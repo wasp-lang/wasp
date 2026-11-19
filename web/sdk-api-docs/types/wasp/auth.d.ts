@@ -291,6 +291,6 @@ export declare function getFirstProviderUserId(
  *
  * @see [Custom password rules](https://wasp.sh/docs/features/auth/overview#custom-password-rules)
  */
-export { definePasswordValidationSchema } from "@wasp/lib-sdk-core";
+export { definePasswordValidationSchema } from "@wasp/sdk-core";
 
 export {};

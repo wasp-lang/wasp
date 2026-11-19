@@ -68,11 +68,6 @@ jobs:
     uses: $/.github/workflows/ci-starters-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  libs-test: # zizmor: ignore[excessive-permissions]
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-ci') }}
-    uses: $/.github/workflows/ci-libs-test.yaml
-    secrets: inherit # zizmor: ignore[secrets-inherit]
-
   packages-test: # zizmor: ignore[excessive-permissions]
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-ci') }}
     uses: $/.github/workflows/ci-packages-test.yaml
