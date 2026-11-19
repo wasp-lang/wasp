@@ -7,6 +7,7 @@ module Wasp.Project.WaspNpmPackage
     WaspNpmPackageDeclaration (..),
     getWaspNpmPackageDeclaration,
     getDeclaredVersion,
+    dependsOnDevWaspNpmPackages,
 
     -- * Scripts
     WaspNpmPackageScript (..),
@@ -18,7 +19,7 @@ where
 import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
 import qualified Data.ByteString.Lazy.UTF8 as BLU
-import Data.List (find, isInfixOf)
+import Data.List (find, isInfixOf, isPrefixOf)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
@@ -107,6 +108,17 @@ getWaspNpmPackageDeclaration waspProjectDir =
         (Just version, _) -> DeclaredInDependencies version
         (Nothing, Just version) -> DeclaredInDevDependencies version
         (Nothing, Nothing) -> NotDeclared
+
+-- | TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps stop
+-- depending on dev tarballs, and only projects that the dev CLI creates
+-- outside the repo do.
+--
+-- Whether the project depends on \@wasp/wasp through a `file:` tarball. Only
+-- projects that develop Wasp itself do (see @Wasp.Cli.DevWaspNpmPackages@).
+dependsOnDevWaspNpmPackages :: PJ.PackageJson -> Bool
+dependsOnDevWaspNpmPackages packageJson =
+  maybe False ("file:" `isPrefixOf`) $
+    M.lookup waspNpmPackageName (PJ.dependencies packageJson)
 
 getDeclaredVersion :: WaspNpmPackageDeclaration -> Maybe String
 getDeclaredVersion = \case
