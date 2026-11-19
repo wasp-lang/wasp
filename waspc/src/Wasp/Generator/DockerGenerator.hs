@@ -4,6 +4,8 @@ module Wasp.Generator.DockerGenerator
   ( genDockerFiles,
     genDockerfile,
     compileAndRenderDockerfile,
+    DevWaspNpmPackagesDir,
+    devWaspNpmPackagesDirInGeneratedAppDir,
   )
 where
 
@@ -11,7 +13,7 @@ import Data.Aeson (object, (.=))
 import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (File, File', Path', Rel, relfile)
+import StrongPath (Dir, File, File', Path', Rel, reldir, relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -29,6 +31,7 @@ import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
+import Wasp.Project.WaspNpmPackage (dependsOnDevWaspNpmPackages)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
 genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
@@ -46,9 +49,23 @@ genDockerfile spec = do
             [ "usingPrisma" .= hasEntities spec,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeVersion" .= show (getLowestNodeVersionUserAllows spec),
+              "dependsOnDevWaspNpmPackages" .= dependsOnDevWaspNpmPackages (AS.packageJson spec),
+              "devWaspNpmPackagesDir" .= SP.fromRelDir devWaspNpmPackagesDirInGeneratedAppDir,
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )
+
+data DevWaspNpmPackagesDir
+
+-- | TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps stop
+-- depending on dev tarballs, and only projects that the dev CLI creates
+-- outside the repo need this.
+--
+-- Where `wasp build` copies the dev tarballs of the unreleased Wasp npm
+-- packages (see @Wasp.Cli.DevWaspNpmPackages@), for the Dockerfile to copy
+-- them into the image.
+devWaspNpmPackagesDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir DevWaspNpmPackagesDir)
+devWaspNpmPackagesDirInGeneratedAppDir = [reldir|dev-packages|]
 
 genDockerignore :: AppSpec -> Generator FileDraft
 genDockerignore _ =
