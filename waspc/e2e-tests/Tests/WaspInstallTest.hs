@@ -13,7 +13,7 @@ waspInstallTest =
         ( sequence
             [ assertCommandOutputContains
                 (return "! $WASP_CLI_CMD install")
-                ("Run " ++ styleCode "npm install" ++ " instead")
+                ("Run " ++ styleCode "npm install")
             ]
         )
     ]

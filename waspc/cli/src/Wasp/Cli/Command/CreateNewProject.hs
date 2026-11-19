@@ -31,7 +31,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.DevWaspNpmPackages (checkDirectlyRunWaspCanCreateProjects)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
@@ -46,7 +46,7 @@ import qualified Wasp.Util.Terminal as Term
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
 createNewProject = withArguments newProjectArgsParser $ \args -> do
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
   liftIO checkDirectlyRunWaspCanCreateProjects
     >>= either (throwError . CommandError "Can't create a project with this Wasp binary") return
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates

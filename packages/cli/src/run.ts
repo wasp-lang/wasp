@@ -64,7 +64,7 @@ async function getSubPackage(
     })
     .catch(
       CLIError.rethrowWith(
-        "Can't locate the correct executable for your platform. Try running `npm install` again.",
+        "Can't locate the correct executable for your platform. Try installing the project's packages again.",
       ),
     );
 

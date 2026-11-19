@@ -3,6 +3,7 @@ module Wasp.Cli.Command.Clean
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Common (deleteDirectoryIfExistsVerbosely)
@@ -11,11 +12,13 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
+import Wasp.Project.PackageManager (detectPackageManagerOrDefault, makeInstallCommand)
 import Wasp.Util.Terminal (styleCode)
 
 clean :: Command ()
 clean = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
+  packageManager <- liftIO $ detectPackageManagerOrDefault waspProjectDir
 
   let dotWaspDir = waspProjectDir SP.</> dotWaspDirInWaspProjectDir
   let nodeModulesDir = waspProjectDir SP.</> nodeModulesDirInWaspProjectDir
@@ -27,4 +30,4 @@ clean = ProjectLock.acquireExclusive $ do
 
   cliSendMessageC
     $ Msg.Info
-    $ "\nRun " ++ styleCode "npm install" ++ " to reinstall dependencies."
+    $ "\nRun " ++ styleCode (makeInstallCommand packageManager) ++ " to reinstall dependencies."
