@@ -30,7 +30,8 @@ export function registerServerOnErrorFn(onErrorFn: ServerOnErrorFn): void {
 // TODO: Refactor this once Wasp has proper logging.
 /**
  * Logs the error and passes it to the user's `server.onError` function.
- * It never rejects, so callers that can't wait for it can ignore the promise.
+ * It never rejects, so callers can ignore the promise. Only the callers
+ * that exit the process afterwards have to wait for it.
  */
 export async function reportUnexpectedServerError(
   error: unknown,

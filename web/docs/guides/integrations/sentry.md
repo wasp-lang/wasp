@@ -111,10 +111,6 @@ Sentry.init({
 });
 
 export const onClientError: ClientOnErrorFn = (error, context) => {
-  // Sentry already listens for these errors itself.
-  if (context.source === "window") {
-    return;
-  }
   Sentry.captureException(error, {
     tags: { source: context.source },
     contexts:
@@ -125,7 +121,7 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 };
 ```
 
-Sentry catches errors in event handlers and unhandled promise rejections on its own. `onClientError` adds the errors Sentry can't see, like an error thrown while rendering a page, which Wasp's error page catches.
+Sentry catches errors in event handlers and unhandled promise rejections on its own, and it doesn't send an error it already has a second time. `onClientError` adds the errors Sentry can't see, like an error thrown while rendering a page, which Wasp's error page catches.
 
 ### 6. Set up environment variables
 

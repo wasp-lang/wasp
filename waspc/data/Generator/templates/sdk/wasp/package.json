@@ -90,7 +90,7 @@
     {=! FIXME: Documented only in example apps, not in docs. =}
     "./serialization": "./dist/serialization/index.js",
     {=! Users: config, prisma, env, type ServerSetupFn, type ServerOnErrorFn, type ServerErrorContext, type DbSeedFn, type MiddlewareConfigFn. =}
-    {=! Server: config, prisma, env, ServerSetupFn, DbSeedFn. =}
+    {=! Server: config, prisma, env, ServerSetupFn, ServerOnErrorFn, DbSeedFn. =}
     "./server": "./dist/server/index.js",
     "./server/api": "./dist/server/api/index.js",
     {=! Users: signup field helpers and validators.  =}

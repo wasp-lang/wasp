@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 describe("client error handler", () => {
   let HttpError: typeof import("../src/HttpError").HttpError;
   let KyHttpError: typeof import("ky").HTTPError;
-  let handleClientError: typeof import("../src/browser/errors").handleClientError;
+  let reportClientError: typeof import("../src/browser/errors").reportClientError;
   let registerClientOnErrorFn: typeof import("../src/browser/errors").registerClientOnErrorFn;
 
   beforeEach(async () => {
@@ -14,7 +14,7 @@ describe("client error handler", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     ({ HttpError } = await import("../src/HttpError"));
     ({ HTTPError: KyHttpError } = await import("ky"));
-    ({ handleClientError, registerClientOnErrorFn } = await import(
+    ({ reportClientError, registerClientOnErrorFn } = await import(
       "../src/browser/errors"
     ));
   });
@@ -22,7 +22,7 @@ describe("client error handler", () => {
   it("logs an unexpected error with its source", () => {
     const error = new Error("Unexpected");
 
-    handleClientError(error, { source: "render" });
+    reportClientError(error, { source: "render" });
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Unexpected error in render:",
@@ -35,7 +35,7 @@ describe("client error handler", () => {
     registerClientOnErrorFn(onErrorFn);
     const error = new Error("Unexpected");
 
-    handleClientError(error, { source: "render" });
+    reportClientError(error, { source: "render" });
 
     expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
       source: "render",
@@ -46,7 +46,7 @@ describe("client error handler", () => {
     const onErrorFn = vi.fn();
     registerClientOnErrorFn(onErrorFn);
 
-    handleClientError(new HttpError(404, "Not found"), {
+    reportClientError(new HttpError(404, "Not found"), {
       source: "window",
     });
 
@@ -59,7 +59,7 @@ describe("client error handler", () => {
     registerClientOnErrorFn(onErrorFn);
     const error = new HttpError(502, "Bad gateway");
 
-    handleClientError(error, { source: "window" });
+    reportClientError(error, { source: "window" });
 
     expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
       source: "window",
@@ -70,7 +70,7 @@ describe("client error handler", () => {
     const onErrorFn = vi.fn();
     registerClientOnErrorFn(onErrorFn);
 
-    handleClientError(makeKyHttpError(401), { source: "window" });
+    reportClientError(makeKyHttpError(401), { source: "window" });
 
     expect(console.error).not.toHaveBeenCalled();
     expect(onErrorFn).not.toHaveBeenCalled();
@@ -81,7 +81,7 @@ describe("client error handler", () => {
     registerClientOnErrorFn(onErrorFn);
     const kyHttpError = makeKyHttpError(503);
 
-    handleClientError(kyHttpError, { source: "window" });
+    reportClientError(kyHttpError, { source: "window" });
 
     expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(kyHttpError, {
       source: "window",
@@ -93,8 +93,8 @@ describe("client error handler", () => {
     registerClientOnErrorFn(onErrorFn);
     const error = new Error("Unexpected");
 
-    handleClientError(error, { source: "render" });
-    handleClientError(error, { source: "window" });
+    reportClientError(error, { source: "render" });
+    reportClientError(error, { source: "window" });
 
     expect(onErrorFn).toHaveBeenCalledTimes(1);
   });
@@ -105,7 +105,7 @@ describe("client error handler", () => {
     });
 
     expect(() =>
-      handleClientError(new Error("Unexpected"), { source: "window" }),
+      reportClientError(new Error("Unexpected"), { source: "window" }),
     ).not.toThrow();
     await vi.waitFor(() =>
       expect(console.error).toHaveBeenCalledWith(

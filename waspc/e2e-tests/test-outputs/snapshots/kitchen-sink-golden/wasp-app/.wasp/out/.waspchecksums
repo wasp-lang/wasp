@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "11186b5a897a78e127cfe8314b1b6bf232c7673ad92b5ea75458680a7bdce08a"
+        "811cb63f19789b398585b1cf87b05b840a31b24ee6884682403ff441712671ac"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "101fa1fb3e4bcdcb6e5e99c3ddf274b1fbc4ef97982ed5a3f9336c61d6f950ef"
+        "618b6043466af29264db687237e8fa34a3a8ddf6e2abc20365bb1382efb02051"
     ],
     [
         [
@@ -298,7 +298,7 @@
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "01ae511901b88569170deb331ba709ecf275b732b15443745f96df3c607d0a98"
+        "b8f628b0f8ea9fab0eaf60439826d9b32514d8f7891c79649fb4c5c3c20dfeba"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "0f2588ab4eff8e88eeb1b698ece34ca95f6f77e2c694a52d9461f5c8af74d637"
+        "1ee015d7bcdb5da8a40e552992fe9eea58973a98af5066e4603c0c32283885f6"
     ],
     [
         [
@@ -865,7 +865,7 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "48722b9fe74c5c4050c08cbf05e4e50106d44b34938a6e83f0d7703e236e2fcf"
+        "aebc60715774602b6138b4b4a86c35e713ec7041878d4d9eb9c848d7a8be87cf"
     ],
     [
         [
@@ -907,7 +907,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "a5a18bac87725d62bba724204a9c47c671a797d7d8aa9d65de6404efee537bf9"
+        "2b66e41bab82e83530f49e3c7ce07d36e9a56701861a93bd73bbc6c261dc5455"
     ],
     [
         [
@@ -1880,7 +1880,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "f98cdfa1e7e6fa63bd38c8c5d0ef1fe0b03fc72be75f4175b7cf1d7b897e07a3"
+        "7f4623c19630f436704241d26cdb4dabff69211e594774a0b8ec94300158ebc9"
     ],
     [
         [

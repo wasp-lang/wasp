@@ -61,9 +61,9 @@ export {
   type UseQueryFor,
 } from "./crud/operations.js";
 export {
-  handleClientError,
   listenForUncaughtClientErrors,
   registerClientOnErrorFn,
+  reportClientError,
   type ClientErrorContext,
   type ClientOnErrorFn,
 } from "./errors.js";

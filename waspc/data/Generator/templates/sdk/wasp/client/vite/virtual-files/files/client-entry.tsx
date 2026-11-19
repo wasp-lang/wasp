@@ -6,7 +6,7 @@ import { RouterProvider } from "react-router/dom";
 
 import { Layout } from "wasp/client/app/layout";
 import {
-  handleClientError,
+  reportClientError,
   listenForUncaughtClientErrors,
   registerClientOnErrorFn,
   WaspApp,
@@ -61,7 +61,7 @@ function reportRenderError(
   error: unknown,
   { componentStack }: { componentStack?: string },
 ): void {
-  handleClientError(error, { source: "render", componentStack });
+  reportClientError(error, { source: "render", componentStack });
 }
 
 async function waitForRouterInitialized(
