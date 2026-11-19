@@ -415,11 +415,7 @@ When your Query's NodeJS implementation throws an error, Wasp checks what kind o
 2. If it has a valid `status` or `statusCode` field, like the [`http-errors`](https://github.com/jshttp/http-errors) errors that Express middleware throw, the client receives the closest `HttpError` Wasp can build from it. Its message is replaced with a generic one, unless the error explicitly allows showing it (e.g. with the `expose` field of `http-errors`).
 3. If it is anything else, the client receives a generic `500 Internal Server Error`.
 
-In the last two cases, Wasp hides the error's details so you don't leak sensitive information by accident:
-
-- In production, Wasp doesn't send them.
-- In development, the response also includes the error's message and stack to help you debug.
-- Wasp logs the error on the server if the status code is `500` or above.
+In the last two cases, Wasp hides the error's details, so you don't leak sensitive information by accident. The exception is development, where the response also includes the error's message and stack to help you debug. Wasp also logs these errors on the server when their status code is `500` or above.
 
 To send error details to the client, throw an `HttpError`:
 
@@ -470,10 +466,19 @@ export const MainPage = () => {
 };
 ```
 
-Every `HttpError` has the `response` it stands for. On the client, that is the response the server sent, so you can read more from the error:
+#### Reading the Error's Request and Response
 
-- `error.response.headers` has the response's headers, e.g. `error.response.headers.get("Retry-After")`. Don't read the response's body, since it is already read into `message` and `data`.
-- `error.cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw. It has the `request` that failed.
+On the client, an `HttpError` also has the response that the server sent. Use it when you need more than the status code, `message`, and `data`, for example to read a response header:
+
+```ts
+if (error instanceof HttpError && error.status === 429) {
+  const retryAfter = error.response.headers.get("Retry-After");
+}
+```
+
+The body of the response is already read into `message` and `data`, so don't read it again.
+
+To look at the request that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `request`.
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.
