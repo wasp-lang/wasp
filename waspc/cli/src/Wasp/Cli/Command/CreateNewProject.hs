@@ -8,11 +8,11 @@ import Control.Monad.Catch (bracket_)
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Functor (($>))
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, CommandError (..), makeCommandError, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
@@ -105,7 +105,7 @@ migrateDbForNewProject absWaspProjectDir =
       isDbUrlInEnvironment <- liftIO $ isJust <$> lookupEnv databaseUrlEnvVarName
       when isDbUrlInEnvironment
         $ throwError
-        $ CommandError
+        $ makeCommandError
           "Migration skipped"
           (databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
 
@@ -118,14 +118,14 @@ migrateDbForNewProject absWaspProjectDir =
         (liftIO $ setCurrentDirectory originalDir)
         action
 
-    warnAboutFailedMigration commandError = do
+    warnAboutFailedMigration (CommandError diagnostic) = do
       liftIO
         $ putStrLn
         $ Term.applyStyles [Term.Yellow]
         $ "Warning: The project was created, but its database wasn't migrated.\n"
-          ++ _errorTitle commandError
+          ++ diagnostic.title
           ++ ": "
-          ++ _errorMsg commandError
+          ++ fromMaybe "" diagnostic.details
           ++ "\n"
       return False
 

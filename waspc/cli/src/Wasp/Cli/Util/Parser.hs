@@ -11,7 +11,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import qualified System.Exit as EC
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, makeCommandError)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
@@ -27,7 +27,7 @@ withArguments :: ArgsParser a -> (a -> Command ()) -> Arguments -> Command ()
 withArguments argsParser onSuccess args =
   case parseArguments argsParser args of
     (ArgsParsed result) -> onSuccess result
-    (ParseFailure helpMessage) -> throwError $ CommandError "Parsing arguments failed" helpMessage
+    (ParseFailure helpMessage) -> throwError $ makeCommandError "Parsing arguments failed" helpMessage
     (ShowHelp helpMessage) -> cliSendMessageC $ Msg.Info helpMessage
 
 getParserHelpMessage :: ArgsParser a -> String
@@ -48,7 +48,7 @@ requireInteractiveTerminal argsParser =
     Just terminal -> return terminal
     Nothing ->
       throwError
-        $ CommandError "Interactive terminal required"
+        $ makeCommandError "Interactive terminal required"
         $ "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
           <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
           <> getParserHelpMessage argsParser

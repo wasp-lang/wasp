@@ -6,7 +6,7 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getExecutablePath)
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, makeCommandError, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -24,4 +24,4 @@ deploy cmdArgs = do
     -- our purposes.
     waspExePath <- getExecutablePath
     Wasp.Project.Deployment.deploy waspExePath waspProjectDir cmdArgs
-  either (throwError . CommandError "Deploy command failed") return deployResult
+  either (throwError . makeCommandError "Deploy command failed") return deployResult

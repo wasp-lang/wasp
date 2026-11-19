@@ -5,6 +5,7 @@ module Wasp.Cli.Command
   ( Command,
     runCommand,
     CommandError (..),
+    makeCommandError,
 
     -- * Requirements
 
@@ -38,6 +39,7 @@ import Data.Function ((&))
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Diagnostic (Diagnostic)
 import qualified Wasp.Diagnostic as Diagnostic
 import qualified Wasp.Message as Msg
 import Wasp.Util.IO.Retry (MonadRetry (..))
@@ -56,14 +58,19 @@ runCommand cmd =
       -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
       putStrLn "Aborted."
       exitFailure
-    Right (Left cmdError) -> do
-      cliSendMessage $ Msg.Diagnostic $ Diagnostic.makeError (_errorTitle cmdError) & Diagnostic.setDetails (_errorMsg cmdError)
+    Right (Left (CommandError diagnostic)) -> do
+      cliSendMessage $ Msg.Diagnostic diagnostic
       exitFailure
     Right (Right _) -> return ()
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
-data CommandError = CommandError {_errorTitle :: !String, _errorMsg :: !String}
+newtype CommandError = CommandError Diagnostic
+
+makeCommandError :: String -> String -> CommandError
+makeCommandError errorTitle errorDetails =
+  CommandError $
+    Diagnostic.makeError errorTitle & Diagnostic.setDetails errorDetails
 
 data Requirement where
   Requirement :: (Requirable r) => r -> Requirement
