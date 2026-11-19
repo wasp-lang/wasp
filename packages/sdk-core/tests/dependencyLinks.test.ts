@@ -2,7 +2,11 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { linkWaspDependencies } from "../src/node/sdk/dependencyLinks";
+import {
+  getImportedPackageName,
+  isWaspDependencyImport,
+  linkWaspDependencies,
+} from "../src/node/sdk/dependencyLinks";
 
 describe("linkWaspDependencies", () => {
   let projectDir: string;
@@ -102,6 +106,44 @@ describe("linkWaspDependencies", () => {
     link();
 
     expect(fs.lstatSync(linkPath).birthtimeMs).toBe(createdAt);
+  });
+
+  describe("isWaspDependencyImport", () => {
+    beforeEach(() => {
+      writePackage(storeDirOf("@wasp/sdk-core"), { name: "@wasp/sdk-core" });
+      link();
+    });
+
+    it.each(["@wasp/sdk-core", "@wasp/sdk-core/node/sdk"])(
+      "is true for %s, which is of a linked package",
+      (importSpecifier) => {
+        expect(isWaspDependencyImport(generatedAppDir, importSpecifier)).toBe(
+          true,
+        );
+      },
+    );
+
+    it.each(["lodash", "@wasp/other", "./@wasp/sdk-core", "/@wasp/sdk-core"])(
+      "is false for %s",
+      (importSpecifier) => {
+        expect(isWaspDependencyImport(generatedAppDir, importSpecifier)).toBe(
+          false,
+        );
+      },
+    );
+  });
+});
+
+describe("getImportedPackageName", () => {
+  it.each([
+    ["zod", "zod"],
+    ["zod/v4", "zod"],
+    ["@wasp/auth", "@wasp/auth"],
+    ["@wasp/auth/browser", "@wasp/auth"],
+    ["./zod", undefined],
+    ["/abs/zod", undefined],
+  ])("of %s is %s", (importSpecifier, packageName) => {
+    expect(getImportedPackageName(importSpecifier)).toBe(packageName);
   });
 });
 
