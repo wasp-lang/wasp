@@ -18,6 +18,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - `HttpError`'s third argument is now an options object, so its data is passed as `new HttpError(403, "Not allowed", { data })`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - On the client, failed requests now throw an `HttpError`, whose `data` is the `data` the error was thrown with on the server. Before, they threw an undocumented error whose `data` held the whole response body. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
+- Removed `wasp start db`. Use `wasp db start` instead, or let `wasp start` start the dev database for you. ([#5399](https://github.com/wasp-lang/wasp/pull/5399))
 
 ### 🎉 New Features
 
