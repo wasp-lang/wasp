@@ -51,6 +51,14 @@ export function waspConfig(generatedConfig: GeneratedViteConfig): PluginOption {
       // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions["base"],
+        optimizeDeps: {
+          // Vite looks for the packages it pre-bundles from the project, and
+          // only some package managers let a project find a package it
+          // doesn't list. This syntax makes Vite look from `@wasp/wasp`,
+          // which brings the package. Unbundled, its CommonJS dependency
+          // breaks the page.
+          include: ["@wasp/wasp > @tanstack/react-query"],
+        },
         server: {
           port: forcedOptions["server.port"],
           strictPort: forcedOptions["server.strictPort"],

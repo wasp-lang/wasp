@@ -1,4 +1,8 @@
-export { linkWaspDependencies } from "./dependencyLinks.js";
+export {
+  getImportedPackageName,
+  isWaspDependencyImport,
+  linkWaspDependencies,
+} from "./dependencyLinks.js";
 export {
   getGeneratedAppDir,
   getSdkDir,
