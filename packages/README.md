@@ -71,6 +71,13 @@ project's installed `@wasp/wasp`. When you change one:
 - `@types/react` and `@types/react-dom` follow React's major version. Also update `@types/react`
   in the packages that list it.
 - `@types/express` and `@types/express-serve-static-core` must have the same range.
+- `@types/node` follows the Node.js major version that Wasp supports.
+
+The optional ones (`peerDependenciesMeta`) are the packages that only a certain feature needs,
+like `lucia` for auth. A project lists them itself once its app uses the feature. `waspc` knows
+which feature needs which package from `Wasp.Generator.OptionalNpmDeps`, and a test keeps that
+module in sync with `wasp/package.json`, so change both. The docs repeat the install commands
+(`web/docs/features/` and the tutorial's auth step), so update those too.
 
 ## Packages the generated code imports
 
