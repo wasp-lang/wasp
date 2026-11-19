@@ -6,7 +6,6 @@
 module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
-    npmDepsFromWasp,
 
     -- * Exported for testing only
     genDotEnv,
@@ -36,15 +35,13 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
-import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
@@ -57,10 +54,9 @@ import qualified Wasp.Generator.ServerGenerator.NodeCommands as ServerNodeComman
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
-import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import Wasp.Generator.ServerGenerator.WebSocketG (genWebSockets, mkWebSocketFnImport)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -73,7 +69,7 @@ genServer spec =
       genPrepareProduction spec,
       genVirtualUserModulesPlugin spec,
       genTsConfigJson spec,
-      genPackageJson spec npmDeps,
+      genPackageJson spec,
       genGitignore
     ]
     <++> genNpmrc spec
@@ -84,7 +80,6 @@ genServer spec =
     <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
-    npmDeps = npmDepsFromWasp spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
@@ -108,16 +103,15 @@ genTsConfigJson spec = do
       (C.asServerFile [relfile|tsconfig.json|])
       ( Just $
           object
-            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion),
-              "srcTsConfigPath" .= SP.fromRelFile srcTsConfigPath
+            [ "srcTsConfigPath" .= SP.fromRelFile srcTsConfigPath
             ]
       )
   where
     srcTsConfigPath :: Path' (Rel C.ServerRootDir) (File SrcTsConfigFile) =
       waspProjectDirFromGeneratedAppComponentDir </> AS.srcTsConfigPath spec
 
-genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
-genPackageJson spec waspDependencies =
+genPackageJson :: AppSpec -> Generator FileDraft
+genPackageJson spec =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -125,8 +119,6 @@ genPackageJson spec waspDependencies =
       ( Just $
           object
             [ "packageName" .= serverPackageName,
-              "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "serverBundleCommand" .= serverBundleCommand,
               "devServerStartCommand" .= devServerStartCommand,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
@@ -137,8 +129,6 @@ genPackageJson spec waspDependencies =
             ]
       )
   where
-    serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
-
     -- npm scripts run from the server dir.
     serverBundleCommand =
       NodeCommand.toShellCommand ServerNodeCommands.typeCheckServer <> " && " <> NodeCommand.toShellCommand ServerNodeCommands.bundleServer
@@ -146,26 +136,6 @@ genPackageJson spec waspDependencies =
       NodeCommand.toShellCommandFrom waspProjectDirFromServerDir ServerNodeCommands.runServer
     waspProjectDirFromServerDir :: Path' (Rel C.ServerRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromGeneratedAppComponentDir
-
-npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
-npmDepsFromWasp spec =
-  N.NpmDepsFromWasp $
-    N.NpmDepsForPackage
-      { -- TODO(#4824): The generated server stops being an npm workspace once
-        -- it lists no dependencies. For that, the optional ones (WebSockets)
-        -- move to the user's project.
-        --
-        -- Only the dependencies that depend on the app. The core ones are peer
-        -- dependencies of @wasp/wasp.
-        N.dependencies = depsRequiredByWebSockets spec,
-        N.devDependencies =
-          Npm.Dependency.fromList
-            [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
-              ("@tsconfig/node" <> majorNodeVersionStr, "latest")
-            ]
-      }
-  where
-    majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec
