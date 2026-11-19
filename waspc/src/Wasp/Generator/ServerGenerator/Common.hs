@@ -18,6 +18,7 @@ module Wasp.Generator.ServerGenerator.Common
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     serverPortEnvVarName,
+    serverPackageName,
   )
 where
 
@@ -115,6 +116,9 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
+
+serverPackageName :: String
+serverPackageName = "@wasp/generated-server"
 
 serverPortEnvVarName :: String
 serverPortEnvVarName =
