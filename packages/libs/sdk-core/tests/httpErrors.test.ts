@@ -40,16 +40,8 @@ describe("HttpError", () => {
 
   it.each([200, 399, 600, 404.5])("rejects the status code %d", (status) => {
     expect(() => new HttpError(status)).toThrow(
-      "`status` has to be an integer in the range [400, 600).",
+      "The status of an HttpError has to be an integer in the range [400, 600).",
     );
-  });
-
-  it("rejects data passed in place of the options", () => {
-    expect(
-      () =>
-        // @ts-expect-error The third argument is the options, not the data.
-        new HttpError(403, "Not allowed", { reason: "owner" }),
-    ).toThrow('Unknown HttpError option "reason".');
   });
 
   it("still has its status as `statusCode`", () => {
@@ -72,9 +64,8 @@ describe("HttpError", () => {
       headers: { "X-Reason": "owner" },
     });
 
-    const error = new HttpError(403, "Not allowed", {
+    const error = new HttpError(response, "Not allowed", {
       data: { reason: "owner" },
-      response,
     });
 
     expect(error.response).toBe(response);
@@ -85,26 +76,18 @@ describe("HttpError", () => {
     });
   });
 
-  it("takes its status and headers from a response passed to it", () => {
-    const response = new Response(null, {
-      status: 404,
-      headers: { "X-From": "response" },
-    });
+  it("doesn't take headers next to a response", () => {
+    const response = new Response(null, { status: 404 });
 
-    const error = new HttpError(403, "Not allowed", {
-      response,
-      headers: { "X-From": "option" },
-    });
-
-    expect(error.status).toBe(404);
-    expect(error.response.headers.get("X-From")).toBe("response");
+    // @ts-expect-error The response already has its headers.
+    new HttpError(response, "Not found", { headers: { "X-Reason": "owner" } });
   });
 
   it("rejects a response whose status isn't an error status", () => {
     const response = new Response(null, { status: 200 });
 
-    expect(() => new HttpError(404, "Not found", { response })).toThrow(
-      "`options.response.status` has to be an integer in the range [400, 600).",
+    expect(() => new HttpError(response, "Not found")).toThrow(
+      "The status of an HttpError has to be an integer in the range [400, 600).",
     );
   });
 });

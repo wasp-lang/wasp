@@ -15409,8 +15409,6 @@ throw new HttpError(403, "Not allowed", {
 })
 ```
 
-If you pass the data the old way, `HttpError` throws an error that tells you so.
-
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
 #### 14. Enjoy your updated Wasp app
@@ -32277,6 +32275,8 @@ The type of the error's `data`. It defaults to [HttpErrorData](#httperrordata-2)
 
 > **new HttpError**<`Data`>(`status`, `message?`, `options?`): [`HttpError`](#httperror)<`Data`>
 
+Creates the error together with its response.
+
 ###### Parameters
 
 ###### status
@@ -32295,11 +32295,56 @@ The error message.
 
 [`HttpErrorOptions`](#httperroroptions)<`Data`>
 
-The data, the headers for the response or the response itself, and the standard `Error` options (e.g. `cause`).
+The data, the headers for the response, and the standard `Error` options (e.g. `cause`).
 
 ###### Returns
 
 [`HttpError`](#httperror)<`Data`>
+
+###### Overrides
+
+`Error.constructor`
+
+###### Constructor
+
+> **new HttpError**<`Data`>(`response`, `message?`, `options?`): [`HttpError`](#httperror)<`Data`>
+
+Creates the error for an existing response, e.g. one a client received.
+
+###### Parameters
+
+###### response
+
+`Response`
+
+The response the error stands for. Its status must be in the range `[400, 600)`, otherwise the constructor throws an `Error`.
+
+###### message?
+
+`string`
+
+The error message.
+
+###### options?
+
+`Omit`<[`HttpErrorOptions`](#httperroroptions)<`Data`>, `"headers"`>
+
+The data and the standard `Error` options (e.g. `cause`).
+
+###### Returns
+
+[`HttpError`](#httperror)<`Data`>
+
+###### Example
+
+```ts
+import { HttpError } from "wasp/errors";
+
+const response = await fetch("https://api.example.com/tasks");
+if (!response.ok) {
+  throw new HttpError(response, "Could not load the tasks.");
+}
+```
 
 ###### Overrides
 
@@ -32313,7 +32358,7 @@ The data, the headers for the response or the response itself, and the standard 
 
 Extra information about the error, e.g. which form field is invalid. It is `undefined` if the error was created without it.
 
-###### response
+###### response {#response}
 
 > `readonly` **response**: `Response`
 
@@ -32353,7 +32398,7 @@ Use [status](#status) instead.
 
 #### HttpErrorOptions
 
-The options of an [HttpError](#httperror). It takes the standard `Error` options (e.g. `cause`), and what the error's response consists of.
+The options of an [HttpError](#httperror). It takes the standard `Error` options (e.g. `cause`), the data, and the headers of the error's response.
 
 ##### Example
 
@@ -32404,14 +32449,6 @@ const headers: HeadersInit = [
   ["Set-Cookie", "b=2"],
 ];
 ```
-
-###### response?
-
-> `optional` **response?**: `Response`
-
-An existing response for the error to stand for, e.g. one a client received. Without it, the error builds its own response from its status, message, data, and `headers`.
-
-If you pass it, its status and headers take precedence over the `status` argument and the `headers` option. Its status must be in the range `[400, 600)` too.
 
 ### Type Aliases
 
