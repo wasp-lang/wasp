@@ -57,7 +57,7 @@ runCommand cmd =
   E.tryJust (guard . Interactive.isPromptInputEOF) (runExceptT (flip evalStateT [] $ _runCommand cmd)) >>= \case
     Left () -> do
       -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
-      putStrLn "Aborted."
+      cliSendMessage $ Msg.Info "\nAborted."
       exitFailure
     Right (Left (CommandError diagnostic)) -> do
       cliSendMessage $ Msg.Diagnostic diagnostic

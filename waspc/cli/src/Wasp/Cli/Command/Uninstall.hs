@@ -8,7 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
-import System.Exit (die)
+import System.Exit (exitFailure)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -19,6 +19,7 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
 import qualified Wasp.Diagnostic as Diagnostic
 import Wasp.Message (Message)
@@ -111,7 +112,9 @@ removeWaspPaths confirmationTerminal pathsToRemove = do
 
   forM_ confirmationTerminal $ \terminal -> do
     confirmed <- Interactive.askForConfirmation terminal "Are you sure you want to continue?"
-    unless confirmed $ die "Aborted."
+    unless confirmed $ do
+      cliSendMessage $ Msg.Info "Uninstall aborted. Nothing was removed."
+      exitFailure
 
   mapM_ deleteDirectoryIfExists $ fst pathsToRemove
   mapM_ deleteFileIfExists $ snd pathsToRemove
