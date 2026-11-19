@@ -184,7 +184,6 @@ library
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
-    Wasp.ExternalConfig.Npm.PackageJson.DepValidators
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -210,6 +209,7 @@ library
     Wasp.Generator.FileDraft.TextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
+    Wasp.Generator.ImportAliases
     Wasp.Generator.InstalledNpmDeps
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
@@ -564,7 +564,6 @@ test-suite waspc-tests
     AppSpec.FromJSONTest
     AppSpec.ValidTest
     EnvTest
-    ExternalConfig.Npm.PackageJson.DepValidatorsTest
     Fixtures.AppSpec
     Fixtures.Paths
     Generator.AuthInjectionTest
@@ -574,6 +573,7 @@ test-suite waspc-tests
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
+    Generator.ImportAliasesTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.ServerGenerator.ServerEffectTest

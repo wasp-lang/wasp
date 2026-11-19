@@ -18,7 +18,6 @@ export type GeneratedViteConfig = {
   ssrEntryPointPath: string;
   ssrPaths: string[];
   spaFallbackFile: string;
-  depsExcludedFromOptimization: string[];
   /**
    * Maps the ID of a virtual user module to the user's module, relative to
    * the project dir.
@@ -29,12 +28,12 @@ export type GeneratedViteConfig = {
   virtualUserModules: Record<string, string>;
 };
 
-const generatedViteDirInProjectDir = ".wasp/out/sdk/wasp/client/vite";
+const generatedViteDirInSdkDir = "client/vite";
 const generatedViteConfigFileName = "config.json";
 const virtualFilesDirInGeneratedViteDir = "virtual-files/files";
 
-export function getGeneratedViteDir(projectDir: string): string {
-  return path.resolve(projectDir, generatedViteDirInProjectDir);
+export function getGeneratedViteDir(sdkDir: string): string {
+  return path.join(sdkDir, generatedViteDirInSdkDir);
 }
 
 export function readGeneratedViteConfig(

@@ -1,12 +1,14 @@
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
 import ssr from "@wasp/vite-ssr";
 import type { PluginOption } from "vite";
+import { getGeneratedAppDir, getSdkDir } from "../../sdk/index.js";
 import {
   getGeneratedViteDir,
   readGeneratedViteConfig,
 } from "../generatedViteConfig.js";
 import { detectServerImports } from "./detectServerImports.js";
 import { envFile } from "./envFile.js";
+import { sdkImports } from "./sdkImports.js";
 import { typescriptCheck } from "./typescriptCheck.js";
 import { validateEnv } from "./validateEnv.js";
 import { virtualUserModules } from "./virtualUserModules.js";
@@ -22,7 +24,8 @@ export interface WaspPluginOptions {
  * app, so Vite has to run from the project dir.
  */
 export function wasp(options?: WaspPluginOptions): PluginOption {
-  const generatedViteDir = getGeneratedViteDir(process.cwd());
+  const sdkDir = getSdkDir(getGeneratedAppDir(process.cwd()));
+  const generatedViteDir = getGeneratedViteDir(sdkDir);
   const generatedConfig = readGeneratedViteConfig(generatedViteDir);
 
   return [
@@ -32,6 +35,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     // The `wasp:config` plugin must come first because
     // other plugins may depend on its configuration.
     waspConfig(generatedConfig),
+    sdkImports(sdkDir),
     virtualUserModules(generatedConfig.virtualUserModules),
     virtualWaspModules(generatedConfig, generatedViteDir),
     envFile(generatedConfig.clientEnvFileName),

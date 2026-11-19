@@ -22,8 +22,7 @@
     "react-router": "^8.0.1",
     "socket.io": "^4.8.4",
     "socket.io-client": "^4.8.4",
-    "tailwindcss": "^4.1.18",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

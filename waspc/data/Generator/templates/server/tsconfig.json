@@ -1,5 +1,7 @@
 {{={= =}=}}
 {
+  // Maps the `wasp/*` imports to the generated SDK.
+  "extends": "../tsconfig.paths.json",
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,

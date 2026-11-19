@@ -10,7 +10,7 @@ import StrongPath (Abs, Dir, File, Path', Rel)
 import Validation (Validation (..))
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common (CompileError, SrcTsConfigFile, WaspProjectDir)
-import Wasp.Project.ExternalConfig.TsConfig (parseAndValidateTsConfigFile)
+import Wasp.Project.ExternalConfig.TsConfig (extendsImportAliasesValidator, noCustomPathsValidator, parseAndValidateTsConfigFile)
 import qualified Wasp.Validator as V
 
 parseAndValidateSrcTsConfig ::
@@ -31,7 +31,8 @@ parseAndValidateSrcTsConfig = parseAndValidateTsConfigFile srcTsConfigValidator
 srcTsConfigValidator :: V.Validator T.TsConfig
 srcTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.required $ V.containsAll ["src", ".wasp/out/types/app"],
+    [ extendsImportAliasesValidator,
+      V.inField ("include", T.include) $ V.required $ V.containsAll ["src", ".wasp/out/types/app"],
       V.inField ("exclude", T.exclude) $ V.required $ V.containsAll ["**/*.wasp.ts"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
@@ -70,5 +71,6 @@ srcTsConfigValidator =
           -- The composite flag is required because Wasp uses project references
           -- (i.e., web app and server reference user code as a subproject)
           V.inField ("composite", T.composite) $ V.eqJust True,
-          V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True
+          V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
+          noCustomPathsValidator
         ]

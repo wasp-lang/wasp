@@ -46,6 +46,8 @@ COPY --link db/schema.prisma .wasp/out/db/
 {=/ usingPrisma =}
 # We mirror the same directory structure as the Wasp project.
 COPY --link tsconfig*.json ./
+# The project's tsconfig and the server's extend this one.
+COPY --link tsconfig.paths.json .wasp/out/
 COPY --link types .wasp/out/types
 COPY --link sdk .wasp/out/sdk
 COPY --link server .wasp/out/server
