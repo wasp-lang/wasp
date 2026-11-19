@@ -29,6 +29,7 @@
     "./run-spec": "./scripts/run-spec.js",
     "./run-deploy": "./scripts/run-deploy.js",
     "./run-studio": "./scripts/run-studio.js",
+    "./link-dependencies": "./scripts/link-dependencies.js",
     "./vite": {
       "types": "./lib/vite.d.ts",
       "default": "./lib/vite.js"

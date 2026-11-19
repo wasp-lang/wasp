@@ -131,12 +131,16 @@ data WaspNpmPackageScript
   = WaspSpecAnalyzerScript
   | WaspDeployScript
   | WaspStudioScript
+  | -- | Links the packages that come with \@wasp/wasp into the generated app
+    -- dir, where the generated code finds them under any package manager.
+    WaspDependencyLinksScript
 
 waspNpmPackageScriptExportName :: WaspNpmPackageScript -> String
 waspNpmPackageScriptExportName = \case
   WaspSpecAnalyzerScript -> "run-spec"
   WaspDeployScript -> "run-deploy"
   WaspStudioScript -> "run-studio"
+  WaspDependencyLinksScript -> "link-dependencies"
 
 -- | Run from the project dir, Node resolves the script through \@wasp/wasp's
 -- `exports`. Requires the scripts to handle `--eval` arguments, which have no
