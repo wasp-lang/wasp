@@ -19586,7 +19586,7 @@ Make sure you have a Wasp project set up. If you haven't, follow the [Quick star
 
 ### When You Need This
 
-By default, Wasp configures CORS to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). You might need to support multiple domains when:
+By default, Wasp configures CORS in production to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). In development, it allows requests from every origin, so you'll only see the effect of this guide in production. You might need to support multiple domains when:
 
 - You have multiple domains for the same client application
 - You're building a public API
@@ -19677,9 +19677,9 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
 };
 ```
 
-Then in your `.env.server`:
+Then set the environment variable on your production server:
 
-```bash title=".env.server"
+```bash
 CORS_ALLOWED_DOMAINS=https://app.example.com,https://admin.example.com
 ```
 
@@ -19723,13 +19723,18 @@ For complete control over CORS, you can set all options:
 
 ```ts title="src/middleware.ts"
 import cors from "cors";
-import { MiddlewareConfigFn } from "wasp/server";
+import { config, type MiddlewareConfigFn } from "wasp/server";
 
-export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  config.set(
+export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
+  middlewareConfig.set(
     "cors",
     cors({
-      origin: ["https://app.example.com", "https://admin.example.com"],
+      origin: [
+        // Keep the origins Wasp allows by default.
+        ...config.allowedCORSOrigins,
+        "https://app.example.com",
+        "https://admin.example.com",
+      ],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
@@ -19737,7 +19742,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
     }),
   );
 
-  return config;
+  return middlewareConfig;
 };
 ```
 
@@ -22785,7 +22790,7 @@ npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 
 #### 2. Configure the API namespace in main.wasp.ts
 
-Add an API namespace for the Swagger UI endpoint:
+Add an API namespace for the Swagger UI endpoint. Swagger UI serves its assets from the `swagger-ui-dist` package's folder, so also list that package in [`server.traceDeps`](https://wasp.sh/docs/deployment/methods/overview#missing-files-in-the-docker-image). Otherwise the production Docker image leaves the assets out, and the UI stays blank:
 
 ```ts title="main.wasp.ts"
 import { api, apiNamespace, app } from "@wasp/spec"
@@ -22797,7 +22802,11 @@ export default app({
   wasp: { version: "^0.24.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  server: {
+    traceDeps: ["swagger-ui-dist*"],
+  },
   spec: [
+    // ...
     apiNamespace("/api-docs", { middlewareConfigFn: swaggerMiddleware }),
     api("GET", "/status", getStatus, { auth: false }),
   ],
@@ -22903,7 +22912,6 @@ export const swaggerMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
         customCss: ".swagger-ui .topbar { display: none }",
         swaggerOptions: {
           persistAuthorization: true,
-          url: "/api-docs/swagger.json",
         },
       })(req, res, next);
     },
@@ -23836,6 +23844,7 @@ app.query("getTasks", {
 **Wasp Spec**
 
 ```ts title="main.wasp.ts"
+import { app, page, query, route } from "@wasp/spec";
 import MainPage from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -24305,7 +24314,7 @@ See the [Radix Themes documentation](https://www.radix-ui.com/themes/docs/overvi
 ## Libraries / Shadcn
 
 :::note
-Last checked with Wasp 0.24 and Shadcn (as of May 28, 2026).
+Last checked with Wasp 0.27 and Shadcn (as of Nov 4, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -24415,9 +24424,9 @@ We'll add a button component with:
 npx shadcn@latest add button
 ```
 
-#### 2. Adjust the `utils` import
+#### 2. Adjust the `utils` import, if needed
 
-You'll notice that you now have a brand new `button.tsx` file in `src/components/ui`. We need to fix some import issues:
+You'll notice that you now have a brand new `button.tsx` file in `src/components/ui`. Recent versions of Shadcn import `cn` from the `cn` package, which works as is. If your component imports from `@/lib/utils` instead, change it to a relative path:
 
 ```diff title="src/components/ui/button.tsx"
  import * as React from "react"
@@ -24569,28 +24578,28 @@ export default app({
 
 #### Setting metadata for a specific page
 
-You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. This allows you to customize the metadata based on the content of each page. These tags will only be included in the page when the component is being shown, so it's better to add them to the top-most level if possible.
+You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. React moves the tags into the document's `<head>` for you, so render them anywhere in the component, without a `<head>` wrapper. This allows you to customize the metadata based on the content of each page. React only adds these tags while it shows the component, so it's better to add them to the top-most level if possible.
+
+The page's tags add to the ones from `head` in `main.wasp.ts`. They don't replace them. Link previews on platforms like Slack, X, or Discord don't run JavaScript, so they only see a page's tags when you [prerender](https://wasp.sh/docs/advanced/prerendering) the page.
 
 ```tsx title="src/pages/HomePage.tsx"
 export function HomePage() {
   return (
     <>
-      <head>
-        <meta
-          name="description"
-          content="Home page description specific to this page."
-        />
-        <meta property="og:title" content="Home Page - My App" />
-        <meta
-          property="og:description"
-          content="Description for the home page."
-        />
-        <meta
-          property="og:image"
-          content="https://your-app.com/home-page-banner.webp"
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-      </head>
+      <meta
+        name="description"
+        content="Home page description specific to this page."
+      />
+      <meta property="og:title" content="Home Page - My App" />
+      <meta
+        property="og:description"
+        content="Description for the home page."
+      />
+      <meta
+        property="og:image"
+        content="https://your-app.com/home-page-banner.webp"
+      />
+      <meta name="twitter:card" content="summary_large_image" />
       <div>
         <h1>Welcome to the Home Page</h1>
         {/* The rest of the page content */}
@@ -24659,7 +24668,7 @@ After deploying, you can verify your meta tags using these tools:
 ## Optimization / SEO & GEO
 
 :::note
-Last checked with Wasp 0.24, Lighthouse 13, and industry standards (as of Jun 8, 2026).
+Last checked with Wasp 0.27, Lighthouse 13, and industry standards (as of Jun 8, 2026).
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -24696,7 +24705,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
-A straightforward way to run Lighthouse is through the command line:
+A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's environment variables. [Testing locally](https://wasp.sh/docs/deployment/local-testing) shows how to set them up:
 
 ```sh
 # First, build and start the production build of your app:
@@ -24813,7 +24822,7 @@ import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LandingRoute", "/", page(LandingPage), {
       prerender: true
     }),
