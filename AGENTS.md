@@ -25,18 +25,18 @@ Whoever submits the PR must understand the change well enough to explain it and 
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
-- `tasks/` — mise tasks for development (`mise tasks` lists them)
+- `tasks/` — repo-wide mise tasks (each project's own tasks are in its `mise.toml`)
 
 ## Build & Development
 
-All waspc development commands are mise tasks, run with `mise run <task>` from anywhere in the repo. Run `mise tasks` to see the full list (build, test, format, lint, etc.).
+All development commands are mise tasks. The repo is a [mise monorepo](https://mise.jdx.dev/tasks/monorepo.html): each project (`waspc`, the packages and libs in `packages/`, the examples, ...) defines its tasks in its own `mise.toml`, built on the task templates in the root `mise.toml`. Run them from anywhere as `mise run //<path>:<task>` (e.g. `mise run //waspc:build`), and the repo-wide ones in `tasks/` as `mise run //:<task>`. A bare `mise run <task>` refers to the current directory's project. Run `mise tasks --all` to see the full list (build, test, format, lint, etc.).
 
 Key things to know:
 
-- Two-phase build: TS packages and libs in `packages/` compile first and get copied into `waspc/data/`, then Haskell (which embeds them). Use `mise run build` for the full build.
-- Run the dev CLI with `mise run wasp-cli <args>`.
+- Two-phase build: TS packages and libs in `packages/` compile first and get copied into `waspc/data/`, then Haskell (which embeds them). Use `mise run //waspc:build` for the full build. The TS builds declare `sources`/`outputs` and are skipped while up to date, so tasks that need them (e.g. `//waspc:test:e2e`) depend on them.
+- Run the dev CLI with `mise run //waspc:wasp-cli <args>`.
 - Toolchain versions are specified in `mise.toml`.
-- The repo is a pnpm workspace (`pnpm-workspace.yaml`). Only Wasp apps (`examples/`, e2e test apps) use npm, since Wasp requires it.
+- The repo is a pnpm workspace (`pnpm-workspace.yaml`). Only Wasp apps (`examples/`, e2e test apps) use npm, since Wasp requires it. mise reads the project graph for `^build` dependencies from it, and the root `mise.toml` adds what it can't infer (e.g. which packages `waspc` ships).
 
 ## Code Conventions
 
@@ -48,12 +48,12 @@ Key things to know:
 - Default extensions are listed in `waspc/waspc.cabal`.
 - CamelCase for types/modules, camelCase for functions/values.
 - Qualified imports preferred.
-- Formatting: Ormolu (`mise run check:ormolu` / `mise run format:ormolu`). Linting: HLint (`mise run hlint`, config in `waspc/.hlint.yaml`).
+- Formatting: Ormolu (`mise run //waspc:check:ormolu` / `mise run //waspc:format:ormolu`). Linting: HLint (`mise run //waspc:hlint`, config in `waspc/.hlint.yaml`).
 - Tests use `tasty` + `hspec` + `QuickCheck`, mirroring source module paths with a `Test` suffix.
 
 ### TypeScript/JavaScript
 
-- Prettier-formatted (config in `prettier.config.mjs`). Check/fix with `mise run check:prettier` / `mise run format:prettier`.
+- Prettier-formatted (config in `prettier.config.mjs`). Check/fix with `mise run //:check:prettier` / `mise run //:format:prettier`.
 - camelCase for files/functions, PascalCase for components/types.
 
 ### Architecture
@@ -63,7 +63,7 @@ Key things to know:
 
 ## Important Rules
 
-- **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `mise run build && mise run test:waspc:e2e:accept-all`.
+- **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `mise run //waspc:test:e2e:accept-all`.
 - **Documentation**: Only edit `web/docs/` (the latest version). Do not modify `web/versioned_docs/` — those are auto-generated snapshots of previous versions.
 - **Markdown snapshots** (`web/markdown-snapshots/`) must never be manually edited. After changing docs, blog, or resources content (or the LLM files plugin), regenerate them by running `cd web && pnpm run build-dev && pnpm run markdown-snapshots:update`, then review the diff before committing. CI checks them with `pnpm run markdown-snapshots:check`.
 - **Pull requests**: Always use the repo's `PULL_REQUEST_TEMPLATE.md`. Never delete any checkbox from the template — leave irrelevant ones unchecked.

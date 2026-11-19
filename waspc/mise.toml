@@ -1,0 +1,116 @@
+# Project config in the Wasp monorepo. See the `[monorepo]` section in the root `mise.toml`.
+#
+# Common commands used during building / developing `waspc`. Run `mise tasks`
+# to list them, and `mise run <task>` to run one from this directory, or `mise
+# run //waspc:<task>` from anywhere in the repo.
+
+# Building
+
+[tasks.build]
+description = "Builds the Haskell project and the TS libs and packages it ships. Run with the `BUILD_STATIC=1` env to build statically."
+depends = ["^build"]
+run = [{ task = "build:hs" }]
+
+[tasks."build:hs"]
+description = "Builds the Haskell project only. Run with the `BUILD_STATIC=1` env to build statically."
+shell = "bash -c"
+run = "cabal build all ${BUILD_STATIC:+--enable-executable-static}"
+
+[tasks.install]
+description = "Installs the wasp executable as 'wasp-cli' globally on the machine."
+depends = ["^build"]
+run = "cabal install --overwrite-policy=always"
+
+[tasks.get-waspc-version]
+description = "Gets the current version of waspc from the Haskell project."
+quiet = true
+run = "node tools/get-waspc-version.ts"
+
+# Wasp CLI
+
+# `raw_args` forwards every argument, including `--help`, to the wrapped tool.
+[tasks.wasp-cli]
+description = "Runs the dev version of wasp executable in the current directory while forwarding arguments. Builds the project (hs) first if needed."
+dir = "{{cwd}}"
+raw_args = true
+run = "{{vars.wasp_cli_dev}}"
+
+# Testing
+
+[tasks.test]
+description = "Executes all waspc tests (unit + e2e + cli). Builds the project first if needed."
+depends = ["^build"]
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
+run = "cabal test"
+
+[tasks."test:unit"]
+description = "Executes only waspc unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+usage = 'arg "[pattern]"'
+shell = "bash -c"
+run = 'cabal test waspc-tests --test-option=--hide-successes --test-option=--pattern="$usage_pattern"'
+
+[tasks."test:e2e"]
+description = "Executes only waspc e2e tests. Builds the project first if needed."
+# The generated apps use the built libs and packages.
+depends = ["^build"]
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
+run = "cabal test waspc-e2e-tests --test-option=--hide-successes"
+
+[tasks."test:e2e:accept-all"]
+description = "Accepts any diffs in the generated app in waspc e2e snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+shell = "bash -c"
+run = ["rm -rf e2e-tests/test-outputs/snapshots/*-golden", { task = "test:e2e" }]
+
+[tasks."test:cli"]
+description = "Executes only cli tests. Builds the project first if needed."
+run = "cabal test wasp-cli-tests --test-option=--hide-successes"
+
+# Utility
+
+[tasks.ghcid]
+description = "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
+run = "ghcid --command=cabal repl"
+
+[tasks.ghcid-test]
+description = "Runs ghcid on both source and tests."
+shell = "bash -c"
+# --color always is needed for Tasty to turn on the coloring.
+run = "ghcid '-T=:main --color always' --command=cabal repl tests/TastyDiscoverDriver.hs"
+
+[tasks.stan]
+description = "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
+raw_args = true
+run = ["cabal build all --enable-tests --enable-benchmarks", "stan report"]
+
+[tasks.hlint]
+description = "Runs linter on the codebase."
+raw_args = true
+run = "hlint ."
+
+[tasks.format]
+description = "Runs the Haskell and .cabal file formatters and formats the code in place."
+depends = ["format:*"]
+
+[tasks.check]
+description = "Runs the Haskell and .cabal file formatters in check mode and reports if code is correctly formatted or not."
+depends = ["check:*"]
+
+[tasks."format:ormolu"]
+description = "Runs the Haskell code formatter and formats the code in place."
+shell = "bash -c"
+run = "git ls-files -z '*.hs' '*.hs-boot' | xargs -0 ormolu --color always --check-idempotence --mode inplace"
+
+[tasks."check:ormolu"]
+description = "Runs the Haskell code formatter and reports if code is correctly formatted or not."
+shell = "bash -c"
+run = "git ls-files -z '*.hs' '*.hs-boot' | xargs -0 ormolu --color always --check-idempotence --mode check"
+
+[tasks."format:cabal"]
+description = "Runs the .cabal file formatter and formats the code in place."
+shell = "bash -c"
+run = "git ls-files -z '*.cabal' | xargs -0 cabal-gild --mode format"
+
+[tasks."check:cabal"]
+description = "Runs the .cabal file formatter and reports if code is correctly formatted or not."
+shell = "bash -c"
+run = "git ls-files -z '*.cabal' | xargs -0 cabal-gild --mode check"

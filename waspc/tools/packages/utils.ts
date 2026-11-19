@@ -4,7 +4,9 @@ import { getRepoRootPath, getWaspcDirPath } from "../utils.ts";
 // The TypeScript packages that `waspc` runs as separate processes (see
 // `Wasp.NodePackageFFI`, which names the two kinds). Their sources live in
 // `<repo>/packages/`, and the build copies their artifacts into the Cabal data
-// dir, where `waspc` expects them.
+// dir, where `waspc` expects them. Keep in sync with the `wasp:waspc` project's
+// `depends` in the root `mise.toml`, and give each one a `mise.toml` whose
+// `build` task extends the `wasp:package:build` template.
 //
 // - runnable: `waspc` runs it from the data dir and installs its dependencies
 //   there with npm on first use, so it gets an npm lockfile.

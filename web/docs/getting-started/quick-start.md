@@ -198,10 +198,10 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 
     ```shell
     mise install
-    mise run build
+    mise run //waspc:build
     ```
 
-    You can then run your build with `mise run wasp-cli`, or run `mise run install` to install it globally as `wasp-cli`.
+    You can then run your build with `mise run //waspc:wasp-cli`, or run `mise run //waspc:install` to install it globally as `wasp-cli`.
 
     If you have never built Wasp before, this might take some time due to `cabal` downloading dependencies for the first time.
 

@@ -17,5 +17,4 @@ jobs:
       - uses: $/.github/actions/setup-tools
 
       - name: Test all libs
-        working-directory: waspc
         run: mise run test:libs

@@ -1,6 +1,9 @@
 # Keep in sync with .github/actions/setup-tools/action.yaml
 min_version = "2026.11.5"
 
+# See the `[monorepo]` section below.
+monorepo_root = true
+
 [tools]
 ghcup = "0.2.6.2"
 
@@ -95,6 +98,8 @@ compile = false
 [vars]
 # `{{config_root}}` in a task's `env` resolves to the task file's directory,
 # so the tasks use these absolute paths instead.
+repo_dir = "{{config_root}}"
+waspc_dir = "{{config_root}}/waspc"
 wasp_cli_dev = "{{config_root}}/waspc/tools/wasp-cli-dev"
 wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
 
@@ -103,6 +108,94 @@ wasp_app_runner_cli = "{{config_root}}/packages/wasp-app-runner/bin/index.js"
 [deps.pnpm]
 auto = true
 
+# Repo-wide tasks, run from anywhere as `mise run //:<task>` (or `mise run
+# <task>` from the repo root).
 [task_config]
 includes = ["tasks"]
 excludes = ["tasks/node_modules"]
+
+# Each project's tasks live in its own `mise.toml`, and run from anywhere as
+# `mise run //<path>:<task>` (e.g. `mise run //waspc:build`), or as `mise run
+# <task>` from inside the project. Note that a bare task name always refers to
+# the current directory's project, so tasks from elsewhere need the full path.
+# https://mise.jdx.dev/tasks/monorepo.html
+[monorepo]
+config_roots = [
+  "waspc",
+  "waspc/starters-e2e-tests",
+  "packages/*",
+  "packages/libs/*",
+  "examples/*",
+  "examples/tutorials/*",
+]
+
+# Project graph, used by `^build` dependencies and `mise run --affected`. mise
+# reads the TS projects and their dependencies from `pnpm-workspace.yaml` and
+# their `package.json` files, so only the rest is declared here. Inspect it
+# with `mise tasks graph`.
+# https://mise.jdx.dev/tasks/workspace-graph.html
+[monorepo.projects."wasp:waspc"]
+root = "waspc"
+# The libs and packages that waspc ships in its data dir.
+depends = [
+  "node:@wasp/lib-auth",
+  "node:@wasp/lib-sdk-core",
+  "node:@wasp/lib-test-utils",
+  "node:@wasp/lib-vite-ssr",
+  "node:@wasp/spec",
+  "node:@wasp/deploy",
+  "node:@wasp/studio",
+]
+
+# Task templates the projects' tasks extend.
+# https://mise.jdx.dev/tasks/templates.html
+#
+# The `build` tasks declare their `sources` and `outputs`, so mise skips them
+# while they're up to date. Pass `--force` to `mise run` to rebuild anyway.
+# https://mise.jdx.dev/tasks/caching.html
+#
+# The lib and package ones run on Windows CI too, where mise runs tasks with
+# `cmd`, so they must stick to commands that work in both `sh` and `cmd`.
+
+[task_templates."wasp:lib:build"]
+description = "Builds the lib and packs it into waspc/data/Generator/libs/."
+depends = ["^build"]
+sources = [
+  "src/**",
+  "package.json",
+  "README.md",
+  "tsconfig.json",
+  "tsdown.config.ts",
+  "{{vars.repo_dir}}/pnpm-lock.yaml",
+]
+outputs = ["{{vars.waspc_dir}}/data/Generator/libs/{{config_root | basename}}/*.tgz"]
+run = 'node "{{vars.waspc_dir}}/tools/libs/build.ts"'
+
+[task_templates."wasp:lib:test"]
+description = "Tests the lib."
+# Its own `dist/`, and its dependencies' through `^build`.
+depends = ["build"]
+run = "pnpm run test"
+
+[task_templates."wasp:package:build"]
+description = "Builds the package and copies it into waspc/data/packages/."
+depends = ["^build"]
+sources = [
+  "src/**",
+  "package.json",
+  "tsconfig.json",
+  "{{vars.repo_dir}}/pnpm-lock.yaml",
+]
+outputs = ["{{vars.waspc_dir}}/data/packages/{{config_root | basename}}/dist/**"]
+run = 'node "{{vars.waspc_dir}}/tools/packages/build.ts"'
+
+[task_templates."wasp:example:test"]
+description = "Runs the example's e2e tests with the local Wasp CLI."
+depends = ["//waspc:build", "//packages/wasp-app-runner:build"]
+env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
+env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
+run = [
+  "[ ! -f .env.server.example ] || [ -f .env.server ] || cp .env.server.example .env.server",
+  '"$WASP_CLI_CMD" install',
+  "npm run test",
+]

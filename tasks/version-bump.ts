@@ -146,22 +146,24 @@ function findWaspFilePath(projectDir: string): string {
 }
 
 function rebuildLibs(): void {
-  runCmd("mise", ["run", "build:libs"], {
+  runCmd("mise", ["run", "//packages/libs/...:build"], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });
 }
 
 function rebuildPackages(): void {
-  runCmd("mise", ["run", "build:packages"], {
-    cwd: waspcDirPath,
-    stdio: "inherit",
-  });
+  for (const { name } of WASPC_PACKAGES) {
+    runCmd("mise", ["run", `//packages/${name}:build`], {
+      cwd: waspcDirPath,
+      stdio: "inherit",
+    });
+  }
 }
 
 function bustWaspProjectsLibsCache(): void {
   for (const waspProjectDirPath of waspProjectDirsPaths) {
-    runCmd("mise", ["run", "bust-libs-cache"], {
+    runCmd("mise", ["run", "//:bust-libs-cache"], {
       cwd: waspProjectDirPath,
       stdio: "inherit",
     });

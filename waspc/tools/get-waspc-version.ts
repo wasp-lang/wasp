@@ -1,5 +1,6 @@
 /// <reference types="node" />
-// Gets the waspc version from the Cabal package file.
+// Gets the waspc version from the Cabal package file. Prints it when run
+// directly, which the `get-waspc-version` mise task does.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -31,4 +32,8 @@ export function getWaspcVersion() {
 
   waspcVersion = match[1].trim();
   return waspcVersion;
+}
+
+if (import.meta.main) {
+  process.stdout.write(getWaspcVersion());
 }

@@ -82,8 +82,9 @@ When you want to test how they integrate with the Wasp CLI and the generated app
 you need to make sure the Wasp CLI can find them.
 To do that, you need to pack the compiled libs into the `waspc/data/Generator/libs/` folder, which is
 packaged with the Wasp CLI.
-Run `mise run build:libs` to compile the libs and pack them into `waspc/data/Generator/libs/`.
-Then you can use `mise run wasp-cli` as you normally would.
+Each lib's `build` mise task compiles it and packs it into `waspc/data/Generator/libs/`.
+`mise run //waspc:wasp-cli` runs them first, skipping the ones whose sources haven't changed, so
+you can use it as you normally would.
 
 ### `npm` cache busting
 
@@ -92,7 +93,7 @@ Then you can use `mise run wasp-cli` as you normally would.
 To bust the cache, use the `bust-libs-cache` command from the root of the Wasp app:
 
 ```bash
-mise run bust-libs-cache
+mise run //:bust-libs-cache
 ```
 
 This command removes all `@wasp/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
@@ -106,12 +107,15 @@ Create a directory in this folder to contain the new package.
 Keep in mind:
 
 - `package.json` should have a `build` script that compiles the package to
-  `dist/`. `mise run build:libs` and `mise run test:libs` run it for every lib in
-  dependency order, so a lib never has to build itself on install.
+  `dist/`. The lib's `build` mise task runs it after building the libs it depends
+  on, so a lib never has to build itself on install.
+- Add a `mise.toml` with `build` and `test` tasks that extend the `wasp:lib:*`
+  templates, like the other libs. Then add the lib to the `wasp:waspc` project's
+  `depends` in the root `mise.toml`.
 - `package.json` should include a `files` field that specifies which files
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
-The package will be packaged using `pnpm pack` by the `mise run build:libs` script.
+The package will be packaged using `pnpm pack` by its `build` mise task.
 
 Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
 module so that the Wasp CLI knows about it.

@@ -1,6 +1,7 @@
-#!/usr/bin/env node
-//MISE description="Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
 /// <reference types="node" />
+// Builds the package in the current directory, one of the TS packages that
+// `waspc` uses, and copies it into the Cabal data dir, where `waspc` expects
+// it. Run by the packages' `build` mise tasks.
 
 import {
   cpSync,
@@ -13,61 +14,56 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { extract } from "tar";
-import {
-  getDataPackagesDirPath,
-  getPackageDirPath,
-  WASPC_PACKAGES,
-} from "../../waspc/tools/packages/utils.ts";
 import {
   assertPackageVersionMatchesWaspc,
   getPackageJson,
   runCmd,
   type PackageJson,
-} from "../../waspc/tools/utils.ts";
+} from "../utils.ts";
+import { getDataPackagesDirPath, WASPC_PACKAGES } from "./utils.ts";
 
 try {
-  buildPackages();
+  buildPackage(process.cwd());
 } catch (e) {
   console.error(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
   process.exitCode = 1;
 }
 
-function buildPackages(): void {
-  for (const { name, kind } of WASPC_PACKAGES) {
-    const packageDir = getPackageDirPath(name);
-    const dataPackageDir = join(getDataPackagesDirPath(), name);
+function buildPackage(packageDir: string): void {
+  const name = basename(packageDir);
+  const waspcPackage = WASPC_PACKAGES.find((p) => p.name === name);
+  if (waspcPackage === undefined) {
+    throw new Error(`${packageDir} is not one of the packages waspc uses.`);
+  }
+  const dataPackageDir = join(getDataPackagesDirPath(), name);
 
-    buildPackage(name, packageDir);
-    mkdirSync(dataPackageDir, { recursive: true });
-    const packageJsonChanged = writePublishedPackageJson(
-      packageDir,
-      dataPackageDir,
-    );
-    if (kind === "runnable" && packageJsonChanged) {
-      removeNpmLockFile(dataPackageDir);
-    }
-    copyDistToDataDir(packageDir, dataPackageDir);
-    if (
-      kind === "runnable" &&
-      !existsSync(getNpmLockFilePath(dataPackageDir))
-    ) {
-      writeNpmLockFile(dataPackageDir);
-    }
+  const { version } = getPackageJson(packageDir);
+  assertPackageVersionMatchesWaspc(name, version);
+
+  console.log(`Building ${name} package (${packageDir})`);
+  runCmd("pnpm", ["run", "build"], { cwd: packageDir, stdio: "inherit" });
+
+  mkdirSync(dataPackageDir, { recursive: true });
+  const packageJsonChanged = writePublishedPackageJson(
+    packageDir,
+    dataPackageDir,
+  );
+  if (waspcPackage.kind === "runnable" && packageJsonChanged) {
+    removeNpmLockFile(dataPackageDir);
+  }
+  copyDistToDataDir(packageDir, dataPackageDir);
+  if (
+    waspcPackage.kind === "runnable" &&
+    !existsSync(getNpmLockFilePath(dataPackageDir))
+  ) {
+    writeNpmLockFile(dataPackageDir);
   }
 }
 
 function getNpmLockFilePath(dataPackageDir: string): string {
   return join(dataPackageDir, "package-lock.json");
-}
-
-function buildPackage(packageName: string, packageDir: string): void {
-  const { version } = getPackageJson(packageDir);
-  assertPackageVersionMatchesWaspc(packageName, version);
-
-  console.log(`Building ${packageName} package (${packageDir})`);
-  runCmd("pnpm", ["run", "build"], { cwd: packageDir });
 }
 
 // npm installs the data dir copy: it does not understand `catalog:` and it

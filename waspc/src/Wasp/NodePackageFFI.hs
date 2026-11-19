@@ -82,8 +82,8 @@ scriptInPackageDir = [relfile|dist/index.js|]
 
 -- | Get a 'P.CreateProcess' for a particular package.
 --
--- These packages are built during CI/locally via the @mise run build:packages@
--- script.
+-- These packages are built during CI/locally by their @build@ mise tasks, which
+-- @mise run //waspc:build@ runs.
 --
 -- If the package does not have its dependencies installed yet (for example,
 -- when the package is run for the first time after installing Wasp), we install

@@ -1,0 +1,17 @@
+# Project config in the Wasp monorepo. See the `[monorepo]` section in the root `mise.toml`.
+
+# The server's build also builds the client into `public/`.
+[tasks.build]
+extends = "wasp:package:build"
+sources = [
+  "src/**",
+  "package.json",
+  "tsconfig.json",
+  "client/src/**",
+  "client/index.html",
+  "client/public/**",
+  "client/package.json",
+  "client/tsconfig*.json",
+  "client/vite.config.ts",
+  "{{vars.repo_dir}}/pnpm-lock.yaml",
+]

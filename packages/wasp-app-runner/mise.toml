@@ -1,0 +1,7 @@
+# Project config in the Wasp monorepo. See the `[monorepo]` section in the root `mise.toml`.
+
+[tasks.build]
+description = "Builds the Wasp App Runner CLI."
+sources = ["src/**", "package.json", "tsconfig.json", "{{vars.repo_dir}}/pnpm-lock.yaml"]
+outputs = ["dist/**"]
+run = "pnpm run build"

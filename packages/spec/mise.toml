@@ -1,0 +1,15 @@
+# Project config in the Wasp monorepo. See the `[monorepo]` section in the root `mise.toml`.
+
+[tasks.build]
+extends = "wasp:package:build"
+sources = [
+  "src/**",
+  "__tests__/**",
+  "package.json",
+  "tsconfig.json",
+  "{{vars.repo_dir}}/pnpm-lock.yaml",
+]
+
+[tasks.test]
+description = "Tests the package."
+run = "pnpm run test"

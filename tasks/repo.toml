@@ -1,0 +1,58 @@
+# Repo-wide tasks, run from anywhere as `mise run //:<task>`. Each project's
+# own tasks are in its `mise.toml` (e.g. `waspc/mise.toml`). Run `mise tasks
+# --all` to list every task in the repo.
+
+# Testing
+
+[test]
+description = "Executes all tests (waspc + starters + examples + libs + packages). Builds the project first if needed."
+run = [
+  { task = "//waspc:test" },
+  { task = "//waspc/starters-e2e-tests:test" },
+  { task = "test:examples" },
+  { task = "test:libs" },
+  { task = "test:packages" },
+]
+
+["test:libs"]
+description = "Run tests on Wasp libs (types, unit, type-exports)."
+depends = ["//packages/libs/...:test"]
+
+["test:packages"]
+description = "Run tests on Wasp packages (spec, deploy, etc.)."
+depends = ["//packages/spec:test", "//packages/deploy:test"]
+
+["test:examples"]
+description = "Executes only examples e2e tests. Installs deps first if needed."
+# One at a time, since they all use the same ports.
+run = [
+  { task = "//examples/tutorials/TodoApp:test" },
+  { task = "//examples/tutorials/TodoAppTs:test" },
+  { task = "//examples/waspello:test" },
+  { task = "//examples/waspleau:test" },
+  { task = "//examples/websockets-realtime-voting:test" },
+  { task = "//examples/ask-the-documents:test" },
+  { task = "//examples/kitchen-sink:test" },
+]
+
+# Code checks
+
+[code-check]
+description = "Checks code by running it through formatters, linter and static analysis."
+depends = ["check", "//waspc:hlint", "//waspc:stan"]
+
+[format]
+description = "Runs all code formatters (ormolu, cabal-gild, prettier) and formats the code in place."
+depends = ["//waspc:format", "format:prettier"]
+
+[check]
+description = "Runs all code formatters in check mode and reports if code is correctly formatted or not."
+depends = ["//waspc:check", "check:prettier"]
+
+["format:prettier"]
+description = "Runs the repo-wide code formatter and formats the code in place."
+run = "pnpm run format:prettier"
+
+["check:prettier"]
+description = "Runs the repo-wide code formatter and reports if code is correctly formatted or not."
+run = "pnpm run check:prettier"
