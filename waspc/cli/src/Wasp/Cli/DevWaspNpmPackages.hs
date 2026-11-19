@@ -10,7 +10,7 @@ module Wasp.Cli.DevWaspNpmPackages
   )
 where
 
-import Control.Lens (at, non, (%~), (&), (.~), (?~), (^?))
+import Control.Lens (Traversal', at, non, (%~), (&), (.~), (?~), (^?))
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -19,19 +19,21 @@ import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens (key, _Object, _String)
 import Data.Aeson.Types (parseEither)
-import Data.List (find, foldl', isPrefixOf, isSuffixOf, stripPrefix)
-import Data.Maybe (isJust, mapMaybe)
+import Data.List (find, foldl', isSuffixOf, stripPrefix)
+import Data.Maybe (fromJust, isJust)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, File', Path', Rel, basename, fromAbsFile, fromRelFile, parseAbsDir, parseAbsFile, parseRelFile, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
 import System.Environment (lookupEnv)
 import System.FilePath (isAbsolute)
+import qualified Wasp.Cli.PnpmWorkspaceFile as PnpmWorkspaceFile
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DockerGenerator (devWaspNpmPackagesDirInGeneratedAppDir)
-import Wasp.NpmPackageNames (waspCliNpmPackageName, waspNpmPackageName, waspNpmScope)
+import Wasp.NpmPackageNames (waspCliNpmPackageName, waspNpmPackageName)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.PackageManager (PackageManager (..), getLockfileName)
 import Wasp.Project.WaspNpmPackage (dependsOnDevWaspNpmPackages)
 import Wasp.Util.IO (copyFile)
 import qualified Wasp.Util.IO as IOUtil
@@ -108,31 +110,34 @@ findDevWaspNpmPackageTarballs :: IO (Maybe DevWaspNpmPackageTarballs)
 findDevWaspNpmPackageTarballs =
   lookupEnv devWaspNpmPackagesDirEnvVarName >>= \case
     Nothing -> return Nothing
-    Just devPackagesDirPath -> do
-      devPackagesDir <- parseAbsDir devPackagesDirPath
-      let manifestFile = devPackagesDir </> devWaspNpmPackagesManifestFile
-      doesManifestExist <- IOUtil.doesFileExist manifestFile
-      unless doesManifestExist $ failWith $ fromAbsFile manifestFile ++ " does not exist. Run `mise run build:dev-packages`."
-      manifest <- readJsonFile manifestFile
-      case manifest >>= readTarballsFromManifest devPackagesDir of
-        Nothing -> failWith $ fromAbsFile manifestFile ++ " is not valid. Run `mise run build:dev-packages`."
-        Just tarballs -> return $ Just tarballs
-  where
-    failWith :: String -> IO a
-    failWith reason = ioError $ userError $ devWaspNpmPackagesDirEnvVarName ++ " is set, but " ++ reason
+    Just devPackagesDirPath ->
+      parseAbsDir devPackagesDirPath
+        >>= readDevWaspNpmPackageTarballs
+        >>= either (ioError . userError . ((devWaspNpmPackagesDirEnvVarName ++ " is set, but ") ++)) (return . Just)
 
-    readTarballsFromManifest :: Path' Abs (Dir d) -> Value -> Maybe DevWaspNpmPackageTarballs
-    readTarballsFromManifest devPackagesDir manifest = do
+-- | Reads 'devWaspNpmPackagesManifestFile' of the dev packages dir.
+readDevWaspNpmPackageTarballs :: Path' Abs (Dir d) -> IO (Either String DevWaspNpmPackageTarballs)
+readDevWaspNpmPackageTarballs devPackagesDir = runExceptT $ do
+  doesManifestExist <- liftIO $ IOUtil.doesFileExist manifestFile
+  unless doesManifestExist $ throwError $ fromAbsFile manifestFile ++ " does not exist. Run `mise run build:dev-packages`."
+  manifest <- liftIO $ readJsonFile manifestFile
+  maybe (throwError $ fromAbsFile manifestFile ++ " is not valid. Run `mise run build:dev-packages`.") return $
+    manifest >>= readTarballsFromManifest
+  where
+    manifestFile = devPackagesDir </> devWaspNpmPackagesManifestFile
+
+    readTarballsFromManifest :: Value -> Maybe DevWaspNpmPackageTarballs
+    readTarballsFromManifest manifest = do
       waspTarballFile <- manifest ^? key "waspTarball" . _String
       dependencyTarballFiles <- manifest ^? key "dependencyTarballs" . _Object
       DevWaspNpmPackageTarballs
-        <$> tarballIn devPackagesDir waspTarballFile
+        <$> tarballInDevPackagesDir waspTarballFile
         <*> mapM
-          (\(name, tarballFile) -> (,) (Key.toString name) <$> (tarballFile ^? _String >>= tarballIn devPackagesDir))
+          (\(name, tarballFile) -> (,) (Key.toString name) <$> (tarballFile ^? _String >>= tarballInDevPackagesDir))
           (KM.toList dependencyTarballFiles)
 
-    tarballIn :: Path' Abs (Dir d) -> T.Text -> Maybe (Path' Abs File')
-    tarballIn devPackagesDir tarballFile = (devPackagesDir </>) <$> parseRelFile (T.unpack tarballFile)
+    tarballInDevPackagesDir :: T.Text -> Maybe (Path' Abs File')
+    tarballInDevPackagesDir tarballFile = (devPackagesDir </>) <$> parseRelFile (T.unpack tarballFile)
 
 -- | What a new project's package.json says for \@wasp/wasp.
 devWaspNpmPackageSpecifier :: DevWaspNpmPackageTarballs -> String
@@ -156,76 +161,79 @@ addDevWaspNpmPackageOverridesToPackageJsonFile tarballs packageJsonFile =
     overrides :: [(PJ.PackageName, String)]
     overrides = [(name, absTarballFileSpecifier tarball) | (name, tarball) <- dependencyTarballs tarballs]
 
--- | A package.json field that can point at a dev tarball, e.g.
--- `dependencies.@wasp/wasp` or `overrides.@wasp/cli`.
-data DevTarballField = DevTarballField
-  { section :: String,
-    packageName :: PJ.PackageName
-  }
-
--- | The dependency on \@wasp/wasp, and the override of each Wasp package that
--- the package.json overrides.
-devTarballFields :: Value -> [DevTarballField]
-devTarballFields packageJson =
-  DevTarballField "dependencies" waspNpmPackageName
-    : map (DevTarballField "overrides") overriddenWaspPackageNames
-  where
-    overriddenWaspPackageNames =
-      filter (waspNpmScope `isPrefixOf`) $
-        maybe [] (map Key.toString . KM.keys) (packageJson ^? key "overrides" . _Object)
-
 -- | Docker's build context is `.wasp/out/`, so we copy the tarballs into it,
--- where the Dockerfile picks them up, and point the build's package.json and
--- lock at the copies. The copies have the
--- same bytes, so `npm ci` still finds the lock in sync.
+-- where the Dockerfile picks them up, and point the build's package.json at
+-- the copies, and the overrides of the packages that \@wasp/wasp brings.
 --
 -- Does nothing for a project that doesn't depend on the tarballs (see
--- 'dependsOnDevWaspNpmPackages'). Reads them from the project's package.json,
--- so it needs no 'devWaspNpmPackagesDirEnvVarName'.
+-- 'dependsOnDevWaspNpmPackages'). Finds them next to the project's
+-- \@wasp/wasp tarball, so it needs no 'devWaspNpmPackagesDirEnvVarName'.
 prepareDevWaspNpmPackagesForDockerBuild ::
+  PackageManager ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
-  Path' Abs (File packageJson) ->
-  Path' Abs (File packageLockJson) ->
   IO (Either String ())
-prepareDevWaspNpmPackagesForDockerBuild waspProjectDir buildDir packageJsonInBuildDir packageLockJsonInBuildDir = runExceptT $ do
+prepareDevWaspNpmPackagesForDockerBuild packageManager waspProjectDir buildDir = runExceptT $ do
   packageJson <- maybe (throwError "Couldn't read package.json in the build dir.") return =<< liftIO (readJsonFile packageJsonInBuildDir)
   parsedPackageJson <- either (throwError . ("Couldn't read package.json in the build dir: " ++)) return $ parseEither parseJSON packageJson
-  let fieldsWithTarballs =
-        mapMaybe
-          (\field -> (,) field <$> getTarballPath (getField field packageJson))
-          (devTarballFields packageJson)
   when (dependsOnDevWaspNpmPackages parsedPackageJson) $ do
-    let tarballsDirInBuildDir = buildDir </> devWaspNpmPackagesDirInGeneratedAppDir
+    waspTarballPath <-
+      maybe (throwError "The project's package.json doesn't point at a tarball of the dev Wasp npm package.") return $
+        packageJson ^? waspDependency >>= stripPrefix "file:" . T.unpack
+    projectWaspTarball <-
+      liftIO $
+        if isAbsolute waspTarballPath
+          then parseAbsFile waspTarballPath
+          else (waspProjectDir </>) <$> parseRelFile waspTarballPath
+    tarballs <- ExceptT $ readDevWaspNpmPackageTarballs $ SP.parent projectWaspTarball
+
     liftIO $ SD.createDirectoryIfMissing True $ SP.fromAbsDir tarballsDirInBuildDir
-    copiedTarballs <- liftIO $ mapM (copyTarball tarballsDirInBuildDir) fieldsWithTarballs
-    ExceptT $ updateJsonFile (\json -> foldl' pointFieldAtCopiedTarball json copiedTarballs) packageJsonInBuildDir
-    ExceptT $ updateJsonFile (pointLockAtCopiedTarballs (map snd copiedTarballs)) packageLockJsonInBuildDir
+    liftIO $ mapM_ copyTarballIntoBuildDir $ waspTarball tarballs : map snd (dependencyTarballs tarballs)
+
+    let overrides = [(name, tarballSpecifierInDocker tarball) | (name, tarball) <- dependencyTarballs tarballs]
+    ExceptT $ updateJsonFile (waspDependency .~ T.pack (tarballSpecifierInDocker $ waspTarball tarballs)) packageJsonInBuildDir
+    case packageManager of
+      Npm -> do
+        ExceptT $ updateJsonFile (setOverridesInPackageJson overrides) packageJsonInBuildDir
+        -- The copies have the same bytes, so `npm ci` still finds the lock in sync.
+        ExceptT $ updateJsonFile (pointNpmLockAtCopiedTarballs tarballs) (lockfileInBuildDir Npm)
+      Bun -> do
+        ExceptT $ updateJsonFile (setOverridesInPackageJson overrides) packageJsonInBuildDir
+        liftIO $ IOUtil.deleteFileIfExists $ lockfileInBuildDir Bun
+      Pnpm -> do
+        -- pnpm only reads overrides from its workspace file.
+        liftIO $ do
+          doesWorkspaceFileExist <- IOUtil.doesFileExist pnpmWorkspaceFileInBuildDir
+          settings <- if doesWorkspaceFileExist then T.unpack <$> IOUtil.readFileStrict pnpmWorkspaceFileInBuildDir else return ""
+          IOUtil.writeFile pnpmWorkspaceFileInBuildDir
+            $ PnpmWorkspaceFile.appendOverrides overrides
+            $ PnpmWorkspaceFile.removeTopLevelKey "overrides" settings
+        liftIO $ IOUtil.deleteFileIfExists $ lockfileInBuildDir Pnpm
   where
-    getField :: DevTarballField -> Value -> Maybe T.Text
-    getField field json =
-      json ^? key (Key.fromString $ section field) . key (Key.fromString $ packageName field) . _String
+    packageJsonInBuildDir :: Path' Abs File'
+    packageJsonInBuildDir = buildDir </> [relfile|package.json|]
 
-    setField :: DevTarballField -> T.Text -> Value -> Value
-    setField field specifier json =
-      json & key (Key.fromString $ section field) . key (Key.fromString $ packageName field) . _String .~ specifier
+    pnpmWorkspaceFileInBuildDir :: Path' Abs File'
+    pnpmWorkspaceFileInBuildDir = buildDir </> [relfile|pnpm-workspace.yaml|]
 
-    getTarballPath :: Maybe T.Text -> Maybe FilePath
-    getTarballPath specifier = specifier >>= stripPrefix "file:" . T.unpack
+    -- The lockfile points at the tarballs outside the build context. We only
+    -- know how to point npm's at the copies, so the others install without one.
+    lockfileInBuildDir :: PackageManager -> Path' Abs File'
+    lockfileInBuildDir = (buildDir </>) . fromJust . parseRelFile . getLockfileName
 
-    copyTarball :: Path' Abs (Dir d) -> (DevTarballField, FilePath) -> IO (DevTarballField, Path' Abs File')
-    copyTarball tarballsDirInBuildDir (field, tarballPath) = do
-      srcTarball <-
-        if isAbsolute tarballPath
-          then parseAbsFile tarballPath
-          else (waspProjectDir </>) <$> parseRelFile tarballPath
-      let dstTarball = tarballsDirInBuildDir </> basename srcTarball
-      copyFile srcTarball dstTarball
-      return (field, dstTarball)
+    tarballsDirInBuildDir = buildDir </> devWaspNpmPackagesDirInGeneratedAppDir
 
-    pointFieldAtCopiedTarball :: Value -> (DevTarballField, Path' Abs File') -> Value
-    pointFieldAtCopiedTarball json (field, tarball) =
-      setField field (T.pack $ tarballSpecifierInDocker tarball) json
+    waspDependency :: Traversal' Value T.Text
+    waspDependency = key "dependencies" . key (Key.fromString waspNpmPackageName) . _String
+
+    copyTarballIntoBuildDir :: Path' Abs File' -> IO ()
+    copyTarballIntoBuildDir tarball = copyFile tarball (tarballsDirInBuildDir </> basename tarball)
+
+    setOverridesInPackageJson :: [(PJ.PackageName, String)] -> Value -> Value
+    setOverridesInPackageJson overrides packageJson = foldl' setOverride packageJson overrides
+      where
+        setOverride json (packageName, specifier) =
+          json & _Object . at "overrides" . non (object []) . _Object . at (Key.fromString packageName) ?~ String (T.pack specifier)
 
     -- The build's package.json lives at `/app` in Docker and the generated
     -- app at `/app/.wasp/out`, like in the Wasp project.
@@ -235,14 +243,16 @@ prepareDevWaspNpmPackagesForDockerBuild waspProjectDir buildDir packageJsonInBui
 
     -- The root dependency on @wasp/wasp and the `resolved` field of each
     -- package entry.
-    pointLockAtCopiedTarballs :: [Path' Abs File'] -> Value -> Value
-    pointLockAtCopiedTarballs tarballs lock =
+    pointNpmLockAtCopiedTarballs :: DevWaspNpmPackageTarballs -> Value -> Value
+    pointNpmLockAtCopiedTarballs tarballs lock =
       lock
         & key "packages" . key "" . key "dependencies" . key (Key.fromString waspNpmPackageName) . _String %~ rewriteSpecifier
         & key "packages" . _Object %~ KM.map (key "resolved" . _String %~ rewriteSpecifier)
       where
+        allTarballs = waspTarball tarballs : map snd (dependencyTarballs tarballs)
+
         rewriteSpecifier specifier =
-          maybe specifier (T.pack . tarballSpecifierInDocker) $ find (pointsAt specifier) tarballs
+          maybe specifier (T.pack . tarballSpecifierInDocker) $ find (pointsAt specifier) allTarballs
 
         pointsAt specifier tarball =
           "file:" `T.isPrefixOf` specifier

@@ -4,12 +4,16 @@ module Wasp.Project.PackageManager
     getPackageManagerName,
     parsePackageManagerName,
     getLockfileName,
+    getSettingsFileNames,
+    pnpmWorkspaceFileName,
     detectPackageManager,
     detectPackageManagerOrDefault,
+    readPinnedPackageManagerVersion,
     defaultPackageManager,
     UnsupportedPackageManagerError (..),
     showUnsupportedPackageManagerError,
     makeInstallCommand,
+    makeLockedInstallCommand,
     makeAddPackagesCommand,
     makeRunScriptCommand,
     DependencyType (..),
@@ -64,6 +68,18 @@ getLockfileName = \case
   Pnpm -> "pnpm-lock.yaml"
   Bun -> "bun.lock"
 
+-- | The files next to package.json, other than the lockfile, that change what
+-- the package manager installs.
+getSettingsFileNames :: PackageManager -> [FilePath]
+getSettingsFileNames = \case
+  Npm -> []
+  -- Holds the overrides and which packages may run install scripts.
+  Pnpm -> [pnpmWorkspaceFileName]
+  Bun -> []
+
+pnpmWorkspaceFileName :: FilePath
+pnpmWorkspaceFileName = "pnpm-workspace.yaml"
+
 -- | The files that tell a dir is installed with the package manager.
 getMarkerFileNames :: PackageManager -> [FilePath]
 getMarkerFileNames packageManager =
@@ -71,7 +87,7 @@ getMarkerFileNames packageManager =
     Npm -> []
     -- A pnpm workspace root has this file even before the first install
     -- writes the lockfile.
-    Pnpm -> ["pnpm-workspace.yaml"]
+    Pnpm -> [pnpmWorkspaceFileName]
     -- The lockfile of Bun versions before 1.2.
     Bun -> ["bun.lockb"]
 
@@ -102,7 +118,7 @@ data PackageManagerEvidence = PackageManagerEvidence
 -- nearest lockfile, and npm otherwise.
 detectPackageManager :: Path' Abs (Dir WaspProjectDir) -> IO (Either UnsupportedPackageManagerError PackageManager)
 detectPackageManager waspProjectDir = do
-  fieldName <- readPackageManagerFieldName $ projectDir FP.</> "package.json"
+  fieldName <- fmap pinnedName <$> readPackageManagerField waspProjectDir
   markerFileNames <- fromMaybe [] <$> firstJustM findMarkerFileNames (getDirAndItsAncestors projectDir)
   return $
     choosePackageManager
@@ -156,16 +172,32 @@ yarnLockfileName = "yarn.lock"
 yarnName :: String
 yarnName = "yarn"
 
--- | The `packageManager` field looks like "pnpm@10.0.0+sha512.abc".
-readPackageManagerFieldName :: FilePath -> IO (Maybe String)
-readPackageManagerFieldName packageJsonFile = do
+-- | The version that the project pins its package manager to, if any.
+readPinnedPackageManagerVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe String)
+readPinnedPackageManagerVersion waspProjectDir = (>>= pinnedVersion) <$> readPackageManagerField waspProjectDir
+
+-- | What the `packageManager` field of a package.json says, e.g.
+-- "pnpm@10.0.0+sha512.abc".
+data PinnedPackageManager = PinnedPackageManager
+  { pinnedName :: String,
+    pinnedVersion :: Maybe String
+  }
+
+readPackageManagerField :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe PinnedPackageManager)
+readPackageManagerField waspProjectDir = do
   doesPackageJsonExist <- doesFileExist packageJsonFile
   if doesPackageJsonExist
-    then (>>= getFieldName) <$> Aeson.decodeFileStrict' packageJsonFile
+    then (>>= fmap parseFieldValue . packageManagerFieldValue) <$> Aeson.decodeFileStrict' packageJsonFile
     else return Nothing
   where
-    getFieldName :: PackageManagerField -> Maybe String
-    getFieldName = fmap (takeWhile (/= '@')) . packageManagerFieldValue
+    packageJsonFile = fromAbsDir waspProjectDir FP.</> "package.json"
+
+    parseFieldValue :: String -> PinnedPackageManager
+    parseFieldValue fieldValue =
+      let (name, versionWithSeparator) = break (== '@') fieldValue
+          -- A hash of the package manager's files can follow the version.
+          version = takeWhile (/= '+') $ drop 1 versionWithSeparator
+       in PinnedPackageManager {pinnedName = name, pinnedVersion = if null version then Nothing else Just version}
 
 newtype PackageManagerField = PackageManagerField {packageManagerFieldValue :: Maybe String}
 
@@ -176,6 +208,14 @@ instance Aeson.FromJSON PackageManagerField where
 -- | The command that installs the project's packages.
 makeInstallCommand :: PackageManager -> String
 makeInstallCommand packageManager = getPackageManagerName packageManager ++ " install"
+
+-- | The command that installs exactly what the lockfile says, and fails when
+-- the lockfile doesn't match the package.json.
+makeLockedInstallCommand :: PackageManager -> String
+makeLockedInstallCommand = \case
+  Npm -> getPackageManagerName Npm ++ " ci"
+  Pnpm -> makeInstallCommand Pnpm ++ " --frozen-lockfile"
+  Bun -> makeInstallCommand Bun ++ " --frozen-lockfile"
 
 data DependencyType = Runtime | Development
   deriving (Eq, Show)

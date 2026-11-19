@@ -71,6 +71,8 @@ data AppSpec = AppSpec
     packageJson :: PackageJson,
     -- | The package manager that installs the project's packages.
     packageManager :: PackageManager,
+    -- | The version in the `packageManager` field of the project's package.json.
+    pinnedPackageManagerVersion :: Maybe String,
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),

@@ -18,7 +18,6 @@ module Wasp.Project.Common
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedAppDir,
     userPackageJsonInWaspProjectDir,
-    packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
@@ -120,9 +119,6 @@ tsConfigPaths =
       rootTsConfig = Just [relfile|tsconfig.json|],
       waspTsConfig = Just [relfile|tsconfig.wasp.json|]
     }
-
-packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
 
 prismaSchemaFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 prismaSchemaFileInWaspProjectDir = [relfile|schema.prisma|]
