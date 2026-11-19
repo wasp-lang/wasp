@@ -1,6 +1,5 @@
 module Wasp.Generator.ServerGenerator.AuthG
   ( genAuth,
-    depsRequiredByAuth,
     jwtSecretEnvVarName,
   )
 where
@@ -23,7 +22,6 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
     emailAuthProvider,
@@ -130,15 +128,6 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|../|]
-
-depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
-  where
-    maybeAuth = AS.App.auth $ getApp spec
-    authDeps =
-      Npm.Dependency.fromList
-        [ ("lucia", "^3.0.1")
-        ]
 
 jwtSecretEnvVarName :: String
 jwtSecretEnvVarName = "JWT_SECRET"
