@@ -40,6 +40,7 @@ In the TS Config you could only reference your code with import objects (`{ impo
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
+    import { app, page, query, route } from "@wasp/spec";
     import MainPage from "./src/MainPage" with { type: "ref" };
     import { getTasks } from "./src/queries" with { type: "ref" };
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { HttpError } from 'wasp/server';
+import { HttpError } from "wasp/errors";
 import { defineHandler } from 'wasp/server/utils';
 import { findAuthWithUserBy } from 'wasp/server/auth/utils'
 import { createSession } from 'wasp/server/auth/session'
@@ -17,7 +17,10 @@ export function setupOneTimeCodeRoute(router: Router) {
       }
 
       if (tokenStore.isUsed(code)) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
+        throw new HttpError(
+          400,
+          "Unable to login with the OAuth provider. The code has already been used.",
+        );
       }
 
       const { id: authId } = await tokenStore.verifyToken(code);

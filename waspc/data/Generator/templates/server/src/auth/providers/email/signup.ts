@@ -5,7 +5,7 @@ import {
   ensureValidEmail,
   ensureValidPassword,
 } from 'wasp/auth/validation'
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/errors";
 import {
   GetVerificationEmailContentFn,
   createEmailVerificationLink,
@@ -94,10 +94,7 @@ export function getSignupRoute({
         'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
-        throw new HttpError(
-          400,
-          `Please wait ${timeLeft} secs before trying again.`,
-        )
+        throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`)
       }
 
       try {
