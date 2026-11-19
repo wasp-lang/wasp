@@ -9,9 +9,7 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
-import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
 import Wasp.Util (toUpperFirst)
-import Wasp.Util.StrongPath (invertRelDir)
 
 data SdkRootDir
 
@@ -85,6 +83,3 @@ vitePluginsDirInSdkTemplatesDir = viteDirInSdkTemplatesDir </> [reldir|plugins|]
 
 sdkPackageName :: String
 sdkPackageName = "wasp"
-
-libsRootDirFromSdkDir :: Path' (Rel SdkRootDir) (Dir WaspLibsC.LibsRootDir)
-libsRootDirFromSdkDir = invertRelDir sdkRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

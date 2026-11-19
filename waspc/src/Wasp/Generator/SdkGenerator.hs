@@ -58,8 +58,6 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as Job
 import qualified Wasp.Node.Version as NodeVersion
@@ -174,7 +172,7 @@ npmDepsForSdk spec =
   N.NpmDepsForPackage
     { -- TODO(#4824): The generated SDK stops being an npm workspace once it
       -- lists no dependencies. For that, the optional ones (e.g. for email or
-      -- WebSockets) move to the user's project, and the rest to @wasp/wasp.
+      -- WebSockets) move to the user's project.
       --
       -- Only the dependencies that depend on the app. The core ones are peer
       -- dependencies of @wasp/wasp.
@@ -184,16 +182,13 @@ npmDepsForSdk spec =
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEnvValidation
-          ++ waspLibsNpmDeps,
+          ++ depsRequiredByEnvValidation,
       N.devDependencies =
         Npm.Dependency.fromList
           [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
           ]
           ++ devDepsRequiredByEmail spec
     }
-  where
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
