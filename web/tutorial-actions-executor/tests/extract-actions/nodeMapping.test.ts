@@ -20,11 +20,13 @@ describe("mapTutorialActionNodeToAction", () => {
     id: string,
     action: Action["kind"],
     starterTemplateName: string | null = null,
+    packageSpecifiers: string | null = null,
   ): TutorialActionNode {
     return {
       id: id as ActionId,
       action,
       starterTemplateName,
+      packageSpecifiers,
     };
   }
 
@@ -97,6 +99,23 @@ describe("mapTutorialActionNodeToAction", () => {
       sourceTutorialFilePath: testContext.filePath,
       kind: "MIGRATE_DB",
     },
+  );
+
+  testMappingNode(
+    "should map INSTALL_PACKAGES action with its package specifiers",
+    createNode("install-auth", "INSTALL_PACKAGES", null, "lucia@3  arctic@1"),
+    {
+      id: "install-auth" as ActionId,
+      sourceTutorialFilePath: testContext.filePath,
+      kind: "INSTALL_PACKAGES",
+      packageSpecifiers: ["lucia@3", "arctic@1"],
+    },
+  );
+
+  testMappingNodeThrows(
+    "should throw error when INSTALL_PACKAGES action is missing package specifiers",
+    createNode("install-auth", "INSTALL_PACKAGES"),
+    "TutorialAction with action 'INSTALL_PACKAGES' requires the 'packageSpecifiers' attribute",
   );
 
   testMappingNodeThrows(

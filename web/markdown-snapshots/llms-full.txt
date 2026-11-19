@@ -1497,6 +1497,12 @@ export default app({
 })
 ```
 
+Auth needs the `lucia` package in your project, so install it:
+
+```shell
+npm install lucia@3
+```
+
 Don't forget to update the database schema by running:
 
 **npm**
@@ -4468,6 +4474,14 @@ export default app({
 
 Read more about the `auth` field options in the [API Reference](#api-reference) section.
 
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
+
+Social auth methods, like `google` and `gitHub` above, also need the `arctic` package. Each auth method's page lists what to install.
+
 We will provide a quick overview of auth in Wasp and link to more detailed documentation for each auth method.
 
 ### Available auth methods
@@ -5547,6 +5561,12 @@ export default app({
 
 #### 1. Enable Username Authentication
 
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
+
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
@@ -5887,6 +5907,12 @@ export default app({
 ```
 
 #### 1. Enable Email Authentication in `main.wasp.ts`
+
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
 
 Let's start with adding the following to our `main.wasp.ts` file:
 
@@ -6794,6 +6820,12 @@ export default app({
 
 #### 1. Adding GitHub Auth to Your Wasp File
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
@@ -7127,6 +7159,12 @@ export default app({
 ```
 
 #### 1. Adding Google Auth to Your Wasp File
+
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
 
 Let's start by properly configuring the Auth object:
 
@@ -7501,6 +7539,12 @@ export default app({
 
 #### 1. Adding Keycloak Auth to Your Wasp File
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
@@ -7819,6 +7863,12 @@ export default app({
 ```
 
 #### 1. Enabling Slack authentication in the Wasp file.
+
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
 
 Now let's properly configure the Auth object:
 
@@ -8193,6 +8243,12 @@ export default app({
 
 #### 1. Adding Discord Auth to Your Wasp File
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
@@ -8524,6 +8580,12 @@ export default app({
 ```
 
 #### 1. Adding Microsoft Auth to Your Wasp File
+
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
 
 Let's start by properly configuring the Auth object:
 
@@ -10268,6 +10330,13 @@ export default app({
 
 #### Using the SMTP Provider {#smtp}
 
+The SMTP provider needs the `nodemailer` and `@types/nodemailer` packages in your project:
+
+```shell
+npm install nodemailer@8
+npm install --save-dev @types/nodemailer@8
+```
+
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
@@ -10298,6 +10367,12 @@ Some hosting providers (for example, **Railway** on its free tier, or **Hetzner*
 :::
 
 #### Using the Mailgun Provider {#mailgun}
+
+The Mailgun provider needs the `mailgun.js` package in your project:
+
+```shell
+npm install mailgun.js@10
+```
 
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
@@ -10342,6 +10417,12 @@ MAILGUN_API_URL=https://api.eu.mailgun.net
 As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com/en-us/changelog/sendgrid-free-plan). A paid SendGrid plan is now required to send emails. Consider using [Mailgun](#mailgun) or [SMTP](#smtp) with another provider if you need a free tier option.
 :::
 
+The SendGrid provider needs the `@sendgrid/mail` package in your project:
+
+```shell
+npm install @sendgrid/mail@7
+```
+
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
@@ -10369,6 +10450,12 @@ SENDGRID_API_KEY=
 ```
 
 #### Using the Resend Provider {#resend}
+
+The Resend provider needs the `resend` package in your project:
+
+```shell
+npm install resend@6
+```
 
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 
@@ -10544,6 +10631,12 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 `PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](https://wasp.sh/docs/features/data/databases#postgresql).
 
+`PgBoss` also needs the `pg-boss` package in your project:
+
+```shell
+npm install pg-boss@8
+```
+
 ##### Limitations
 
 `PgBoss` runs together with your web server, whenever it is up. This means that it is not a separate process or service, but rather a part of your web server's application. As such, it is not suitable for CPU-heavy workloads, as it shares the CPU with your web server's application logic.
@@ -10651,6 +10744,12 @@ To get started, you need to:
 Let's go through setting up WebSockets step by step, starting with enabling WebSockets in your Wasp file.
 
 ### Turn On WebSockets in Your Wasp File
+
+WebSockets need the Socket.IO packages in your project:
+
+```shell
+npm install socket.io@4 socket.io-client@4 @socket.io/component-emitter@4
+```
 
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
@@ -11236,15 +11335,36 @@ This command will add the package in the `dependencies` section of your `package
 
 You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't remove them.
 
+One of them is `wasp`, with the value `file:.wasp/out/sdk/wasp`. It points at the code Wasp generates for your app, and your `wasp/...` imports resolve to it.
+
 #### Using Packages that are Already Used by Wasp Internally
 
 Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run `npm run wasp -- deps` to see them.
 
 npm has to install peer dependencies for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
 
-The generated server also lists a few dependencies of its own, like `socket.io` when you use WebSockets. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
+#### Packages that Wasp features need {#feature-packages}
 
-##### Overriding Wasp's Dependencies (Advanced)
+Some Wasp features need extra packages, like `lucia` for auth. You install them when you start using the feature:
+
+| Feature                                                                | Packages                                                        |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [Auth](https://wasp.sh/docs/features/auth/overview)                    | `lucia`                                                         |
+| [Social auth](https://wasp.sh/docs/features/auth/social-auth/overview) | `lucia`, `arctic`                                               |
+| [Jobs](https://wasp.sh/docs/features/jobs)                             | `pg-boss`                                                       |
+| [WebSockets](https://wasp.sh/docs/features/websockets)                 | `socket.io`, `socket.io-client`, `@socket.io/component-emitter` |
+| [SMTP email sender](https://wasp.sh/docs/features/email#smtp)          | `nodemailer`, `@types/nodemailer`                               |
+| [Mailgun email sender](https://wasp.sh/docs/features/email#mailgun)    | `mailgun.js`                                                    |
+| [SendGrid email sender](https://wasp.sh/docs/features/email#sendgrid)  | `@sendgrid/mail`                                                |
+| [Resend email sender](https://wasp.sh/docs/features/email#resend)      | `resend`                                                        |
+
+Each feature's page has the command that installs its packages. If you forget one, Wasp stops with an error that names the package and the command:
+
+```
+Your app uses jobs, so it needs pg-boss. Run `npm install "pg-boss@^8.4.2"`.
+```
+
+#### Overriding Wasp's Dependencies (Advanced)
 
 If you need to use a different version of a Wasp-managed dependency, you can override it. This is an advanced feature intended for:
 
@@ -11264,7 +11384,7 @@ When you override dependencies, it's up to you to test your app thoroughly and v
 If you find the need to override any dependency, we'd appreciate for you to [post an issue on GitHub](https://github.com/wasp-lang/wasp/issues/new/choose), or a [message on our Discord](https://discord.gg/rzdnErX), explaining your usecase. This will make us aware of your needs, and helps us prioritize giving you a supported solution faster.
 :::
 
-To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
+To override a dependency that Wasp uses, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 **Before**
 
@@ -11291,23 +11411,6 @@ To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](h
   }
 }
 ```
-
-To override a dependency that the generated server lists, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
-
-```json title="package.json"
-{
-  "dependencies": {
-    "socket.io": "^4.8.0"
-  },
-  "wasp": {
-    "overriddenDeps": {
-      "socket.io": "^4.6.1"
-    }
-  }
-}
-```
-
-By declaring this, you acknowledge you're deviating from Wasp's tested version. When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
 
 #### Supply Chain Protection
 
@@ -15584,6 +15687,10 @@ Your project now depends on Wasp through the `@wasp/wasp` npm package, which bri
 
 Wasp now requires Node.js 26 or later, the [current LTS line](https://github.com/nodejs/release#release-schedule). It enables the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) by default and removes some long-deprecated APIs. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) for the full list of changes.
 
+#### No npm workspaces and no automatic installs
+
+Wasp projects no longer use npm workspaces, and Wasp no longer runs `npm install` for you. Your `package.json` lists everything your app needs, including the packages of the Wasp features you use, like `lucia` for auth. You install them with `npm install`, like in any other project. Your `package-lock.json` no longer changes when Wasp regenerates its code.
+
 #### New npm organization
 
 Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
@@ -15662,12 +15769,18 @@ npm i -g @wasp/cli@0.27
 
 #### 3. Depend on `@wasp/wasp` instead of `@wasp.sh/spec` {#depend-on-wasp}
 
-Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands):
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Remove Wasp's two entries from `workspaces`, and add the `wasp` dependency in their place. The `wasp` dependency points at the code Wasp generates, and your `wasp/...` imports resolve to it. If `workspaces` has no other entries, remove the field.
+
+Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands):
 
 **Before**
 
 ```json title="package.json"
 {
+  "workspaces": [
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
+  ],
   "devDependencies": {
     "@wasp.sh/spec": "file:.wasp/spec"
   }
@@ -15685,18 +15798,49 @@ Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency.
     "preview": "wasp build start"
   },
   "dependencies": {
-    "@wasp/wasp": "0.27.0"
+    "@wasp/wasp": "0.27.0",
+    "wasp": "file:.wasp/out/sdk/wasp"
   }
 }
 ```
 
-Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 9](#reinstall-dependencies).
+Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 10](#reinstall-dependencies).
 
-#### 4. Move your overrides of Wasp's dependencies to npm `overrides`
+#### 4. Add the packages of the features you use {#feature-packages}
+
+**If your app uses none of the features in the table below, you can skip this step.**
+
+Wasp used to install the packages that only some features need. Now your `package.json` lists them. Add the packages of the features your app uses to `dependencies`. `@types/nodemailer` belongs in `devDependencies`:
+
+| Feature                                                                | Packages                                                        |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [Auth](https://wasp.sh/docs/features/auth/overview)                    | `lucia`                                                         |
+| [Social auth](https://wasp.sh/docs/features/auth/social-auth/overview) | `lucia`, `arctic`                                               |
+| [Jobs](https://wasp.sh/docs/features/jobs)                             | `pg-boss`                                                       |
+| [WebSockets](https://wasp.sh/docs/features/websockets)                 | `socket.io`, `socket.io-client`, `@socket.io/component-emitter` |
+| [SMTP email sender](https://wasp.sh/docs/features/email#smtp)          | `nodemailer`, `@types/nodemailer`                               |
+| [Mailgun email sender](https://wasp.sh/docs/features/email#mailgun)    | `mailgun.js`                                                    |
+| [SendGrid email sender](https://wasp.sh/docs/features/email#sendgrid)  | `@sendgrid/mail`                                                |
+| [Resend email sender](https://wasp.sh/docs/features/email#resend)      | `resend`                                                        |
+
+For example, an app with username auth and a job adds:
+
+```json title="package.json"
+{
+  "dependencies": {
+    "lucia": "^3.0.1",
+    "pg-boss": "^8.4.2"
+  }
+}
+```
+
+You don't have to get the list right now. If a package is missing, Wasp stops with an error that names the package and the command that installs the version Wasp needs.
+
+#### 5. Move your overrides of Wasp's dependencies to npm `overrides`
 
 **If your `package.json` has no `wasp.overriddenDeps` field, you can skip this step.**
 
-If `wasp.overriddenDeps` lists React, Vite, Express, or another package that comes with `@wasp/wasp`, override it with npm's `overrides` field instead. Wasp reports such `overriddenDeps` entries as errors.
+Wasp no longer reads the `wasp.overriddenDeps` field. Override a package with npm's `overrides` field instead, and remove `wasp.overriddenDeps`.
 
 The two fields take different versions. `wasp.overriddenDeps` lists the version Wasp requires, while `overrides` lists the version you want. So don't copy the value over. Set the override to the version from your `dependencies`, since npm fails with `EOVERRIDE` when the two don't match exactly:
 
@@ -15730,7 +15874,7 @@ The two fields take different versions. `wasp.overriddenDeps` lists the version 
 
 Read more in [Overriding Wasp's dependencies](https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced).
 
-#### 5. Check your `.npmrc`
+#### 6. Check your `.npmrc`
 
 **If your project has no `.npmrc` file, you can skip this step.**
 
@@ -15743,7 +15887,7 @@ min-release-age=7
 min-release-age-exclude[]=@wasp/*
 ```
 
-#### 6. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+#### 7. Rename `@wasp.sh/spec` imports to `@wasp/spec`
 
 Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
@@ -15778,7 +15922,7 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or
 - Run `npm install` before other Wasp commands in a fresh clone or worktree.
 ```
 
-#### 7. Remove the Wasp version from `main.wasp.ts`
+#### 8. Remove the Wasp version from `main.wasp.ts`
 
 `package.json` now sets the Wasp version, so remove the `wasp` field:
 
@@ -15801,7 +15945,7 @@ export default app({
 });
 ```
 
-#### 8. Upgrade to Prisma 6
+#### 9. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -15833,7 +15977,7 @@ Update the Prisma packages in your `package.json`:
 
 Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 9. Reinstall your dependencies {#reinstall-dependencies}
+#### 10. Reinstall your dependencies {#reinstall-dependencies}
 
 :::caution[Back up your SQLite development database]
 If your app uses SQLite in development, its database is `.wasp/out/db/dev.db`, so deleting `.wasp` deletes your development data too. Copy the file somewhere outside `.wasp` first if you want to keep it.
@@ -15860,7 +16004,11 @@ npm run wasp -- db migrate-dev
 wasp db migrate-dev
 ```
 
-#### 10. Update your Vitest setup
+If Wasp reports a missing package from [step 4](#feature-packages) here, run the command Wasp prints and try again.
+
+Finally, run `npm install` once more. Wasp has generated its code by now, so npm removes the old workspace entries from your `package-lock.json`. Commit the file.
+
+#### 11. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -16092,13 +16240,13 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
 
-#### 11. Check relative paths in your server code
+#### 12. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-#### 12. Check the packages your server loads at runtime
+#### 13. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -16117,7 +16265,7 @@ export default app({
 })
 ```
 
-#### 13. Install the system dependencies your app needs
+#### 14. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -16127,7 +16275,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-#### 14. Update your custom Dockerfile
+#### 15. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -16139,7 +16287,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 15. Import `HttpError` from `wasp/errors`
+#### 16. Import `HttpError` from `wasp/errors`
 
 The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
 
@@ -16155,7 +16303,7 @@ import { HttpError } from "wasp/server"
 import { HttpError } from "wasp/errors"
 ```
 
-#### 16. Update how you read errors on the client
+#### 17. Update how you read errors on the client
 
 On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
@@ -16188,7 +16336,7 @@ try {
 }
 ```
 
-#### 17. Pass `HttpError` data in the options
+#### 18. Pass `HttpError` data in the options
 
 `HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
@@ -16208,7 +16356,7 @@ throw new HttpError(403, "Not allowed", {
 
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
-#### 18. Enjoy your updated Wasp app
+#### 19. Enjoy your updated Wasp app
 
 That's it!
 
@@ -22946,6 +23094,12 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 
 #### 1. Configure main.wasp.ts
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Set up the auth configuration and API routes:
 
 ```ts title="main.wasp.ts"
@@ -22985,8 +23139,7 @@ Create or update your `.env.server` file:
 SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
 
-# You may need dummy values for built-in providers if you're using them
-# just to get the arctic package installed
+# Wasp requires these for the built-in provider you enabled in step 1
 GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
 ```

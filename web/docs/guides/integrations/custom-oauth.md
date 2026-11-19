@@ -6,6 +6,7 @@ comments: true
 ---
 
 import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithVersionsNotice";
+import SocialAuthPackages from '../../features/auth/social-auth/_social-auth-packages.md';
 
 # Custom OAuth provider
 
@@ -21,6 +22,8 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 ## Setting up a Custom OAuth Provider
 
 ### 1. Configure main.wasp.ts
+
+<SocialAuthPackages />
 
 Set up the auth configuration and API routes:
 
@@ -65,8 +68,7 @@ Create or update your `.env.server` file:
 SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
 
-# You may need dummy values for built-in providers if you're using them
-# just to get the arctic package installed
+# Wasp requires these for the built-in provider you enabled in step 1
 GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
 ```
