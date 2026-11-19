@@ -1,7 +1,6 @@
 module Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( genJobsApi,
     genJobExecutors,
-    depsRequiredByJobs,
     getJobExecutorSdkPackageImportPath,
     getImportJsonForJobDefinition,
   )
@@ -17,8 +16,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
-import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
@@ -31,7 +28,6 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithDstAndData,
   )
 import qualified Wasp.JsImport as JI
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
 import Wasp.Util.Js (makeJsStringLiteral)
 
@@ -129,17 +125,6 @@ genJobExecutors spec = case getJobs spec of
           genFileCopyInServerJob [relfile|core/pgBoss/types.ts|],
           genFileCopyInServerJob [relfile|core/pgBoss/index.ts|]
         ]
-
--- NOTE: Our pg-boss related documentation references this version in URLs.
--- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
-pgBossVersionRange :: SV.Range
-pgBossVersionRange = [SV.r|^8.4.2|]
-
-pgBossDependency :: Npm.Dependency.Dependency
-pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
-
-depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
 serverJobsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]

@@ -61,7 +61,7 @@ export function waspConfig(): PluginOption {
           outDir: forcedOptions["build.outDir"],
         },
         ssr: {
-          noExternal: ["@wasp/lib-sdk-core"],
+          noExternal: ["@wasp/sdk-core"],
         },
         resolve: {
           // These packages rely on a single instance per page. Not deduping them

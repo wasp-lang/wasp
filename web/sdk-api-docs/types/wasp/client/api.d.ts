@@ -86,4 +86,4 @@ interface KyInstance {
  */
 export declare const api: KyInstance;
 
-export { handleApiError } from "@wasp/lib-sdk-core/browser";
+export { handleApiError } from "@wasp/sdk-core/browser";

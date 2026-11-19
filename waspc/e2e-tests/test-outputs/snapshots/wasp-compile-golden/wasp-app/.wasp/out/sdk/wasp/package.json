@@ -1,14 +1,4 @@
 {
-  "dependencies": {
-    "@wasp/lib-auth": "file:../../libs/auth/wasp-lib-auth-0.27.0.tgz",
-    "@wasp/lib-sdk-core": "file:../../libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz",
-    "@wasp/lib-test-utils": "file:../../libs/test-utils/wasp-lib-test-utils-0.27.0.tgz",
-    "@wasp/lib-vite-ssr": "file:../../libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@types/node": "^26.0.0"
-  },
   "exports": {
     "./auth": "./dist/auth/index.js",
     "./auth/providers": "./dist/auth/providers/index.js",
@@ -55,7 +45,6 @@
     "./test": "./dist/test/index.js",
     "./types": "./dist/types/index.js"
   },
-  "license": "ISC",
   "name": "wasp",
   "private": true,
   "scripts": {
@@ -69,6 +58,5 @@
         "api/index.ts"
       ]
     }
-  },
-  "version": "1.0.0"
+  }
 }

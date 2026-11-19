@@ -142,7 +142,7 @@ When done, new tab in your browser should open and you will see the Kitchen Sink
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
-4. Use `mise run build:hs` to build the Haskell/cabal project, and `mise run wasp-cli` to both build and run it. If you changed code in `packages/libs/`, you will also need to run `mise run build:libs`, and for the rest of `packages/`, `mise run build:dev-packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `mise run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
+4. Use `mise run build:hs` to build the Haskell/cabal project, and `mise run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `mise run build:dev-packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `mise run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `mise run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `mise run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
@@ -189,8 +189,8 @@ AppSpec is passed to the Generator, which based on it decides how to generate a 
 Output of Generator is a list of FileDrafts, where each FileDraft explains how to create a file on the disk.
 Therefore, Generator doesn't generate anything itself, instead it provides instructions (FileDrafts) on how to generate the web app.
 FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`). Alongside mustache templates,
-generated apps use internal npm packages (WaspLibs) that contain core logic and are unit tested. WaspLibs are bundled with Wasp
-and installed into generated apps (see [WaspLibs](#wasplibs) for more details).
+generated apps use npm packages that contain core logic and are unit tested (`@wasp/sdk-core`, `@wasp/auth` and others).
+They come with `@wasp/wasp` (see [`packages/README.md`](../packages/README.md#packages-the-generated-code-imports) for more details).
 
 Generator is split into multiple generators: ServerGenerator for server code, SdkGenerator for the client and server SDK, and DbGenerator for database setup.
 
@@ -276,7 +276,6 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `cli/exe/` -> thin executable wrapper around cli library code
 - `tests/`, `e2e-tests/`, `cli/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
-- `data/Generator/libs/` -> packed internal npm packages (WaspLibs) that are bundled with Wasp and copied into generated apps, built from `<repo>/packages/libs/` (see [WaspLibs](#wasplibs) for more details)
 - `data/Cli/starters/` -> starter templates for new projects
 
 ### Typescript packages
@@ -284,10 +283,6 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 `waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `<repo>/packages/` and are normal npm projects. See [`packages/README.md`](../packages/README.md) for how the projects are expected to be set up.
 
 The project's `@wasp/wasp` brings these packages, and `waspc` runs them through it. Wasp projects in this repo depend on dev tarballs of them under `waspc/.dev-packages/`. After you change a package, run `mise run build:dev-packages`, then run `mise run reinstall-dev-wasp-app-deps` from the project's directory to reinstall it.
-
-### WaspLibs
-
-WaspLibs are internal npm packages located under [`packages/libs/`](../packages/libs/) and are packed into `data/Generator/libs/` by `mise run build:libs`, bundled with Wasp and installed into generated apps. A more detailed description of WaspLibs can be found in the [`packages/libs/README.md`](../packages/libs/README.md).
 
 ## Tests
 

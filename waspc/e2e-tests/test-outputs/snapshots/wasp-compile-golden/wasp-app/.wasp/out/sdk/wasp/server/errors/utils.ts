@@ -1,4 +1,4 @@
-import * as Wasp from "@wasp/lib-sdk-core";
+import * as Wasp from "@wasp/sdk-core";
 
 // PRIVATE API (server)
 export function getErrorDetails(error: unknown): {

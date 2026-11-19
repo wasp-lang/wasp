@@ -1,7 +1,11 @@
 {{={= =}=}}
 {
   "name": "{= sdkPackageName =}",
-  "version": "1.0.0",
+  {=!
+    No `version` or `license` on purpose. npm copies them into the project's
+    lockfile, which would then differ between an install on a fresh clone,
+    before the SDK exists, and an install after.
+  =}
   "private": true,
   "type": "module",
   "scripts": {
@@ -158,8 +162,5 @@
     "*": {
       "client/api": ["api/index.ts"]
     }
-  },
-  "license": "ISC",
-  {=& depsChunk =},
-  {=& devDepsChunk =}
+  }
 }

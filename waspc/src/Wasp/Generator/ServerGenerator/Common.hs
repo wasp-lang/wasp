@@ -18,7 +18,7 @@ module Wasp.Generator.ServerGenerator.Common
     clientUrlEnvVarName,
     serverUrlEnvVarName,
     serverPortEnvVarName,
-    libsRootDirFromServerDir,
+    serverPackageName,
   )
 where
 
@@ -33,8 +33,6 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
-import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
 
@@ -119,10 +117,10 @@ clientUrlEnvVarName = "WASP_WEB_CLIENT_URL"
 serverUrlEnvVarName :: String
 serverUrlEnvVarName = "WASP_SERVER_URL"
 
+serverPackageName :: String
+serverPackageName = "@wasp/generated-server"
+
 serverPortEnvVarName :: String
 serverPortEnvVarName =
   -- Not prefixed with `WASP_` because many deployment platforms use this env.
   "PORT"
-
-libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
-libsRootDirFromServerDir = invertRelDir serverRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

@@ -11,7 +11,7 @@
   "excludeInternal": true,
 
   // Don't document types from `node_modules` (e.g., React Query's or the
-  // built-in TypeScript ones), only the `@wasp/lib-sdk-core` ones, which
+  // built-in TypeScript ones), only the `@wasp/sdk-core` ones, which
   // `typedoc-plugin-missing-exports` pulls in.
   "excludeExternals": true,
 
