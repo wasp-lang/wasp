@@ -6,8 +6,8 @@ import {
   typescriptCheck,
   validateEnv,
   type WaspPluginOptions,
-} from "@wasp/lib-sdk-core/node/vite";
-import ssr from "@wasp/lib-vite-ssr";
+} from "@wasp/sdk-core/node/vite";
+import ssr from "@wasp/vite-ssr";
 import { virtualWaspModules } from "./virtualWaspModules.js";
 import { virtualUserModules } from "./virtualUserModules.js";
 import { waspConfig } from "./waspConfig.js";
