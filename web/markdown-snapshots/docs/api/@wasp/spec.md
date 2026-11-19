@@ -2359,7 +2359,7 @@ Function Wasp calls with every unexpected error on the server, e.g. to send it t
 
 It receives the error and a context whose `source` says where the error happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
 
-The function can be async. Wasp waits for it before the server exits because of a startup error.
+The function can be async. Wasp waits for it before the server exits after a `"startup"` or `"dbSeed"` error.
 
 In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`, which lists every `source`.
 
