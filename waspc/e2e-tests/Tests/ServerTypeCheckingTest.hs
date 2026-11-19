@@ -34,6 +34,7 @@ serverTypeCheckingTest =
                   appendToPrismaFile prismaTaskModel,
                   writeServerFeaturesFile,
                   replaceMainWaspTsFile serverFeaturesWithoutAuthMainWaspTs,
+                  installFeaturePackages,
                   waspCliCompile,
                   typeCheckServer
                 ]
@@ -41,6 +42,12 @@ serverTypeCheckingTest =
         )
     ]
   where
+    -- Jobs and WebSockets need their packages in the project.
+    installFeaturePackages :: ShellCommandBuilder WaspProjectContext ShellCommand
+    installFeaturePackages =
+      return
+        "npm install \"pg-boss@^8.4.2\" \"socket.io@^4.6.1\" \"socket.io-client@^4.6.1\" \"@socket.io/component-emitter@^4.0.0\""
+
     typeCheckServer :: ShellCommandBuilder WaspProjectContext ShellCommand
     typeCheckServer = return "(cd .wasp/out/server && npx tsc --build)"
 
