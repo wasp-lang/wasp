@@ -1,4 +1,4 @@
-import type { ErrorMessage } from "@wasp/lib-auth/browser";
+import type { ErrorMessage } from "@wasp/auth/browser";
 import { HttpError } from "../../../HttpError.js";
 import { getErrorMessage } from "../../../errors.js";
 
