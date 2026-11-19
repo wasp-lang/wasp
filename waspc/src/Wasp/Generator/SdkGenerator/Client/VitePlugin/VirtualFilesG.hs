@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG
-  ( genVirtualWaspModulesPlugin,
+module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualFilesG
+  ( genVirtualFiles,
   )
 where
 
@@ -12,42 +12,21 @@ import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (routesEntryPointPath, spaFallbackFile, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualFiles.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
 import Wasp.Util.Js (makeJsStringLiteral)
 
-genVirtualWaspModulesPlugin :: AppSpec -> Generator [FileDraft]
-genVirtualWaspModulesPlugin spec =
+-- | The entry points that the Vite plugin serves as virtual files.
+genVirtualFiles :: AppSpec -> Generator [FileDraft]
+genVirtualFiles spec =
   sequence
-    [ genVirtualWaspModulesTs,
-      genVirtualFilesIndexTs,
-      genVirtualClientEntryTsx spec,
+    [ genVirtualClientEntryTsx spec,
       genVirtualSsrEntryTsx spec,
       genVirtualRoutesTsx spec
     ]
-
-genVirtualFilesIndexTs :: Generator FileDraft
-genVirtualFilesIndexTs =
-  return $
-    C.mkTmplFd tmplPath
-  where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|index.ts|]
-
-genVirtualWaspModulesTs :: Generator FileDraft
-genVirtualWaspModulesTs =
-  return $
-    C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualWaspModules.ts|]
-    tmplData =
-      object
-        [ "clientEntryPointPath" .= clientEntryPointPath,
-          "routesEntryPointPath" .= routesEntryPointPath,
-          "ssrEntryPointPath" .= ssrEntryPointPath
-        ]
 
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
 genVirtualClientEntryTsx spec =

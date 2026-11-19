@@ -1,26 +1,15 @@
-{{={= =}=}}
-import path from "node:path";
+import * as path from "node:path";
 import type { Plugin } from "vite";
-
-/**
- * Maps virtual module IDs (pointing to user's client modules)
- * to their relative import paths from the client project root.
- * 
- * @example
- * clientVirtualUserModuleMap["virtual:wasp/user/env"] // => "./src/env"
- */
-const clientVirtualUserModuleMap: { [virtualUserModule: string]: string } = {
-  {=# virtualUserModules =}
-  {=& virtualModuleId =}: {=& importJson.importPath =},
-  {=/ virtualUserModules =}
-};
+import type { GeneratedViteConfig } from "../generatedViteConfig.js";
 
 /**
  * Resolves virtual modules pointing to user's modules.
  * Virtual user modules allow Wasp code to depend on user code at runtime,
  * without depending on the user's project during compile time.
  */
-export function virtualUserModules(): Plugin {
+export function virtualUserModules(
+  virtualUserModuleMap: GeneratedViteConfig["virtualUserModules"],
+): Plugin {
   let clientRootDir!: string;
 
   return {
@@ -30,8 +19,8 @@ export function virtualUserModules(): Plugin {
       clientRootDir = config.root;
     },
     async resolveId(id, importer, options) {
-      const userModulePath = Object.hasOwn(clientVirtualUserModuleMap, id)
-        ? clientVirtualUserModuleMap[id]
+      const userModulePath = Object.hasOwn(virtualUserModuleMap, id)
+        ? virtualUserModuleMap[id]
         : undefined;
       if (userModulePath !== undefined) {
         const absPath = path.resolve(clientRootDir, userModulePath);
