@@ -13,8 +13,7 @@ import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable
 import Wasp.Cli.Terminal (title)
 import Wasp.Docs (versionedWaspDocsUrl)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.NpmDependencies as N
-import qualified Wasp.Generator.ServerGenerator as ServerGenerator
+import Wasp.Generator.OptionalNpmDeps (allOptionalNpmDeps, getAllDependencies, getNpmDepsOfUsedFeatures)
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project (analyzeWaspProject)
 import Wasp.Project.WaspNpmPackage (InstalledWaspNpmPackageError (..), tryGettingInstalledWaspNpmPackagePeerDeps)
@@ -52,15 +51,14 @@ depsMessage appSpec waspNpmPackagePeerDeps =
     ]
       ++ printDeps
         ("Peer dependencies of " ++ waspNpmPackageName ++ ":")
-        waspNpmPackagePeerDeps
+        (filter (not . isOptionalDep) waspNpmPackagePeerDeps)
       ++ [""]
       ++ printDeps
-        "Server dependencies:"
-        (N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
-      ++ [""]
-      ++ printDeps
-        "Server devDependencies:"
-        (N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
+        "Packages for the features your app uses:"
+        (concatMap getAllDependencies $ getNpmDepsOfUsedFeatures appSpec)
+  where
+    -- Only the optional peer dependencies that the app's features need are in use.
+    isOptionalDep dep = Npm.Dependency.name dep `elem` (Npm.Dependency.name <$> allOptionalNpmDeps)
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =
