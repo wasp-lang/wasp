@@ -36,12 +36,14 @@
     "./test": {
       "types": "./lib/test.d.ts",
       "default": "./lib/test.js"
-    }
+    },
+    "./tsconfig.paths.json": "./tsconfig.paths.json"
   },
   "files": [
     "bin.js",
     "lib",
-    "scripts"
+    "scripts",
+    "tsconfig.paths.json"
   ],
   "peerDependencies": {
     "@prisma/client": "6.19.3",

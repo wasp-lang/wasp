@@ -51,7 +51,8 @@ assertReturnsValidationErrorMentioningField fieldName config =
 validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
-    { T.compilerOptions = Nothing,
+    { T.extends = Nothing,
+      T.compilerOptions = Nothing,
       T.include = Nothing,
       T.exclude = Nothing,
       T.files = Just [],

@@ -15,7 +15,6 @@ import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualFilesG (genVirtualFiles)
-import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
@@ -54,7 +53,6 @@ genGeneratedViteConfig spec =
           "ssrEntryPointPath" .= ssrEntryPointPath,
           "ssrPaths" .= concatMap AS.Route.prerender (AS.getRoutes spec),
           "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
-          "depsExcludedFromOptimization" .= depsExcludedFromOptimization,
           "virtualUserModules"
             .= VUM.mkVirtualUserModulePathMap
               GJI.extImportToRelativeSrcImportFromViteExecution
@@ -64,12 +62,3 @@ genGeneratedViteConfig spec =
     clientEnvSchemaValidationModulePath =
       SP.fromRelFileP . fromJust . SP.relFileToPosix $
         generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]
-
-    depsExcludedFromOptimization =
-      -- Why do we exclude Wasp SDK from optimization?
-      -- - Wasp SDK is a dep that's regenerated over time and we don't want Vite to optimize it
-      --   and cache it (which would break hot module reloading).
-      -- - Accidentally, we don't need to do this because Wasp SDK is symlinked and Vite would
-      --   exclude it anyways - but we are keeping it here because we want to be explicit.
-      --   Read more: https://vite.dev/guide/dep-pre-bundling#monorepos-and-linked-dependencies
-      [sdkPackageName]
