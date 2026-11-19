@@ -1,7 +1,7 @@
 ---
 title: "Dependencies: npm packages and overrides in Wasp"
 sidebar_label: Dependencies
-description: Add npm packages to a Wasp project in package.json, override a version Wasp manages with npm overrides or wasp.overriddenDeps, and change the 7-day min-release-age.
+description: Add npm packages to a Wasp project in package.json, install the packages Wasp features need, override a version Wasp manages with npm overrides, and change the 7-day min-release-age.
 ---
 
 # Dependencies
@@ -18,15 +18,38 @@ This command will add the package in the `dependencies` section of your `package
 
 You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't remove them.
 
+One of them is `wasp`, with the value `file:.wasp/out/sdk/wasp`. It points at the code Wasp generates for your app, and your `wasp/...` imports resolve to it.
+
 ### Using Packages that are Already Used by Wasp Internally
 
 Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run <InlineWaspCommand command="wasp deps" /> to see them.
 
 npm has to install peer dependencies for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
 
-The generated server also lists a few dependencies of its own, like `socket.io` when you use WebSockets. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
+### Packages that Wasp features need {#feature-packages}
 
-#### Overriding Wasp's Dependencies (Advanced)
+Some Wasp features need extra packages, like `lucia` for auth. Wasp doesn't add them to every app. You install them when you start using the feature:
+
+| Feature | Packages |
+| --- | --- |
+| [Auth](../features/auth/overview.md) | `lucia` |
+| [Social auth](../features/auth/social-auth/overview.md) | `lucia`, `arctic` |
+| [Jobs](../features/jobs.md) | `pg-boss` |
+| [WebSockets](../features/websockets.md) | `socket.io`, `socket.io-client`, `@socket.io/component-emitter` |
+| [SMTP email sender](../features/email.md#smtp) | `nodemailer`, `@types/nodemailer` |
+| [Mailgun email sender](../features/email.md#mailgun) | `mailgun.js` |
+| [SendGrid email sender](../features/email.md#sendgrid) | `@sendgrid/mail` |
+| [Resend email sender](../features/email.md#resend) | `resend` |
+
+Each feature's page has the command that installs its packages. If you forget one, Wasp stops with an error that names the package and the command:
+
+```
+Your app uses jobs, so it needs pg-boss. Run `npm install "pg-boss@^8.4.2"`.
+```
+
+These packages are optional peer dependencies of `@wasp/wasp`. npm refuses a version that conflicts with the one Wasp requires, like it does for React or Prisma.
+
+### Overriding Wasp's Dependencies (Advanced)
 
 If you need to use a different version of a Wasp-managed dependency, you can override it. This is an advanced feature intended for:
 
@@ -51,7 +74,7 @@ If you find the need to override any dependency, we'd appreciate for you to [pos
 
 :::
 
-To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
+To override a dependency that Wasp uses, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 <Tabs>
   <TabItem value="before" label="Before">
@@ -80,23 +103,6 @@ To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](h
     ```
   </TabItem>
 </Tabs>
-
-To override a dependency that the generated server lists, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
-
-```json title="package.json"
-{
-  "dependencies": {
-    "socket.io": "^4.8.0"
-  },
-  "wasp": {
-    "overriddenDeps": {
-      "socket.io": "^4.6.1"
-    }
-  }
-}
-```
-
-By declaring this, you acknowledge you're deviating from Wasp's tested version. When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
 
 ### Supply Chain Protection
 

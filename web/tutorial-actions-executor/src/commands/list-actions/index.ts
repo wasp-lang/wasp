@@ -57,6 +57,7 @@ function displayActionsForFile(actions: Action[]): void {
     INIT_APP: chalk.yellow,
     APPLY_PATCH: chalk.green,
     MIGRATE_DB: chalk.blue,
+    INSTALL_PACKAGES: chalk.cyan,
   };
 
   actions.forEach((action) => {
