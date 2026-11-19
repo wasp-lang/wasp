@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "fafa50e3721989e359e2b5c58a5f063b8ebdbb85223043214593de58baa573be"
+        "ab640835c704543f252ab785c3e973983fada59502007a70ac9a82b9cd8b434f"
     ],
     [
         [
@@ -25,35 +25,35 @@
             "file",
             "libs/auth/wasp-lib-auth-0.27.0.tgz"
         ],
-        "bec87999ce5bc31582e7f2435d7878afcd06965b5b3d74fbff79e5ed8445a0c3"
+        "3074a952f57ccad596b6a24ff9646ef2fbab39e22b313ae06b884324f47bcd92"
     ],
     [
         [
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "f1fcccbe1c90eec56116281b7306a96bfb66778eec936956150be84aed0728b0"
+        "5c1d7c13182e40c662c0f8743b2297467086b825c41af07afdaaf2eec6ac795e"
     ],
     [
         [
             "file",
             "libs/test-utils/wasp-lib-test-utils-0.27.0.tgz"
         ],
-        "ef440a29d3d296ed4617ebbfc85435d0b79d2733bdd45cf9654a275ca0029823"
+        "f34e265ab908f4780e6290882eb0a47b8f5025fa2eaf09b33c56a2bdf425ccdc"
     ],
     [
         [
             "file",
             "libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz"
         ],
-        "5807b0dbbe1df22138a551560399b1131085815d9de390c1779d3b110b962d56"
+        "df16313ed5f0aea191f51b631556c568c009bc55a16525ef39bfd9ec02bcbb5c"
     ],
     [
         [
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "065a9e07a5f0e9950c9de8760b1f711f0e099beb9564257ff68fe46838685ac7"
+        "cee7e189c197b77391278e5fa20d9d1f0aa504e9a03a7e32b7ca1f17b7f19ea8"
     ],
     [
         [
@@ -275,9 +275,16 @@
     [
         [
             "file",
+            "sdk/wasp/errors/index.ts"
+        ],
+        "38311cca15110fc87b4ae93e7632491a41b3e19990c52d4906f991194fd265f5"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/package.json"
         ],
-        "4026ca88b16a992a3e8a5a09e3e95c741544d87edd41bb3201d42cd0e81d157d"
+        "39205a19fa55460d364916c56c1b30eaf4c3936563968f006bd938b5794d66a7"
     ],
     [
         [
@@ -291,7 +298,7 @@
             "file",
             "sdk/wasp/scripts/copy-assets.js"
         ],
-        "0b7e3d7a0238faae3d97c43c50dfcbcfb088b769632046048ff78f8970e1d55b"
+        "2adba4b8fee21018494b854b81303df0e7ecbdc3cc1d75678732b25781c91837"
     ],
     [
         [
@@ -340,35 +347,35 @@
             "file",
             "sdk/wasp/server/errors/httpErrors.ts"
         ],
-        "2afe5d218b2e100871472f9bae27afd2de972c84e7c4d26f280b83dc30bf0b1d"
+        "30d0f9907830936c5258a85d360d2324c493b987d1a2cd4aba8cf3b2740c605f"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "afa8c3a0c3c4f65038dd2bc15c70ce25d002882633769266259ec1c250f907b6"
+        "db8094a3a4e7105661da08036e78959fe7a2c60df01170c27b0bad20a7862dd4"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/unknownErrors.ts"
         ],
-        "7c5787a2fc4b5cb862c8d5004061892627006c7688b383ee39ad69c3d1c199d1"
+        "c0fac4e859ae7e61a73584ce6fc5c34cbad7a1c64e4579060fa89ae209ae49dc"
     ],
     [
         [
             "file",
             "sdk/wasp/server/errors/utils.ts"
         ],
-        "6ddbdd142ee3764cd9a6b928da9d38b413da6b080cd0258ba8f966d9762cb6f8"
+        "812cbe52b0836ce9ed95a0145e6f30febafdec13bf0c95593c112331b49c34cd"
     ],
     [
         [
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "db84e4671930ff007c64ea3850b1eaccd2647856ae96e5ea82ac2be6b8ec90af"
+        "f05ecb73ff9650c9d298c4b538133bc2ed90accbe697132e9fccec4539f872d9"
     ],
     [
         [
@@ -515,7 +522,7 @@
             "file",
             "server/package.json"
         ],
-        "aad350fb114e518b93802beee20388f552f3b39dddb09e99df306992b8a85776"
+        "1bcec09685bae89975522a8a9e0d3a72f65b20fc899b236d02d7f2bb164c5778"
     ],
     [
         [
@@ -606,7 +613,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "35e1a119e2e59dbf95d613db38e466fcd6611067b7ecf10b3aba9bcbfedf70a8"
+        "25058d170dc4ad7b3f4c2b6f1a1482ef4f558e2495ea3446584a34d8db4cf3b0"
     ],
     [
         [
