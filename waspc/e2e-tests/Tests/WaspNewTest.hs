@@ -47,7 +47,7 @@ waspNewTest =
         ( sequence
             [ assertCommandOutputContainsAll
                 (("DATABASE_URL=file:./unrelated.db " ++) <$> createTestWaspProject basicStarterTemplate)
-                ["Migration skipped", "wasp db migrate-dev"],
+                ["Migration skipped", "npm run wasp -- db migrate-dev"],
               inTestWaspProjectDir [assertDirectoryDoesNotExist dbMigrationsDirInWaspProjectDir]
             ]
         ),

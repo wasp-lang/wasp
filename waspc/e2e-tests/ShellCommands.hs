@@ -41,7 +41,7 @@ module ShellCommands
     waspCliShowBuildJson,
     waspCliDeps,
     waspCliDeploy,
-    waspCliInstall,
+    npmInstall,
     assertCommandOutputContains,
     assertCommandOutputContainsAll,
     skipIfDockerDisabled,
@@ -290,8 +290,8 @@ waspCliDockerfile = return "$WASP_CLI_CMD dockerfile"
 waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStudio = return "$WASP_CLI_CMD studio"
 
-waspCliInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliInstall = return "$WASP_CLI_CMD install"
+npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
+npmInstall = return "npm install"
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
