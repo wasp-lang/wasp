@@ -8,6 +8,7 @@ import ShellCommands
     ShellCommandBuilder,
     WaspProjectContext (..),
     appendToFile,
+    appendToPrismaFile,
     assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
@@ -92,6 +93,37 @@ waspCompileTest =
                   waspCliCompile
                 ]
             ]
+        ),
+      TestCase
+        "fail-until-feature-packages-are-installed"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile prismaUserModel,
+                  replaceMainWaspTsFile mainWaspTsWithAuth,
+                  assertCommandOutputContains
+                    (("! " ++) <$> waspCliCompile)
+                    "npm install \"lucia@",
+                  return "npm pkg set 'dependencies.lucia=^3.0.1'",
+                  assertCommandOutputContains
+                    (("! " ++) <$> waspCliCompile)
+                    "not installed: lucia",
+                  return "npm install",
+                  waspCliCompile
+                ]
+            ]
+        ),
+      TestCase
+        "fail-generated-code-listed-as-npm-workspace"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ return "npm pkg set 'workspaces[0]=.wasp/out/*'",
+                  assertCommandOutputContains
+                    (("! " ++) <$> waspCliCompile)
+                    "no longer an npm workspace"
+                ]
+            ]
         )
     ]
   where
@@ -132,6 +164,34 @@ waspCompileTest =
             return <div>{tasks?.map((task) => <p key={task.id}>{task.id}</p>)}</div>;
           }
         |]
+
+    prismaUserModel :: T.Text
+    prismaUserModel =
+      [trimming|
+        model User {
+          id Int @id @default(autoincrement())
+        }
+      |]
+
+    mainWaspTsWithAuth :: T.Text
+    mainWaspTsWithAuth =
+      [trimming|
+        import { app, page, route } from "@wasp/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+
+        export default app({
+          name: "featurePackages",
+          title: "Feature packages",
+          auth: {
+            userEntity: "User",
+            methods: {
+              usernameAndPassword: {},
+            },
+            onAuthFailedRedirectTo: "/",
+          },
+          spec: [route("RootRoute", "/", page(MainPage))],
+        });
+      |]
 
     mainWaspTsWithQuery :: T.Text
     mainWaspTsWithQuery =
