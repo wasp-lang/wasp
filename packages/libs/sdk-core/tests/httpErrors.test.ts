@@ -40,7 +40,7 @@ describe("HttpError", () => {
 
   it.each([200, 399, 600, 404.5])("rejects the status code %d", (status) => {
     expect(() => new HttpError(status)).toThrow(
-      "status has to be an integer in the range [400, 600).",
+      "`status` has to be an integer in the range [400, 600).",
     );
   });
 
@@ -104,7 +104,7 @@ describe("HttpError", () => {
     const response = new Response(null, { status: 200 });
 
     expect(() => new HttpError(404, "Not found", { response })).toThrow(
-      "The status of the response has to be in the range [400, 600).",
+      "`options.response.status` has to be an integer in the range [400, 600).",
     );
   });
 });

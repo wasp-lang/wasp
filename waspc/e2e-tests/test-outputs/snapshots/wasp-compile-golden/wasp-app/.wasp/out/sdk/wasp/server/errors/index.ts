@@ -45,7 +45,8 @@ export function sendErrorResponse(response: Response, error: unknown): void {
 
   const { headers } = httpError.response;
   for (const [name, value] of headers) {
-    // `Set-Cookie` can repeat, so we set all of its values at once below.
+    // `Headers` joins repeated headers into one value, except `Set-Cookie`,
+    // whose values only `getSetCookie` returns separately.
     if (name !== "set-cookie") {
       response.set(name, value);
     }
