@@ -13,24 +13,16 @@ spec_NpmDepsForPackageEquality = do
             ("b", "2")
           ]
 
-  let waspPeerDeps =
-        D.fromList
-          [ ("peer1", "1.0.0"),
-            ("peer2", "2.0.0")
-          ]
-
   it
     "NpmDependencies are equal even if dependencies have different order"
     $ do
       NpmDepsForPackage
         { dependencies = waspDeps,
-          devDependencies = [],
-          peerDependencies = []
+          devDependencies = []
         }
       `shouldBe` NpmDepsForPackage
         { dependencies = reverse waspDeps,
-          devDependencies = [],
-          peerDependencies = []
+          devDependencies = []
         }
 
   it
@@ -38,27 +30,11 @@ spec_NpmDepsForPackageEquality = do
     $ do
       NpmDepsForPackage
         { dependencies = waspDeps,
-          devDependencies = reverse waspDeps,
-          peerDependencies = []
+          devDependencies = reverse waspDeps
         }
       `shouldBe` NpmDepsForPackage
         { dependencies = reverse waspDeps,
-          devDependencies = waspDeps,
-          peerDependencies = []
-        }
-
-  it
-    "NpmDependencies are equal even if peer dependencies have different order"
-    $ do
-      NpmDepsForPackage
-        { dependencies = [],
-          devDependencies = [],
-          peerDependencies = waspPeerDeps
-        }
-      `shouldBe` NpmDepsForPackage
-        { dependencies = [],
-          devDependencies = [],
-          peerDependencies = reverse waspPeerDeps
+          devDependencies = waspDeps
         }
 
   it
@@ -66,36 +42,12 @@ spec_NpmDepsForPackageEquality = do
     $ do
       NpmDepsForPackage
         { dependencies = waspDeps,
-          devDependencies = [],
-          peerDependencies = []
+          devDependencies = []
         }
       `shouldNotBe` NpmDepsForPackage
         { dependencies = [],
-          devDependencies = [],
-          peerDependencies = []
+          devDependencies = []
         }
-
-spec_getPeerDependenciesPackageJsonEntry :: Spec
-spec_getPeerDependenciesPackageJsonEntry = do
-  it "generates correct package.json entry for peer dependencies" $ do
-    let deps =
-          NpmDepsForPackage
-            { dependencies = [],
-              devDependencies = [],
-              peerDependencies = D.fromList [("react", "^18.0.0"), ("@tanstack/react-query", "^4.0.0")]
-            }
-    getPeerDependenciesPackageJsonEntry deps
-      `shouldBe` "\"peerDependencies\": {\"react\": \"^18.0.0\",\n  \"@tanstack/react-query\": \"^4.0.0\"\n}"
-
-  it "generates correct package.json entry for empty peer dependencies" $ do
-    let deps =
-          NpmDepsForPackage
-            { dependencies = [],
-              devDependencies = [],
-              peerDependencies = []
-            }
-    getPeerDependenciesPackageJsonEntry deps
-      `shouldBe` "\"peerDependencies\": {\n}"
 
 spec_mergeWaspAndUserDeps :: Spec
 spec_mergeWaspAndUserDeps = do
@@ -131,8 +83,7 @@ makeWaspDeps deps devDeps =
   NpmDepsFromWasp $
     NpmDepsForPackage
       { dependencies = D.fromList deps,
-        devDependencies = D.fromList devDeps,
-        peerDependencies = []
+        devDependencies = D.fromList devDeps
       }
 
 makeUserDeps :: [(String, String)] -> [(String, String)] -> NpmDepsFromUser
@@ -140,8 +91,7 @@ makeUserDeps deps devDeps =
   NpmDepsFromUser $
     NpmDepsForPackage
       { dependencies = D.fromList deps,
-        devDependencies = D.fromList devDeps,
-        peerDependencies = []
+        devDependencies = D.fromList devDeps
       }
 
 sortedDeps :: [D.Dependency] -> [(String, String)]
