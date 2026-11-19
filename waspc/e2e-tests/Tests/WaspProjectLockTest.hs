@@ -3,22 +3,23 @@ module Tests.WaspProjectLockTest (waspProjectLockTest) where
 import Control.Monad.Reader (ask)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
+import qualified Data.Text as T
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext (..),
+    appendToFile,
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliClean,
     waspCliCompile,
     (~&&),
   )
-import StrongPath (fromAbsFile, (</>))
+import StrongPath (File', Path', Rel, fromAbsFile, fromRelFile, relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
-import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (installedNpmDepsLogFileInGeneratedAppDir)
-import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir)
 
 waspProjectLockTest :: Test
 waspProjectLockTest =
@@ -28,18 +29,18 @@ waspProjectLockTest =
         "fail-while-another-wasp-command-holds-the-lock"
         -- To test the lock we need a Wasp command that holds it for as long as
         -- we want. We get that by running `wasp compile` in the background and
-        -- stalling the `npm install` it does after generating the app, via an
-        -- npm preinstall hook that waits for a signal file we create. In short:
+        -- stalling it while it reads the Wasp Spec, with code in `main.wasp.ts`
+        -- that waits for a signal file we create. In short:
         --   1. `wasp compile` starts, acquires the lock, and gets stuck inside
-        --      `npm install`, so it keeps holding the lock.
+        --      `main.wasp.ts`, so it keeps holding the lock.
         --   2. Meanwhile, `wasp clean` must fail and name the holder's PID.
-        --   3. We signal the hook to stop waiting, so `wasp compile` finishes
+        --   3. We signal the code to stop waiting, so `wasp compile` finishes
         --      and drops the lock, and `wasp clean` works again.
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ return addBlockingNpmPreinstallHook,
-                  startWaspCompileInBackground,
+                [ addBlockingCodeToWaspSpec,
+                  return startWaspCompileInBackground,
                   return waitForLockToBeHeld,
                   assertWaspCleanFailsMentioningLockHolder,
                   return releaseLockAndAwaitWaspCompile,
@@ -76,8 +77,8 @@ waspProjectLockTest =
                 [ -- The db command won't compile the project while the lock
                   -- is held, so the generated app must already be there.
                   waspCliCompile,
-                  return addBlockingNpmPreinstallHook,
-                  startWaspCompileInBackground,
+                  addBlockingCodeToWaspSpec,
+                  return startWaspCompileInBackground,
                   return waitForLockToBeHeld,
                   -- `wasp compile` is not a watcher, so the db command waits for
                   -- it to finish, and gives up after a while.
@@ -99,37 +100,34 @@ waspProjectLockTest =
         )
     ]
   where
-    -- Stalls the `npm install` of `wasp compile` until
+    -- Stalls the first Wasp command that reads the Wasp Spec until
     -- 'releaseLockAndAwaitWaspCompile' signals it, or ~120s pass. Its marker
-    -- file tells us `wasp compile` holds the lock.
-    addBlockingNpmPreinstallHook :: ShellCommand
-    addBlockingNpmPreinstallHook =
-      "npm pkg set 'scripts.preinstall=" ++ preinstallHookScript ++ "'"
-
-    preinstallHookScript :: String
-    preinstallHookScript =
-      "touch "
-        ++ lockAcquiredMarkerFile
-        ++ " && i=0 && until [ -f "
-        ++ releaseLockSignalFile
-        ++ " ]; do i=$((i+1)); [ \"$i\" -lt 600 ] || exit 1; sleep 0.2; done"
-
-    startWaspCompileInBackground :: ShellCommandBuilder WaspProjectContext ShellCommand
-    startWaspCompileInBackground = do
+    -- file tells us `wasp compile` holds the lock. Later commands find the
+    -- marker and don't wait.
+    addBlockingCodeToWaspSpec :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addBlockingCodeToWaspSpec = do
       context <- ask
-      compileCommand <- waspCliCompile
-      let installedNpmDepsLogFile =
-            context.waspProjectDir
-              </> generatedAppDirInWaspProjectDir
-              </> installedNpmDepsLogFileInGeneratedAppDir
-      return $
-        -- Deleting the installed deps log makes `wasp compile` run `npm install` again.
-        ("rm -f " ++ fromAbsFile installedNpmDepsLogFile)
-          ~&& ("{ " ++ compileCommand ++ " > .wasp-e2e-compile.log 2>&1 & }")
-          ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
+      let jsStringOfFileInProjectDir file = show $ fromAbsFile $ context.waspProjectDir </> file
+      appendToFile "main.wasp.ts" $
+        T.unlines
+          [ "import { execFileSync as waspE2eExecFileSync } from 'node:child_process';",
+            "import { existsSync as waspE2eExistsSync, writeFileSync as waspE2eWriteFileSync } from 'node:fs';",
+            "if (!waspE2eExistsSync(" <> T.pack (jsStringOfFileInProjectDir lockAcquiredMarkerFile) <> ")) {",
+            "  waspE2eWriteFileSync(" <> T.pack (jsStringOfFileInProjectDir lockAcquiredMarkerFile) <> ", '');",
+            "  for (let i = 0; !waspE2eExistsSync(" <> T.pack (jsStringOfFileInProjectDir releaseLockSignalFile) <> "); i++) {",
+            "    if (i >= 600) throw new Error('Nobody released the lock.');",
+            "    waspE2eExecFileSync('sleep', ['0.2']);",
+            "  }",
+            "}"
+          ]
+
+    startWaspCompileInBackground :: ShellCommand
+    startWaspCompileInBackground =
+      "{ $WASP_CLI_CMD compile > .wasp-e2e-compile.log 2>&1 & }"
+        ~&& "WASP_E2E_LOCK_HOLDER_PID=$!"
 
     waitForLockToBeHeld :: ShellCommand
-    waitForLockToBeHeld = waitUntil $ "[ -f " ++ lockAcquiredMarkerFile ++ " ]"
+    waitForLockToBeHeld = waitUntil $ "[ -f " ++ fromRelFile lockAcquiredMarkerFile ++ " ]"
 
     -- Polls the given condition for up to ~120s.
     waitUntil :: ShellCommand -> ShellCommand
@@ -188,12 +186,12 @@ waspProjectLockTest =
 
     releaseLockAndAwaitWaspCompile :: ShellCommand
     releaseLockAndAwaitWaspCompile =
-      "touch " ++ releaseLockSignalFile ++ " && wait \"$WASP_E2E_LOCK_HOLDER_PID\""
+      "touch " ++ fromRelFile releaseLockSignalFile ++ " && wait \"$WASP_E2E_LOCK_HOLDER_PID\""
 
-    lockAcquiredMarkerFile :: FilePath
-    lockAcquiredMarkerFile = ".wasp-e2e-lock-acquired"
+    lockAcquiredMarkerFile :: Path' (Rel WaspProjectDir) File'
+    lockAcquiredMarkerFile = [relfile|.wasp-e2e-lock-acquired|]
 
-    -- Created by the test to tell the preinstall hook to stop waiting, which
-    -- lets `wasp compile` finish and release the lock.
-    releaseLockSignalFile :: FilePath
-    releaseLockSignalFile = ".wasp-e2e-release-lock"
+    -- Created by the test to tell the code in `main.wasp.ts` to stop waiting,
+    -- which lets `wasp compile` finish and release the lock.
+    releaseLockSignalFile :: Path' (Rel WaspProjectDir) File'
+    releaseLockSignalFile = [relfile|.wasp-e2e-release-lock|]
