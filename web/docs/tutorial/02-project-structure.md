@@ -95,7 +95,7 @@ The file exports your app's top-level configuration and a collection of specific
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 // This is a reference to your MainPage component.
 // Read more about how Wasp references your code in the section below.
 import { MainPage } from "./src/MainPage" with { type: "ref" }

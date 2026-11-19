@@ -144,6 +144,9 @@
 
 ## API
 - [@wasp/spec](https://wasp.sh/docs/api/@wasp/spec.md)
+- [@wasp/wasp](https://wasp.sh/docs/api/@wasp/wasp.md)
+- [@wasp/wasp/test](https://wasp.sh/docs/api/@wasp/wasp/test.md)
+- [@wasp/wasp/vite](https://wasp.sh/docs/api/@wasp/wasp/vite.md)
 - [wasp](https://wasp.sh/docs/api/wasp.md)
 - [wasp/auth](https://wasp.sh/docs/api/wasp/auth.md)
 - [wasp/auth/providers](https://wasp.sh/docs/api/wasp/auth/providers.md)
@@ -154,7 +157,6 @@
 - [wasp/client/operations](https://wasp.sh/docs/api/wasp/client/operations.md)
 - [wasp/client/router](https://wasp.sh/docs/api/wasp/client/router.md)
 - [wasp/client/test](https://wasp.sh/docs/api/wasp/client/test.md)
-- [wasp/client/vite](https://wasp.sh/docs/api/wasp/client/vite.md)
 - [wasp/client/webSocket](https://wasp.sh/docs/api/wasp/client/webSocket.md)
 - [wasp/entities](https://wasp.sh/docs/api/wasp/entities.md)
 - [wasp/env](https://wasp.sh/docs/api/wasp/env.md)
@@ -167,4 +169,3 @@
 - [wasp/server/jobs](https://wasp.sh/docs/api/wasp/server/jobs.md)
 - [wasp/server/operations](https://wasp.sh/docs/api/wasp/server/operations.md)
 - [wasp/server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket.md)
-- [wasp/test](https://wasp.sh/docs/api/wasp/test.md)

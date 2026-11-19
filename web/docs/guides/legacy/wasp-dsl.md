@@ -66,7 +66,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp/spec";
+    import { app, page, route } from "wasp/spec";
     import { MainPage } from "./src/MainPage" with { type: "ref" };
 
     export default app({
@@ -105,7 +105,7 @@ The Wasp Spec has no `wasp` field. The `@wasp/wasp` version in `package.json` se
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { action, app, query } from "@wasp/spec";
+    import { action, app, query } from "wasp/spec";
     import { getTasks } from "./src/queries" with { type: "ref" };
     import { createTask } from "./src/actions" with { type: "ref" };
 
@@ -144,7 +144,7 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from "@wasp/spec";
+    import { api, apiNamespace, app } from "wasp/spec";
     import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
     export default app({
@@ -180,7 +180,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from "@wasp/spec";
+    import { app, job } from "wasp/spec";
     import { foo } from "./src/jobs/bar" with { type: "ref" };
 
     export default app({
@@ -214,7 +214,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp/spec";
+    import { app, crud } from "wasp/spec";
     import { createTask } from "./src/actions" with { type: "ref" };
 
     export default app({
@@ -257,7 +257,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp/spec";
+    import { app } from "wasp/spec";
     import App from "./src/App" with { type: "ref" };
 
     export default app({

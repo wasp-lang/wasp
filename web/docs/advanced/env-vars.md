@@ -345,7 +345,7 @@ Take a look at an example of defining env vars validation:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({

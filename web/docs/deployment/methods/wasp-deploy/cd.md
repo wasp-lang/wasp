@@ -29,6 +29,8 @@ The workflow needs to include the following steps:
 3. Install any provider-specific dependencies
 4. Deploy the application using `npm run wasp -- deploy <provider> deploy`
 
+The examples on this page use npm. With pnpm or Bun, use their commands instead, e.g. `pnpm install --frozen-lockfile` for `npm ci`.
+
 To be able to deploy your apps to the deployment providers, you need to set **provider-specific API keys** in the
 environment variables. How you set environment variables depends on the CI/CD platform you are using. We'll show you how to do this for [Github Actions](#github-actions-workflow) in the next section.
 

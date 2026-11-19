@@ -14,6 +14,8 @@ Setting up a CI/CD pipeline is an optional but highly recommended part of deploy
 
 ## Running tests in CI
 
+The examples on this page use npm. With pnpm or Bun, use their commands instead, e.g. `pnpm install --frozen-lockfile` for `npm ci`.
+
 ### End to end tests
 
 End to end (e2e) tests simulate real user using your app and you can test different scenarios like login, adding items to cart, etc. Writing end to end tests frees you from
