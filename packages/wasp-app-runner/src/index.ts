@@ -12,7 +12,8 @@ import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { createLogger } from "./logging.js";
-import { waspInfo, waspInstall } from "./waspCli.js";
+import { npmInstall } from "./npm.js";
+import { waspInfo } from "./waspCli.js";
 
 const logger = createLogger("main");
 
@@ -50,10 +51,7 @@ async function runWaspApp({
   await checkDependencies();
 
   if (await isWaspTypescriptConfigProject(pathToApp)) {
-    await waspInstall({
-      waspCliCmd,
-      pathToApp,
-    });
+    await npmInstall({ pathToApp });
   }
 
   const { appName, dbType } = await waspInfo({

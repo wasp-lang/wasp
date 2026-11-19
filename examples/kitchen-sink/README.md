@@ -11,8 +11,13 @@ Any new or modified features should be added and tested here whenever possible.
 
 ## Setup
 
+<!-- TODO(#2262): Once the examples join the pnpm workspace, `pnpm install` at the repo root replaces this. -->
+
+The app depends on the unreleased Wasp in this repo, so build Wasp from source (see [`waspc/README.md`](../../waspc/README.md)) and install against it. Plain `npm install` fails on the stale lockfile entries of Wasp's npm packages:
+
 ```sh
-wasp install
+mise run build
+mise run reinstall-dev-wasp-app-deps
 ```
 
 ### Environment Variables
@@ -49,19 +54,19 @@ The `kitchen-sink` app runs like any other Wasp application.
 1. Start the database:
 
 ```sh
-wasp start db
+npm run wasp -- start db
 ```
 
 2. Migrate the database (if needed, in a separate terminal):
 
 ```sh
-wasp db migrate-dev
+npm run wasp -- db migrate-dev
 ```
 
 3. Start the app (in a separate terminal):
 
 ```sh
-wasp start
+npm run dev
 ```
 
 4. Open `localhost:3000` in the browser to see the app!
