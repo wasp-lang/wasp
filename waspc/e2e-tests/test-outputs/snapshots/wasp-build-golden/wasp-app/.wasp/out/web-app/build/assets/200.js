@@ -184,8 +184,8 @@ var HttpError = class extends Error {
 		super(message, options);
 		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
 		this.name = "HttpError";
-		if (!isHttpErrorStatusCode(status)) throw new Error("status has to be an integer in the range [400, 600).");
-		if (options.response && !isHttpErrorStatusCode(options.response.status)) throw new Error("The status of the response has to be in the range [400, 600).");
+		if (!isHttpErrorStatusCode(status)) throw new Error("`status` has to be an integer in the range [400, 600).");
+		if (options.response && !isHttpErrorStatusCode(options.response.status)) throw new Error("`options.response.status` has to be an integer in the range [400, 600).");
 		throwIfUnknownOption(options);
 		this.data = options.data;
 		this.response = options.response ?? Response.json(toHttpErrorBody(this), {

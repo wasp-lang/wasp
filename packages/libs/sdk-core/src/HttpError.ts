@@ -102,15 +102,15 @@ export class HttpError<
     }
 
     // We don't use `this.constructor.name` because minifiers rename classes.
-    // Classes that extend `HttpError` set their own name.
+    // A class that extends `HttpError` can set its own name.
     this.name = "HttpError";
 
     if (!isHttpErrorStatusCode(status)) {
-      throw new Error("status has to be an integer in the range [400, 600).");
+      throw new Error("`status` has to be an integer in the range [400, 600).");
     }
     if (options.response && !isHttpErrorStatusCode(options.response.status)) {
       throw new Error(
-        "The status of the response has to be in the range [400, 600).",
+        "`options.response.status` has to be an integer in the range [400, 600).",
       );
     }
     throwIfUnknownOption(options);
