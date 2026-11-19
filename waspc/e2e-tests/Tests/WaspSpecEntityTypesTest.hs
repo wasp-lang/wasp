@@ -28,6 +28,7 @@ waspSpecEntityTypesTest =
                 [ appendToPrismaFile prismaUserModel,
                   replaceMainWaspTsFile $ mainWaspTs validEntityName,
                   compileWaspMainTsFiles,
+                  installAuthPackages,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
                   compileWaspMainTsFiles
                 ]
@@ -54,6 +55,7 @@ waspSpecEntityTypesTest =
               inTestWaspProjectDir
                 [ appendToPrismaFile prismaUserModel,
                   replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  installAuthPackages,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
                   replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
                   assertCommandOutputContains
@@ -66,6 +68,10 @@ waspSpecEntityTypesTest =
   where
     compileWaspMainTsFiles :: ShellCommandBuilder WaspProjectContext ShellCommand
     compileWaspMainTsFiles = return "npx tsc --noEmit -p tsconfig.wasp.json"
+
+    -- The Wasp Spec below turns on auth, which needs `lucia` in the project.
+    installAuthPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
+    installAuthPackages = return "npm install 'lucia@^3.0.1'"
 
     prismaUserModel :: T.Text
     prismaUserModel =
