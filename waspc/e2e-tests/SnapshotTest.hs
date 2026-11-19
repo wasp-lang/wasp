@@ -190,11 +190,10 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
 
     -- Normalizes the JSON files that differ between machines. It reformats
     -- @package.json@ files (ref: https://github.com/wasp-lang/wasp/issues/482),
-    -- and hides the dev packages dir in them and in the installed npm deps log.
+    -- and hides the dev packages dir in them.
     normalizeJsonFiles :: [Path' Abs (File file)] -> IO ()
-    normalizeJsonFiles snapshotFiles = do
+    normalizeJsonFiles snapshotFiles =
       mapM_ (normalizeJsonFile formatPackageJson) $ filter isPackageJsonFile snapshotFiles
-      mapM_ (normalizeJsonFile formatInstalledNpmDepsLog) $ filter isInstalledNpmDepsLogFile snapshotFiles
       where
         normalizeJsonFile :: (Aeson.Value -> BSL.ByteString) -> Path' Abs (File file) -> IO ()
         normalizeJsonFile format jsonFile =
@@ -203,8 +202,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
 
         -- The dev tarball paths are absolute, so their dir depends on where the
         -- repo is checked out. The file names stay, so the snapshot shows which
-        -- tarball each package points at. The lib tarball paths are relative
-        -- and stay as they are.
+        -- tarball each package points at.
         -- TODO: Also match Windows absolute paths (`file:C:/...`) once we run
         -- the e2e snapshot tests on Windows (`main` skips them there).
         hideDevWaspNpmPackagesDir :: Aeson.Value -> Aeson.Value
@@ -218,9 +216,6 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
         isPackageJsonFile :: Path' Abs (File file) -> Bool
         isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
 
-        isInstalledNpmDepsLogFile :: Path' Abs (File file) -> Bool
-        isInstalledNpmDepsLogFile = equalFilePath "installedNpmDepsLog.json" . takeFileName . SP.fromAbsFile
-
         unsafeDecodeJson :: BS.ByteString -> Aeson.Value
         unsafeDecodeJson = fromJust . Aeson.decodeStrict
 
@@ -233,10 +228,6 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                 AesonPretty.confNumFormat = AesonPretty.Generic,
                 AesonPretty.confTrailingNewline = True
               }
-
-        -- Same encoding "Wasp.Generator.NpmInstall.InstalledNpmDepsLog" uses to write the file.
-        formatInstalledNpmDepsLog :: Aeson.Value -> BSL.ByteString
-        formatInstalledNpmDepsLog = AesonPretty.encodePretty
 
 defineSnapshotTestCases ::
   Path' Abs (Dir SnapshotDir) ->
