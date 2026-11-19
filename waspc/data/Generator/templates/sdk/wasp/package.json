@@ -81,7 +81,6 @@
     "./client/router": "./dist/client/router/index.js",
     {=! Users: Vitest helpers. Has optional peer dependencies: vitest, msw, and @testing-library/react. =}
     "./client/test": "./dist/client/test/index.js",
-    "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     {=! Users: entity types. =}
     {=! Server: the auth entity type. =}
@@ -106,8 +105,6 @@
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}
     {=! Server: type ServerType. =}
     "./server/webSocket": "./dist/server/webSocket/index.js",
-    {=! Users: the Vitest config helper. =}
-    "./test": "./dist/test/index.js",
 
     {=!
       ===============================================================

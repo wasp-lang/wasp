@@ -61,7 +61,7 @@ validateViteConfig waspDir =
         |]
 
     waspPluginImportModule :: T.Text
-    waspPluginImportModule = "wasp/client/vite"
+    waspPluginImportModule = "@wasp/wasp/vite"
 
     viteConfigDocsUrl :: T.Text
     viteConfigDocsUrl = "https://wasp.sh/docs/advanced/client-customization/custom-vite-config#required-configuration"
