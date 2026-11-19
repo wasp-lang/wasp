@@ -466,9 +466,9 @@ export const MainPage = () => {
 };
 ```
 
-#### Reading the Error's Request and Response
+#### Reading the Error's `Request` and `Response`
 
-On the client, an `HttpError` also has the response that the server sent. Use it when you need more than the status code, `message`, and `data`, for example to read a response header:
+On the client, an `HttpError` also has the [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) that the server sent. Use it when you need more than the status code, `message`, and `data`, for example to read a response header:
 
 ```ts
 if (error instanceof HttpError && error.status === 429) {
@@ -476,9 +476,9 @@ if (error instanceof HttpError && error.status === 429) {
 }
 ```
 
-The body of the response is already read into `message` and `data`, so don't read it again.
+The body of the `Response` is already read into `message` and `data`, so don't read it again.
 
-To look at the request that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `request` that failed.
+To look at the [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) that failed, use `error.cause`. It is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw, and it has the `Request` as `request`.
 
 When a Query fails, `useQuery` retries it a few times before giving up.
 Client errors like `401` or `404` are the exception: retrying won't change the result, so `useQuery` reports them right away. `408` and `429` are still retried, since they can succeed on a later attempt.
