@@ -112,7 +112,7 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
   );
   if (waspCliPackageJsonPath === undefined) {
     throw new CLIError(
-      `The project's \`@wasp/wasp\` in ${path.dirname(waspPackageJsonPath)} is missing its \`@wasp/cli\` dependency. Run \`npm install\` in the project.`,
+      `The project's \`@wasp/wasp\` in ${path.dirname(waspPackageJsonPath)} is missing its \`@wasp/cli\` dependency. Install the project's packages again.`,
     );
   }
 

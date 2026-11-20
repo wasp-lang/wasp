@@ -16,7 +16,7 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (GeneratedAppIsProduction))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
@@ -26,7 +26,7 @@ import Wasp.Util (checkExitSuccess)
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments buildStartArgsParser $ \args -> do
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
   GeneratedAppIsProduction _ <- require
 
   InWaspProject waspProjectDir <- require

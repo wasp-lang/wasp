@@ -20,7 +20,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
@@ -33,7 +33,7 @@ import qualified Wasp.Util.Interactive as Interactive
 seed :: SeedArgs -> Command ()
 seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCliReady, SdkReady] $ \appSpec projectRunConfig -> do
   InWaspProject waspProjectDir <- require
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
   let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec

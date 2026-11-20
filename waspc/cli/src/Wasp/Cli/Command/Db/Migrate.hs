@@ -12,7 +12,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Command.Require.ValidNodeAndPackageManager (ValidNodeAndPackageManager (ValidNodeAndPackageManager))
 import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Env (EnvVar)
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -30,7 +30,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProject
 migrateDev :: MigrateArgs -> Command ()
 migrateDev migrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig -> do
   InWaspProject waspProjectDir <- require
-  ValidNodeAndNpm <- require
+  ValidNodeAndPackageManager <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
   let generatedAppDir =
         waspProjectDir

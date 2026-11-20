@@ -32,6 +32,7 @@ import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
+import Wasp.Project.PackageManager (makeInstallCommand)
 import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspDependencyLinksScript), waspNpmPackageScriptCommand)
 
 -- | Something a command needs from the generated app, after code generation.
@@ -132,7 +133,9 @@ checkNpmDepsInstalled spec = do
       [ GenericGeneratorError $
           "Your project lists these packages, but they are not installed: "
             ++ intercalate ", " notInstalledPackageNames
-            ++ ". Run `npm install`."
+            ++ ". Run `"
+            ++ makeInstallCommand (AS.packageManager spec)
+            ++ "`."
       ]
 
 -- | The generated code imports the packages that come with \@wasp/wasp. Only

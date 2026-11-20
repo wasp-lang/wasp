@@ -94,6 +94,7 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
             AS.buildType = CompileOptions.buildType compileOptions,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.packageJson = EC._packageJson externalConfigs,
+            AS.packageManager = EC._packageManager externalConfigs,
             AS.srcTsConfigPath = srcTsConfigPath
           }
 
