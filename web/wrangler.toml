@@ -1,0 +1,3 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+
+compatibility_date = "2026-11-20"

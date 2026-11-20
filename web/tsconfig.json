@@ -6,5 +6,5 @@
     "baseUrl": ".",
     "ignoreDeprecations": "6.0"
   },
-  "exclude": ["build"]
+  "exclude": ["build", "functions"]
 }
