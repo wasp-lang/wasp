@@ -53,7 +53,7 @@ npm install lucia
 
 ### Step 3: Set up Authentication
 
-Create an `auth` file in your project and add the necessary files for Lucia to be imported and initialized. It has a bunch of adapters for different databases, and you can check them all [here](https://lucia-auth.com/database/). In this example, we’re going to use SQLite:
+Create an `auth` file in your project and add the necessary files for Lucia to be imported and initialized. It has a bunch of adapters for different databases, and you can check them all [here](https://v3.lucia-auth.com/database/). In this example, we’re going to use SQLite:
 
 ```jsx
 // lib/auth.ts
@@ -520,7 +520,7 @@ page MainPage {
 }
 ```
 
-If you’d like to check this example in more depth, feel free to check this repo here: [wasp/examples/todo-typescript at release · wasp-lang/wasp (github.com)](https://github.com/wasp-lang/wasp/tree/release/examples/todo-typescript).
+If you’d like to check this example in more depth, feel free to check this repo here: [wasp/examples/todo-typescript at release · wasp-lang/wasp (github.com)](https://github.com/wasp-lang/wasp/tree/6ca84469e9557ebd9c3748b1514b6b5ecf809d50/examples/todo-typescript).
 Other great place to check is their documentation, which can be found [here](https://wasp.sh/docs/features/auth/overview). It covers most of what I said here, and even more (e.g. the awesome new [hooks](https://wasp.sh/docs/features/auth/hooks) that came with Wasp v0.14)
 
 ![https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4\&ep=v1\_gifs\_search\&rid=giphy.gif\&ct=g](https://media4.giphy.com/media/nDSlfqf0gn5g4/giphy.gif?cid=7941fdc6oxsddr7p8rjsuavcyq7ugiad8iqdu1ei25urcge4\&ep=v1_gifs_search\&rid=giphy.gif\&ct=g)
@@ -587,7 +587,7 @@ app myApp {
 }
 ```
 
-Implementing this in Next.js with Lucia would take a lot more work, involving a bunch of different stuff from actually sending the emails, to generating the verification tokens and more. They reference this [here](https://lucia-auth.com/guides/email-and-password/email-verification-links), but again, Wasp’s Auth makes the whole process way easier, handling a bunch of the complexity for us while also giving a bunch of other UI components, ready to use, to ease the UI details (e.g. `VerifyEmailForm`, `ForgotPasswordForm` and, `ResetPasswordForm`).
+Implementing this in Next.js with Lucia would take a lot more work, involving a bunch of different stuff from actually sending the emails, to generating the verification tokens and more. They reference this [here](https://v3.lucia-auth.com/guides/email-and-password/email-verification-links), but again, Wasp’s Auth makes the whole process way easier, handling a bunch of the complexity for us while also giving a bunch of other UI components, ready to use, to ease the UI details (e.g. `VerifyEmailForm`, `ForgotPasswordForm` and, `ResetPasswordForm`).
 
 The whole point here is the difference in time and developer experience in order to implement the same scenarios. For the Next.js project with Lucia, you will spend at least a few hours implementing everything if you’re going all by yourself. That same experience translates to no more than 1 hour with Wasp. What to do with the rest of the time? **Implement the important stuff your particular business requires!**
 

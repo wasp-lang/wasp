@@ -357,9 +357,9 @@ Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/inst
 
 **Windows**
 
-With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check it out [here](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
+With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check out [GitHub issue #48](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
 
-In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
+In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. If you prefer a step by step guide, read [our guide to using Wasp in WSL](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl). If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
 
 :::caution
 If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739). If you use VS Code, install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) and open the project from inside WSL (run `code .` in the project directory). Without it, TypeScript support in VS Code won't work on WSL2.
@@ -543,7 +543,7 @@ In this section, we'll guide you through the process of creating a simple Todo a
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
-You can find the complete code of the app we're about to build [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+You can find the complete code of the app we're about to build in [the TodoApp example on GitHub](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 
 ### Creating a Project
 
@@ -1248,7 +1248,7 @@ When you create a new task, the list of tasks is automatically updated to displa
 
 When you declared the `getTasks` and `createTask` operations, you specified that they both use the `Task` entity. So when `createTask` is called, Wasp knows that the data `getTasks` fetches may have changed and automatically updates it in the background. This means that **out of the box, Wasp keeps all your queries in sync with any changes made through Actions**.
 
-This behavior is convenient as a default but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. This feature is tracked [here](https://github.com/wasp-lang/wasp/issues/63).
+This behavior is convenient as a default but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. This feature is tracked in [GitHub issue #63](https://github.com/wasp-lang/wasp/issues/63).
 :::
 
 ### A Second Action
@@ -1547,7 +1547,7 @@ You'll notice that we now have a `User` entity in the database alongside the `Ta
 
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because you haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
-You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](https://wasp.sh/docs/features/auth/entities).
+You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them in [the data entities guide](https://wasp.sh/docs/features/auth/entities).
 
 ### Defining a User-Task Relation
 
@@ -1688,7 +1688,7 @@ This is it, we have a working authentication system, and our Todo app is multi-u
 
 We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp.
 
-You can find the complete code for the TS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
+You can find the complete code for the TS version of the tutorial in [the TodoAppTs example on GitHub](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
 
 You should be ready to learn about more complicated features and go more in-depth with the features already covered. Scroll through the sidebar on the left side of the page to see every feature Wasp has to offer. Or, let your imagination run wild and start building your app! ✨
 
@@ -1701,7 +1701,7 @@ Looking for inspiration?
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](https://wasp.sh/docs/contributing).
+If you would like to contribute or help to build a feature, let us know! You can find more details on [contributing to Wasp](https://wasp.sh/docs/contributing).
 :::
 
 Oh, and do [**subscribe to our newsletter**](https://wasp.sh/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read \:D!
@@ -3207,7 +3207,7 @@ export default app({
 })
 ```
 
-Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API. Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
+Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API. Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about [Wasp's smart cache invalidation](#cache-invalidation).
 
 ```ts title="src/actions.ts"
 import { type CreateTask, type MarkTaskAsDone } from "wasp/server/operations"
@@ -4262,7 +4262,7 @@ generator client {
 // ...
 ```
 
-Read more about preview features in the Prisma docs [here](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about using PostgreSQL extensions [here](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).
+Read more about [Prisma preview features](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about [using PostgreSQL extensions in Prisma](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).
 
 
 ## Features / Auth / Overview
@@ -5439,7 +5439,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 4. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -5486,7 +5486,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -5809,7 +5809,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 4. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -5898,7 +5898,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### 5. Set up an Email Sender
 
@@ -6721,7 +6721,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -6752,7 +6752,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -7111,7 +7111,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -7142,7 +7142,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -7443,7 +7443,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -7474,7 +7474,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -7762,7 +7762,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -7793,7 +7793,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -8122,7 +8122,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -8153,7 +8153,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -8485,7 +8485,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -8516,7 +8516,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -9123,7 +9123,7 @@ The `AuthIdentity` fields:
 - `providerData` is a JSON string that contains additional data about the user from the authentication provider.
 
   - For example, for password based auth, this field contains the user's hashed password.
-  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/prisma/issues/3786).
+  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/orm/issues/3786).
 
 - `authId` is a foreign key to the `Auth` entity.
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
@@ -10395,7 +10395,7 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 ##### Requirements
 
-`PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](https://wasp.sh/docs/features/data/databases#postgresql).
+`PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider in [the Databases guide](https://wasp.sh/docs/features/data/databases#postgresql).
 
 ##### Limitations
 
@@ -12515,7 +12515,7 @@ For example, `imgUrl` will be `/img.png` during development, and become `/assets
 
 This is what you want to use most of the time, as it ensures that the asset file exists and is included in the bundle.
 
-We are using Vite under the hood, read more about importing static assets in Vite's [docs](https://vitejs.dev/guide/assets.html#importing-asset-as-url).
+We are using Vite under the hood, read more about importing static assets in [Vite's guide to importing assets as URLs](https://vitejs.dev/guide/assets.html#importing-asset-as-url).
 
 ### The `public` Directory
 
@@ -13190,9 +13190,9 @@ $ wasp clean
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
-Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
+Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/packages/deploy).
 
-Read more about automatic deployment [here](https://wasp.sh/docs/deployment/methods/wasp-deploy/overview).
+Read more about [automatic deployment](https://wasp.sh/docs/deployment/methods/wasp-deploy/overview).
 
 - `wasp telemetry` displays the status of [telemetry](https://wasp.sh/docs/telemetry).
 
@@ -13392,7 +13392,7 @@ Also, notice **that you can't and shouldn't provide client env vars to the clien
 :::info[How it works]
 What happens behind the scenes is that Wasp will replace all occurrences of `import.meta.env.REACT_APP_SOME_VAR_NAME` in your client code with the env var value you provided. This is done during the build process, so the value is injected into the static files produced from the client code.
 
-Read more about it in Vite's [docs](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
+Read more about it in [Vite's guide to env variables and modes](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
 :::
 
 #### Server Env Vars
@@ -13770,7 +13770,7 @@ Two things to keep in mind:
 
 2. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names (slugs) of your organizations by running `fly orgs list`.
 
-The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for *Dallas, Texas (US)*). Read more about Fly.io regions [here](#flyio-regions).
+The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for *Dallas, Texas (US)*). Read more about [Fly.io regions](#flyio-regions).
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -13905,7 +13905,7 @@ Then you can run `npm run deploy` to deploy your app.
 
 > Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
 
-Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
+Read more on [Fly.io regions in the Fly docs](https://fly.io/docs/reference/regions/).
 
 You can find the list of all available Fly regions by running:
 
@@ -13962,7 +13962,7 @@ It accepts the following arguments:
 
 - `<region>` required
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 Running `wasp deploy fly launch` is the same as running the following commands:
 
@@ -14036,7 +14036,7 @@ It accepts the following arguments:
 
 - `<region>` required
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`. You should include these files in your version control.
 
@@ -14060,7 +14060,7 @@ It accepts the following arguments:
 
 - `<region>` required
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 ##### Database options
 
