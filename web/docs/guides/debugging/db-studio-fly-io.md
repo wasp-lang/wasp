@@ -67,9 +67,9 @@ Copy this password and type `exit` to leave the SSH session.
 
 ## Step 3: Open a Database Tunnel
 
-Stop `wasp start` before running Studio because they use the same project lock.
+Stop `wasp start` first. It runs the development database on port `5432`, which the tunnel needs, and after Step 4 your local server would connect to the production database.
 
-The tunnel below needs local port `5432` to be free. Stop any database or other process using that port.
+The tunnel below needs local port `5432` to be free. Stop any other database or process using that port.
 
 Open the tunnel:
 
