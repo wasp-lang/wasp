@@ -1,3 +1,7 @@
+// This import has to stay first, so it also catches the errors thrown while
+// the rest of the server's code loads.
+import "./uncaughtErrors.js";
+
 import http from 'http'
 
 import app from './app.js'
@@ -8,16 +12,10 @@ import { serverSetup } from "../../../../src/serverSetup"
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 
-import { onServerError } from "../../../../src/features/errors/serverOnError"
-import { registerServerOnErrorFn } from "wasp/server/errors";
-import type { ServerOnErrorFn } from 'wasp/server'
-
 import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'
 
 import { init as initWebSocket } from './webSocket/initialization.js'
-
-registerServerOnErrorFn(onServerError satisfies ServerOnErrorFn)
 
 const startServer = async () => {
   await startPgBoss()

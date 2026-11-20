@@ -12810,19 +12810,20 @@ export const onServerError: ServerOnErrorFn = (error, context) => {
 };
 ```
 
-| `source`      | The error happened...                                                           |
-| ------------- | ------------------------------------------------------------------------------- |
-| `"request"`   | while handling a request to an Operation, API, or auth route.                   |
-| `"job"`       | in a [Job](https://wasp.sh/docs/features/jobs). The context also has `jobName`. |
-| `"webSocket"` | while authenticating a WebSocket connection.                                    |
-| `"oauth"`     | during an OAuth login.                                                          |
-| `"startup"`   | while starting the server, after your code has loaded, e.g. in `setupFn`.       |
-| `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                       |
+| `source`      | The error happened...                                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `"request"`   | while handling a request to an Operation, API, or auth route.                                                                  |
+| `"job"`       | in a [Job](https://wasp.sh/docs/features/jobs). The context also has `jobName`.                                                |
+| `"webSocket"` | while authenticating a WebSocket connection.                                                                                   |
+| `"oauth"`     | during an OAuth login.                                                                                                         |
+| `"startup"`   | while starting the server, after your code has loaded, e.g. in `setupFn`.                                                      |
+| `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                                                                      |
+| `"process"`   | anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads. |
 
 A few things to keep in mind:
 
 - An [`HttpError`](https://wasp.sh/docs/features/data/operations/queries#error-handling) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
-- The function can be async. The server exits after a `"startup"` or `"dbSeed"` error, and Wasp waits for the function to finish before that. For every other error, Wasp doesn't wait for it.
+- The function can be async. The server exits after a `"startup"`, `"dbSeed"`, or `"process"` error, and Wasp waits for the function to finish before that. For every other error, Wasp doesn't wait for it.
 - If the function itself throws, Wasp logs that error and keeps running.
 
 For the full description of the `onError` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#onerror-1).
@@ -22749,13 +22750,17 @@ export const onServerError: ServerOnErrorFn = async (error, context) => {
   Sentry.captureException(error, { tags: { source: context.source } });
 
   // The server exits after these errors, so we wait for Sentry to send them.
-  if (context.source === "startup" || context.source === "dbSeed") {
+  if (
+    context.source === "startup" ||
+    context.source === "dbSeed" ||
+    context.source === "process"
+  ) {
     await Sentry.flush(2000);
   }
 };
 ```
 
-Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds. Wasp doesn't call `onServerError` for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
+Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds, and for uncaught errors anywhere else in the server. Wasp doesn't call `onServerError` for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
 
 :::note
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
@@ -27640,7 +27645,7 @@ Function Wasp calls with every unexpected error on the server, e.g. to send it t
 
 It receives the error and a context whose `source` says where the error happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
 
-The function can be async. Wasp waits for it before the server exits after a `"startup"` or `"dbSeed"` error.
+The function can be async. Wasp waits for it before the server exits after a `"startup"`, `"dbSeed"`, or `"process"` error.
 
 In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`, which lists every `source`.
 
@@ -32851,7 +32856,7 @@ Disconnects from the database.
 
 #### ServerErrorContext
 
-> **ServerErrorContext** = { `source`: `"request"`; } | { `jobName`: `string`; `source`: `"job"`; } | { `source`: `"webSocket"`; } | { `source`: `"oauth"`; } | { `source`: `"startup"`; } | { `source`: `"dbSeed"`; }
+> **ServerErrorContext** = { `source`: `"request"`; } | { `jobName`: `string`; `source`: `"job"`; } | { `source`: `"webSocket"`; } | { `source`: `"oauth"`; } | { `source`: `"startup"`; } | { `source`: `"dbSeed"`; } | { `source`: `"process"`; }
 
 Where an unexpected server error happened.
 
@@ -32861,6 +32866,7 @@ Where an unexpected server error happened.
 - `"oauth"`: During an OAuth login.
 - `"startup"`: While starting the server, after your code has loaded, e.g. in `server.setupFn`.
 - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
+- `"process"`: Anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads.
 
 ---
 

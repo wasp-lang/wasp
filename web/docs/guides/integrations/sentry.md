@@ -80,13 +80,17 @@ export const onServerError: ServerOnErrorFn = async (error, context) => {
   Sentry.captureException(error, { tags: { source: context.source } });
 
   // The server exits after these errors, so we wait for Sentry to send them.
-  if (context.source === "startup" || context.source === "dbSeed") {
+  if (
+    context.source === "startup" ||
+    context.source === "dbSeed" ||
+    context.source === "process"
+  ) {
     await Sentry.flush(2000);
   }
 };
 ```
 
-Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds. Wasp doesn't call `onServerError` for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
+Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds, and for uncaught errors anywhere else in the server. Wasp doesn't call `onServerError` for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
 
 :::note
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.

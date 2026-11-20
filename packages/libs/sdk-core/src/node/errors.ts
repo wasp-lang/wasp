@@ -29,6 +29,8 @@ export type ServerOnErrorFn = (
  * - `"startup"`: While starting the server, after your code has loaded, e.g.
  *   in `server.setupFn`.
  * - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
+ * - `"process"`: Anywhere else in the server, as an uncaught error or an
+ *   unhandled promise rejection, e.g. in a timer or while your code loads.
  */
 export type ServerErrorContext =
   | { source: "request" }
@@ -36,4 +38,5 @@ export type ServerErrorContext =
   | { source: "webSocket" }
   | { source: "oauth" }
   | { source: "startup" }
-  | { source: "dbSeed" };
+  | { source: "dbSeed" }
+  | { source: "process" };

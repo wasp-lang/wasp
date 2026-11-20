@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "816705a7dcbe442f045fefb7df4c2fb494a4314b8ed7cb636a331b34c8cba3d2"
+        "176dd89cdf394926e6c5deabf9dc6425e940c3a68f03f6ec2ba7bfbda9b60108"
     ],
     [
         [
@@ -1866,7 +1866,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "88ae73a6ae6bd5bb513df4b817af59fef2a85a4c7e318f547a0d4ffac6ac46ed"
+        "7598790cda0aebc28e6f49be457f62ae065adeb055b7e183121688772eb0a0c5"
+    ],
+    [
+        [
+            "file",
+            "server/src/uncaughtErrors.ts"
+        ],
+        "285923a21dfe08e8119c346123cc211dc1b6165a82c472f2d4c8fb66b9591314"
     ],
     [
         [

@@ -245,6 +245,7 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
+      genUncaughtErrorsTs spec,
       genServerJs spec
     ]
     <++> genRoutesDir spec
@@ -258,6 +259,19 @@ genSrcDir spec =
   where
     genFileCopy = return . C.mkSrcTmplFd
 
+genUncaughtErrorsTs :: AppSpec -> Generator FileDraft
+genUncaughtErrorsTs spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/uncaughtErrors.ts|])
+      (C.asServerFile [relfile|src/uncaughtErrors.ts|])
+      (Just $ object ["onErrorFn" .= extImportToImportJson relPathToServerSrcDir maybeOnErrorJsFunction])
+  where
+    maybeOnErrorJsFunction = AS.App.Server.onError =<< AS.App.server (getApp spec)
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
+
 genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
@@ -267,14 +281,12 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
-              "onErrorFn" .= extImportToImportJson relPathToServerSrcDir maybeOnErrorJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (getApp spec)
-    maybeOnErrorJsFunction = AS.App.Server.onError =<< AS.App.server (getApp spec)
     maybeWebSocket = AS.App.webSocket $ getApp spec
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
