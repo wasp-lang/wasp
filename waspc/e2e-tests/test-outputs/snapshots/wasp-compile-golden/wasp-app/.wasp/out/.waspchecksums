@@ -32,7 +32,7 @@
             "file",
             "libs/devtools/wasp-lib-devtools-0.27.0.tgz"
         ],
-        "3ac8b1a3ce5a7c79dc4f6fed42fd6de482a7937d18ec9bd88f6f0233f801eda2"
+        "ee7f6df3315887eb62c4c9828a6d0b5e0d18a6b1869a22e02b73588841cbf41b"
     ],
     [
         [
@@ -571,7 +571,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "cbcc264782e46ce8c17c6babed85b207af90fac4a317870f7cbf91b0df7b051d"
+        "4c389e3eac30320b723fdd6bc4a562ce0a7185d6a9171c5310f9909844641c56"
     ],
     [
         [
@@ -579,6 +579,13 @@
             "server/src/routes/operations/index.js"
         ],
         "d09f7dcf78ed2da15f488afb08e62d9dac15f173fdbe779323dfdd75330f5de5"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/spec.ts"
+        ],
+        "98240cdf9ee103566ff90c801096f2bb3bbde939478ea81bb133fa5d2335dcea"
     ],
     [
         [

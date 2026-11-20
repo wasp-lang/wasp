@@ -2,7 +2,6 @@ module Wasp.Generator.WebAppGenerator.Common
   ( getBaseDir,
     serverUrlEnvVarName,
     clientPortEnvVarName,
-    waspExePathEnvVarName,
   )
 where
 
@@ -26,8 +25,3 @@ clientPortEnvVarName :: String
 clientPortEnvVarName =
   -- Not prefixed with `WASP_` because many deployment platforms use this env.
   "PORT"
-
--- | The path to the Wasp CLI executable that started the dev server. The Vite
--- DevTools panels use it to run Wasp commands with the same Wasp version.
-waspExePathEnvVarName :: String
-waspExePathEnvVarName = "WASP_EXE_PATH"

@@ -294,6 +294,7 @@ wasp-app/.wasp/out/server/src/middleware/operations.ts
 wasp-app/.wasp/out/server/src/plugins/virtualUserModules.js
 wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
+wasp-app/.wasp/out/server/src/routes/spec.ts
 wasp-app/.wasp/out/server/src/server.ts
 wasp-app/.wasp/out/server/src/uncaughtErrors.ts
 wasp-app/.wasp/out/server/src/views/wrong-port.ts

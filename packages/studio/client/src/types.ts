@@ -8,7 +8,7 @@ export type Data = {
     }[];
     name: string;
     type: "query" | "action";
-    auth: string;
+    auth: boolean | null;
   }[];
   apis: {
     entities: {
@@ -19,17 +19,17 @@ export type Data = {
       path: string;
     };
     name: string;
-    auth: string;
+    auth: boolean | null;
   }[];
   jobs: {
-    schedule: string;
+    schedule: string | null;
     entities: {
       name: string;
     }[];
     name: string;
   }[];
   pages: {
-    authRequired: string;
+    authRequired: boolean | null;
     name: string;
   }[];
   routes: {
@@ -46,7 +46,7 @@ export type Data = {
         name: string;
       };
       methods: string[];
-    };
+    } | null;
     db: {
       system: string;
     };

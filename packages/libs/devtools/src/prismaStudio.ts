@@ -1,13 +1,15 @@
 import { createServer } from "node:net";
 import { resolve } from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
 
 import type { DevToolsChildProcessTerminalSession } from "@vitejs/devtools-kit";
 import { createProcessLauncher } from "@vitejs/devtools-kit/node";
 import type { Plugin } from "vite";
 
-import { waitForServer } from "./waitForServer";
-
 const PRISMA_STUDIO_ID = "wasp-prisma-studio";
+
+// Generous, since Prisma Studio's first start can take a while.
+const SERVER_TIMEOUT_MS = 60_000;
 
 export interface PrismaStudioOptions {
   /**
@@ -94,4 +96,30 @@ function findFreePort(): Promise<number> {
       });
     });
   });
+}
+
+/**
+ * Waits until Prisma Studio responds at `url`. Throws if its process exits
+ * first, or if it takes too long, so the launcher shows an error.
+ */
+async function waitForServer(
+  url: string,
+  isProcessRunning: () => boolean,
+): Promise<void> {
+  const deadline = Date.now() + SERVER_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    if (!isProcessRunning()) {
+      throw new Error("Prisma Studio exited before it was ready.");
+    }
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      // Not listening yet.
+    }
+    await sleep(250);
+  }
+  throw new Error("Prisma Studio didn't start in time.");
 }

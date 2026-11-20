@@ -16,7 +16,8 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && pnpm run build:studio",
+    "build:studio": "pnpm --dir ../../studio/client run build && node -e \"require('fs').cpSync('../../studio/client/dist', './dist/studio', { recursive: true });\"",
     "test": "pnpm run test:types",
     "test:types": "tsc --noEmit"
   },

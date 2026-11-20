@@ -15,8 +15,10 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as Aeson.Pretty
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromMaybe, isJust)
+import qualified Data.Text.Lazy.Encoding as TL.Encoding
 import StrongPath
   ( Dir,
     File,
@@ -34,6 +36,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import Wasp.AppSpec.Inspectable (InspectableAppSpec (InspectableAppSpec))
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
@@ -296,7 +299,7 @@ genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  sequence [genRoutesIndex spec]
+  sequence $ genRoutesIndex spec : [genSpec spec | AS.isDevelopment spec]
 
 genRoutesIndex :: AppSpec -> Generator FileDraft
 genRoutesIndex spec =
@@ -315,9 +318,25 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
-          "appName" .= (app.name :: String)
+          "appName" .= (app.name :: String),
+          "specRouteInRootRouter" .= (specRouteInRootRouter :: String)
         ]
     app = getApp spec
+
+genSpec :: AppSpec -> Generator FileDraft
+genSpec spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/routes/spec.ts|])
+      (C.asServerFile [relfile|src/routes/spec.ts|])
+      (Just tmplData)
+  where
+    tmplData = object ["spec" .= TL.Encoding.decodeUtf8 specJson]
+    -- The same JSON that `wasp show spec --json` prints.
+    specJson =
+      Aeson.Pretty.encodePretty'
+        Aeson.Pretty.defConfig {Aeson.Pretty.confIndent = Aeson.Pretty.Spaces 2}
+        (InspectableAppSpec spec)
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
@@ -329,6 +348,10 @@ operationsRouteInRootRouter = "operations"
 -- so we let users handle it themselves.
 upRouteInRootRouter :: String
 upRouteInRootRouter = "up"
+
+-- | Serves the app's spec, in development only, for Wasp Studio.
+specRouteInRootRouter :: String
+specRouteInRootRouter = "__wasp/spec"
 
 genViewsDir :: AppSpec -> Generator [FileDraft]
 genViewsDir spec

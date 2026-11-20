@@ -39,7 +39,7 @@
             "file",
             "libs/devtools/wasp-lib-devtools-0.27.0.tgz"
         ],
-        "3ac8b1a3ce5a7c79dc4f6fed42fd6de482a7937d18ec9bd88f6f0233f801eda2"
+        "ee7f6df3315887eb62c4c9828a6d0b5e0d18a6b1869a22e02b73588841cbf41b"
     ],
     [
         [
@@ -1621,7 +1621,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "224192fffe14a33e29dd9c71767e484494c0faba11eda12f9cfca69a9d8568c5"
+        "3350a2c2eb014aada78460265356ed4eb84564df6c49b12d758de1c77a2cdf62"
     ],
     [
         [
@@ -1853,6 +1853,13 @@
             "server/src/routes/operations/voidToStringNoAuth.js"
         ],
         "cd8a5eec6feff192d14c8d3cd05719d21e9d0e3353edb7de7036391940227f56"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/spec.ts"
+        ],
+        "9a683e4fa8f39071cf022ff3d0fe6cc57facb4dd017c406ace0fa957175c22ba"
     ],
     [
         [

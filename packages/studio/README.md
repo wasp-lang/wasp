@@ -1,48 +1,30 @@
 # Wasp Studio
 
-Wasp Studio has two components:
+Wasp Studio shows a Wasp app as a graph of its pages, routes, operations, APIs, jobs, and entities.
 
-- the server
-- the client
+It has two components:
 
-To develop the studio, you need to run both of them. First, run the server, then the client.
+- the client, a page that reads the app's spec from `/__wasp/spec`, in the same JSON that `wasp show spec --json` prints.
+- the server, which `wasp studio` runs on `http://localhost:4000`. It serves the client, and the spec from the data file that `wasp studio` writes (`.wasp/out/.wasp-studio-data.json`).
+
+The Wasp Studio panel in Vite DevTools (in `@wasp/lib-devtools`) serves the same client from the Vite dev server instead. It passes the client a `serverUrl` query parameter, so the client reads the spec from the server that `wasp start` runs, which has the same route in development.
 
 ### Server
 
-Install dependencies:
+Run `wasp studio` once in a Wasp app to write its data file. Then build the server and run it with that file:
 
 ```bash
-pnpm install
+pnpm run build
+pnpm run dev --data-file < path_to_wasp_app > /.wasp/out/.wasp-studio-data.json
 ```
-
-Running the server for some data file:
-
-```bash
-pnpm run dev -d <path_to_data_file>
-```
-
-For example, running the server with the data file from the `examples` directory:
-
-```bash
-pnpm run dev -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
-```
-
-Wasp CLI generates the `.wasp-studio-data.json` file when the `wasp studio` command is run.
-You can run the `wasp studio` once to get the file generated, and then run the studio in development mode.
 
 ### Client
 
-Install dependencies:
+Run `wasp start` in a Wasp app, and then run the client in development mode:
 
 ```bash
 cd client
-pnpm install
-```
-
-Running the client:
-
-```bash
 pnpm run dev
 ```
 
-Then open `http://localhost:5173` in your browser.
+Then open the URL Vite prints, with `?serverUrl=http://localhost:3001` so it reads the spec from the app's server.

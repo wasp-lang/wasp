@@ -1,98 +1,45 @@
-import type {
-  DevToolsChildProcessTerminalSession,
-  DevToolsDockUserEntry,
-} from "@vitejs/devtools-kit";
-import { createProcessLauncher } from "@vitejs/devtools-kit/node";
+import { fileURLToPath } from "node:url";
+
 import type { Plugin } from "vite";
 
-import { waitForServer } from "./waitForServer";
+// The lib's build copies the Wasp Studio page here, next to this module's
+// bundle.
+const STUDIO_PAGE_DIR = fileURLToPath(new URL("./studio", import.meta.url));
 
-const WASP_STUDIO_ID = "wasp-studio";
-
-// `wasp studio` always serves on this port.
-const WASP_STUDIO_URL = "http://localhost:4000/";
+const STUDIO_PAGE_BASE = "/__wasp-studio/";
 
 /**
- * Adds Wasp Studio as a panel to Vite DevTools. The panel runs `wasp studio`
- * when the user opens it, and embeds it once it's up.
+ * Adds Wasp Studio as a panel to Vite DevTools. The Vite dev server serves the
+ * Wasp Studio page, which reads the app's spec from the app's server.
  */
 export function waspStudio(): Plugin {
-  let projectRoot = process.cwd();
-  let studioSession: DevToolsChildProcessTerminalSession | undefined;
-
-  const launcher = createProcessLauncher({
-    id: WASP_STUDIO_ID,
-    title: "Wasp Studio",
-    icon: "ph:graph-duotone",
-    description: "See how the parts of your app connect.",
-    buttonStart: "Start Wasp Studio",
-    buttonLoading: "Starting Wasp Studio…",
-    process: () => ({
-      // `wasp start` passes the path to its own executable, so the panel uses
-      // the same Wasp version as the app.
-      command: process.env["WASP_EXE_PATH"] ?? "wasp",
-      args: ["studio"],
-      cwd: projectRoot,
-    }),
-    serve: {
-      onReady: async (session) => {
-        studioSession = session;
-        await waitForServer(
-          WASP_STUDIO_URL,
-          () => session.status === "running",
-        );
-        return WASP_STUDIO_URL;
-      },
-    },
-  });
-
   return {
-    ...launcher,
-    devtools: {
-      ...launcher.devtools!,
-      setup: (ctx) =>
-        launcher.devtools!.setup(
-          // The launcher doesn't take a category, so we add it to the dock
-          // entries it registers. Listed first, with the framework's own tools.
-          withDockCategory(ctx, "framework"),
-        ),
-    },
+    name: "wasp:devtools:wasp-studio",
     apply: "serve",
-    configResolved(config) {
-      projectRoot = config.root;
-    },
-    configureServer(server) {
-      // Vite DevTools leaves the process running when the dev server stops.
-      // `terminate` also stops the process's children, like the server that
-      // `wasp studio` starts.
-      server.httpServer?.once("close", () => {
-        void studioSession?.terminate();
-      });
+    devtools: {
+      setup(ctx) {
+        ctx.views.hostStatic(STUDIO_PAGE_BASE, STUDIO_PAGE_DIR);
+        ctx.docks.register({
+          id: "wasp-studio",
+          title: "Wasp Studio",
+          icon: "ph:graph-duotone",
+          type: "iframe",
+          url: getStudioPageUrl(),
+          // Listed first, with the framework's own tools.
+          category: "framework",
+        });
+      },
     },
   };
 }
 
-function withDockCategory<Context extends { docks: object }>(
-  ctx: Context,
-  category: string,
-): Context {
-  const withCategory = (entry: DevToolsDockUserEntry) => ({
-    ...entry,
-    category,
-  });
-  const docks = new Proxy(ctx.docks, {
-    get(target, property) {
-      const value: unknown = Reflect.get(target, property);
-      if (typeof value !== "function") return value;
-      if (property === "register" || property === "update") {
-        return (entry: DevToolsDockUserEntry, ...rest: unknown[]) =>
-          value.call(target, withCategory(entry), ...rest);
-      }
-      return value.bind(target);
-    },
-  });
-  return new Proxy(ctx, {
-    get: (target, property) =>
-      property === "docks" ? docks : Reflect.get(target, property),
-  });
+/**
+ * The Wasp Studio page reads the app's spec from the app's server, so we tell
+ * it where that is. `wasp start` passes the server URL to the Vite process.
+ */
+function getStudioPageUrl(): string {
+  const serverUrl = process.env["REACT_APP_API_URL"];
+  return serverUrl
+    ? `${STUDIO_PAGE_BASE}?${new URLSearchParams({ serverUrl })}`
+    : STUDIO_PAGE_BASE;
 }

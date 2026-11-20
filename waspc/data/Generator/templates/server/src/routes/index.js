@@ -14,6 +14,8 @@ import { rootCrudRouter } from './crud/index.js'
 {=# isDevelopment =}
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
+import cors from 'cors'
+import { spec } from './spec.js'
 {=/ isDevelopment =}
 
 
@@ -30,6 +32,20 @@ router.use('/{= crudRouteInRootRouter =}', middleware, rootCrudRouter)
 router.get('/{= upRouteInRootRouter =}', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
 })
+{=# isDevelopment =}
+
+// The app's spec, for Wasp Studio. Only in development, since it describes
+// the app's internals. Without the global middleware, since Wasp Studio polls
+// this route and its request logger would flood the terminal. It still gets
+// the same CORS policy, so the Wasp Studio page can read it.
+router.get(
+  '/{= specRouteInRootRouter =}',
+  cors({ origin: config.allowedCORSOrigins }),
+  function (_req, res) {
+    res.status(200).json(spec)
+  }
+)
+{=/ isDevelopment =}
 
 {=# areThereAnyCustomApiRoutes =}
 // NOTE: Keep user-defined api routes last so they cannot override our routes.

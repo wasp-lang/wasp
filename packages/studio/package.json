@@ -30,14 +30,10 @@
     "start": "node ./dist/index.js"
   },
   "dependencies": {
-    "commander": "^15.0.0",
-    "cors": "^2.8.6",
     "express": "^5.3.0",
-    "morgan": "^1.12.1",
-    "socket.io": "^4.8.4"
+    "morgan": "^1.12.1"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "catalog:",

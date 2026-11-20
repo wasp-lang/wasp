@@ -543,25 +543,13 @@ importers:
 
   packages/studio:
     dependencies:
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
-      cors:
-        specifier: ^2.8.6
-        version: 2.8.6
       express:
         specifier: ^5.3.0
         version: 5.3.0(supports-color@9.4.0)
       morgan:
         specifier: ^1.12.1
         version: 1.12.1(supports-color@9.4.0)
-      socket.io:
-        specifier: ^4.8.4
-        version: 4.8.4(supports-color@9.4.0)
     devDependencies:
-      '@types/cors':
-        specifier: ^2.8.19
-        version: 2.8.19
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
@@ -595,9 +583,6 @@ importers:
       react-dom:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
-      socket.io-client:
-        specifier: ^4.8.4
-        version: 4.8.4(supports-color@9.4.0)
       tailwindcss:
         specifier: ^4.3.4
         version: 4.3.4
