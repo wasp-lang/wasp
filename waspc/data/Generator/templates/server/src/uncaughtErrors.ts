@@ -1,9 +1,12 @@
 {{={= =}=}}
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import {
+  reportFatalServerError,
+  reportUnexpectedServerError,
+} from "wasp/server/errors/report";
 
 {=# onErrorFn.isDefined =}
 {=& onErrorFn.importStatement =}
-import { registerServerOnErrorFn } from "wasp/server/errors";
+import { registerServerOnErrorFn } from "wasp/server/errors/report";
 import type { ServerOnErrorFn } from "wasp/server";
 
 // We register the function here, so it also receives the errors thrown while
@@ -15,7 +18,7 @@ registerServerOnErrorFn({= onErrorFn.importIdentifier =} satisfies ServerOnError
 // still exit because the server can be in a broken state after it.
 // https://nodejs.org/api/process.html#event-uncaughtexception
 process.on("uncaughtException", async (error: unknown) => {
-  await reportUnexpectedServerError(error, {
+  await reportFatalServerError(error, {
     source: "process",
     event: "uncaughtException",
   });

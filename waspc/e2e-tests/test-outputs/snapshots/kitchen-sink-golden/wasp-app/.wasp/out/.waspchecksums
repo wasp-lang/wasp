@@ -606,7 +606,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "32e2e0bf15a9af3b211816ebf9ca88a1b176d13d799ad0307fd54a44dc684e8e"
+        "1a614bdf973b3d9a26233f23f2dd8cc23d8f75b37893f6c3beb8e22a03c9c65a"
     ],
     [
         [
@@ -746,7 +746,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/redirect.ts"
         ],
-        "5c511b7d075f46ad3674372a68de9de279e4de92b57ccbf9d1e76edf1f59b9c3"
+        "f4e62d51c02b6f134d04dca056e6f6591563bc14d8346ffb3a5f9f8f044d5828"
     ],
     [
         [
@@ -865,7 +865,14 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "c3b6efb507efd73ed2df010a87a01153f2d9060cf20eadc57b856c27b7cfa094"
+        "f20ad90ffceb279cd81a384dddc9d0312fa7e177661ac4676ce6fad029114f32"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/report.ts"
+        ],
+        "58422de4c3d5ccb727ddf5d0211b56930ae97f0490f2398a5d98b9d5fca7e2a2"
     ],
     [
         [
@@ -907,7 +914,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "2b66e41bab82e83530f49e3c7ce07d36e9a56701861a93bd73bbc6c261dc5455"
+        "3f083af037d0e3ae97e8d84fa109d8843cda30847007a03a8eb3b30c89f14cc9"
     ],
     [
         [
@@ -1418,7 +1425,7 @@
             "file",
             "server/src/dbSeed.ts"
         ],
-        "fe369c4d876d26a04190ef9fbcb0342e5f58edd48e004c9679167603220356b8"
+        "14eba9435ab5a67baabd9d7e2e8354a7ed291f57bd03140e3ed2922174fd7be6"
     ],
     [
         [
@@ -1866,14 +1873,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "7598790cda0aebc28e6f49be457f62ae065adeb055b7e183121688772eb0a0c5"
+        "90a3304e70717532391e49182d497018db356532547c027c56cc33f8f2a9dd58"
     ],
     [
         [
             "file",
             "server/src/uncaughtErrors.ts"
         ],
-        "bda0f65e31a74fb71b9f7e4701e1d270ebdc15f6d26269eb064cce4743410f94"
+        "49fc42a1d766e241f0d6788ad88af60b14c91195360c99190b82c1e7040a94da"
     ],
     [
         [
@@ -1887,7 +1894,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "7f4623c19630f436704241d26cdb4dabff69211e594774a0b8ec94300158ebc9"
+        "79b4418f6558e92a03b212b6af5c30d93a7c697578df897fd3032982e38c008e"
     ],
     [
         [

@@ -541,9 +541,9 @@ export interface Server {
    * happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a
    * request is not unexpected, so Wasp doesn't call the function for it.
    *
-   * The function can be async. Wasp waits for it before the server exits,
-   * which happens after a `"startup"` or `"dbSeed"` error and after an
-   * uncaught exception.
+   * The function can be async. Wasp waits for it, for at most 5 seconds,
+   * before the server exits, which happens after a `"startup"` or `"dbSeed"`
+   * error and after an uncaught exception.
    *
    * In TypeScript, you can type the function with the `ServerOnErrorFn` type
    * from `wasp/server`, which lists every `source`.

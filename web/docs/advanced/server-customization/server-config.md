@@ -186,7 +186,7 @@ export const onServerError: ServerOnErrorFn = (error, context) => {
 A few things to keep in mind:
 
 - An [`HttpError`](../../features/data/operations/queries.md#error-handling) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
-- The function can be async. The server exits after a `"startup"` or `"dbSeed"` error, and after a `"process"` error whose `event` is `uncaughtException`. Wasp waits for the function to finish before the server exits. For every other error, Wasp doesn't wait for it and the server keeps running.
+- The function can be async. The server exits after a `"startup"` or `"dbSeed"` error, and after a `"process"` error whose `event` is `uncaughtException`. Wasp waits for the function to finish before the server exits, for at most 5 seconds. For every other error, Wasp doesn't wait for it and the server keeps running.
 - If the function itself throws, Wasp logs that error and keeps running.
 
 For the full description of the `onError` field, check the [`Server` API Reference](../../api/@wasp/spec.md#onerror-1).

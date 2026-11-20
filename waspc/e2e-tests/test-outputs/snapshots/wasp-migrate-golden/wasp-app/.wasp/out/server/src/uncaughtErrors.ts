@@ -1,10 +1,13 @@
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import {
+  reportFatalServerError,
+  reportUnexpectedServerError,
+} from "wasp/server/errors/report";
 
 // Node.js prints an uncaught exception and exits. We report it first, and
 // still exit because the server can be in a broken state after it.
 // https://nodejs.org/api/process.html#event-uncaughtexception
 process.on("uncaughtException", async (error: unknown) => {
-  await reportUnexpectedServerError(error, {
+  await reportFatalServerError(error, {
     source: "process",
     event: "uncaughtException",
   });

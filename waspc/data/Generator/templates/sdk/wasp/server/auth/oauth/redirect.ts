@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { HttpError } from '@wasp/lib-sdk-core'
 import { config } from '../../index.js'
-import { reportUnexpectedServerError } from "../../errors/index.js";
+import { reportUnexpectedServerError } from "../../errors/report.js";
 
 // PRIVATE API (server)
 export const loginPath = '{= serverOAuthLoginHandlerPath =}'

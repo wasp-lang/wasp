@@ -7,11 +7,11 @@
 //   maintaining access to logic from the server/ .
 
 import { prisma, DbSeedFn } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { reportFatalServerError } from "wasp/server/errors/report";
 
 {=# onErrorFn.isDefined =}
 {=& onErrorFn.importStatement =}
-import { registerServerOnErrorFn } from "wasp/server/errors";
+import { registerServerOnErrorFn } from "wasp/server/errors/report";
 import type { ServerOnErrorFn } from "wasp/server";
 {=/ onErrorFn.isDefined =}
 
@@ -42,7 +42,7 @@ async function main() {
 main()
   .then(async () => { await prisma.$disconnect() })
   .catch(async (error: unknown) => {
-    await reportUnexpectedServerError(error, { source: "dbSeed" });
+    await reportFatalServerError(error, { source: "dbSeed" });
     await prisma.$disconnect()
     process.exit(1)
   })

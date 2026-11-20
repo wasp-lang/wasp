@@ -1,38 +1,9 @@
 import { HttpError, toHttpErrorBody } from "@wasp/lib-sdk-core";
-import type {
-  ServerErrorContext,
-  ServerOnErrorFn,
-} from "@wasp/lib-sdk-core/node";
 import type { Response } from "express";
 import config from "../config.js";
 import * as httpErrors from "./httpErrors.js";
+import { reportUnexpectedServerError } from "./report.js";
 import * as unknownErrors from "./unknownErrors.js";
-
-let serverOnErrorFn: ServerOnErrorFn | undefined;
-
-// PRIVATE API (server)
-export function registerServerOnErrorFn(onErrorFn: ServerOnErrorFn): void {
-  serverOnErrorFn = onErrorFn;
-}
-
-// PRIVATE API (server)
-// TODO: Refactor this once Wasp has proper logging.
-/**
- * Logs the error and passes it to the user's `server.onError` function.
- * It never rejects, so callers can ignore the promise. Only the callers
- * that exit the process afterwards have to wait for it.
- */
-export async function reportUnexpectedServerError(
-  error: unknown,
-  context: ServerErrorContext,
-): Promise<void> {
-  console.error(`Unexpected error in ${formatContext(context)}:`, error);
-  try {
-    await serverOnErrorFn?.(error, context);
-  } catch (onErrorFnError: unknown) {
-    console.error("The `server.onError` function failed:", onErrorFnError);
-  }
-}
 
 // PRIVATE API (server)
 /**
@@ -81,8 +52,4 @@ function toHttpError(unexpectedError: unknown): HttpError {
     void reportUnexpectedServerError(unexpectedError, { source: "request" });
   }
   return httpError;
-}
-
-function formatContext({ source, ...details }: ServerErrorContext): string {
-  return [source, ...Object.values(details)].join(" ");
 }

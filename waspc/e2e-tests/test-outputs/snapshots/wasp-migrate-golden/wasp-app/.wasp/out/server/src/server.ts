@@ -6,7 +6,7 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { reportFatalServerError } from "wasp/server/errors/report";
 
 
 
@@ -46,7 +46,7 @@ const startServer = async () => {
 }
 
 startServer().catch(async (error: unknown) => {
-  await reportUnexpectedServerError(error, { source: "startup" });
+  await reportFatalServerError(error, { source: "startup" });
   process.exit(1);
 });
 

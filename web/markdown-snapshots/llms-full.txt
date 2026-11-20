@@ -12820,7 +12820,7 @@ export const onServerError: ServerOnErrorFn = (error, context) => {
 A few things to keep in mind:
 
 - An [`HttpError`](https://wasp.sh/docs/features/data/operations/queries#error-handling) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
-- The function can be async. The server exits after a `"startup"` or `"dbSeed"` error, and after a `"process"` error whose `event` is `uncaughtException`. Wasp waits for the function to finish before the server exits. For every other error, Wasp doesn't wait for it and the server keeps running.
+- The function can be async. The server exits after a `"startup"` or `"dbSeed"` error, and after a `"process"` error whose `event` is `uncaughtException`. Wasp waits for the function to finish before the server exits, for at most 5 seconds. For every other error, Wasp doesn't wait for it and the server keeps running.
 - If the function itself throws, Wasp logs that error and keeps running.
 
 For the full description of the `onError` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#onerror-1).
@@ -27640,7 +27640,7 @@ Function Wasp calls with every unexpected error on the server, e.g. to send it t
 
 It receives the error and a context whose `source` says where the error happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
 
-The function can be async. Wasp waits for it before the server exits, which happens after a `"startup"` or `"dbSeed"` error and after an uncaught exception.
+The function can be async. Wasp waits for it, for at most 5 seconds, before the server exits, which happens after a `"startup"` or `"dbSeed"` error and after an uncaught exception.
 
 In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`, which lists every `source`.
 
