@@ -26,6 +26,7 @@ basicAppSpec =
             Npm.PackageJson.workspaces = Nothing
           },
       AS.packageManager = PackageManager.Npm,
+      AS.pinnedPackageManagerVersion = Nothing,
       AS.buildType = BuildType.Development,
       AS.migrationsDir = Nothing,
       AS.devEnvVarsClient = [],
