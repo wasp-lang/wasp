@@ -118,10 +118,10 @@ runSetupStep step spec generatedAppDir sendMessage = case step of
 
 installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 installDependencies spec generatedAppDir sendMessage = do
-  result <- liftIO $ installNpmDependenciesWithInstallRecord spec generatedAppDir
+  result <- liftIO $ installNpmDependenciesWithInstallRecord spec generatedAppDir sendMessage
   case result of
     Left npmInstallError -> throwError [npmInstallError]
-    Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
+    Right () -> return ()
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do

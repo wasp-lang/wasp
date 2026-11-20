@@ -11,7 +11,7 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
-import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
+import Wasp.Generator.NpmInstall (InstallOutputMode (..), installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 
@@ -20,12 +20,12 @@ install :: Command ()
 install = ProjectLock.acquireExclusive $ do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
-  liftIO (installIO waspProjectDir)
+  liftIO (installIO ShowInstallOutput waspProjectDir)
     >>= either
       (throwError . CommandError "Couldn't install npm dependencies")
       return
 
-installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-installIO waspProjectDir = do
+installIO :: InstallOutputMode -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
+installIO installOutputMode waspProjectDir = do
   ensurePackageIsAtInstallationPathInProject waspProjectDir WaspSpecPackage
-  installProjectNpmDependencies waspProjectDir
+  installProjectNpmDependencies installOutputMode waspProjectDir
