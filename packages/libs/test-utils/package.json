@@ -2,6 +2,21 @@
   "name": "@wasp/lib-test-utils",
   "version": "0.27.0",
   "type": "module",
+  "description": "Test helpers for Wasp apps.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wasp-lang/wasp.git",
+    "directory": "packages/libs/test-utils"
+  },
+  "homepage": "https://wasp.sh/",
+  "bugs": {
+    "url": "https://github.com/wasp-lang/wasp/issues"
+  },
+  "author": {
+    "name": "Wasp, Inc.",
+    "url": "https://wasp.sh"
+  },
+  "funding": "https://github.com/wasp-lang/wasp?sponsor=1",
   "license": "MIT",
   "exports": {
     ".": {
@@ -60,6 +75,9 @@
     "tsdown": "^0.21.5",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "sideEffects": false
 }

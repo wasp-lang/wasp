@@ -11,13 +11,11 @@ import {
   cabalVersionRegex,
   getWaspcVersion,
 } from "../waspc/tools/get-waspc-version.ts";
-import { getLibsDirPath } from "../waspc/tools/libs/utils.ts";
 import {
   getPackageDirPath,
-  WASP_PACKAGE_DIR_NAMES,
+  WASP_PACKAGE_NAMES,
 } from "../waspc/tools/packages/utils.ts";
 import {
-  discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
   getWaspcDirPath,
   runCmd,
@@ -40,10 +38,8 @@ function bumpWaspVersion(bumpType: BumpType): void {
 
   bumpWaspcCabalVersion(nextVersion);
 
-  bumpLibsVersion(nextVersion);
-  rebuildLibs();
-
   bumpPackagesVersion(nextVersion);
+  rebuildLibs();
   rebuildDevPackages();
 
   bumpWaspProjectsVersion(nextVersion);
@@ -65,14 +61,8 @@ function bumpWaspcCabalVersion(nextVersion: string): void {
   writeFileSync(cabalFilePath, updatedCabalFileContent);
 }
 
-function bumpLibsVersion(nextVersion: string): void {
-  for (const libDirPath of discoverSubDirs(getLibsDirPath())) {
-    bumpPackageJsonVersion(libDirPath, nextVersion);
-  }
-}
-
 function bumpPackagesVersion(nextVersion: string): void {
-  for (const packageDirPath of WASP_PACKAGE_DIR_NAMES.map(getPackageDirPath)) {
+  for (const packageDirPath of WASP_PACKAGE_NAMES.map(getPackageDirPath)) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }
