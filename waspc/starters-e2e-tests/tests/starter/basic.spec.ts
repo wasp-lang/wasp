@@ -25,14 +25,43 @@ test.describe(
     }
 
     test.describe("welcome page", () => {
-      test("should show the walkthrough", async ({ page }) => {
-        await page.goto("/");
+      for (const width of [375, 1280]) {
+        test(`should show all steps and examples without expanding them at ${width}px`, async ({
+          page,
+        }) => {
+          await page.setViewportSize({ width, height: 812 });
+          await page.goto("/");
 
-        await expect(
-          page.getByText("Your app is up and running"),
-        ).toBeVisible();
-        await expect(page.getByText("Not logged in")).toBeVisible();
-      });
+          await expect(
+            page.getByText("Your app is up and running"),
+          ).toBeVisible();
+          await expect(page.getByText("Not logged in")).toBeVisible();
+
+          const welcomePage = page.getByRole("main");
+          const stepTitles = [
+            "Create a user and log in",
+            "Manage your tasks",
+            "Inspect your app and data",
+            "Learn the building blocks",
+            "Deploy your app",
+          ];
+          await expect(
+            welcomePage.getByRole("heading", { level: 3 }),
+          ).toHaveCount(stepTitles.length);
+          for (const title of stepTitles) {
+            const step = welcomePage.getByRole("listitem").filter({
+              has: page.getByRole("heading", { level: 3, name: title }),
+            });
+            await expect(step.getByRole("heading", { level: 3 })).toBeVisible();
+            await expect(step.getByRole("figure")).toBeVisible();
+          }
+
+          // Long code lines may scroll inside their examples, not the page.
+          expect(
+            await page.locator("html").evaluate((root) => root.scrollWidth),
+          ).toBe(width);
+        });
+      }
     });
 
     test.describe("tasks", () => {
