@@ -169,6 +169,10 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 `PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider in [the Databases guide](./data/databases.md#postgresql).
 
+`PgBoss` also needs the `pg-boss` package in your project:
+
+<PackageManagerCommand npm="npm install pg-boss@8" />
+
 #### Limitations
 
 `PgBoss` runs together with your web server, whenever it is up. This means that it is not a separate process or service, but rather a part of your web server's application. As such, it is not suitable for CPU-heavy workloads, as it shares the CPU with your web server's application logic.

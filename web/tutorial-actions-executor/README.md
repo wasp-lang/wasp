@@ -120,7 +120,8 @@ The `<TutorialAction>` component should wrap the part of the tutorial text that 
 The tool extracts these components and uses:
 
 - `id`: Unique identifier for the action (becomes commit message),
-- `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`).
+- `action`: Type of action (`INIT_APP`, `APPLY_PATCH`, `MIGRATE_DB`, `INSTALL_PACKAGES`).
+- `packageSpecifiers`: For `INSTALL_PACKAGES`, what to `npm install`, separated by spaces (e.g. `lucia@3 arctic@1`).
 
 ## Testing
 
