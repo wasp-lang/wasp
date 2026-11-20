@@ -15,7 +15,7 @@ You write the Wasp Spec in TypeScript, so you get out-of-the-box support in all 
 ## A quick example
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from "@wasp/spec";
+import { app, page, query, route } from "wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -85,7 +85,7 @@ The vast majority of Wasp apps won't run into these limitations, so we recommend
 Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp/spec`, then pass it an import object with `import` (or `importDefault`) and `from`:
 
 ```ts title="main.wasp.ts"
-import { ref } from "@wasp/spec";
+import { ref } from "wasp/spec";
 
 export default app({
   // ...
@@ -102,7 +102,7 @@ The `from` path is relative to the `*.wasp.ts` file where you call `ref(...)` an
 
 :::note Limitation
 
-You can't re-export `ref` from `@wasp/spec` (`export { ref } from "@wasp/spec"`). Import it first, then re-export it if needed.
+You can't re-export `ref` from `@wasp/spec` (`export { ref } from "wasp/spec"`). Import it first, then re-export it if needed.
 
 :::
 
@@ -115,7 +115,7 @@ For larger apps you don't have to keep everything in `main.wasp.ts`. You can mov
 Each feature file exports it's own `Spec`:
 
 ```ts title="src/auth/auth.wasp.ts"
-import { page, route, type Spec } from "@wasp/spec";
+import { page, route, type Spec } from "wasp/spec";
 
 import { LoginPage } from "./LoginPage" with { type: "ref" };
 import { SignupPage } from "./SignupPage" with { type: "ref" };
@@ -131,7 +131,7 @@ The `Spec` annotation gives TypeScript enough information to validate the specif
 Then `main.wasp.ts` imports it and joins in into the `spec`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec";
+import { app, page, route } from "wasp/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { authSpec } from "./src/auth/auth.wasp";

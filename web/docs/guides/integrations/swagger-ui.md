@@ -26,7 +26,7 @@ Install the required packages:
 Add an API namespace for the Swagger UI endpoint. Swagger UI serves its assets from the `swagger-ui-dist` package's folder, so also list that package in [`server.traceDeps`](../../deployment/methods/overview.md#missing-files-in-the-docker-image). Otherwise the production Docker image leaves the assets out, and the UI stays blank:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app } from "@wasp/spec"
+import { api, apiNamespace, app } from "wasp/spec"
 import { getStatus } from "./src/apis" with { type: "ref" }
 import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
 

@@ -1559,6 +1559,9 @@ importers:
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
+      wasp-package-api-docs:
+        specifier: workspace:*
+        version: link:wasp-api-docs
       wasp-sdk-api-docs:
         specifier: workspace:*
         version: link:sdk-api-docs
@@ -1665,6 +1668,21 @@ importers:
       '@types/mdast':
         specifier: ^4.0.4
         version: 4.0.4
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(jsdom@30.1.3)(msw@3.0.3)(vite@8.3.5)
+
+  web/wasp-api-docs:
+    devDependencies:
+      '@types/node':
+        specifier: ^26.0.0
+        version: 26.6.6
+      '@wasp/sdk-core':
+        specifier: workspace:*
+        version: link:../../packages/sdk-core
+      '@wasp/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       vitest:
         specifier: 'catalog:'
         version: 5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(jsdom@30.1.3)(msw@3.0.3)(vite@8.3.5)

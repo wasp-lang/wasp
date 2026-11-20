@@ -36,7 +36,7 @@ We can then define a new `crud` called `Tasks`.
 We specify to use the `Task` entity and we enable the `getAll`, `get`, `create` and `update` operations (let's say we don't need the `delete` operation).
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp/spec"
+import { app, crud } from "wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
@@ -79,7 +79,7 @@ Let's create a full-app example that uses automatic CRUD. We'll stick to using t
 We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp/spec"
+import { app, page, route } from "wasp/spec"
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
@@ -131,7 +131,7 @@ We can then run <InlineWaspCommand command="wasp db migrate-dev" /> to create th
 Let's add the following `crud` spec to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, crud } from "@wasp/spec"
+import { app, crud } from "wasp/spec"
 import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({

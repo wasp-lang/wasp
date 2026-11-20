@@ -11,7 +11,7 @@ import { CardLink } from '@site/src/components/CardLink'
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -78,7 +78,7 @@ To speed up development, Wasp offers a `Dummy` email sender that `console.log`s 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -98,7 +98,7 @@ The SMTP provider needs the `nodemailer` and `@types/nodemailer` packages in you
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -134,7 +134,7 @@ The Mailgun provider needs the `mailgun.js` package in your project:
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -181,7 +181,7 @@ The SendGrid provider needs the `@sendgrid/mail` package in your project:
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",
@@ -213,7 +213,7 @@ The Resend provider needs the `resend` package in your project:
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
+import { app } from "wasp/spec"
 
 export default app({
   name: "myApp",

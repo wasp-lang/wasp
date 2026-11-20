@@ -12,7 +12,7 @@ Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and
 
 ## Required Configuration
 
-You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
+You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use the `wasp()` plugin from `@wasp/wasp/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
 
 - Configuration required for Wasp full-stack apps to work.
 - Environment variables validation.
@@ -24,7 +24,7 @@ Here's the minimal required configuration:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="vite.config.js"
-    import { wasp } from 'wasp/client/vite'
+    import { wasp } from '@wasp/wasp/vite'
     import { defineConfig } from 'vite'
 
     export default defineConfig({
@@ -35,7 +35,7 @@ Here's the minimal required configuration:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="vite.config.ts"
-    import { wasp } from 'wasp/client/vite'
+    import { wasp } from '@wasp/wasp/vite'
     import { defineConfig } from 'vite'
 
     export default defineConfig({
@@ -77,7 +77,7 @@ Vite config customization can be useful for things like:
 The `wasp()` plugin accepts options allowing you to customize the underlying React plugin behavior if needed:
 
 ```ts title="vite.config.ts" auto-js
-import { wasp } from 'wasp/client/vite'
+import { wasp } from '@wasp/wasp/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -100,7 +100,7 @@ Below are some examples of how you can customize the Vite config.
 If you want Vite to open the browser automatically when you run <InlineWaspCommand command="wasp start" />, you can do that by customizing the `open` option.
 
 ```ts title="vite.config.ts" auto-js
-import { wasp } from 'wasp/client/vite'
+import { wasp } from '@wasp/wasp/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -128,7 +128,7 @@ Chrome DevTools support [mapping a page's resources to a folder](https://develop
 2. Extend your `vite.config.{ts,js}`:
 
 ```ts title="vite.config.ts" auto-js
-import { wasp } from 'wasp/client/vite'
+import { wasp } from '@wasp/wasp/vite'
 import { defineConfig } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
 
@@ -149,7 +149,7 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 ## API Reference
 
 <CardLink
-  to="../../api/wasp/client/vite#wasp"
+  to="../../api/@wasp/wasp/vite#wasp"
   kind="api"
   title="wasp"
   description="The Wasp Vite plugin and all its options."

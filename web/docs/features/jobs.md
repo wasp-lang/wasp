@@ -30,7 +30,7 @@ Let's write an example Job that will print a message to the console and return a
 1. Start by creating a Job spec in your Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp/spec"
+import { app, job } from "wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
@@ -130,7 +130,7 @@ In our example, `mySpecialJob` uses its argument, but your worker function doesn
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job spec:
 
 ```ts title="main.wasp.ts"
-import { app, job } from "@wasp/spec"
+import { app, job } from "wasp/spec"
 import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({

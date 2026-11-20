@@ -16,6 +16,7 @@ packages:
   - packages/wasp-app-runner
   - web
   - web/sdk-api-docs
+  - web/wasp-api-docs
   - web/tutorial-actions-executor
   - packages/cli/scripts/make-cli-npm-packages
   - waspc/starters-e2e-tests

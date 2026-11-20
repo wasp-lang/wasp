@@ -142,7 +142,7 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 
 ### Installation {#detailed-installation}
 
-Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and runs `npm install`, which installs Wasp along with the rest of the project's dependencies. After you clone a project, run `npm install` yourself.
+Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and installs it along with the rest of the project's dependencies, with the [package manager](../advanced/dependencies.md#package-managers) you choose. After you clone a project, run its install command yourself, e.g. `npm install`.
 
 The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. See [Running Wasp commands](../advanced/cli.md#running-wasp-commands) for how to run it.
 

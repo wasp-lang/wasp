@@ -18,9 +18,13 @@ Wasp now requires Node.js 26 or later, the [current LTS line](https://github.com
 
 Wasp projects no longer use npm workspaces, and Wasp no longer runs `npm install` for you. Your `package.json` lists everything your app needs, including the packages of the Wasp features you use, like `lucia` for auth. You install them with `npm install`, like in any other project. Your `package-lock.json` no longer changes when Wasp regenerates its code.
 
+### Any package manager
+
+Wasp no longer requires npm. A project can use pnpm or Bun instead, and `wasp new` asks which one you want. The steps below use npm, which your project uses today. To switch afterwards, see [Package managers](./advanced/dependencies.md#package-managers).
+
 ### New npm organization
 
-Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
+Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`. The Wasp Spec comes with `@wasp/wasp`, and you import it from `wasp/spec`.
 
 ### Prisma 6
 
@@ -95,7 +99,7 @@ To keep typing `wasp <command>`, install the new package. If you skipped the uni
 
 ### 3. Depend on `@wasp/wasp` instead of `@wasp.sh/spec` {#depend-on-wasp}
 
-Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Remove Wasp's two entries from `workspaces`, and add the `wasp` dependency in their place. The `wasp` dependency points at the code Wasp generates, and your `wasp/...` imports resolve to it. If `workspaces` has no other entries, remove the field.
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Remove Wasp's two entries from `workspaces`. If `workspaces` has no other entries, remove the field. Your `wasp/...` imports keep working, and [step 8](#extend-tsconfig) sets up how TypeScript finds them.
 
 Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](./advanced/cli.md#running-wasp-commands):
 
@@ -127,8 +131,7 @@ Also add the npm scripts that new projects come with. They run your project's Wa
         "preview": "wasp build start"
       },
       "dependencies": {
-        "@wasp/wasp": "0.27.0",
-        "wasp": "file:.wasp/out/sdk/wasp"
+        "@wasp/wasp": "0.27.0"
       }
       // highlight-end
     }
@@ -136,7 +139,7 @@ Also add the npm scripts that new projects come with. They run your project's Wa
   </TabItem>
 </Tabs>
 
-Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 10](#reinstall-dependencies).
+Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 12](#reinstall-dependencies).
 
 ### 4. Add the packages of the features you use {#feature-packages}
 
@@ -227,9 +230,9 @@ min-release-age=7
 min-release-age-exclude[]=@wasp/*
 ```
 
-### 7. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+### 7. Rename `@wasp.sh/spec` imports to `wasp/spec`
 
-Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
+You now import the Wasp Spec from `wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -241,7 +244,7 @@ Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your 
   <TabItem value="after" label="After">
     ```ts title="main.wasp.ts"
     // highlight-next-line
-    import { app, page, route } from "@wasp/spec";
+    import { app, page, route } from "wasp/spec";
     ```
   </TabItem>
 </Tabs>
@@ -266,7 +269,56 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or
   </TabItem>
 </Tabs>
 
-### 8. Remove the Wasp version from `main.wasp.ts`
+### 8. Extend the tsconfig that comes with `@wasp/wasp` {#extend-tsconfig}
+
+Wasp's generated code is no longer a package in `node_modules`. TypeScript now finds your `wasp/...` imports through a tsconfig that comes with `@wasp/wasp`. Extend it in `tsconfig.src.json` and in `tsconfig.wasp.json`:
+
+```json title="tsconfig.src.json"
+{
+  // highlight-next-line
+  "extends": "@wasp/wasp/tsconfig.paths.json",
+  "compilerOptions": {
+    // ...
+  }
+}
+```
+
+```json title="tsconfig.wasp.json"
+{
+  // highlight-next-line
+  "extends": "@wasp/wasp/tsconfig.paths.json",
+  "compilerOptions": {
+    // ...
+  }
+}
+```
+
+If either file sets `compilerOptions.paths`, remove it. TypeScript doesn't merge `paths` with the ones of the extended tsconfig, so yours would hide Wasp's.
+
+Your editor can't find the extended file until you install `@wasp/wasp` in [step 12](#reinstall-dependencies).
+
+### 9. Import the Wasp Vite plugin from `@wasp/wasp/vite` {#vite-plugin-import}
+
+The Wasp Vite plugin moved from the generated code into the `@wasp/wasp` package. Update the import in your `vite.config.ts`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="vite.config.ts"
+    import { defineConfig } from "vite";
+    // highlight-next-line
+    import { wasp } from "wasp/client/vite";
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="vite.config.ts"
+    import { defineConfig } from "vite";
+    // highlight-next-line
+    import { wasp } from "@wasp/wasp/vite";
+    ```
+  </TabItem>
+</Tabs>
+
+### 10. Remove the Wasp version from `main.wasp.ts`
 
 `package.json` now sets the Wasp version, so remove the `wasp` field:
 
@@ -291,7 +343,7 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or
   </TabItem>
 </Tabs>
 
-### 9. Upgrade to Prisma 6
+### 11. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -328,7 +380,7 @@ Update the Prisma packages in your `package.json`:
 
 Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 10. Reinstall your dependencies {#reinstall-dependencies}
+### 12. Reinstall your dependencies {#reinstall-dependencies}
 
 :::caution Back up your SQLite development database
 If your app uses SQLite in development, its database is `.wasp/out/db/dev.db`, so deleting `.wasp` deletes your development data too. Copy the file somewhere outside `.wasp` first if you want to keep it.
@@ -347,9 +399,7 @@ Then run the migrations. Prisma 6 changed how it stores some things in the datab
 
 If Wasp reports a missing package from [step 4](#feature-packages) here, run the command Wasp prints and try again.
 
-Finally, run `npm install` once more. Wasp has generated its code by now, so npm removes the old workspace entries from your `package-lock.json`. Commit the file.
-
-### 11. Update your Vitest setup
+### 13. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -366,7 +416,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
        ```ts title="vite.config.ts"
        // highlight-next-line
        import { defineConfig } from "vitest/config";
-       import { wasp } from "wasp/client/vite";
+       import { wasp } from "@wasp/wasp/vite";
 
        export default defineConfig({
          plugins: [wasp()],
@@ -382,7 +432,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
        ```ts title="vite.config.ts"
        // highlight-next-line
        import { defineConfig } from "vite";
-       import { wasp } from "wasp/client/vite";
+       import { wasp } from "@wasp/wasp/vite";
 
        export default defineConfig({
          plugins: [wasp()],
@@ -449,7 +499,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      <TabItem value="before" label="Before">
        ```ts title="vite.config.ts"
        import { defineConfig } from "vite";
-       import { wasp } from "wasp/client/vite";
+       import { wasp } from "@wasp/wasp/vite";
 
        export default defineConfig({
          plugins: [wasp()],
@@ -460,9 +510,9 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
        ```ts title="vite.config.ts"
        // highlight-next-line
        import { defineConfig } from "vitest/config";
-       import { wasp } from "wasp/client/vite";
+       import { wasp } from "@wasp/wasp/vite";
        // highlight-next-line
-       import { waspTestConfig } from "wasp/test";
+       import { waspTestConfig } from "@wasp/wasp/test";
 
        export default defineConfig({
          plugins: [wasp()],
@@ -593,13 +643,13 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](./advanced/testing.md).
 
-### 12. Check relative paths in your server code
+### 14. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-### 13. Check the packages your server loads at runtime
+### 15. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -618,7 +668,7 @@ export default app({
 })
 ```
 
-### 14. Install the system dependencies your app needs
+### 16. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -628,7 +678,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-### 15. Update your custom Dockerfile
+### 17. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -640,7 +690,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 16. Import `HttpError` from `wasp/errors`
+### 18. Import `HttpError` from `wasp/errors`
 
 The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
 
@@ -658,7 +708,7 @@ The server and the client now use the same `HttpError` class, so it moved from `
   </TabItem>
 </Tabs>
 
-### 17. Update how you read errors on the client
+### 19. Update how you read errors on the client
 
 On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
@@ -695,7 +745,7 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
   </TabItem>
 </Tabs>
 
-### 18. Pass `HttpError` data in the options
+### 20. Pass `HttpError` data in the options
 
 `HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
@@ -717,6 +767,6 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
 
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
-### 19. Enjoy your updated Wasp app
+### 21. Enjoy your updated Wasp app
 
 That's it!
