@@ -1,3 +1,4 @@
+import type { RequestHandler } from 'express'
 import { getSessionAndUserFromBearerToken } from '../auth/session.js'
 import { createInvalidCredentialsError } from '@wasp/sdk-core/node'
 import { defineHandler } from '../utils.js'
@@ -14,7 +15,9 @@ import { defineHandler } from '../utils.js'
  *   - `req.sessionId` is the ID of the session that authenticated the request.
  * - If the request is not authenticated, it throws an error.
  */
-const auth = defineHandler(async (req, _res, next) => {
+// Annotated, because the inferred type names a type from `@types/qs`, which
+// this code can only reach when the package manager hoists it (TS2883).
+const auth: RequestHandler = defineHandler(async (req, _res, next) => {
   const authHeader = req.get('Authorization')
   // NOTE(matija): for now we let tokenless requests through and make it operation's
   // responsibility to verify whether the request is authenticated or not. In the future

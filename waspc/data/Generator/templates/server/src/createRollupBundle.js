@@ -1,7 +1,11 @@
 import resolve from "@rollup/plugin-node-resolve";
+import { isWaspDependencyImport } from "@wasp/sdk-core/node/sdk";
+import path from "node:path";
 import esbuild from "rollup-plugin-esbuild";
 import { sdkImports } from "./plugins/sdkImports.js";
 import { virtualUserModules } from "./plugins/virtualUserModules.js";
+
+const generatedAppDir = path.resolve(import.meta.dirname, "..", "..");
 
 /**
  * @param {string} inputFilePath
@@ -30,6 +34,9 @@ export function createRollupBundle(inputFilePath, outputFilePath) {
     ],
     // We don't want to bundle any of the node_module deps because we want to
     // keep them as external dependencies.
-    external: /node_modules/,
+    external: (source, _importer, isResolved) =>
+      isResolved
+        ? /node_modules/.test(source)
+        : isWaspDependencyImport(generatedAppDir, source),
   }
 }
