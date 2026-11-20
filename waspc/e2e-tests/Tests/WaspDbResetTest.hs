@@ -69,7 +69,7 @@ waspDbResetTest =
     mainWaspTsWithSeeds :: T.Text
     mainWaspTsWithSeeds =
       [trimming|
-        import { app, page, route } from "@wasp/spec";
+        import { app, page, route } from "wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { $seedScriptThatPopulatesTasksTableName } from "./src/db/$seedScriptThatPopulatesTasksTableName" with { type: "ref" };
         import { $seedScriptThatAssertsTasksTableIsEmptyName } from "./src/db/$seedScriptThatAssertsTasksTableIsEmptyName" with { type: "ref" };

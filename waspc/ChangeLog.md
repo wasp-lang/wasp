@@ -15,7 +15,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp no longer runs `npm install` after compiling a project. ([#5389](https://github.com/wasp-lang/wasp/pull/5389))
 - The Wasp Vite plugin and the Vitest config helper are now imported from `@wasp/wasp/vite` and `@wasp/wasp/test` (previously `wasp/client/vite` and `wasp/test`). ([#5409](https://github.com/wasp-lang/wasp/pull/5409))
 - Wasp now requires Node.js >=26.13.1 (previously >=24.22.1) and `@types/node` `^26.0.0`. ([#5329](https://github.com/wasp-lang/wasp/pull/5329))
-- The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
+- The Wasp Spec is now imported from `wasp/spec` (previously `@wasp.sh/spec`), and `tsconfig.wasp.json` extends `@wasp/wasp/tsconfig.paths.json` too. ([#5159](https://github.com/wasp-lang/wasp/pull/5159), [#5411](https://github.com/wasp-lang/wasp/pull/5411))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))

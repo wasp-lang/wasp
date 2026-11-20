@@ -16,6 +16,14 @@ spec_WaspTsConfig = do
       $ assertReturnsValidationErrorMentioningField "strict"
       $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
 
+    it "returns an error when it doesn't extend the generated tsconfig"
+      $ assertReturnsValidationErrorMentioningField "extends"
+      $ validTsConfig {T.extends = Nothing}
+
+    it "returns an error when it sets its own `paths`"
+      $ assertReturnsValidationErrorMentioningField "paths"
+      $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.paths = Just mempty})}
+
     it "returns an error when allowJs has a wrong value"
       $ assertReturnsValidationErrorMentioningField "allowJs"
       $ validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Just False})}
@@ -66,7 +74,7 @@ assertReturnsValidationErrorMentioningField fieldName config =
 validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
-    { T.extends = Nothing,
+    { T.extends = Just (T.TsConfigExtends ["@wasp/wasp/tsconfig.paths.json"]),
       T.compilerOptions = Just validCompilerOptions,
       T.include = Just ["**/*.wasp.ts", ".wasp/out/types/spec"],
       T.exclude = Nothing,

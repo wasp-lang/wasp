@@ -83,7 +83,7 @@ incrementalTypeCheckingTest =
     mainWaspTs :: T.Text
     mainWaspTs =
       [trimming|
-        import { app, page, query, route } from "@wasp/spec";
+        import { app, page, query, route } from "wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { getTasks } from "./src/queries" with { type: "ref" };
 
