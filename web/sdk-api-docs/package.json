@@ -12,11 +12,9 @@
     "@types/react": "^19.2.7",
     "@wasp/auth": "workspace:*",
     "@wasp/sdk-core": "workspace:*",
-    "@wasp/test-utils": "workspace:*",
     "react-router": "^8.0.1",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
-    "vitest": "catalog:",
     "zod": "^4.3.6"
   }
 }
