@@ -1,4 +1,5 @@
 import { QueryObserver } from "@tanstack/react-query";
+import { mockServer } from "@wasp/test-utils";
 import { http, HttpResponse } from "msw";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { config } from "wasp/client";
@@ -8,7 +9,6 @@ import {
   initializeQueryClient,
   queryClientInitialized,
 } from "wasp/client/operations";
-import { mockServer } from "wasp/client/test";
 import { serialize } from "wasp/core/serialization";
 
 // Regression test for https://github.com/wasp-lang/wasp/issues/3009
