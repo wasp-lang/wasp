@@ -23,8 +23,9 @@ import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
+import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors, warnIfDbNeedsMigration)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
+import Wasp.Project.Db.Dev (findDevDatabaseUrl)
 import Wasp.Project.RunConfig (ProjectRunConfig)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
@@ -149,7 +150,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compileResult <- compileIO waspProjectDir outDir
+      compileResult <- compileIO waspProjectDir outDir >>= addDbMigrationWarnings
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)
@@ -171,6 +172,14 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome
+
+    addDbMigrationWarnings :: CompileResult -> IO CompileResult
+    addDbMigrationWarnings compileResult = case _compileOutcome compileResult of
+      Right appSpec -> do
+        devDatabaseUrl <- findDevDatabaseUrl appSpec
+        dbWarnings <- warnIfDbNeedsMigration appSpec devDatabaseUrl outDir
+        return compileResult {_compileWarnings = _compileWarnings compileResult ++ dbWarnings}
+      Left _ -> return compileResult
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
