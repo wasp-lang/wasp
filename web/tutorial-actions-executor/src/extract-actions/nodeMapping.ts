@@ -2,6 +2,7 @@ import type { Action, BaseAction, MdxFilePath } from "../actions/actions.ts";
 import {
   createApplyPatchAction,
   createInitAppAction,
+  createInstallPackagesAction,
   createMigrateDbAction,
 } from "../actions/index.ts";
 import { assertUnreachable } from "../assert.ts";
@@ -30,6 +31,16 @@ export function mapTutorialActionNodeToAction(
       return createApplyPatchAction(commonData, patchesPath);
     case "MIGRATE_DB":
       return createMigrateDbAction(commonData);
+    case "INSTALL_PACKAGES":
+      if (!node.packageSpecifiers) {
+        throw new Error(
+          `TutorialAction with action 'INSTALL_PACKAGES' requires the 'packageSpecifiers' attribute.`,
+        );
+      }
+      return createInstallPackagesAction(
+        commonData,
+        node.packageSpecifiers.split(/\s+/).filter(Boolean),
+      );
     default:
       assertUnreachable(
         node.action,

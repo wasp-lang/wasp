@@ -15,6 +15,7 @@ import { CardLink } from '@site/src/components/CardLink';
 import GoogleData from '../entities/_google-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
+import SocialAuthPackages from './_social-auth-packages.md';
 
 # Google
 
@@ -38,6 +39,8 @@ Enabling Google Authentication comes down to a series of steps:
 <WaspFileStructureNote />
 
 ### 1. Adding Google Auth to Your Wasp File
+
+<SocialAuthPackages />
 
 Let's start by properly configuring the Auth object:
 

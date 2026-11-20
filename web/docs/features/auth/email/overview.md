@@ -10,6 +10,7 @@ import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
 import EmailData from '../entities/_email-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
+import AuthPackages from '../_auth-packages.md';
 
 # Email auth
 
@@ -55,6 +56,8 @@ export default app({
 ```
 
 ### 1. Enable Email Authentication in `main.wasp.ts`
+
+<AuthPackages />
 
 Let's start with adding the following to our `main.wasp.ts` file:
 
