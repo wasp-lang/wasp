@@ -1497,6 +1497,12 @@ export default app({
 })
 ```
 
+Auth needs the `lucia` package in your project, so install it:
+
+```shell
+npm install lucia@3
+```
+
 Don't forget to update the database schema by running:
 
 **npm**
@@ -4468,6 +4474,14 @@ export default app({
 
 Read more about the `auth` field options in the [API Reference](#api-reference) section.
 
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
+
+Social auth methods, like `google` and `gitHub` above, also need the `arctic` package. Each auth method's page lists what to install.
+
 We will provide a quick overview of auth in Wasp and link to more detailed documentation for each auth method.
 
 ### Available auth methods
@@ -5547,6 +5561,12 @@ export default app({
 
 #### 1. Enable Username Authentication
 
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
+
 Let's start with adding the following to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
@@ -5887,6 +5907,12 @@ export default app({
 ```
 
 #### 1. Enable Email Authentication in `main.wasp.ts`
+
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
 
 Let's start with adding the following to our `main.wasp.ts` file:
 
@@ -6794,6 +6820,12 @@ export default app({
 
 #### 1. Adding GitHub Auth to Your Wasp File
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
@@ -7127,6 +7159,12 @@ export default app({
 ```
 
 #### 1. Adding Google Auth to Your Wasp File
+
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
 
 Let's start by properly configuring the Auth object:
 
@@ -7501,6 +7539,12 @@ export default app({
 
 #### 1. Adding Keycloak Auth to Your Wasp File
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
@@ -7819,6 +7863,12 @@ export default app({
 ```
 
 #### 1. Enabling Slack authentication in the Wasp file.
+
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
 
 Now let's properly configure the Auth object:
 
@@ -8193,6 +8243,12 @@ export default app({
 
 #### 1. Adding Discord Auth to Your Wasp File
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
@@ -8524,6 +8580,12 @@ export default app({
 ```
 
 #### 1. Adding Microsoft Auth to Your Wasp File
+
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
 
 Let's start by properly configuring the Auth object:
 
@@ -10268,6 +10330,13 @@ export default app({
 
 #### Using the SMTP Provider {#smtp}
 
+The SMTP provider needs the `nodemailer` and `@types/nodemailer` packages in your project:
+
+```shell
+npm install nodemailer@8
+npm install --save-dev @types/nodemailer@8
+```
+
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
@@ -10298,6 +10367,12 @@ Some hosting providers (for example, **Railway** on its free tier, or **Hetzner*
 :::
 
 #### Using the Mailgun Provider {#mailgun}
+
+The Mailgun provider needs the `mailgun.js` package in your project:
+
+```shell
+npm install mailgun.js@10
+```
 
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
@@ -10342,6 +10417,12 @@ MAILGUN_API_URL=https://api.eu.mailgun.net
 As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com/en-us/changelog/sendgrid-free-plan). A paid SendGrid plan is now required to send emails. Consider using [Mailgun](#mailgun) or [SMTP](#smtp) with another provider if you need a free tier option.
 :::
 
+The SendGrid provider needs the `@sendgrid/mail` package in your project:
+
+```shell
+npm install @sendgrid/mail@7
+```
+
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
@@ -10369,6 +10450,12 @@ SENDGRID_API_KEY=
 ```
 
 #### Using the Resend Provider {#resend}
+
+The Resend provider needs the `resend` package in your project:
+
+```shell
+npm install resend@6
+```
 
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 
@@ -10544,6 +10631,12 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 `PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](https://wasp.sh/docs/features/data/databases#postgresql).
 
+`PgBoss` also needs the `pg-boss` package in your project:
+
+```shell
+npm install pg-boss@8
+```
+
 ##### Limitations
 
 `PgBoss` runs together with your web server, whenever it is up. This means that it is not a separate process or service, but rather a part of your web server's application. As such, it is not suitable for CPU-heavy workloads, as it shares the CPU with your web server's application logic.
@@ -10651,6 +10744,12 @@ To get started, you need to:
 Let's go through setting up WebSockets step by step, starting with enabling WebSockets in your Wasp file.
 
 ### Turn On WebSockets in Your Wasp File
+
+WebSockets need the Socket.IO packages in your project:
+
+```shell
+npm install socket.io@4 socket.io-client@4 @socket.io/component-emitter@4
+```
 
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
@@ -11236,15 +11335,36 @@ This command will add the package in the `dependencies` section of your `package
 
 You will notice that `package.json` already lists some packages, like `@wasp/wasp` and `react`. The `@wasp/wasp` version sets your project's Wasp version, so change it only when you upgrade Wasp. Wasp uses the other packages internally, so don't remove them.
 
+One of them is `wasp`, with the value `file:.wasp/out/sdk/wasp`. It points at the code Wasp generates for your app, and your `wasp/...` imports resolve to it.
+
 #### Using Packages that are Already Used by Wasp Internally
 
 Wasp internally uses certain dependencies (e.g. React, Prisma, Vite, Express) with specific versions. Your project gets them as peer dependencies of `@wasp/wasp`, so npm installs them and refuses a version that conflicts with the one Wasp requires. Run `npm run wasp -- deps` to see them.
 
 npm has to install peer dependencies for this to work, so don't set `legacy-peer-deps` or `omit=peer` in your `.npmrc`.
 
-The generated server also lists a few dependencies of its own, like `socket.io` when you use WebSockets. If you list one of those in your `package.json`, Wasp checks that you use the version it requires.
+#### Packages that Wasp features need {#feature-packages}
 
-##### Overriding Wasp's Dependencies (Advanced)
+Some Wasp features need extra packages, like `lucia` for auth. You install them when you start using the feature:
+
+| Feature                                                                | Packages                                                        |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [Auth](https://wasp.sh/docs/features/auth/overview)                    | `lucia`                                                         |
+| [Social auth](https://wasp.sh/docs/features/auth/social-auth/overview) | `lucia`, `arctic`                                               |
+| [Jobs](https://wasp.sh/docs/features/jobs)                             | `pg-boss`                                                       |
+| [WebSockets](https://wasp.sh/docs/features/websockets)                 | `socket.io`, `socket.io-client`, `@socket.io/component-emitter` |
+| [SMTP email sender](https://wasp.sh/docs/features/email#smtp)          | `nodemailer`, `@types/nodemailer`                               |
+| [Mailgun email sender](https://wasp.sh/docs/features/email#mailgun)    | `mailgun.js`                                                    |
+| [SendGrid email sender](https://wasp.sh/docs/features/email#sendgrid)  | `@sendgrid/mail`                                                |
+| [Resend email sender](https://wasp.sh/docs/features/email#resend)      | `resend`                                                        |
+
+Each feature's page has the command that installs its packages. If you forget one, Wasp stops with an error that names the package and the command:
+
+```
+Your app uses jobs, so it needs pg-boss. Run `npm install "pg-boss@^8.4.2"`.
+```
+
+#### Overriding Wasp's Dependencies (Advanced)
 
 If you need to use a different version of a Wasp-managed dependency, you can override it. This is an advanced feature intended for:
 
@@ -11264,7 +11384,7 @@ When you override dependencies, it's up to you to test your app thoroughly and v
 If you find the need to override any dependency, we'd appreciate for you to [post an issue on GitHub](https://github.com/wasp-lang/wasp/issues/new/choose), or a [message on our Discord](https://discord.gg/rzdnErX), explaining your usecase. This will make us aware of your needs, and helps us prioritize giving you a supported solution faster.
 :::
 
-To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
+To override a dependency that Wasp uses, use npm's [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) field. If you also list the package in `dependencies`, both must use the exact same version string, or npm fails with `EOVERRIDE`:
 
 **Before**
 
@@ -11291,23 +11411,6 @@ To override a dependency that comes with `@wasp/wasp`, use npm's [`overrides`](h
   }
 }
 ```
-
-To override a dependency that the generated server lists, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
-
-```json title="package.json"
-{
-  "dependencies": {
-    "socket.io": "^4.8.0"
-  },
-  "wasp": {
-    "overriddenDeps": {
-      "socket.io": "^4.6.1"
-    }
-  }
-}
-```
-
-By declaring this, you acknowledge you're deviating from Wasp's tested version. When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
 
 #### Supply Chain Protection
 
@@ -11796,7 +11899,7 @@ There are **Wasp-defined** and **user-defined** env vars. Wasp already comes wit
 
 ## Advanced / Testing
 
-Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/).
+Wasp provides helpers for testing your client code with [Vitest](https://vitest.dev/) in the `@wasp/test-utils` package.
 
 ### Testing server code
 
@@ -11806,26 +11909,27 @@ Wasp doesn't provide helpers for testing server code yet. You can follow the pro
 
 #### Installing the packages
 
-Install Vitest and the libraries for testing React components:
+Install Vitest, the libraries for testing React components, and Wasp's testing helpers:
 
 ```shell
-npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw @wasp/test-utils
 ```
 
 - [`vitest`](https://vitest.dev/): the test runner.
 - [`jsdom`](https://github.com/jsdom/jsdom): a browser environment for your component tests.
 - [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/): renders React components and finds elements in them.
 - [`@testing-library/jest-dom`](https://github.com/testing-library/jest-dom): adds matchers for checking the page, like `toBeInTheDocument()`.
-- [`msw`](https://mswjs.io/): mocks HTTP requests. The [Wasp helpers](#api-reference) use it to mock your queries and APIs.
+- [`msw`](https://mswjs.io/): mocks HTTP requests. The Wasp helpers use it to mock your queries and APIs.
+- [`@wasp/test-utils`](https://www.npmjs.com/package/@wasp/test-utils): the [Wasp helpers](#api-reference) for rendering components and mocking your queries and APIs.
 
 #### Configuring Vitest
 
 Vitest reads its configuration from your `vite.config.ts`, so your tests use the same Vite setup as your app. Add a `test` section to it, built with Wasp's `waspTestConfig` helper:
 
 ```ts title="vite.config.ts"
+import { waspTestConfig } from "@wasp/test-utils/config";
 import { defineConfig } from "vitest/config";
 import { wasp } from "wasp/client/vite";
-import { waspTestConfig } from "wasp/test";
 
 export default defineConfig({
   plugins: [wasp()],
@@ -11928,7 +12032,7 @@ test("areThereAnyTasks", () => {
 
 Wasp wraps every page of your app in providers: React Query for queries and actions, and React Router for links. A component that uses queries, actions, or links fails to render without them.
 
-`renderInContext` from `wasp/client/test` renders a component inside the same providers:
+`renderInContext` from `@wasp/test-utils` renders a component inside the same providers:
 
 ```tsx title="src/tasks/TasksHeader.tsx"
 import { Link } from "wasp/client/router";
@@ -11945,8 +12049,8 @@ export function TasksHeader() {
 
 ```tsx title="src/tasks/TasksHeader.test.tsx"
 import { screen } from "@testing-library/react";
+import { renderInContext } from "@wasp/test-utils";
 import { expect, test } from "vitest";
-import { renderInContext } from "wasp/client/test";
 import { TasksHeader } from "./TasksHeader";
 
 test("links back home", () => {
@@ -11983,9 +12087,9 @@ export function TaskList() {
 
 ```tsx title="src/tasks/TaskList.test.tsx"
 import { screen } from "@testing-library/react";
+import { mockServer, renderInContext } from "@wasp/test-utils";
 import { expect, test } from "vitest";
 import { getTasks } from "wasp/client/operations";
-import { mockServer, renderInContext } from "wasp/client/test";
 import { TaskList } from "./TaskList";
 
 const { mockQuery } = mockServer();
@@ -12028,9 +12132,9 @@ export function TaskStats() {
 
 ```tsx title="src/tasks/TaskStats.test.tsx"
 import { screen } from "@testing-library/react";
+import { mockServer, renderInContext } from "@wasp/test-utils";
 import { test } from "vitest";
 import { HttpMethod } from "wasp/client";
-import { mockServer, renderInContext } from "wasp/client/test";
 import { TaskStats } from "./TaskStats";
 
 const { mockApi } = mockServer();
@@ -12046,29 +12150,29 @@ test("shows the stats", async () => {
 
 ### API reference
 
-[API reference](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
+[API reference](https://wasp.sh/docs/api/@wasp/test-utils/config#wasptestconfig)
 
-#### [waspTestConfig »](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
+#### [waspTestConfig »](https://wasp.sh/docs/api/@wasp/test-utils/config#wasptestconfig)
 
-[Configure Vitest with the defaults a Wasp app needs.](https://wasp.sh/docs/api/wasp/test#wasptestconfig)
+[Configure Vitest with the defaults a Wasp app needs.](https://wasp.sh/docs/api/@wasp/test-utils/config#wasptestconfig)
 
-[API reference](https://wasp.sh/docs/api/wasp/client/test#renderincontext)
+[API reference](https://wasp.sh/docs/api/@wasp/test-utils#renderincontext)
 
-#### [renderInContext »](https://wasp.sh/docs/api/wasp/client/test#renderincontext)
+#### [renderInContext »](https://wasp.sh/docs/api/@wasp/test-utils#renderincontext)
 
-[Render a component with the providers Wasp needs.](https://wasp.sh/docs/api/wasp/client/test#renderincontext)
+[Render a component with the providers Wasp needs.](https://wasp.sh/docs/api/@wasp/test-utils#renderincontext)
 
-[API reference](https://wasp.sh/docs/api/wasp/client/test#mockserver-1)
+[API reference](https://wasp.sh/docs/api/@wasp/test-utils#mockserver)
 
-#### [mockServer »](https://wasp.sh/docs/api/wasp/client/test#mockserver-1)
+#### [mockServer »](https://wasp.sh/docs/api/@wasp/test-utils#mockserver)
 
-[Set up a mock server and mock your Queries and APIs.](https://wasp.sh/docs/api/wasp/client/test#mockserver-1)
+[Set up a mock server and mock your Queries and APIs.](https://wasp.sh/docs/api/@wasp/test-utils#mockserver)
 
-[API reference](https://wasp.sh/docs/api/wasp/client/test#wasptestwrapper)
+[API reference](https://wasp.sh/docs/api/@wasp/test-utils#wasptestwrapper)
 
-#### [WaspTestWrapper »](https://wasp.sh/docs/api/wasp/client/test#wasptestwrapper)
+#### [WaspTestWrapper »](https://wasp.sh/docs/api/@wasp/test-utils#wasptestwrapper)
 
-[Wrap your own Testing Library renders in the providers Wasp needs.](https://wasp.sh/docs/api/wasp/client/test#wasptestwrapper)
+[Wrap your own Testing Library renders in the providers Wasp needs.](https://wasp.sh/docs/api/@wasp/test-utils#wasptestwrapper)
 
 
 ## Advanced / Accessing the configuration
@@ -15584,6 +15688,10 @@ Your project now depends on Wasp through the `@wasp/wasp` npm package, which bri
 
 Wasp now requires Node.js 26 or later, the [current LTS line](https://github.com/nodejs/release#release-schedule). It enables the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) by default and removes some long-deprecated APIs. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) for the full list of changes.
 
+#### No npm workspaces and no automatic installs
+
+Wasp projects no longer use npm workspaces, and Wasp no longer runs `npm install` for you. Your `package.json` lists everything your app needs, including the packages of the Wasp features you use, like `lucia` for auth. You install them with `npm install`, like in any other project. Your `package-lock.json` no longer changes when Wasp regenerates its code.
+
 #### New npm organization
 
 Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
@@ -15596,7 +15704,7 @@ Wasp now uses Prisma 6. Check out Prisma's [upgrade guide](https://www.prisma.io
 
 Wasp no longer installs and runs [Vitest](https://vitest.dev/) for you. You set it up like in any other Vite app, so you choose the versions of Vitest and the testing libraries.
 
-The `wasp/client/test` helpers for rendering components and mocking queries and APIs still work. Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
+The helpers for rendering components and mocking queries and APIs moved from `wasp/client/test` to the `@wasp/test-utils` package, and work the same. Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
 
 #### Smaller Docker images
 
@@ -15662,12 +15770,18 @@ npm i -g @wasp/cli@0.27
 
 #### 3. Depend on `@wasp/wasp` instead of `@wasp.sh/spec` {#depend-on-wasp}
 
-Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands):
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Remove Wasp's two entries from `workspaces`, and add the `wasp` dependency in their place. The `wasp` dependency points at the code Wasp generates, and your `wasp/...` imports resolve to it. If `workspaces` has no other entries, remove the field.
+
+Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands):
 
 **Before**
 
 ```json title="package.json"
 {
+  "workspaces": [
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
+  ],
   "devDependencies": {
     "@wasp.sh/spec": "file:.wasp/spec"
   }
@@ -15685,18 +15799,49 @@ Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency.
     "preview": "wasp build start"
   },
   "dependencies": {
-    "@wasp/wasp": "0.27.0"
+    "@wasp/wasp": "0.27.0",
+    "wasp": "file:.wasp/out/sdk/wasp"
   }
 }
 ```
 
-Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 9](#reinstall-dependencies).
+Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 10](#reinstall-dependencies).
 
-#### 4. Move your overrides of Wasp's dependencies to npm `overrides`
+#### 4. Add the packages of the features you use {#feature-packages}
+
+**If your app uses none of the features in the table below, you can skip this step.**
+
+Wasp used to install the packages that only some features need. Now your `package.json` lists them. Add the packages of the features your app uses to `dependencies`. `@types/nodemailer` belongs in `devDependencies`:
+
+| Feature                                                                | Packages                                                        |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [Auth](https://wasp.sh/docs/features/auth/overview)                    | `lucia`                                                         |
+| [Social auth](https://wasp.sh/docs/features/auth/social-auth/overview) | `lucia`, `arctic`                                               |
+| [Jobs](https://wasp.sh/docs/features/jobs)                             | `pg-boss`                                                       |
+| [WebSockets](https://wasp.sh/docs/features/websockets)                 | `socket.io`, `socket.io-client`, `@socket.io/component-emitter` |
+| [SMTP email sender](https://wasp.sh/docs/features/email#smtp)          | `nodemailer`, `@types/nodemailer`                               |
+| [Mailgun email sender](https://wasp.sh/docs/features/email#mailgun)    | `mailgun.js`                                                    |
+| [SendGrid email sender](https://wasp.sh/docs/features/email#sendgrid)  | `@sendgrid/mail`                                                |
+| [Resend email sender](https://wasp.sh/docs/features/email#resend)      | `resend`                                                        |
+
+For example, an app with username auth and a job adds:
+
+```json title="package.json"
+{
+  "dependencies": {
+    "lucia": "^3.0.1",
+    "pg-boss": "^8.4.2"
+  }
+}
+```
+
+You don't have to get the list right now. If a package is missing, Wasp stops with an error that names the package and the command that installs the version Wasp needs.
+
+#### 5. Move your overrides of Wasp's dependencies to npm `overrides`
 
 **If your `package.json` has no `wasp.overriddenDeps` field, you can skip this step.**
 
-If `wasp.overriddenDeps` lists React, Vite, Express, or another package that comes with `@wasp/wasp`, override it with npm's `overrides` field instead. Wasp reports such `overriddenDeps` entries as errors.
+Wasp no longer reads the `wasp.overriddenDeps` field. Override a package with npm's `overrides` field instead, and remove `wasp.overriddenDeps`.
 
 The two fields take different versions. `wasp.overriddenDeps` lists the version Wasp requires, while `overrides` lists the version you want. So don't copy the value over. Set the override to the version from your `dependencies`, since npm fails with `EOVERRIDE` when the two don't match exactly:
 
@@ -15730,7 +15875,7 @@ The two fields take different versions. `wasp.overriddenDeps` lists the version 
 
 Read more in [Overriding Wasp's dependencies](https://wasp.sh/docs/advanced/dependencies#overriding-wasps-dependencies-advanced).
 
-#### 5. Check your `.npmrc`
+#### 6. Check your `.npmrc`
 
 **If your project has no `.npmrc` file, you can skip this step.**
 
@@ -15743,7 +15888,7 @@ min-release-age=7
 min-release-age-exclude[]=@wasp/*
 ```
 
-#### 6. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+#### 7. Rename `@wasp.sh/spec` imports to `@wasp/spec`
 
 Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
@@ -15778,7 +15923,7 @@ If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or
 - Run `npm install` before other Wasp commands in a fresh clone or worktree.
 ```
 
-#### 7. Remove the Wasp version from `main.wasp.ts`
+#### 8. Remove the Wasp version from `main.wasp.ts`
 
 `package.json` now sets the Wasp version, so remove the `wasp` field:
 
@@ -15801,7 +15946,7 @@ export default app({
 });
 ```
 
-#### 8. Upgrade to Prisma 6
+#### 9. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -15833,7 +15978,7 @@ Update the Prisma packages in your `package.json`:
 
 Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-#### 9. Reinstall your dependencies {#reinstall-dependencies}
+#### 10. Reinstall your dependencies {#reinstall-dependencies}
 
 :::caution[Back up your SQLite development database]
 If your app uses SQLite in development, its database is `.wasp/out/db/dev.db`, so deleting `.wasp` deletes your development data too. Copy the file somewhere outside `.wasp` first if you want to keep it.
@@ -15860,9 +16005,13 @@ npm run wasp -- db migrate-dev
 wasp db migrate-dev
 ```
 
-#### 10. Update your Vitest setup
+If Wasp reports a missing package from [step 4](#feature-packages) here, run the command Wasp prints and try again.
 
-The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
+Finally, run `npm install` once more. Wasp has generated its code by now, so npm removes the old workspace entries from your `package-lock.json`. Commit the file.
+
+#### 11. Update your Vitest setup
+
+The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The testing helpers (`renderInContext` and `mockServer`) moved from `wasp/client/test` to the `@wasp/test-utils` package, which you now install yourself.
 
 Follow the part that matches your app.
 
@@ -15938,10 +16087,10 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 ##### If you use `wasp test client`
 
-1. Install Vitest and the testing libraries your tests use:
+1. Install Vitest, the testing libraries your tests use, and Wasp's testing helpers:
 
    ```shell
-   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
+   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw @wasp/test-utils
    ```
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
@@ -15962,9 +16111,9 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
    **After**
 
    ```ts title="vite.config.ts"
+   import { waspTestConfig } from "@wasp/test-utils/config";
    import { defineConfig } from "vitest/config";
    import { wasp } from "wasp/client/vite";
-   import { waspTestConfig } from "wasp/test";
 
    export default defineConfig({
      plugins: [wasp()],
@@ -16052,7 +16201,21 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
    /// <reference types="vitest/globals" />
    ```
 
-4. Run your tests with Vitest instead of `wasp test client`. Add a `test` script to your `package.json`, or change it if it runs `wasp test client`:
+4. Import the testing helpers from `@wasp/test-utils` instead of `wasp/client/test`:
+
+   **Before**
+
+   ```ts title="src/TaskList.test.tsx"
+   import { mockServer, renderInContext } from "wasp/client/test";
+   ```
+
+   **After**
+
+   ```ts title="src/TaskList.test.tsx"
+   import { mockServer, renderInContext } from "@wasp/test-utils";
+   ```
+
+5. Run your tests with Vitest instead of `wasp test client`. Add a `test` script to your `package.json`, or change it if it runs `wasp test client`:
 
    **Before**
 
@@ -16092,13 +16255,13 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](https://wasp.sh/docs/advanced/testing).
 
-#### 11. Check relative paths in your server code
+#### 12. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-#### 12. Check the packages your server loads at runtime
+#### 13. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -16117,7 +16280,7 @@ export default app({
 })
 ```
 
-#### 13. Install the system dependencies your app needs
+#### 14. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -16127,7 +16290,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-#### 14. Update your custom Dockerfile
+#### 15. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](https://wasp.sh/docs/deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -16139,7 +16302,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-#### 15. Import `HttpError` from `wasp/errors`
+#### 16. Import `HttpError` from `wasp/errors`
 
 The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
 
@@ -16155,7 +16318,7 @@ import { HttpError } from "wasp/server"
 import { HttpError } from "wasp/errors"
 ```
 
-#### 16. Update how you read errors on the client
+#### 17. Update how you read errors on the client
 
 On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
@@ -16188,7 +16351,7 @@ try {
 }
 ```
 
-#### 17. Pass `HttpError` data in the options
+#### 18. Pass `HttpError` data in the options
 
 `HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
@@ -16208,7 +16371,7 @@ throw new HttpError(403, "Not allowed", {
 
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
-#### 18. Enjoy your updated Wasp app
+#### 19. Enjoy your updated Wasp app
 
 That's it!
 
@@ -22946,6 +23109,12 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 
 #### 1. Configure main.wasp.ts
 
+Social auth needs the `lucia` and `arctic` packages in your project. Install them if you haven't already:
+
+```shell
+npm install lucia@3 arctic@1
+```
+
 Set up the auth configuration and API routes:
 
 ```ts title="main.wasp.ts"
@@ -22985,8 +23154,7 @@ Create or update your `.env.server` file:
 SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
 
-# You may need dummy values for built-in providers if you're using them
-# just to get the arctic package installed
+# Wasp requires these for the built-in provider you enabled in step 1
 GOOGLE_CLIENT_ID=x
 GOOGLE_CLIENT_SECRET=x
 ```
@@ -28681,6 +28849,464 @@ export const userSignupFields = defineUserSignupFields({
 Supported social auth providers.
 
 
+## @wasp/test-utils
+
+The `@wasp/test-utils` package has the helpers for [testing](https://wasp.sh/docs/advanced/testing) the client code of your Wasp app with [Vitest](https://vitest.dev/):
+
+```tsx title="src/tasks/TaskList.test.tsx"
+import { mockServer, renderInContext } from "@wasp/test-utils";
+```
+
+The helper for your Vitest config comes from `@wasp/test-utils/config`:
+
+```ts title="vite.config.ts"
+import { waspTestConfig } from "@wasp/test-utils/config";
+```
+
+### Getting the package
+
+Install it together with its peer dependencies:
+
+```bash
+npm install -D @wasp/test-utils vitest msw @testing-library/react jsdom
+```
+
+- [`vitest`](https://vitest.dev/) runs your tests.
+- [`msw`](https://mswjs.io/) mocks the HTTP requests of your queries and APIs.
+- [`@testing-library/react`](https://testing-library.com/docs/react-testing-library/intro/) renders your components.
+- [`jsdom`](https://github.com/jsdom/jsdom) is the browser environment that `waspTestConfig` sets by default. You can leave it out if you set another `environment`.
+
+The other peer dependencies (`react`, `react-router`, `@tanstack/react-query`, `superjson` and `@wasp/sdk-core`) are already in your project, because they come with `@wasp/wasp`.
+
+The [testing guide](https://wasp.sh/docs/advanced/testing) has the full setup.
+
+### Modules
+
+| Module                                                     | Description                                                                                                                                         |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [config](https://wasp.sh/docs/api/@wasp/test-utils/config) | The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in `@wasp/test-utils`. |
+
+### Type Aliases
+
+#### MockApi
+
+> **MockApi** = (`route`, `mockData`) => `void`
+
+Mocks the response of one of your app's [custom APIs](https://wasp.sh/docs/features/apis).
+
+##### Parameters
+
+###### route
+
+[`Route`](#route-1)
+
+The HTTP method and path of the API.
+
+###### mockData
+
+`unknown`
+
+The data the API should respond with, as JSON.
+
+##### Returns
+
+`void`
+
+---
+
+#### MockQuery
+
+> **MockQuery** = <`Input`, `Output`, `MockOutput`>(`query`, `mockData`) => `void`
+
+Mocks the result of a Wasp Query.
+
+Wasp registers an [MSW](https://mswjs.io/) request handler that responds to all of the Query's requests with `mockData`, whatever their input.
+
+##### Type Parameters
+
+###### Input {#\_\_typeinput}
+
+`Input`
+
+###### Output {#\_\_typeoutput}
+
+`Output`
+
+###### MockOutput {#\_\_typemockoutput}
+
+`MockOutput` *extends* `Output`
+
+##### Parameters
+
+###### query
+
+[`Query`](#query)<`Input`, `Output`>
+
+The Query to mock. It can be one from `wasp/client/operations`, or `getMe` from `wasp/client/auth`.
+
+###### mockData
+
+`MockOutput`
+
+The data the Query should return. It must match the Query's output type.
+
+##### Returns
+
+`void`
+
+---
+
+#### MockServerResult
+
+> **MockServerResult** = `object`
+
+The helpers that [mockServer](#mockserver) returns.
+
+##### Properties
+
+###### mockApi
+
+> **mockApi**: [`MockApi`](#mockapi)
+
+###### mockQuery
+
+> **mockQuery**: [`MockQuery`](#mockquery)
+
+###### server
+
+> **server**: `SetupServer`
+
+The underlying [MSW server](https://mswjs.io/docs/api/setup-server), for mocking requests that `mockQuery` and `mockApi` don't cover.
+
+### Functions
+
+#### mockServer()
+
+> **mockServer**(): [`MockServerResult`](#mockserverresult)
+
+Sets up a mock server for the current test file, and returns helpers for mocking your Queries and APIs.
+
+Call it once, at the top level of each test file that uses the helpers, not inside a test case. It starts an [MSW](https://mswjs.io/) server before the file's tests, resets the mocks after each test, and closes the server after the file's tests.
+
+##### Returns
+
+[`MockServerResult`](#mockserverresult)
+
+##### Example
+
+```tsx
+import { screen } from "@testing-library/react";
+import { mockServer, renderInContext } from "@wasp/test-utils";
+import { expect, test } from "vitest";
+import { HttpMethod } from "wasp/client";
+import { getTasks } from "wasp/client/operations";
+import { TaskList } from "./TaskList";
+
+const { mockQuery, mockApi } = mockServer();
+
+test("shows the tasks", async () => {
+  mockQuery(getTasks, [
+    { id: 1, description: "Buy milk", isDone: true, userId: 1 },
+  ]);
+  mockApi({ method: HttpMethod.Get, path: "/stats" }, { doneTasks: 3 });
+
+  renderInContext(<TaskList />);
+
+  await screen.findByText("Buy milk");
+  expect(screen.getByRole("checkbox")).toBeChecked();
+});
+```
+
+---
+
+#### renderInContext()
+
+> **renderInContext**(`ui`, `options?`): `RenderResult`
+
+Renders a React element inside the providers that Wasp's client code needs, *react-query*'s `QueryClientProvider` and React Router's `BrowserRouter`.
+
+Use it instead of Testing Library's `render` in your component tests, so your components can use `useQuery`, `useAction`, and links. Each call gets its own query client, so tests don't share cached data.
+
+It wraps the element in [WaspTestWrapper](#wasptestwrapper).
+
+##### Parameters
+
+###### ui
+
+`ReactElement`
+
+The element to render.
+
+###### options?
+
+`Omit`<`RenderOptions`<`__module`, `HTMLElement`, `HTMLElement`>, `"wrapper"`>
+
+The options of Testing Library's [`render`](https://testing-library.com/docs/react-testing-library/api#render-options), except `wrapper`.
+
+##### Returns
+
+`RenderResult`
+
+What Testing Library's [`render`](https://testing-library.com/docs/react-testing-library/api#render-result) returns.
+
+##### Example
+
+```tsx
+import { screen } from "@testing-library/react";
+import { renderInContext } from "@wasp/test-utils";
+import { expect, test } from "vitest";
+import { TasksHeader } from "./TasksHeader";
+
+test("links back home", () => {
+  renderInContext(<TasksHeader />);
+
+  expect(screen.getByRole("link", { name: "Back home" })).toBeInTheDocument();
+});
+```
+
+### Components
+
+#### \<WaspTestWrapper>
+
+> **WaspTestWrapper**(`__namedParameters`): `ReactNode`
+
+Wraps its children in the same providers as [renderInContext](#renderincontext). Pass it as the [`wrapper`](https://testing-library.com/docs/react-testing-library/api#wrapper) option when you call Testing Library's `render` or `renderHook` yourself.
+
+Each wrapper gets its own query client, so tests don't share cached data.
+
+##### Parameters
+
+###### \_\_namedParameters
+
+###### children
+
+`ReactNode`
+
+##### Returns
+
+`ReactNode`
+
+##### Example
+
+```tsx
+import { renderHook } from "@testing-library/react";
+import { WaspTestWrapper } from "@wasp/test-utils";
+import { useTaskCount } from "./useTaskCount";
+
+const { result } = renderHook(() => useTaskCount(), {
+  wrapper: WaspTestWrapper,
+});
+```
+
+### Referenced Types
+
+#### HttpMethod
+
+##### Enumeration Members
+
+###### Delete
+
+> **Delete**: `"DELETE"`
+
+###### Get
+
+> **Get**: `"GET"`
+
+###### Head
+
+> **Head**: `"HEAD"`
+
+###### Patch
+
+> **Patch**: `"PATCH"`
+
+###### Post
+
+> **Post**: `"POST"`
+
+###### Put
+
+> **Put**: `"PUT"`
+
+---
+
+#### ClientOperation
+
+> **ClientOperation**<`Input`, `Output`> = [`IfAny`](#ifany)<`Input`, (`args?`) => `Promise`<`Output`>, [`ClientOperationWithNonAnyInput`](#clientoperationwithnonanyinput)<`Input`, `Output`>>
+
+##### Type Parameters
+
+###### Input {#input}
+
+`Input`
+
+###### Output {#output}
+
+`Output`
+
+---
+
+#### ClientOperationWithNonAnyInput
+
+> **ClientOperationWithNonAnyInput**<`Input`, `Output`> = \[`Input`] *extends* \[`never`] ? (`args?`) => `Promise`<`Output`> : \[`Input`] *extends* \[`void`] ? () => `Promise`<`Output`> : (`args`) => `Promise`<`Output`>
+
+##### Type Parameters
+
+###### Input {#input-1}
+
+`Input`
+
+###### Output {#output-1}
+
+`Output`
+
+---
+
+#### IfAny
+
+> **IfAny**<`Value`, `Then`, `Else`> = `0` *extends* `1` & `Value` ? `Then` : `Else`
+
+##### Type Parameters
+
+###### Value
+
+`Value`
+
+###### Then
+
+`Then`
+
+###### Else
+
+`Else`
+
+---
+
+#### Query {#query}
+
+> **Query**<`Input`, `Output`> = [`QueryFunction`](#queryfunction)<`Input`, `Output`> & [`QueryMetadata`](#querymetadata)
+
+The client Query object type. It's a callable Query function with some extra properties (metadata).
+
+##### Type Parameters
+
+###### Input {#input-2}
+
+`Input`
+
+###### Output {#output-2}
+
+`Output`
+
+---
+
+#### QueryFunction
+
+> **QueryFunction**<`Input`, `Output`> = [`ClientOperation`](#clientoperation)<`Input`, `Output`>
+
+The client Query function type.
+
+##### Type Parameters
+
+###### Input {#input-3}
+
+`Input`
+
+###### Output {#output-3}
+
+`Output`
+
+---
+
+#### QueryMetadata
+
+> **QueryMetadata** = `object`
+
+All extra properties (metadata) found on a Query object type.
+
+##### Properties
+
+###### queryCacheKey
+
+> **queryCacheKey**: `string`\[]
+
+###### route {#route}
+
+> **route**: [`Route`](#route-1)
+
+---
+
+#### Route {#route-1}
+
+> **Route** = `object`
+
+##### Properties
+
+###### method
+
+> **method**: [`HttpMethod`](#httpmethod)
+
+###### path
+
+> **path**: `string`
+
+
+## @wasp/test-utils/config
+
+The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in `@wasp/test-utils`.
+
+### Type Aliases
+
+#### TestConfig
+
+> **TestConfig** = `NonNullable`<`ViteUserConfig`\[`"test"`]>
+
+The `test` options of your Vitest config, which [waspTestConfig](#wasptestconfig) takes and returns.
+
+### Functions
+
+#### waspTestConfig()
+
+> **waspTestConfig**(`userConfig?`): `InlineConfig`
+
+Returns the Vitest options for the `test` section of your `vite.config.ts`, with the defaults a Wasp app needs:
+
+- `environment`: `"jsdom"`, a simulated browser, so your components can render.
+- `include`: the test files in your `src` folder (e.g. `TaskList.test.tsx` or `helpers.spec.js`).
+- `env`: a placeholder `REACT_APP_API_URL`, since your tests mock the server instead of running it.
+
+##### Parameters
+
+###### userConfig?
+
+`InlineConfig` = `{}`
+
+[Vitest options](https://vitest.dev/config/). They override the defaults. Only `env` is merged with the default `env`, and your variables take precedence.
+
+##### Returns
+
+`InlineConfig`
+
+##### Example
+
+```ts
+import { waspTestConfig } from "@wasp/test-utils/config";
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+
+export default defineConfig({
+  plugins: [wasp()],
+  test: waspTestConfig({
+    setupFiles: ["./src/test/setup.ts"],
+  }),
+});
+```
+
+##### See
+
+[Testing](https://wasp.sh/docs/advanced/testing)
+
+
 ## wasp
 
 The `wasp` package is the Wasp SDK: the code you import from your app's source files to use Wasp's features, such as operations, auth, and the router.
@@ -28708,7 +29334,6 @@ You don't need to install anything, and the package isn't published to npm. The 
 | [client/crud](https://wasp.sh/docs/api/wasp/client/crud)             | Client-side APIs for the Queries and Actions of your [Automatic CRUD](https://wasp.sh/docs/features/data/crud) specs.                                                                                                                                                                                                                                                                                                                               |
 | [client/operations](https://wasp.sh/docs/api/wasp/client/operations) | Client-side APIs for calling your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions).                                                                                                                                                                                                                                                                            |
 | [client/router](https://wasp.sh/docs/api/wasp/client/router)         | Type-safe links and URLs for the [routes](https://wasp.sh/docs/features/pages-and-routes) you declare in your Wasp Spec.                                                                                                                                                                                                                                                                                                                            |
-| [client/test](https://wasp.sh/docs/api/wasp/client/test)             | Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`wasp/test`](https://wasp.sh/docs/api/wasp/test).                                                                                                                                             |
 | [client/vite](https://wasp.sh/docs/api/wasp/client/vite)             | The Vite plugin that your app's client needs.                                                                                                                                                                                                                                                                                                                                                                                                       |
 | [client/webSocket](https://wasp.sh/docs/api/wasp/client/webSocket)   | React hooks for using your app's [WebSocket](https://wasp.sh/docs/features/websockets) server from the client. Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                                                            |
 | [entities](https://wasp.sh/docs/api/wasp/entities)                   | Types for your app's [Entities](https://wasp.sh/docs/features/data/entities), which you can use on both the server and the client.                                                                                                                                                                                                                                                                                                                  |
@@ -28722,7 +29347,6 @@ You don't need to install anything, and the package isn't published to npm. The 
 | [server/jobs](https://wasp.sh/docs/api/wasp/server/jobs)             | Your app's [Jobs](https://wasp.sh/docs/features/jobs), which you can submit from your server code.                                                                                                                                                                                                                                                                                                                                                  |
 | [server/operations](https://wasp.sh/docs/api/wasp/server/operations) | Server-side APIs for your [Queries](https://wasp.sh/docs/features/data/operations/queries) and [Actions](https://wasp.sh/docs/features/data/operations/actions): the types for implementing them, and the functions for calling them from other server code.                                                                                                                                                                                        |
 | [server/webSocket](https://wasp.sh/docs/api/wasp/server/webSocket)   | Types for implementing your app's [WebSocket](https://wasp.sh/docs/features/websockets) server with [Socket.IO](https://socket.io/docs/v4/server-api/). Only available if your app sets the [`webSocket`](https://wasp.sh/docs/api/@wasp/spec#websocket-1) field of the app spec.                                                                                                                                                                   |
-| [test](https://wasp.sh/docs/api/wasp/test)                           | The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).                                                                                                                                                                                                                                                    |
 
 
 ## wasp/auth
@@ -29278,7 +29902,7 @@ Runtime configuration and environment variables of your app's client.
 
 The HTTP methods that a [Route](#route) can use. These are the methods of Wasp's Operations and APIs, except for the `ALL` method that you can declare an API with.
 
-Use it to describe a [Route](#route), for example when mocking an API with the `mockApi` helper that [mockServer](https://wasp.sh/docs/api/wasp/client/test#mockserver-1) returns.
+Use it to describe a [Route](#route), for example when mocking an API with the `mockApi` helper that `mockServer` from `@wasp/test-utils` returns.
 
 ##### Enumeration Members
 
@@ -32053,351 +32677,6 @@ If the path has optional static segments, pass one of the paths that include or 
 #### Search
 
 > **Search** = `string`\[]\[] | `Record`<`string`, `string`> | `string` | `URLSearchParams`
-
-
-## wasp/client/test
-
-Helpers for [testing](https://wasp.sh/docs/advanced/testing) your client code with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/). The helper for configuring Vitest is in [`wasp/test`](https://wasp.sh/docs/api/wasp/test).
-
-### Functions
-
-#### mockServer() {#mockserver-1}
-
-> **mockServer**(): [`MockServer`](#mockserver)
-
-Sets up a mock server for the current test file, and returns helpers for mocking your Queries and APIs.
-
-Call it once, at the top level of each test file that uses the helpers, not inside a test case. It starts an [MSW](https://mswjs.io/) server before the file's tests, resets the mocks after each test, and closes the server after the file's tests.
-
-##### Returns
-
-[`MockServer`](#mockserver)
-
-##### Example
-
-```tsx
-import { screen } from "@testing-library/react";
-import { expect, test } from "vitest";
-import { HttpMethod } from "wasp/client";
-import { getTasks } from "wasp/client/operations";
-import { mockServer, renderInContext } from "wasp/client/test";
-import { TaskList } from "./TaskList";
-
-const { mockQuery, mockApi } = mockServer();
-
-test("shows the tasks", async () => {
-  mockQuery(getTasks, [
-    { id: 1, description: "Buy milk", isDone: true, userId: 1 },
-  ]);
-  mockApi({ method: HttpMethod.Get, path: "/stats" }, { doneTasks: 3 });
-
-  renderInContext(<TaskList />);
-
-  await screen.findByText("Buy milk");
-  expect(screen.getByRole("checkbox")).toBeChecked();
-});
-```
-
----
-
-#### renderInContext()
-
-> **renderInContext**(`ui`, `options?`): [`RenderResult`](#renderresult)
-
-Renders a React element inside the providers that Wasp's client code needs: *react-query*'s `QueryClientProvider` and React Router's `BrowserRouter`.
-
-Use it instead of Testing Library's `render` in your component tests, so your components can use `useQuery`, `useAction`, and links. Each call gets its own query client, so tests don't share cached data.
-
-It wraps the element in [WaspTestWrapper](#wasptestwrapper).
-
-##### Parameters
-
-###### ui
-
-`ReactElement`
-
-###### options?
-
-[`RenderOptions`](#renderoptions)
-
-##### Returns
-
-[`RenderResult`](#renderresult)
-
-##### Example
-
-```tsx
-import { screen } from "@testing-library/react";
-import { expect, test } from "vitest";
-import { renderInContext } from "wasp/client/test";
-import { TasksHeader } from "./TasksHeader";
-
-test("links back home", () => {
-  renderInContext(<TasksHeader />);
-
-  expect(screen.getByRole("link", { name: "Back home" })).toBeInTheDocument();
-});
-```
-
-### Components
-
-#### \<WaspTestWrapper>
-
-> **WaspTestWrapper**(`props`): `ReactNode`
-
-Wraps its children in the same providers as [renderInContext](#renderincontext). Pass it as the [`wrapper`](https://testing-library.com/docs/react-testing-library/api#wrapper) option when you call Testing Library's `render` or `renderHook` yourself.
-
-##### Parameters
-
-###### props
-
-###### children
-
-`ReactNode`
-
-##### Returns
-
-`ReactNode`
-
-##### Example
-
-```tsx
-import { renderHook } from "@testing-library/react";
-import { WaspTestWrapper } from "wasp/client/test";
-import { useTaskCount } from "./useTaskCount";
-
-const { result } = renderHook(() => useTaskCount(), {
-  wrapper: WaspTestWrapper,
-});
-```
-
-### Referenced Types
-
-#### MockApi
-
-> **MockApi** = (`route`, `mockData`) => `void`
-
-Mocks the response of one of your app's [custom APIs](https://wasp.sh/docs/features/apis).
-
-##### Parameters
-
-###### route
-
-[`Route`](https://wasp.sh/docs/api/wasp/client#route)
-
-The HTTP method and path of the API.
-
-###### mockData
-
-`unknown`
-
-The data the API should respond with, as JSON.
-
-##### Returns
-
-`void`
-
----
-
-#### MockQuery
-
-> **MockQuery** = <`Input`, `Output`, `MockOutput`>(`query`, `mockData`) => `void`
-
-Mocks the result of a Wasp Query.
-
-Wasp registers an [MSW](https://mswjs.io/) request handler that responds to all of the Query's requests with `mockData`, whatever their input.
-
-##### Type Parameters
-
-###### Input {#\_\_typeinput}
-
-`Input`
-
-###### Output {#\_\_typeoutput}
-
-`Output`
-
-###### MockOutput {#\_\_typemockoutput}
-
-`MockOutput` *extends* `Output`
-
-##### Parameters
-
-###### query
-
-[`Query`](https://wasp.sh/docs/api/wasp/client/operations#query)<`Input`, `Output`>
-
-The Query to mock: one from `wasp/client/operations`, or [getMe](https://wasp.sh/docs/api/wasp/client/auth#getme).
-
-###### mockData
-
-`MockOutput`
-
-The data the Query should return. It must match the Query's output type.
-
-##### Returns
-
-`void`
-
----
-
-#### MockServer {#mockserver}
-
-> **MockServer** = `object`
-
-The helpers that [mockServer](#mockserver-1) returns.
-
-##### Properties
-
-###### mockApi
-
-> **mockApi**: [`MockApi`](#mockapi)
-
-###### mockQuery
-
-> **mockQuery**: [`MockQuery`](#mockquery)
-
-###### server
-
-> **server**: [`SetupServer`](#setupserver)
-
-The underlying [MSW](https://mswjs.io/) server, for mocking requests that `mockQuery` and `mockApi` don't cover.
-
----
-
-#### RenderOptions
-
-> **RenderOptions** = `object`
-
-The options of React Testing Library's [`render`](https://testing-library.com/docs/react-testing-library/api#render-options) function, except `wrapper`.
-
-This is a simplified version of Testing Library's `RenderOptions` type; see its docs for all the options.
-
-##### Properties
-
-###### baseElement?
-
-> `optional` **baseElement?**: `HTMLElement`
-
-The element the queries are bound to. Defaults to `container` if you specify it, or to `document.body` otherwise.
-
-###### container?
-
-> `optional` **container?**: `HTMLElement`
-
-The DOM element to render into. Defaults to a new `div` in `baseElement`.
-
-###### hydrate?
-
-> `optional` **hydrate?**: `boolean`
-
-Whether to hydrate the `container` instead of rendering into it.
-
----
-
-#### RenderResult
-
-> **RenderResult** = `object`
-
-The result of React Testing Library's [`render`](https://testing-library.com/docs/react-testing-library/api#render-result) function.
-
-This is a simplified version of Testing Library's `RenderResult` type; it also contains all of Testing Library's queries (like `getByText`), bound to `baseElement`.
-
-##### Properties
-
-###### baseElement
-
-> **baseElement**: `HTMLElement`
-
-The element the queries are bound to.
-
-###### container
-
-> **container**: `HTMLElement`
-
-The DOM element your component was rendered into.
-
-##### Methods
-
-###### asFragment()
-
-> **asFragment**(): `DocumentFragment`
-
-Returns a `DocumentFragment` of the rendered component.
-
-###### Returns
-
-`DocumentFragment`
-
-###### rerender()
-
-> **rerender**(`ui`): `void`
-
-Renders a new element into the same container, e.g. to update props.
-
-###### Parameters
-
-###### ui
-
-`ReactElement`
-
-###### Returns
-
-`void`
-
-###### unmount()
-
-> **unmount**(): `void`
-
-Unmounts the rendered component.
-
-###### Returns
-
-`void`
-
----
-
-#### SetupServer
-
-> **SetupServer** = `object`
-
-An [MSW](https://mswjs.io/) server running in Node.js.
-
-This is a simplified version of MSW's `SetupServer` type; see [MSW's docs](https://mswjs.io/docs/api/setup-server) for all its members.
-
-##### Methods
-
-###### resetHandlers()
-
-> **resetHandlers**(...`nextHandlers`): `void`
-
-Resets the request handlers to the initial ones, removing those added with `use`, or to `nextHandlers` if you pass any.
-
-###### Parameters
-
-###### nextHandlers
-
-...`unknown`\[]
-
-###### Returns
-
-`void`
-
-###### use()
-
-> **use**(...`handlers`): `void`
-
-Adds request handlers, which take precedence over the existing ones.
-
-###### Parameters
-
-###### handlers
-
-...`unknown`\[]
-
-###### Returns
-
-`void`
 
 
 ## wasp/client/vite
@@ -37663,62 +37942,6 @@ The Prisma API for each Entity in your app, keyed by the Entity's name. For exam
 ###### Index Signature
 
 \[`EntityName`: `string`]: `any`
-
-
-## wasp/test
-
-The helper for configuring [Vitest](https://vitest.dev/) to test your client code. The helpers you use inside your tests are in [`wasp/client/test`](https://wasp.sh/docs/api/wasp/client/test).
-
-### Type Aliases
-
-#### TestConfig
-
-> **TestConfig** = `NonNullable`<`ViteUserConfig`\[`"test"`]>
-
-The `test` options of your Vitest config, which [waspTestConfig](#wasptestconfig) takes and returns.
-
-### Functions
-
-#### waspTestConfig()
-
-> **waspTestConfig**(`options?`): `InlineConfig`
-
-Returns the Vitest options for the `test` section of your `vite.config.ts`, with the defaults a Wasp app needs:
-
-- `environment`: `"jsdom"`, a simulated browser, so your components can render.
-- `include`: the test files in your `src` folder (e.g. `TaskList.test.tsx` or `helpers.spec.js`).
-- `env`: a placeholder `REACT_APP_API_URL`, since your tests mock the server instead of running it.
-
-##### Parameters
-
-###### options?
-
-`InlineConfig`
-
-[Vitest options](https://vitest.dev/config/). They override the defaults, except `env`: Wasp merges it with the default `env`, and your variables take precedence.
-
-##### Returns
-
-`InlineConfig`
-
-##### Example
-
-```ts
-import { defineConfig } from "vitest/config";
-import { wasp } from "wasp/client/vite";
-import { waspTestConfig } from "wasp/test";
-
-export default defineConfig({
-  plugins: [wasp()],
-  test: waspTestConfig({
-    setupFiles: ["./src/test/setup.ts"],
-  }),
-});
-```
-
-##### See
-
-[Testing](https://wasp.sh/docs/advanced/testing)
 
 
 ------

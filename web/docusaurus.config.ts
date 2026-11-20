@@ -339,7 +339,11 @@ const config: Config = {
 
         // input packages
         entryPointStrategy: "packages",
-        entryPoints: ["../packages/spec", "./sdk-api-docs"],
+        entryPoints: [
+          "../packages/spec",
+          "./sdk-api-docs",
+          "../packages/test-utils",
+        ],
 
         // If you want to set an option to a specific package, you can create a
         // `typedoc.jsonc` file in that package's folder with the desired

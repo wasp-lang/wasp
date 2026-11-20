@@ -30,6 +30,14 @@ export default app({
 
 Read more about the `auth` field options in the [API Reference](#api-reference) section.
 
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
+
+Social auth methods, like `google` and `gitHub` above, also need the `arctic` package. Each auth method's page lists what to install.
+
 We will provide a quick overview of auth in Wasp and link to more detailed documentation for each auth method.
 
 ## Available auth methods

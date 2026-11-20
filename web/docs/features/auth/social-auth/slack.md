@@ -16,6 +16,7 @@ import SlackData from '../entities/_slack-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import SocialLoginClientPages from './_social-login-client-pages.md';
 import Collapse from '@site/src/components/Collapse';
+import SocialAuthPackages from './_social-auth-packages.md';
 
 # Slack
 
@@ -38,6 +39,8 @@ Enabling Slack Authentication comes down to a series of steps:
 <WaspFileStructureNote />
 
 ### 1. Enabling Slack authentication in the Wasp file.
+
+<SocialAuthPackages />
 
 Now let's properly configure the Auth object:
 
