@@ -58,7 +58,7 @@ expressTypesVersionRange :: SV.Range
 expressTypesVersionRange = [SV.r|^5.0.0|]
 
 viteVersionRange :: SV.Range
-viteVersionRange = [SV.r|^8.1.0|]
+viteVersionRange = [SV.r|^8.3.5|]
 
 dotenvVersionRange :: SV.Range
 dotenvVersionRange = [SV.r|^16.6.1|]

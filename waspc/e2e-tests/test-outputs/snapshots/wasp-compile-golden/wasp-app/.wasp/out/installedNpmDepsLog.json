@@ -42,7 +42,7 @@
                 },
                 {
                     "name": "vite",
-                    "version": "^8.1.0"
+                    "version": "^8.3.5"
                 }
             ],
             "peerDependencies": []
@@ -144,7 +144,7 @@
         "peerDependencies": [
             {
                 "name": "vite",
-                "version": "^8.1.0"
+                "version": "^8.3.5"
             }
         ]
     },
