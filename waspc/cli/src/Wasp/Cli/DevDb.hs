@@ -1,22 +1,18 @@
 module Wasp.Cli.DevDb
   ( startPostgresDevDb,
     withRunningPostgresDevDb,
-    throwIfCustomDbAlreadyInUse,
+    throwCustomDatabaseInUseError,
   )
 where
 
 import Control.Concurrent.Async (async, cancel, race, wait)
-import Control.Monad (when)
 import Control.Monad.Catch (bracket)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isJust)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
-import System.Environment (lookupEnv)
 import System.Exit (ExitCode, exitFailure)
 import Text.Printf (printf)
-import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -27,6 +23,7 @@ import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Project.Db.Dev (CustomDatabaseSource (..))
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (checkExitSuccess)
@@ -158,36 +155,18 @@ additionalInfoLines devDbSpec =
     "     " <> devDbSpec.dockerVolumeName
   ]
 
-throwIfCustomDbAlreadyInUse :: AS.AppSpec -> Command ()
-throwIfCustomDbAlreadyInUse spec = do
-  throwIfDbUrlInEnv
-  throwIfDbUrlInServerDotEnv spec
-  where
-    throwIfDbUrlInEnv :: Command ()
-    throwIfDbUrlInEnv = do
-      dbUrl <- liftIO $ lookupEnv databaseUrlEnvVarName
-      when (isJust dbUrl) $
-        throwCustomDbAlreadyInUseError
-          ( "Wasp has detected existing "
-              <> databaseUrlEnvVarName
-              <> " var in your environment.\n"
-              <> "To have Wasp run the dev database for you, make sure you remove that env var first."
-          )
-
-    throwIfDbUrlInServerDotEnv :: AS.AppSpec -> Command ()
-    throwIfDbUrlInServerDotEnv appSpec =
-      when (isThereDbUrlInServerDotEnv appSpec) $
-        throwCustomDbAlreadyInUseError
-          ( printf
-              ( "Wasp has detected that you have defined %s env var in your %s file.\n"
-                  <> "To have Wasp run the dev database for you, make sure you remove that env var first."
-              )
-              databaseUrlEnvVarName
-              (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
-          )
-      where
-        isThereDbUrlInServerDotEnv = any ((== databaseUrlEnvVarName) . fst) . AS.devEnvVarsServer
-
-    throwCustomDbAlreadyInUseError :: String -> Command ()
-    throwCustomDbAlreadyInUseError msg =
-      E.throwError $ CommandError "You are using custom database already" msg
+throwCustomDatabaseInUseError :: CustomDatabaseSource -> Command a
+throwCustomDatabaseInUseError =
+  E.throwError . CommandError "You are using custom database already" . \case
+    InEnvironment ->
+      "Wasp has detected existing "
+        <> databaseUrlEnvVarName
+        <> " var in your environment.\n"
+        <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+    InDotEnvServer ->
+      printf
+        ( "Wasp has detected that you have defined %s env var in your %s file.\n"
+            <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+        )
+        databaseUrlEnvVarName
+        (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))

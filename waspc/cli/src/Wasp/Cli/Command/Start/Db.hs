@@ -3,8 +3,8 @@ module Wasp.Cli.Command.Start.Db
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Call (Arguments)
@@ -12,10 +12,11 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.DevDb (startPostgresDevDb, throwIfCustomDbAlreadyInUse)
+import Wasp.Cli.DevDb (startPostgresDevDb, throwCustomDatabaseInUseError)
 import Wasp.Cli.DevDb.ArgumentsParser (DevDbOptions, devDbOptionsParser)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import qualified Wasp.Message as Msg
+import Wasp.Project.Db.Dev (DevDatabase (..), findDevDatabase)
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
@@ -27,13 +28,12 @@ start = withArguments startDbArgsParser $ \devDbOptions -> do
   WaspSpecAvailable <- require
   appSpec <- analyze waspProjectDir
 
-  throwIfCustomDbAlreadyInUse appSpec
-
   let app = ASV.getApp appSpec
 
-  case ASV.getValidDbSystem appSpec of
-    AS.App.Db.SQLite -> noteSQLiteDoesntNeedStart
-    AS.App.Db.PostgreSQL -> startPostgresDevDb waspProjectDir app.name devDbOptions
+  liftIO (findDevDatabase appSpec) >>= \case
+    CustomDatabase customDatabaseSource -> throwCustomDatabaseInUseError customDatabaseSource
+    ManagedSqliteDatabase -> noteSQLiteDoesntNeedStart
+    ManagedPostgresDatabase -> startPostgresDevDb waspProjectDir app.name devDbOptions
   where
     noteSQLiteDoesntNeedStart =
       cliSendMessageC . Msg.Info $
