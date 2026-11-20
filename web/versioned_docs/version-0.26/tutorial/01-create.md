@@ -23,7 +23,7 @@ In this section, we'll guide you through the process of creating a simple Todo a
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
-You can find the complete code of the app we're about to build [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+You can find the complete code of the app we're about to build in [the TodoApp example on GitHub](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 
 ## Creating a Project
 

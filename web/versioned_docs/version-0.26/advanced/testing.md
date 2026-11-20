@@ -108,7 +108,7 @@ Wasp currently does not provide a way to test your server-side code, but we will
 
 ## Examples
 
-You can see some tests in a Wasp project [here](https://github.com/wasp-lang/wasp/blob/release/waspc/examples/todoApp/src/pages/auth/helpers.test.ts).
+You can see [some tests in a Wasp project](https://github.com/wasp-lang/wasp/blob/release/examples/kitchen-sink/src/features/operations/helpers.test.ts).
 
 ### Client Unit Tests
 
