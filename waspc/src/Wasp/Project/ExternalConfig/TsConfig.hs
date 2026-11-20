@@ -12,6 +12,7 @@ import Validation (Validation (..), eitherToValidation)
 import Wasp.ExternalConfig.TsConfig (TsConfigFile, parseTsConfigFile)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common (CompileError, WaspProjectDir, findFileInWaspProjectDir)
+import Wasp.Util.Terminal (styleLiteral)
 import qualified Wasp.Validator as V
 
 parseAndValidateTsConfigFile ::
@@ -29,7 +30,7 @@ parseAndValidateTsConfigFile validator waspDir tsConfigPathInProject =
       errors -> liftEither $ Left errors
   where
     absTsConfigPathOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir tsConfigPathInProject
-    fileNotFoundMessage = "Couldn't find " ++ tsConfigFileName ++ " in the " ++ toFilePath waspDir ++ " directory"
+    fileNotFoundMessage = "Couldn't find " ++ styleLiteral tsConfigFileName ++ " in the " ++ styleLiteral (toFilePath waspDir) ++ " directory"
     tsConfigFileName = fromRelFile tsConfigPathInProject
 
 validateTsConfig :: V.Validator T.TsConfig -> String -> T.TsConfig -> [CompileError]
