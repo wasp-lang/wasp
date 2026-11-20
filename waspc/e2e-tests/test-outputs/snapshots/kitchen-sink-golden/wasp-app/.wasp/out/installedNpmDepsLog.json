@@ -247,10 +247,6 @@
                 "version": "file:../../libs/auth/wasp-lib-auth-0.27.0.tgz"
             },
             {
-                "name": "@wasp/lib-devtools",
-                "version": "file:../../libs/devtools/wasp-lib-devtools-0.27.0.tgz"
-            },
-            {
                 "name": "@wasp/lib-sdk-core",
                 "version": "file:../../libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
             },
@@ -261,6 +257,10 @@
             {
                 "name": "@wasp/lib-vite-ssr",
                 "version": "file:../../libs/vite-ssr/wasp-lib-vite-ssr-0.27.0.tgz"
+            },
+            {
+                "name": "@wasp/lib-devtools",
+                "version": "file:../../libs/devtools/wasp-lib-devtools-0.27.0.tgz"
             }
         ],
         "devDependencies": [
@@ -309,10 +309,6 @@
             {
                 "name": "@wasp/lib-auth",
                 "version": "file:../libs/auth/wasp-lib-auth-0.27.0.tgz"
-            },
-            {
-                "name": "@wasp/lib-devtools",
-                "version": "file:../libs/devtools/wasp-lib-devtools-0.27.0.tgz"
             },
             {
                 "name": "@wasp/lib-sdk-core",

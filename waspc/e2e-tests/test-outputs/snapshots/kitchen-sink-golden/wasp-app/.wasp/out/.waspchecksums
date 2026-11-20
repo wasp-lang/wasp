@@ -39,7 +39,7 @@
             "file",
             "libs/devtools/wasp-lib-devtools-0.27.0.tgz"
         ],
-        "e5ed261ac81b40e7436af05517fe6193a49a893476fa9a8dff2da7679875f1ce"
+        "3ac8b1a3ce5a7c79dc4f6fed42fd6de482a7937d18ec9bd88f6f0233f801eda2"
     ],
     [
         [
@@ -620,7 +620,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "6f439d762ab9a422d16902dd9dd606641b6bab5c3ab24654c03063b62fa24146"
+        "e83417c153b37443d06e86e9cdf11070cd8283f9cde6a802af7edad348b9e2c2"
     ],
     [
         [
@@ -1089,7 +1089,7 @@
             "file",
             "server/package.json"
         ],
-        "bb582374f1d5cb75d44418e83532a71ffc610bb390141fd03e90268669099d7a"
+        "40468d431ab84379ccdde1288231541aafa55122dca7999d312b640fdd829e73"
     ],
     [
         [
