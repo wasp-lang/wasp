@@ -24,6 +24,9 @@ export type PackageJson = {
   name: string;
   version: string;
   scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  peerDependenciesMeta?: Record<string, { optional?: boolean }>;
   devDependencies?: Record<string, string>;
 };
 
@@ -52,6 +55,14 @@ export function runCmd(
   options: { cwd: string; stdio?: "inherit" },
 ): void {
   execaSync(cmd, args, options);
+}
+
+export function runCmdAndGetStdout(
+  cmd: string,
+  args: string[],
+  options: { cwd: string },
+): string {
+  return execaSync(cmd, args, options).stdout;
 }
 
 const STARTING_SEARCH_LOCATIONS = ["examples"];

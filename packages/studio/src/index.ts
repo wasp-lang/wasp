@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { fileURLToPath } from "url";
 
 import { Command } from "commander";
 import cors from "cors";
@@ -12,9 +13,7 @@ function getUrlFromRelativePathToCwd(path: string) {
 }
 
 const program = new Command();
-program
-  .requiredOption("-d, --data-file <path>", "Path to data file")
-  .parse(process.argv);
+program.requiredOption("-d, --data-file <path>", "Path to data file").parse();
 
 const options = program.opts<{
   dataFile: string;
@@ -37,7 +36,7 @@ app.use(
   }),
 );
 
-const publicDirPath = new URL("./public", import.meta.url).pathname;
+const publicDirPath = fileURLToPath(new URL("./public", import.meta.url));
 app.use(express.static(publicDirPath));
 
 const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);

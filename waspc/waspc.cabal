@@ -54,18 +54,6 @@ data-files:
   Lsp/templates/**/*.js
   Lsp/templates/**/*.jsx
   Lsp/templates/**/*.ts
-  packages/deploy/dist/**/*.js
-  packages/deploy/package-lock.json
-  packages/deploy/package.json
-  packages/spec/dist/**/*.d.ts
-  packages/spec/dist/**/*.js
-  packages/spec/dist/**/*.map
-  packages/spec/package.json
-  packages/studio/dist/**/*.css
-  packages/studio/dist/**/*.html
-  packages/studio/dist/**/*.js
-  packages/studio/package-lock.json
-  packages/studio/package.json
 
 data-dir: data/
 
@@ -171,7 +159,6 @@ library
     Wasp.AppSpec.App.Deployment
     Wasp.AppSpec.App.EmailSender
     Wasp.AppSpec.App.Server
-    Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
@@ -194,6 +181,7 @@ library
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
+    Wasp.Docs
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
@@ -214,7 +202,6 @@ library
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
-    Wasp.Generator.DepVersions
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.FileDraft
@@ -326,7 +313,7 @@ library
     Wasp.Message
     Wasp.Node.Internal
     Wasp.Node.Version
-    Wasp.NodePackageFFI
+    Wasp.NpmPackageNames
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType
@@ -350,6 +337,7 @@ library
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.Waspignore
+    Wasp.Project.WaspNpmPackage
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common
@@ -498,7 +486,7 @@ library cli-lib
     Wasp.Cli.Command.Require.GeneratedApp
     Wasp.Cli.Command.Require.InWaspProject
     Wasp.Cli.Command.Require.ValidNodeAndNpm
-    Wasp.Cli.Command.Require.WaspSpecAvailable
+    Wasp.Cli.Command.Require.WaspNpmPackageAvailable
     Wasp.Cli.Command.Show
     Wasp.Cli.Command.Show.Build
     Wasp.Cli.Command.Show.Spec
@@ -516,6 +504,7 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.Compile
+    Wasp.Cli.DevWaspNpmPackages
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
@@ -606,7 +595,9 @@ test-suite waspc-tests
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
+    Generator.Valid.PackageJson.WaspConfigTest
     Generator.VirtualUserModulesTest
+    Generator.WaspNpmPackageJsonTest
     Generator.WriteFileDraftsTest
     Job.CreateProcess.SearchPathTest
     Job.IO.PrefixedWriterTest
@@ -624,6 +615,7 @@ test-suite waspc-tests
     Project.ExternalConfig.WaspTsConfigTest
     Project.RunConfigTest
     Project.WaspignoreTest
+    Project.WaspNpmPackageTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Generator.SchemaTest
@@ -745,9 +737,9 @@ test-suite waspc-e2e-tests
     Tests.WaspDockerfileTest
     Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspNpmPackageAvailableTest
     Tests.WaspProjectLockTest
     Tests.WaspShowTest
-    Tests.WaspSpecAvailableTest
     Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
     Tests.WaspStudioTest

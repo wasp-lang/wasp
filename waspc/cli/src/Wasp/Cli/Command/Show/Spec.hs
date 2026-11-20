@@ -3,13 +3,15 @@ module Wasp.Cli.Command.Show.Spec
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
 import Wasp.AppSpec.Inspectable (InspectableAppSpec (InspectableAppSpec))
 import Wasp.Cli.Command (Command, require)
 import Wasp.Cli.Command.Compile (analyzeWithDiagnosticsOnStderr)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Command.Show.Subcommand (ShowSubcommand (..))
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 specShowSubcommand :: ShowSubcommand
 specShowSubcommand =
@@ -23,5 +25,5 @@ analyzeAppSpec :: Command InspectableAppSpec
 analyzeAppSpec = do
   ValidNodeAndNpm <- require
   InWaspProject waspDir <- require
-  WaspSpecAvailable <- require
-  InspectableAppSpec <$> analyzeWithDiagnosticsOnStderr waspDir
+  WaspNpmPackageAvailable <- require
+  InspectableAppSpec <$> analyzeWithDiagnosticsOnStderr waspDir <*> liftIO getWaspCliNpmPackageVersion

@@ -102,8 +102,7 @@ const conversation = [
 const codeEmpty = `import { app } from "@wasp/spec";
 
 export default app({
-  name: "mySaasApp",
-  wasp: { version: "^0.24.0" }
+  name: "mySaasApp"
 });`;
 
 const codeBase = `import { api, app, page, query, route } from "@wasp/spec";
@@ -114,7 +113,6 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "mySaasApp",
-  wasp: { version: "^0.24.0" },
   head: ["<link rel='icon' href='/favicon.ico' />"],
   title: "My SaaS App",
   auth: {
@@ -136,7 +134,6 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "mySaasApp",
-  wasp: { version: "^0.24.0" },
   title: "My SaaS App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

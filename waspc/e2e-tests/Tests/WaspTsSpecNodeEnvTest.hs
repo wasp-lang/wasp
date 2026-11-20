@@ -15,7 +15,6 @@ import ShellCommands
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
 waspTsSpecNodeEnvTest :: Test
 waspTsSpecNodeEnvTest =
@@ -55,13 +54,9 @@ waspTsSpecNodeEnvTest =
         export default app({
           name: "tsSpecNodeEnvTest",
           title: "tsSpecNodeEnvTest",
-          wasp: { version: "$textWaspVersion" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           spec: [
             route("RootRoute", "/", page(MainPage)),
           ]
         })
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion

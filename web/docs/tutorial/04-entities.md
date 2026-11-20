@@ -35,17 +35,13 @@ Read more about how Wasp Entities work in the [Entities](../features/data/entiti
 To update the database schema to include this entity, run:
 
 <TutorialAction id="migration-add-task" action="MIGRATE_DB" />
-```sh
-wasp db migrate-dev
-```
+<WaspCommand command="wasp db migrate-dev" />
 
 You'll need to do this any time you change an entity's definition. It instructs Prisma to create a new database migration and apply it to the database.
 
 To take a look at the database and the new `Task` entity, run:
 
-```sh
-wasp db studio
-```
+<WaspCommand command="wasp db studio" />
 
 This will open a new page in your browser to view and edit the data in your database.
 

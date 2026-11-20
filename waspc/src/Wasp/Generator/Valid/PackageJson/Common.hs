@@ -5,40 +5,10 @@ import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import qualified Wasp.Generator.DepVersions as DepVersions
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as Server
 
 type DependencySpecification = (P.PackageName, P.PackageVersion)
-
--- | List of dependencies that are required to be present in the user's
--- package.json#dependencies.
-requiredUserRuntimeDeps :: [DependencySpecification]
-requiredUserRuntimeDeps =
-  [ -- Installing the wrong version of "react-router" can make users believe that they
-    -- can use features that are not available in the version that Wasp supports.
-    ("react-router", show DepVersions.reactRouterVersionRange),
-    ("react", show DepVersions.reactVersionRange),
-    ("react-dom", show DepVersions.reactDomVersionRange)
-  ]
-
--- | List of dependencies that are required to be present in the user's
--- package.json#devDependencies.
-requiredUserDevelopmentDeps :: [DependencySpecification]
-requiredUserDevelopmentDeps =
-  [ ("vite", show DepVersions.viteVersionRange),
-    ("prisma", show DepVersions.prismaVersionRange)
-  ]
-
--- | List of dependencies that the user can optionally include in either
--- package.json#dependencies or package.json#devDependencies.
-optionalUserDeps :: [DependencySpecification]
-optionalUserDeps =
-  [ ("typescript", show DepVersions.typescriptVersionRange),
-    ("@types/react", show DepVersions.reactTypesVersionRange),
-    ("@types/react-dom", show DepVersions.reactDomTypesVersionRange),
-    ("@types/express", show DepVersions.expressTypesVersionRange)
-  ]
 
 -- | List of dependencies that the user should NOT include in their package.json.
 forbiddenUserDeps :: [P.PackageName]
@@ -48,17 +18,19 @@ forbiddenUserDeps =
     "wasp"
   ]
 
--- | Given an AppSpec, returns a Map of all dependencies used across the
--- top-level projects (user, webapp, and server -- not the SDK since that can
--- use its own dependencies). This ensures no package version conflicts occur
--- between different parts of the generated app.
-getAllWaspDependencies :: AS.AppSpec -> Map P.PackageName P.PackageVersion
-getAllWaspDependencies spec =
-  M.fromListWithKey dedupeVersions $
-    requiredUserRuntimeDeps
-      <> requiredUserDevelopmentDeps
-      <> optionalUserDeps
-      <> serverDeps
+-- | TODO(#4824): Once the optional dependencies move to the user's project, the
+-- generated server lists none, so this check and `wasp.overriddenDeps` go away.
+--
+-- The dependencies of the generated server, regular and dev. If the user's
+-- package.json lists one of them too, it must use the same version, so npm
+-- installs one copy.
+--
+-- The SDK's dependencies are left out, since the SDK can use its own copies.
+-- The core dependencies are left out too: they are peer dependencies of
+-- \@wasp/wasp, and npm checks those.
+getGeneratedServerDeps :: AS.AppSpec -> Map P.PackageName P.PackageVersion
+getGeneratedServerDeps spec =
+  M.fromListWithKey dedupeVersions serverDeps
   where
     serverDeps = getAllDepsFromPackage $ N.fromWasp $ Server.npmDepsFromWasp spec
 
@@ -81,6 +53,5 @@ getAllWaspDependencies spec =
       concatMap
         (\getDeps -> D.toPair <$> getDeps pkg)
         [ N.dependencies,
-          N.devDependencies,
-          N.peerDependencies
+          N.devDependencies
         ]
