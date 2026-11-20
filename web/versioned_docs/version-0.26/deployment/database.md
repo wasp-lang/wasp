@@ -14,7 +14,15 @@ In this section, we'll discuss what happens with the database when your app goes
 
 The server app that Wasp generates uses a PostgreSQL database. The only requirement from Wasp's point of view is that the database is accessible from the server via the `DATABASE_URL` server env variable.
 
-It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), or some other service. PostgreSQL can behave differently across major versions, so development and production work best when they use the same major version.
+It can be a PostgreSQL database running on the same server as the server app, or it can be a managed PostgreSQL database service like [Fly Postgres](https://fly.io/docs/postgres/), [AWS RDS](https://aws.amazon.com/rds/), [Prisma Postgres](https://www.prisma.io/postgres), or some other service. PostgreSQL can behave differently across major versions, so development and production work best when they use the same major version.
+
+:::tip Pooled and direct connection strings
+
+Some managed services give you two connection strings: a pooled one that goes through a connection pooler, and a direct one. Use the direct connection string for `DATABASE_URL`. The production server [applies pending migrations](#applying-migrations) every time it starts, and Prisma Migrate needs a direct connection to the database.
+
+The server app uses the same `DATABASE_URL` for its queries, so they bypass the pooler too. Each server instance keeps its own pool of open connections, and managed services cap the number of direct connections. Check your provider's limit before you run several server instances. To make each instance use fewer connections, add the `connection_limit` parameter to the connection string, for example `?connection_limit=5`.
+
+:::
 
 ## Migrations
 
