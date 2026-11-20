@@ -27,7 +27,7 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
   {
     title: "Create a user and log in",
     content: <LogInStep />,
-    media: (
+    example: (
       <CodeWindow
         title="main.wasp.ts"
         code={`export default app({
@@ -37,7 +37,9 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
     methods: {
       email: {
         userSignupFields,
-        emailVerification: { clientRoute: "EmailVerificationRoute" },
+        emailVerification: {
+          clientRoute: "EmailVerificationRoute",
+        },
         passwordReset: { clientRoute: "PasswordResetRoute" },
         // ...
       },
@@ -63,12 +65,16 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
         </Link>
       </>
     ),
-    media: (
+    example: (
       <CodeWindow
         title="src/tasks/task.wasp.ts"
         code={`export const tasksSpec: Spec = [
   // Only logged-in users can see this page.
-  route("TasksRoute", "/tasks", page(TasksPage, { authRequired: true })),
+  route(
+    "TasksRoute",
+    "/tasks",
+    page(TasksPage, { authRequired: true }),
+  ),
   query(getTasks, { entities: ["Task", "Tag"] }),
   action(createTask, { entities: ["Task"] }),
   // ...
@@ -92,7 +98,7 @@ const WALKTHROUGH_STEPS: WalkthroughStep[] = [
         </p>
       </>
     ),
-    media: (
+    example: (
       <CodeWindow
         title="terminal"
         code={`# See how your app fits together
@@ -131,7 +137,7 @@ $ wasp db studio`}
         </ul>
       </>
     ),
-    media: (
+    example: (
       <CodeWindow
         title="main.wasp.ts"
         code={`import { tasksSpec } from "./src/tasks/task.wasp";
@@ -194,7 +200,7 @@ export default app({
         </a>
       </>
     ),
-    media: (
+    example: (
       <CodeWindow
         title="terminal"
         code={`# Deploy to Railway
