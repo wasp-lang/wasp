@@ -51,6 +51,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^9.0.8",
+    "@wasp/test-utils": "file:../../waspc/.dev-packages/wasp-test-utils-0.27.0.tgz",
     "@wasp/wasp-app-runner": "^0.0.19",
     "jsdom": "^30.1.3",
     "msw": "^3.0.3",
