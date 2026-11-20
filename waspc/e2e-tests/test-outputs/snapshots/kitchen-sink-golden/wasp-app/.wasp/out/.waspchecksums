@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "a8c672f64b9d50d67bf8e242bff547cec8f0de0dffec8b85bfb90d590b3d53ef"
+        "e63afad2e63b02dc5afeb59451375111d1b779586ae8594c23205a5ee0fa3ec4"
     ],
     [
         [
@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "9bae7f2d0f1b6a96df7e3bc9d19a70c0e8f0ff367a41b6bac965415a5de951dc"
+        "8854b1b6ca13e7685d4969eb5f187d13331f9d2abb7ea010449688745969d8dc"
     ],
     [
         [
@@ -529,7 +529,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "abb2f1cb9c0ade2440db46c2905ac0bbe851feae8ca789728890a2ff2c3d1a89"
+        "0989c5a44ce3b65cb7c12ee3f18e4b8c900fba1cead7257c2bd78671cb80f0a7"
     ],
     [
         [
@@ -648,7 +648,7 @@
             "file",
             "sdk/wasp/server/api/index.ts"
         ],
-        "305873ae3572a7cd995b532d04a231a9e56419c0b1330fbe3809c034eef22658"
+        "1f88e9f2c7e399e12be4ed1f05731c3823727e15fb8a83fef809f58072753b21"
     ],
     [
         [
@@ -1558,7 +1558,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "4d2bf1b5441eedb1b9996890c118df61e2ba14896186567f2e7274f285bad102"
+        "c425bf84b987bdbbea97046b56325822d878a81b08876eaff61ad1c6cc41a5b1"
     ],
     [
         [

@@ -28,6 +28,32 @@ describe("sendErrorResponse", () => {
     expect(console.error).not.toHaveBeenCalled();
   });
 
+  it("sends an error of a class that extends `HttpError` as is", () => {
+    class PaymentRequiredError extends HttpError<{ plan: string }> {
+      constructor(plan: string) {
+        super(402, "Payment required", { data: { plan } });
+      }
+    }
+
+    const sent = send(new PaymentRequiredError("pro"));
+
+    expect(sent.status).toBe(402);
+    expect(sent.body).toEqual({
+      message: "Payment required",
+      data: { plan: "pro" },
+    });
+  });
+
+  it("keeps the content type that an `HttpError` sets", () => {
+    const sent = send(
+      new HttpError(418, "I'm a teapot", {
+        headers: { "Content-Type": "application/vnd.teapot+json" },
+      }),
+    );
+
+    expect(sent.headers["content-type"]).toBe("application/vnd.teapot+json");
+  });
+
   it("sends each `Set-Cookie` value of an `HttpError` separately", () => {
     const sent = send(
       new HttpError(401, "Unauthorized", {
@@ -69,6 +95,18 @@ describe("sendErrorResponse", () => {
     expect(sent.status).toBe(429);
     expect(sent.headers["retry-after"]).toBe("120");
     expect(sent.body).toEqual({ message: "Too Many Requests" });
+  });
+
+  it("doesn't forward the headers of an unknown error when they are a `Headers` instance", () => {
+    const error = Object.assign(new Error("Upstream failed"), {
+      status: 502,
+      headers: new Headers({ "X-Upstream": "1" }),
+    });
+
+    const sent = send(error);
+
+    expect(sent.status).toBe(502);
+    expect(sent.headers).not.toHaveProperty("x-upstream");
   });
 
   it.each([200, 600, "404", undefined])(

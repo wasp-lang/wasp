@@ -63,6 +63,7 @@ export {
 export {
   listenForUncaughtClientErrors,
   reportClientError,
+  reportRenderError,
   type ClientErrorContext,
 } from "./errors.js";
 export { useEffectOnce } from "./hooks.js";

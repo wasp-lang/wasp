@@ -5,8 +5,8 @@ import { RouterProvider } from "react-router/dom";
 
 import { Layout } from "wasp/client/app/layout";
 import {
-  reportClientError,
   listenForUncaughtClientErrors,
+  reportRenderError,
   WaspApp,
 } from "wasp/client/app";
 
@@ -46,13 +46,6 @@ startTransition(() => {
     onCaughtError: reportRenderError,
   });
 });
-
-function reportRenderError(
-  error: unknown,
-  { componentStack }: { componentStack?: string },
-): void {
-  reportClientError(error, { source: "render", componentStack });
-}
 
 async function waitForRouterInitialized(
   router: ReturnType<typeof createBrowserRouter>,
