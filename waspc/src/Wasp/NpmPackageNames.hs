@@ -4,6 +4,7 @@ module Wasp.NpmPackageNames
   ( waspNpmScope,
     waspNpmPackageName,
     waspCliNpmPackageName,
+    waspSpecNpmPackageName,
   )
 where
 
@@ -16,3 +17,6 @@ waspNpmPackageName = waspNpmScope ++ "wasp"
 
 waspCliNpmPackageName :: String
 waspCliNpmPackageName = waspNpmScope ++ "cli"
+
+waspSpecNpmPackageName :: String
+waspSpecNpmPackageName = waspNpmScope ++ "spec"
