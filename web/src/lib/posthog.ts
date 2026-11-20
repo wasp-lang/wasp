@@ -2,7 +2,7 @@ import type { PostHog } from "posthog-js";
 
 // PostHog keeps the choice of the visitor in localStorage under this name, as
 // `1` or `0`.
-export const CONSENT_STORAGE_KEY = "wasp-cookies-consent";
+const CONSENT_STORAGE_KEY = "wasp-cookies-consent";
 
 type CaptureArguments = Parameters<PostHog["capture"]>;
 

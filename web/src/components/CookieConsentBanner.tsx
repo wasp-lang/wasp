@@ -5,12 +5,7 @@ import {
   COOKIE_SETTINGS_HREF,
   isAnalyticsConsentRequired,
 } from "../lib/cookie-consent";
-import {
-  CONSENT_STORAGE_KEY,
-  optInToPostHog,
-  optOutOfPostHog,
-  startPostHog,
-} from "../lib/posthog";
+import { optInToPostHog, optOutOfPostHog, startPostHog } from "../lib/posthog";
 import classes from "./CookieConsentBanner.module.css";
 
 // "banner": the banner shows by itself, because the visitor in the consent
@@ -56,38 +51,6 @@ export default function CookieConsentBanner() {
     document.addEventListener("click", openSettings);
     return () => document.removeEventListener("click", openSettings);
   }, []);
-
-  useEffect(() => {
-    if (!posthog) {
-      return;
-    }
-
-    // A choice in another tab changes the stored choice. PostHog in this tab
-    // reads the stored choice before each event, but it also keeps its data in
-    // memory, and it can save that data in the browser again. So this tab
-    // makes the same choice. The browser sends this event only to the other
-    // tabs, and only when the value changes, so it does not come back. An
-    // event can arrive after a newer choice, so this tab applies only the
-    // choice that is stored now.
-    const applyChoiceFromOtherTab = (event: StorageEvent) => {
-      if (
-        event.key !== CONSENT_STORAGE_KEY ||
-        event.newValue !== localStorage.getItem(CONSENT_STORAGE_KEY)
-      ) {
-        return;
-      }
-      if (event.newValue === "1") {
-        optInToPostHog(posthog);
-        setBannerState("closed");
-      } else if (event.newValue === "0") {
-        optOutOfPostHog(posthog);
-        setBannerState("closed");
-      }
-    };
-
-    window.addEventListener("storage", applyChoiceFromOtherTab);
-    return () => window.removeEventListener("storage", applyChoiceFromOtherTab);
-  }, [posthog]);
 
   if (!posthog || bannerState === "closed") {
     return null;

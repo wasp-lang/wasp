@@ -34,8 +34,10 @@ export type AnalyticsEvents = {
   "GitHub: Click": { target: GitHubTarget };
   // A click on a link to `opensaas.sh` or `docs.opensaas.sh`.
   "Open SaaS: Click": Record<string, never>;
-  // Plausible records both. PostHog records only "Accept", because the banner
-  // sends "Reject" after the PostHog opt-out.
+  // The banner sends each of these events once with `track()`, and
+  // `sendEvent()` sends every event to Plausible and to PostHog. PostHog drops
+  // "Reject", because the banner opts the visitor out of PostHog before it
+  // sends that event.
   "Cookie Consent: Accept": Record<string, never>;
   "Cookie Consent: Reject": Record<string, never>;
 };
