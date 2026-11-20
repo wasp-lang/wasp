@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-//MISE description="Builds the TypeScript packages under packages/ that waspc uses, and copies them into data/packages/."
+//MISE description="Builds the TypeScript packages under packages/ that waspc uses, and copies them into waspc/data/packages/."
 /// <reference types="node" />
 
 import {
