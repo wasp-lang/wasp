@@ -33,8 +33,6 @@ FROM base AS server-builder
 RUN apk add --no-cache python3 build-base libtool autoconf automake
 WORKDIR /app
 COPY --link package.json package-lock.json ./
-COPY --link server/package.json .wasp/out/server/
-COPY --link sdk/wasp/package.json .wasp/out/sdk/wasp/
 {=# dependsOnDevWaspNpmPackages =}
 # Unreleased Wasp npm packages, which the project depends on through tarballs.
 COPY --link {= devWaspNpmPackagesDir =} .wasp/out/{= devWaspNpmPackagesDir =}
