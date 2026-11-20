@@ -7,13 +7,16 @@ import Data.Aeson (ToJSON (..), object, (.=))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Inspectable (Inspectable (..), InspectionEntry (InspectionEntry))
-import Wasp.Version (waspVersion)
+import qualified Wasp.SemanticVersion as SV
 
-newtype InspectableAppSpec
-  = InspectableAppSpec {getAppSpec :: AS.AppSpec}
+data InspectableAppSpec = InspectableAppSpec
+  { getAppSpec :: AS.AppSpec,
+    -- | The version of the Wasp that analyzed the app spec.
+    getWaspVersion :: SV.Version
+  }
 
 instance ToJSON InspectableAppSpec where
-  toJSON (InspectableAppSpec spec) =
+  toJSON (InspectableAppSpec spec waspVersion) =
     object
       [ "waspVersion" .= show waspVersion,
         "dbSystem" .= ASV.getValidDbSystem spec,
@@ -21,7 +24,7 @@ instance ToJSON InspectableAppSpec where
       ]
 
 instance Inspectable InspectableAppSpec where
-  inspect (InspectableAppSpec spec) =
+  inspect (InspectableAppSpec spec waspVersion) =
     InspectionEntry
       "Spec"
       [ ("Version", show waspVersion),
