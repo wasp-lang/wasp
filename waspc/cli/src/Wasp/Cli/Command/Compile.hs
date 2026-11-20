@@ -43,20 +43,12 @@ import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProje
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
-import Wasp.Project.Db.Dev (findDevDatabaseUrl)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
 compileCommand :: Command ([CompileWarning], AS.AppSpec)
-compileCommand = ProjectLock.acquireExclusive $ do
-  (warnings, appSpec) <- compile
-  InWaspProject waspProjectDir <- require
-  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-  devDatabaseUrl <- liftIO $ findDevDatabaseUrl appSpec
-  dbWarnings <- liftIO $ Wasp.Project.warnIfDbNeedsMigration appSpec devDatabaseUrl outDir
-  liftIO $ printWarningsIfAny dbWarnings
-  return (warnings, appSpec)
+compileCommand = ProjectLock.acquireExclusive compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
