@@ -104,7 +104,8 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     parseErrorToValidationError :: P.ParseError -> ValidationError
     parseErrorToValidationError _err =
       GenericValidationError $
-        unlines
+        intercalate
+          "\n"
           [ "Invalid Wasp version requirement: " ++ specWaspVersionStr,
             "Make sure to use a npm-compatible version range.",
             "For example: "
@@ -118,7 +119,8 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =
       GenericValidationError $
-        unlines
+        intercalate
+          "\n"
           [ "Your Wasp version does not match the app's requirements.",
             "You are running Wasp " ++ show actualVersion ++ ".",
             "This app requires Wasp " ++ show expectedVersionRange ++ ".",

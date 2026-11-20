@@ -5,7 +5,7 @@ module Wasp.Cli.Command.BashCompletion
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.List (isPrefixOf)
+import Data.List (intercalate, isPrefixOf)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.Show as Command.Show
@@ -59,7 +59,8 @@ bashCompletion = do
 printBashCompletionInstruction :: Command ()
 printBashCompletionInstruction =
   liftIO . putStrLn $
-    unlines
+    intercalate
+      "\n"
       [ "Setting up Bash auto-completion for Wasp:",
         "",
         "1. Add the following line at the end of your shell configuration file:",

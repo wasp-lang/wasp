@@ -133,7 +133,7 @@ instance Show ValidationError where
         }
       )
       | null context = message'
-      | otherwise = unlines [contextLine, indent 4 message']
+      | otherwise = intercalate "\n" [contextLine, indent 4 message']
       where
         contextLine = "In " ++ intercalate " → " context ++ ":"
         context = catMaybes [fileNamePart, fieldPathPart]
