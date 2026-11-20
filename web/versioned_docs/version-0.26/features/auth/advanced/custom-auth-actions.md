@@ -255,13 +255,13 @@ We suggest using the built-in field validators for your authentication flow. You
 
 - `ensureValidUsername(args)`
 
-  Checks if the username is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+  Checks if the username is valid and throws an error if it's not. Read more about [the validation rules](../overview.md#default-validations).
 
 #### Email
 
 - `ensureValidEmail(args)`
 
-  Checks if the email is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+  Checks if the email is valid and throws an error if it's not. Read more about [the validation rules](../overview.md#default-validations).
 
 #### Password
 
@@ -271,4 +271,4 @@ We suggest using the built-in field validators for your authentication flow. You
 
 - `ensureValidPassword(args)`
 
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview.md#default-validations).
+  Checks if the password is valid and throws an error if it's not. Read more about [the validation rules](../overview.md#default-validations).
