@@ -1,8 +1,13 @@
+/**
+ * @module
+ * @mergeModuleWith <project>
+ */
+
 export {
-  createMockServer,
+  mockServer,
   type MockApi,
   type MockQuery,
-  type MockServer,
+  type MockServerResult,
 } from "./mockServer.js";
 export { renderInContext } from "./renderInContext.js";
 export { WaspTestWrapper } from "./WaspTestWrapper.js";

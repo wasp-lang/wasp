@@ -16,15 +16,21 @@ spec_waspNpmPackageJson = do
     -- the user's code don't find it.
     it "has only @wasp packages as regular dependencies" $ do
       packageJson <- readWaspNpmPackageJson
-      M.keys (dependencies packageJson) `shouldSatisfy` all ("@wasp/" `isPrefixOf`)
+      M.keys (dependencies packageJson) `shouldSatisfy` all isWaspPackage
 
     -- npm checks the versions of the packages that a feature needs, and
     -- waspc tells the user to install them at these versions.
     it "lists the packages of every feature as optional peer dependencies" $ do
       packageJson <- readWaspNpmPackageJson
       let optionalPeerDeps = M.restrictKeys (peerDependencies packageJson) (M.keysSet $ M.filter optional $ peerDependenciesMeta packageJson)
-      sort (M.toList optionalPeerDeps) `shouldBe` sort (Npm.Dependency.toPair <$> allOptionalNpmDeps)
+      -- The other optional peer dependencies are the Wasp packages that a
+      -- project adds on its own, like @wasp/test-utils.
+      let featurePeerDeps = M.filterWithKey (\name _ -> not $ isWaspPackage name) optionalPeerDeps
+      sort (M.toList featurePeerDeps) `shouldBe` sort (Npm.Dependency.toPair <$> allOptionalNpmDeps)
   where
+    isWaspPackage :: String -> Bool
+    isWaspPackage = ("@wasp/" `isPrefixOf`)
+
     readWaspNpmPackageJson :: IO WaspNpmPackageJson
     readWaspNpmPackageJson =
       either (error . ("Couldn't parse packages/wasp/package.json: " ++)) return
