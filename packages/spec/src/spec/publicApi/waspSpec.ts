@@ -534,19 +534,17 @@ export interface Server {
    */
   setupFn?: Reference<AnyFunction>;
   /**
-   * Function Wasp calls with every unexpected error on the server, e.g. to
-   * send it to an error tracking service. Wasp logs the error first.
+   * Function called with every unexpected error on the server, so you can
+   * send it to an error tracking service. Receives the error and a context
+   * whose `source` says where the error happened, e.g. `"request"` or
+   * `"job"`. An `HttpError` you throw from a request is not unexpected, so
+   * Wasp doesn't call the function for it.
    *
-   * It receives the error and a context whose `source` says where the error
-   * happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a
-   * request is not unexpected, so Wasp doesn't call the function for it.
-   *
-   * The function can be async. Wasp waits for it, for at most 5 seconds,
-   * before the server exits, which happens after a `"startup"` or `"dbSeed"`
-   * error and after an uncaught exception.
+   * Can be async. Wasp awaits it only when the server is about to exit
+   * because of the error, and for at most 5 seconds.
    *
    * In TypeScript, you can type the function with the `ServerOnErrorFn` type
-   * from `wasp/server`, which lists every `source`.
+   * from `wasp/server`.
    *
    * @example
    * ```ts
@@ -690,16 +688,14 @@ export interface Client {
    */
   setupFn?: Reference<AnyFunction>;
   /**
-   * Function Wasp calls with every unexpected error on the client, e.g. to
-   * send it to an error tracking service. Wasp logs the error first.
-   *
-   * It receives the error and a context whose `source` says where the error
-   * surfaced, e.g. `"render"` or `"window"`. An HTTP error response with a
-   * status below 500 is not unexpected, so Wasp doesn't call the function
-   * for it.
+   * Function called with every unexpected error on the client, so you can
+   * send it to an error tracking service. Receives the error and a context
+   * whose `source` says where the error surfaced, e.g. `"render"` or
+   * `"window"`. An HTTP error response with a status below 500 is not
+   * unexpected, so Wasp doesn't call the function for it.
    *
    * In TypeScript, you can type the function with the `ClientOnErrorFn` type
-   * from `wasp/client`, which lists every `source`.
+   * from `wasp/client`.
    *
    * @example
    * ```ts

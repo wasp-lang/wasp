@@ -15,8 +15,8 @@ import {
 {=# onErrorFn.isDefined =}
 import type { ClientOnErrorFn } from "wasp/client";
 {=& onErrorFn.importStatement =}
-{=/ onErrorFn.isDefined =}
 
+{=/ onErrorFn.isDefined =}
 {=& routeObjects.importStatement =}
 
 const router = createBrowserRouter({= routeObjects.importIdentifier =}, {

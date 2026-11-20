@@ -1,7 +1,18 @@
 /**
  * The type of the function you pass to the `server.onError` field of the app
- * spec. It receives an unexpected server error and the
- * {@link ServerErrorContext} it happened in.
+ * spec. Wasp calls it with every unexpected error on the server, after
+ * logging the error.
+ *
+ * It receives the error and the {@link ServerErrorContext} it happened in.
+ *
+ * - An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) you
+ *   throw while handling a request is not unexpected, so Wasp doesn't call
+ *   the function for it.
+ * - The function can be async. Wasp waits for it only when the server exits
+ *   because of the error, and for at most 5 seconds. The server exits after
+ *   a `"startup"` or `"dbSeed"` error, and after a `"process"` error whose
+ *   `event` is `uncaughtException`.
+ * - If the function throws, Wasp logs that error and keeps running.
  *
  * @example
  * ```ts

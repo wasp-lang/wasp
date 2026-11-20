@@ -90,7 +90,7 @@ export const onServerError: ServerOnErrorFn = async (error, context) => {
 };
 ```
 
-Wasp calls `onServerError` for errors in requests, Jobs, WebSockets, OAuth logins, server startup, and database seeds, and for uncaught errors anywhere else in the server. Wasp doesn't call `onServerError` for an `HttpError` you throw yourself, since that is an answer you chose to send to the client.
+To see which errors reach `onServerError`, check the [`ServerOnErrorFn` API Reference](../../api/wasp/server.md#serveronerrorfn).
 
 :::note
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.

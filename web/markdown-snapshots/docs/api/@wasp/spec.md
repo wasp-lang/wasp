@@ -1727,11 +1727,9 @@ See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 
 > `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
-Function Wasp calls with every unexpected error on the client, e.g. to send it to an error tracking service. Wasp logs the error first.
+Function called with every unexpected error on the client, so you can send it to an error tracking service. Receives the error and a context whose `source` says where the error surfaced, e.g. `"render"` or `"window"`. An HTTP error response with a status below 500 is not unexpected, so Wasp doesn't call the function for it.
 
-It receives the error and a context whose `source` says where the error surfaced, e.g. `"render"` or `"window"`. An HTTP error response with a status below 500 is not unexpected, so Wasp doesn't call the function for it.
-
-In TypeScript, you can type the function with the `ClientOnErrorFn` type from `wasp/client`, which lists every `source`.
+In TypeScript, you can type the function with the `ClientOnErrorFn` type from `wasp/client`.
 
 ###### Example
 
@@ -2355,13 +2353,11 @@ See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/
 
 > `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
 
-Function Wasp calls with every unexpected error on the server, e.g. to send it to an error tracking service. Wasp logs the error first.
+Function called with every unexpected error on the server, so you can send it to an error tracking service. Receives the error and a context whose `source` says where the error happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
 
-It receives the error and a context whose `source` says where the error happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
+Can be async. Wasp awaits it only when the server is about to exit because of the error, and for at most 5 seconds.
 
-The function can be async. Wasp waits for it, for at most 5 seconds, before the server exits, which happens after a `"startup"` or `"dbSeed"` error and after an uncaught exception.
-
-In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`, which lists every `source`.
+In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`.
 
 ###### Example
 

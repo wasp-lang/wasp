@@ -32,7 +32,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "6dd12e6ed63c340bc095f4e3fd4d1982138a5613d33013388cc6e25a96b736d4"
+        "a4d9cb5852bea722e638c68e662c0248cafa095bdb9d8d6bc9d6d938a8b66eaf"
     ],
     [
         [
@@ -221,7 +221,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "06a0dc42e847a63c7b5b93912f340b345fa1ab8ad8025cc2d503f16e66afe473"
+        "563243b1d96816b688ae7550393b305827fad6c7f9f8e677eeb9ef443560bb2e"
     ],
     [
         [

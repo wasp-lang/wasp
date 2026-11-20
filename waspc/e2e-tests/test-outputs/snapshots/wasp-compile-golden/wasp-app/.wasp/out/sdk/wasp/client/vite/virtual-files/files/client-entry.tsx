@@ -11,7 +11,6 @@ import {
   WaspApp,
 } from "wasp/client/app";
 
-
 import { routeObjects } from "/@wasp/routes.tsx"
 
 const router = createBrowserRouter(routeObjects, {

@@ -3,8 +3,21 @@ import { HttpError } from "../HttpError.js";
 
 /**
  * The type of the function you pass to the `client.onError` field of the app
- * spec. It receives an unexpected client error and the
- * {@link ClientErrorContext} it surfaced in.
+ * spec. Wasp calls it with every unexpected error on the client, after
+ * logging the error to the browser console.
+ *
+ * It receives the error and the {@link ClientErrorContext} it surfaced in.
+ *
+ * - An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror), or the
+ *   error the `api` client throws, is unexpected only with a status of 500 or
+ *   above. A lower status means the server sent the error on purpose.
+ * - A failed Query or Action that your code handles is not unexpected. A
+ *   failed Action that nobody catches arrives as a `"window"` error.
+ * - Wasp calls the function once per error, even if the error surfaces in
+ *   more than one place.
+ * - Render errors arrive even when your own error boundaries catch them.
+ * - Wasp doesn't call the function while prerendering pages.
+ * - If the function throws, Wasp logs that error and keeps running.
  *
  * @example
  * ```ts
