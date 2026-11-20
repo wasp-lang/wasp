@@ -22,6 +22,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal)
+import qualified Wasp.Diagnostic as Diagnostic
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady, SdkReady))
@@ -42,7 +43,7 @@ seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCli
 
   liftIO (dbSeed (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
-    Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
+    Right () -> cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Database seeded successfully!")
 
 newtype SeedArgs = SeedArgs
   { _seedName :: Maybe String

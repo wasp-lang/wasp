@@ -194,6 +194,7 @@ library
     Wasp.CompileOptions
     Wasp.Data
     Wasp.Db.Postgres
+    Wasp.Diagnostic
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson

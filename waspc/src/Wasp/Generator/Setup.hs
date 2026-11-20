@@ -21,6 +21,7 @@ import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.Diagnostic as Diagnostic
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
@@ -121,7 +122,7 @@ installDependencies spec generatedAppDir sendMessage = do
   result <- liftIO $ installNpmDependenciesWithInstallRecord spec generatedAppDir
   case result of
     Left npmInstallError -> throwError [npmInstallError]
-    Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
+    Right () -> liftIO $ sendMessage $ Msg.Diagnostic (Diagnostic.makeSuccess "Successfully completed npm install.")
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir = do
@@ -144,7 +145,7 @@ generatePrismaClient spec generatedAppDir sendMessage = do
     DbGenerator.generatePrismaClient spec generatedAppDir
   case result of
     Just generatorError -> throwError [generatorError]
-    Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."
+    Nothing -> liftIO $ sendMessage $ Msg.Diagnostic (Diagnostic.makeSuccess "Prisma client is up to date.")
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 buildSdk generatedAppDir sendMessage = do
@@ -153,7 +154,7 @@ buildSdk generatedAppDir sendMessage = do
     SdkGenerator.buildSdk generatedAppDir
   case result of
     Left errorMessage -> throwError [GenericGeneratorError errorMessage]
-    Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
+    Right () -> liftIO $ sendMessage $ Msg.Diagnostic (Diagnostic.makeSuccess "SDK built successfully.")
 
 typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
 typeCheckUserCode spec sendMessage = do
@@ -161,7 +162,7 @@ typeCheckUserCode spec sendMessage = do
     sendMessage $ Msg.Start "Type-checking user code..."
     J.run $ J.prefixWith J.Wasp typeCheck
   case exitCode of
-    ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
+    ExitSuccess -> liftIO $ sendMessage $ Msg.Diagnostic (Diagnostic.makeSuccess "User code type-checked successfully.")
     ExitFailure code ->
       throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
   where

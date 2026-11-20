@@ -7,6 +7,7 @@ import Control.Concurrent (MVar, threadDelay)
 import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan, writeChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
+import Data.Function ((&))
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Maybe (mapMaybe)
 import Data.Time.Clock (UTCTime, getCurrentTime)
@@ -20,6 +21,7 @@ import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilation
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
+import qualified Wasp.Diagnostic as Diagnostic
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
 import qualified Wasp.Message as Msg
@@ -155,7 +157,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
       printCompilationResult (warnings, errors)
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
-          cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
+          cliSendMessage $ Msg.Diagnostic (Diagnostic.makeSuccess "Recompilation on file change succeeded.")
           projectRunConfig <- makeProjectRunConfig appSpec
           return $
             SuccessfulCompile
@@ -166,7 +168,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
         Left _ -> do
-          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
+          cliSendMessage (Msg.Diagnostic $ Diagnostic.makeError "Recompilation on file change failed." & Diagnostic.setDetails (show (length errors) ++ " errors found"))
           return FailedCompile
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
