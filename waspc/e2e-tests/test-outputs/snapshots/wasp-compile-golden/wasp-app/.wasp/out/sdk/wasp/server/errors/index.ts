@@ -4,6 +4,7 @@
 
 // PRIVATE API (server)
 export {
+  listenForUncaughtServerErrors,
   reportUnexpectedServerError,
   sendErrorResponse,
   type ServerErrorContext,

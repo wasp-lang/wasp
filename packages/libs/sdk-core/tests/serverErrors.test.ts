@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HttpError } from "../src/HttpError";
 import { reportUnexpectedServerError } from "../src/node/errors/report";
 import { sendErrorResponse } from "../src/node/errors/response";
+import { listenForUncaughtServerErrors } from "../src/node/errors/uncaught";
 import { toHeadersInit } from "../src/node/errors/utils";
 
 describe("sendErrorResponse", () => {
@@ -136,6 +137,62 @@ describe("reportUnexpectedServerError", () => {
     );
   });
 });
+
+describe("listenForUncaughtServerErrors", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("reports an uncaught exception and exits", () => {
+    const exit = vi.spyOn(process, "exit").mockImplementation(() => {
+      return undefined as never;
+    });
+    const listeners = collectProcessListeners();
+    const error = new Error("Thrown in a timer");
+
+    listenForUncaughtServerErrors();
+    listeners.uncaughtException?.(error);
+
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(
+      "Unexpected error in process uncaughtException:",
+      error,
+    );
+    expect(exit).toHaveBeenCalledExactlyOnceWith(1);
+  });
+
+  it("reports an unhandled rejection and keeps running", () => {
+    const exit = vi.spyOn(process, "exit").mockImplementation(() => {
+      return undefined as never;
+    });
+    const listeners = collectProcessListeners();
+    const reason = new Error("Rejected without a catch");
+
+    listenForUncaughtServerErrors();
+    listeners.unhandledRejection?.(reason);
+
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(
+      "Unexpected error in process unhandledRejection:",
+      reason,
+    );
+    expect(exit).not.toHaveBeenCalled();
+  });
+});
+
+type ProcessListeners = { [eventName: string]: (error: unknown) => void };
+
+// Collects the listeners instead of registering them, so a test can't change
+// how the test process itself reacts to errors.
+function collectProcessListeners(): ProcessListeners {
+  const listeners: ProcessListeners = {};
+  vi.spyOn(process, "on").mockImplementation(((
+    eventName: string,
+    listener: (error: unknown) => void,
+  ) => {
+    listeners[eventName] = listener;
+    return process;
+  }) as typeof process.on);
+  return listeners;
+}
 
 type SentResponse = {
   status: number | undefined;
