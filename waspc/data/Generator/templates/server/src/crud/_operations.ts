@@ -50,7 +50,7 @@ const entities = {
 // 1. We either use the default implementation of the operation...
 =}
 {=^ overrides.GetAll.isDefined =}
-const _waspGetAllQuery: RegisteredGetAllQuery = ((args, context) => {
+const _waspGetAllQuery: RegisteredGetAllQuery = ((_args, context) => {
   {=^ crud.operations.GetAll.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.GetAll.isPublic =}
