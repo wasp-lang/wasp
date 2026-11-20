@@ -34,6 +34,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🐞 Bug fixes
 
+- Route links now preserve numeric `0` path parameters instead of dropping the segment. ([#4891](https://github.com/wasp-lang/wasp/issues/4891))
 - `logout` now throws an `HttpError` when the server answers with an error, like the other auth functions. ([#5021](https://github.com/wasp-lang/wasp/pull/5021))
 - The Auth UI reset password form now shows the error for an empty new password. ([#5138](https://github.com/wasp-lang/wasp/pull/5138))
 - Async `userSignupFields` getters no longer make the client `signup()` types require a `Promise`. ([#5150](https://github.com/wasp-lang/wasp/pull/5150))
