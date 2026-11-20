@@ -1,0 +1,24 @@
+{
+    "baseDir": "/",
+    "clientBuildDir": ".wasp/out/web-app/build/",
+    "clientEntryPointPath": "/@wasp/client-entry.tsx",
+    "clientEnvFileName": ".env.client",
+    "clientEnvSchemaValidationModulePath": ".wasp/out/sdk/wasp/client/env.ts",
+    "clientPortEnvVarName": "PORT",
+    "routesEntryPointPath": "/@wasp/routes.tsx",
+    "spaFallbackFile": "200.html",
+    "srcDir": "src/",
+    "srcTsConfigPath": "tsconfig.src.json",
+    "ssrEntryPointPath": "/@wasp/ssr-entry.tsx",
+    "ssrPaths": [
+        "/",
+        "/prerender",
+        "/prerender-instances/martin",
+        "/prerender-instances/matija",
+        "/hydration-mismatch"
+    ],
+    "virtualUserModules": {
+        "virtual:wasp/user/env": "./src/env",
+        "virtual:wasp/user/features/auth/password": "./src/features/auth/password"
+    }
+}

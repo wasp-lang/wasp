@@ -11,13 +11,10 @@ Any new or modified features should be added and tested here whenever possible.
 
 ## Setup
 
-<!-- TODO(#2262): Once the examples join the pnpm workspace, `pnpm install` at the repo root replaces this. -->
-
-The app depends on the unreleased Wasp in this repo, so build Wasp from source (see [`waspc/README.md`](../../waspc/README.md)) and install against it. Plain `npm install` fails on the stale lockfile entries of Wasp's npm packages:
+The app is part of the repo's pnpm workspace and depends on the unreleased Wasp in this repo. Build Wasp from source (see [`waspc/README.md`](../../waspc/README.md)), which also installs the app's dependencies:
 
 ```sh
 mise run build
-mise run reinstall-dev-wasp-app-deps
 ```
 
 ### Environment Variables
@@ -38,13 +35,13 @@ Check the [Wasp docs](https://wasp.sh/docs) for instructions on configuring supp
 You can use the shared `.env.server` with genuine API keys:
 
 ```sh
-npm run env:pull
+pnpm run env:pull
 ```
 
 To persist the local changes back to the shared config:
 
 ```sh
-npm run env:push
+pnpm run env:push
 ```
 
 ## Running
@@ -54,19 +51,19 @@ The `kitchen-sink` app runs like any other Wasp application.
 1. Start the database:
 
 ```sh
-npm run wasp -- start db
+ppnpm run wasp start db
 ```
 
 2. Migrate the database (if needed, in a separate terminal):
 
 ```sh
-npm run wasp -- db migrate-dev
+ppnpm run wasp db migrate-dev
 ```
 
 3. Start the app (in a separate terminal):
 
 ```sh
-npm run dev
+pnpm run dev
 ```
 
 4. Open `localhost:3000` in the browser to see the app!
@@ -93,7 +90,7 @@ We use `playwright` for e2e tests.
 Run the e2e tests with:
 
 ```sh
-npm run test:e2e
+pnpm run test:e2e
 ```
 
-`npm run test` runs both the unit tests and the e2e tests.
+`pnpm run test` runs both the unit tests and the e2e tests.

@@ -1,4 +1,4 @@
-import { page, route, type Spec } from "@wasp/spec";
+import { page, route, type Spec } from "wasp/spec";
 
 import { EagerPage } from "./pages/EagerPage" with { type: "ref" };
 import { LazyPage } from "./pages/LazyPage" with { type: "ref" };
