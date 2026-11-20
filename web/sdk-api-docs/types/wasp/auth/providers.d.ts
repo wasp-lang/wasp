@@ -1,0 +1,56 @@
+/**
+ * Types of the extra signup fields you define for your auth methods.
+ *
+ * When you define `userSignupFields` for the Email or Username & password auth
+ * method (see
+ * [Customizing the signup process](https://wasp.sh/docs/features/auth/overview#customizing-the-signup-process)),
+ * Wasp infers the type of the extra fields from it and exports it from this
+ * module. Each type only exists if you define `userSignupFields` for its auth
+ * method. Social auth methods don't have a type here.
+ *
+ * @module
+ */
+
+/**
+ * The extra signup fields of the
+ * [Email](https://wasp.sh/docs/features/auth/email/overview) auth method.
+ *
+ * It's an object with one property for each field you defined in
+ * `auth.methods.email.userSignupFields`, typed with the awaited return type of
+ * that field's function. It's also part of the input of the email
+ * {@link "client/auth"!signup | signup}
+ * function from `wasp/client/auth`.
+ *
+ * @example
+ * If your `User` entity has an `address` field and you define:
+ *
+ * ```ts
+ * import { defineUserSignupFields } from "wasp/server/auth";
+ *
+ * export const userSignupFields = defineUserSignupFields({
+ *   address: (data) => {
+ *     if (typeof data.address !== "string") {
+ *       throw new Error("Address is required");
+ *     }
+ *     return data.address;
+ *   },
+ * });
+ * ```
+ *
+ * `UserEmailSignupFields` is `{ address: string }`.
+ */
+export type UserEmailSignupFields = { [field: string]: unknown };
+
+/**
+ * The extra signup fields of the
+ * [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview)
+ * auth method.
+ *
+ * It has the same shape as {@link UserEmailSignupFields}, with one property
+ * for each field you defined in
+ * `auth.methods.usernameAndPassword.userSignupFields`. It's also part of the
+ * input of the username and password
+ * {@link "client/auth"!signup | signup}
+ * function from `wasp/client/auth`.
+ */
+export type UserUsernameAndPasswordSignupFields = { [field: string]: unknown };

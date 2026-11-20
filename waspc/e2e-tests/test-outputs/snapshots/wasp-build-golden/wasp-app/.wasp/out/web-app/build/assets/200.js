@@ -1,12 +1,12 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
-import { StrictMode, startTransition, use, useSyncExternalStore } from "react";
+import { StrictMode, startTransition, use, useEffect, useSyncExternalStore } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ky, { isHTTPError } from "ky";
 import mitt from "mitt";
-import ky from "ky";
 import * as z from "zod";
 import "superjson";
 // \0vite/modulepreload-polyfill.js
@@ -71,7 +71,177 @@ function emptySubscribe() {
 	const emptyUnsubscribe = () => {};
 	return emptyUnsubscribe;
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
+// node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
+/**
+* An error for an HTTP error response, which has a status code in the range
+* `[400, 600)`.
+*
+* Its `status`, `message`, and `data` are part of the response, so only put
+* information in them that is safe to show to the user.
+*
+* @typeParam Data The type of the error's `data`. It defaults to
+* {@link HttpErrorData}, an object with any fields.
+*
+* @example
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* export const getTask = async ({ id }, context) => {
+*   if (!context.user) {
+*     throw new HttpError(401, "You must be logged in.");
+*   }
+*   // ...
+* };
+* ```
+*
+* @example
+* Sending extra information and response headers:
+*
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* throw new HttpError(429, "Too many requests", {
+*   data: { limitPerMinute: 60 },
+*   headers: { "Retry-After": "60" },
+* });
+* ```
+*
+* @example
+* Reading it on the client:
+*
+* ```ts
+* import { createTask } from "wasp/client/operations";
+* import { HttpError } from "wasp/errors";
+*
+* try {
+*   await createTask({ description: "Buy milk" });
+* } catch (error: unknown) {
+*   if (error instanceof HttpError && error.status === 429) {
+*     const retryAfter = error.response.headers.get("Retry-After");
+*   }
+* }
+* ```
+*
+* @see [Error handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)
+*/
+var HttpError = class extends Error {
+	/**
+	* The HTTP response the error stands for. Read the status code and the
+	* headers from it.
+	*
+	* Don't read its body, since it may already be consumed. Use `message` and
+	* `data` instead.
+	*/
+	response;
+	/**
+	* Extra information about the error, e.g. which form field is invalid.
+	* It is `undefined` if the error was created without it.
+	*/
+	data;
+	/**
+	* The HTTP status code of the response, an integer in the range
+	* `[400, 600)`.
+	*/
+	get status() {
+		return this.response.status;
+	}
+	/**
+	* @deprecated Use {@link HttpError.status | status} instead.
+	*/
+	get statusCode() {
+		return this.status;
+	}
+	constructor(statusOrResponse, message, options = {}) {
+		super(message, options);
+		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
+		this.name = "HttpError";
+		const status = typeof statusOrResponse === "number" ? statusOrResponse : statusOrResponse.status;
+		if (!isHttpErrorStatusCode(status)) throw new Error("The status of an HttpError has to be an integer in the range [400, 600).");
+		this.data = options.data;
+		this.response = typeof statusOrResponse === "number" ? Response.json(toHttpErrorBody(this), {
+			status,
+			headers: options.headers
+		}) : statusOrResponse;
+	}
+};
+/**
+* Checks that a value is a status code an {@link HttpError} accepts, which is
+* an integer in the range `[400, 600)`.
+*/
+function isHttpErrorStatusCode(value) {
+	return typeof value === "number" && Number.isInteger(value) && value >= 400 && value < 600;
+}
+/**
+* Builds the JSON body of the response of an {@link HttpError}.
+*/
+function toHttpErrorBody(error) {
+	return {
+		message: error.message,
+		data: error.data
+	};
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/errors.mjs
+var handledErrors = /* @__PURE__ */ new WeakSet();
+/**
+* Reports a client error if it is unexpected, once per error object.
+*
+* An {@link HttpError} or ky's `HTTPError` with a status below 500 is
+* expected, because it comes from an error response that the server sent on
+* purpose.
+*
+* @param error The thrown value.
+* @param context Where the error surfaced.
+*/
+function reportClientError(error, context) {
+	if (isExpectedHttpError(error)) return;
+	if (typeof error === "object" && error !== null) {
+		if (handledErrors.has(error)) return;
+		handledErrors.add(error);
+	}
+	reportUnexpectedClientError(error, context);
+}
+function isExpectedHttpError(error) {
+	if (error instanceof HttpError) return error.status < 500;
+	return isHTTPError(error) && error.response.status < 500;
+}
+/**
+* Passes the errors that reach the window to {@link reportClientError}, e.g.
+* errors thrown in event handlers and rejected promises that nobody awaited.
+*
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event
+*/
+function listenForUncaughtClientErrors() {
+	window.addEventListener("error", (event) => {
+		reportClientError(event.error ?? event.message, {
+			source: "window",
+			event: "error"
+		});
+	});
+	window.addEventListener("unhandledrejection", (event) => {
+		reportClientError(event.reason, {
+			source: "window",
+			event: "unhandledrejection"
+		});
+	});
+}
+/**
+* Reports an error thrown while rendering. It has the shape of React's
+* `onCaughtError` and `onUncaughtError` root options.
+*
+* @see https://react.dev/reference/react-dom/client/hydrateRoot#parameters
+*/
+function reportRenderError(error, { componentStack }) {
+	reportClientError(error, {
+		source: "render",
+		componentStack
+	});
+}
+function reportUnexpectedClientError(error, context) {
+	console.error(`Unexpected error in ${context.source}:`, error);
+	if (context.source === "render" && context.componentStack) console.error(`The error happened in:${context.componentStack}`);
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
 	display: "flex",
 	minHeight: "80vh",
@@ -85,15 +255,17 @@ function FullPageWrapper({ children, className }) {
 		children
 	});
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
-	console.error(error);
-	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
+	useEffect(() => {
+		reportClientError(error, { source: "render" });
+	}, [error]);
+	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/events.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/storage.mjs
+// node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
 	const store = /* @__PURE__ */ new Map();
@@ -144,17 +316,34 @@ function createLocalStorageDataStore(prefix) {
 		}
 	};
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/operations/queryClient.mjs
-var defaultQueryClientConfig = {};
+// node_modules/@wasp/lib-sdk-core/dist/browser/operations/queryClient.mjs
+var MAX_QUERY_RETRIES = 3;
+var RETRYABLE_CLIENT_ERROR_STATUS_CODES = /* @__PURE__ */ new Set([408, 429]);
 var resolveQueryClientInitialized;
 var queryClientInitialized = new Promise((resolve) => {
 	resolveQueryClientInitialized = resolve;
 });
 function initializeQueryClient() {
-	const queryClient = new QueryClient(defaultQueryClientConfig);
+	const queryClient = new QueryClient(withWaspQueryDefaults({}));
 	resolveQueryClientInitialized(queryClient);
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/browser/auth/session.mjs
+function withWaspQueryDefaults(config) {
+	return {
+		...config,
+		defaultOptions: {
+			...config.defaultOptions,
+			queries: {
+				retry: shouldRetryQuery,
+				...config.defaultOptions?.queries
+			}
+		}
+	};
+}
+function shouldRetryQuery(failureCount, error) {
+	if (failureCount >= MAX_QUERY_RETRIES) return false;
+	return !(error instanceof HttpError && error.status >= 400 && error.status < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.status));
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
 	return storage.get(WASP_APP_AUTH_SESSION_ID_NAME) ?? null;
@@ -167,7 +356,7 @@ if (typeof window !== "undefined") window.addEventListener("storage", (event) =>
 	if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) if (!!event.newValue) apiEventsEmitter.emit("sessionId.set");
 	else apiEventsEmitter.emit("sessionId.clear");
 });
-// node_modules/@wasp.sh/lib-sdk-core/dist/utils/ansiColors.mjs
+// node_modules/@wasp/lib-sdk-core/dist/utils/ansiColors.mjs
 /**
 * Wraps each line of text with ANSI color codes.
 * Only works in Node.js (server-side), not in the browser.
@@ -201,7 +390,7 @@ var ansiColorCodes = {
 	yellow: "\x1B[33m"
 };
 var ansiResetCode = "\x1B[0m";
-// node_modules/@wasp.sh/lib-sdk-core/dist/env/validation.mjs
+// node_modules/@wasp/lib-sdk-core/dist/env/validation.mjs
 function ensureEnvSchema(data, schema) {
 	const result = getValidatedEnvOrError(data, schema);
 	if (result.success) return result.data;
@@ -225,7 +414,7 @@ function formatZodEnvError(error) {
 		"════════════════════════════════"
 	].join("\n");
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/router/interpolatePath.mjs
+// node_modules/@wasp/lib-sdk-core/dist/router/interpolatePath.mjs
 function interpolatePath(path, params, search, hash) {
 	const interpolatedPath = params ? interpolatePathParams(path, params) : path;
 	const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
@@ -248,7 +437,7 @@ function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);
 	return paramString.slice(1);
 }
-// node_modules/@wasp.sh/lib-sdk-core/dist/utils/url.mjs
+// node_modules/@wasp/lib-sdk-core/dist/utils/url.mjs
 function stripTrailingSlash(url) {
 	return url?.replace(/\/$/, "");
 }
@@ -438,8 +627,12 @@ var fullAppTree = /* @__PURE__ */ jsx(Layout, {
 	isFallbackPage,
 	children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise })
 });
+listenForUncaughtClientErrors();
 startTransition(() => {
-	hydrateRoot(document, fullAppTree);
+	hydrateRoot(document, fullAppTree, {
+		onUncaughtError: reportRenderError,
+		onCaughtError: reportRenderError
+	});
 });
 async function waitForRouterInitialized(router) {
 	if (router.state.initialized) return;

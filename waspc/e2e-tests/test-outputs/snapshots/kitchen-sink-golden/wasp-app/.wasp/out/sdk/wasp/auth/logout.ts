@@ -1,10 +1,12 @@
-import { api, removeLocalUserData } from '../api/index.js'
-import { invalidateAndRemoveQueries } from '@wasp.sh/lib-sdk-core/browser'
+import { api, handleApiError, removeLocalUserData } from '../api/index.js'
+import { invalidateAndRemoveQueries } from '@wasp/lib-sdk-core/browser'
 
 // PUBLIC API
 export default async function logout(): Promise<void> {
   try {
     await api.post('/auth/logout')
+  } catch (error: unknown) {
+    throw handleApiError(error)
   } finally {
     // Even if the logout request fails, we still want to remove the local user data
     // in case the logout failed because of a network error and the user walked away

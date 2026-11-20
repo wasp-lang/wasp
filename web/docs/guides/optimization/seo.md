@@ -10,7 +10,7 @@ import { CardLink } from "@site/src/components/CardLink"
 
 # Optimizing for search and AI crawlers (SEO & GEO)
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Lighthouse: 13, "industry standards": new Date("2026-06-08") }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Lighthouse: 13, "industry standards": new Date("2026-06-08") }} />
 
 Search engine optimization (SEO) and generative engine optimization (GEO) are about making your app visible and attractive to search engines, social media platforms, and AI assistants.
 
@@ -57,7 +57,7 @@ Full optimization of the Wasp app only happens on the production build, not the 
 
 There are four main categories of issues (Performance, Accessibility, Best Practices, and SEO), and all of these will be important for how your pages perform in search engines and AI assistants. For example, Google uses page speed as a ranking factor, and AI assistants will be more likely to read and recommend your site if it's accessible.
 
-A straightforward way to run Lighthouse is through the command line:
+A straightforward way to run Lighthouse is through the command line. The production build needs a PostgreSQL database and the server's environment variables. [Testing locally](../../deployment/local-testing.md) shows how to set them up:
 
 ```sh
 # First, build and start the production build of your app:
@@ -104,7 +104,7 @@ Search engines and social platforms read `<meta>` tags from your HTML to decide 
 You can set tags for your whole app through the `head` field of your `app` declaration:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   // ...
@@ -174,12 +174,12 @@ Most search engines (like Google) can also execute JavaScript when indexing a pa
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LandingRoute", "/", page(LandingPage), {
       // highlight-next-line
       prerender: true

@@ -20,7 +20,7 @@ import { Check, Copy } from "react-feather";
 import { trackDeclaredCopy, trackEventAttributes } from "../../lib/analytics";
 
 export const InstallBlock = ({
-  command = "npm i -g @wasp.sh/wasp-cli@latest",
+  command = "npm i -g @wasp/cli@latest",
   className = "",
   trackEvent = { event: "Install Command: Copy" },
 }) => {

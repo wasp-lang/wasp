@@ -22,9 +22,11 @@ import Wasp.SemanticVersion.Range
     r,
   )
 import Wasp.SemanticVersion.Version
-  ( Version (..),
+  ( PreReleaseIdentifier (..),
+    Version (..),
     nextBreakingChangeVersion,
     parseVersion,
+    releaseVersion,
     v,
     versionParser,
   )

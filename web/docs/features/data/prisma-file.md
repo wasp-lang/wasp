@@ -72,7 +72,7 @@ The `generator` block defines how to generate the Prisma Client code that you ca
 Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { api, app, job, query } from "@wasp.sh/spec"
+import { api, app, job, query } from "@wasp/spec"
 import { fooBar } from "./src/apis" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
 import { foo } from "./src/workers/bar" with { type: "ref" }

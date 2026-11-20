@@ -2,10 +2,10 @@ import { basename } from "path";
 
 import { chalk } from "zx";
 
-import type { Action } from "../../actions/actions";
-import { getActionsFromTutorialFiles } from "../../extract-actions";
-import { createTutorialApp } from "../../tutorialApp";
-import { createTacteCommand } from "../tacteCommand";
+import type { Action } from "../../actions/actions.ts";
+import { getActionsFromTutorialFiles } from "../../extract-actions/index.ts";
+import { createTutorialApp } from "../../tutorialApp.ts";
+import { createTacteCommand } from "../tacteCommand.ts";
 
 type SourceFileName = string;
 type ActionsGroupedByFile = Map<SourceFileName, Action[]>;

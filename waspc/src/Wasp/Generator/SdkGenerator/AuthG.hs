@@ -25,6 +25,7 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -35,7 +36,7 @@ genAuth spec =
       -- shared stuff
       sequence
         [ genUserTs auth,
-          genFileCopyInAuth [relfile|validation.ts|],
+          genValidationTs auth,
           genIndexTs auth,
           genProvidersTypes auth,
           genProvdersIndex auth
@@ -53,6 +54,12 @@ genAuth spec =
     maybeEmailSender = AS.App.emailSender app
     maybeAuth = AS.App.auth app
     app = getApp spec
+
+genValidationTs :: AS.Auth.Auth -> Generator FileDraft
+genValidationTs auth =
+  return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|validation.ts|]) tmplData
+  where
+    tmplData = object ["passwordValidationSchema" .= extImportToImportJson (AS.Auth.getPasswordValidationSchema auth)]
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in

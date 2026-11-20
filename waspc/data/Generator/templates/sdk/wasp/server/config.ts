@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { env } from './env.js'
-import { getOrigin, stripTrailingSlash } from '@wasp.sh/lib-sdk-core'
+import { getOrigin, stripTrailingSlash } from '@wasp/lib-sdk-core'
 
 type NodeEnv = typeof env.NODE_ENV
 

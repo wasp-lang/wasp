@@ -27,16 +27,15 @@ jobs:
           haskell: false
 
       - name: Install web dependencies
-        working-directory: web
-        run: npm ci
+        run: pnpm install --filter web...
 
       - name: Build website
         working-directory: web
         # Unlike the production deploy, this build includes the "current"
         # (next, unreleased) docs version. The markdown snapshots track it so
         # docs drift shows up in the PR that causes it, not at release time.
-        run: npm run build-dev
+        run: pnpm run build-dev
 
       - name: Check markdown snapshots
         working-directory: web
-        run: npm run markdown-snapshots:check
+        run: pnpm run markdown-snapshots:check

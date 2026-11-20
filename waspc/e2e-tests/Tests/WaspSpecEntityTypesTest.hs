@@ -78,11 +78,11 @@ waspSpecEntityTypesTest =
       |]
 
     -- NOTE: We use `ref(...)` so that `tsc` does not have to resolve any
-    -- external imports besides the `@wasp.sh/spec` package.
+    -- external imports besides the `@wasp/spec` package.
     mainWaspTs :: T.Text -> T.Text
     mainWaspTs entityName =
       [trimming|
-        import { app, ref, route } from "@wasp.sh/spec";
+        import { app, ref, route } from "@wasp/spec";
 
         export default app({
           name: "enti",

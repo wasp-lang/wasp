@@ -19,14 +19,14 @@ export function Input({ className, label, fieldState, ...props }: InputProps) {
       <input
         id={id}
         className={twJoin(
-          "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-800 shadow-xs focus:border-primary-500 focus:outline-hidden focus:ring-1 focus:ring-primary-500",
+          "w-full border-2 border-black bg-white px-4 py-3 text-black placeholder:text-gray",
           className,
         )}
         {...props}
       />
 
       {fieldState.error && (
-        <span className="text-sm text-red-500">{fieldState.error.message}</span>
+        <span className="text-sm text-red-600">{fieldState.error.message}</span>
       )}
     </div>
   );

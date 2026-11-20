@@ -12,7 +12,6 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
-import Data.Either (fromLeft)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
@@ -21,12 +20,13 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.ProjectLock (withProjectLock)
+import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
-import Wasp.Generator.Setup (SetupGoal (GeneratedAppReady))
+import Wasp.Generator.Setup (allSetupGoals)
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
+import Wasp.Project (compileResultWarningsAndErrors)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -50,7 +50,7 @@ import Wasp.Util.Json (updateJsonFile)
 -- Finally, throws if there was a compile/build error.
 -- Very similar to 'compile'.
 build :: Command ()
-build = withProjectLock $ do
+build = ProjectLock.acquireExclusive $ do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   ValidNodeAndNpm <- require
@@ -122,19 +122,17 @@ build = withProjectLock $ do
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
 
-      -- The user's `package.json` references `@wasp.sh/spec` via `file:.wasp/spec`,
+      -- The user's `package.json` references `@wasp/spec` via `file:.wasp/spec`,
       -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.
-      -- We strip `@wasp.sh/spec` from the build's `devDependencies` so that Docker's
-      -- `npm install` reconciles the lockfile (dropping the now-orphan spec entries)
-      -- and proceeds without trying to resolve the missing `file:` path.
+      -- We strip `@wasp/spec` from the build's `devDependencies` so that Docker's
+      -- `npm ci` doesn't try to resolve the missing `file:` path.
       --
-      -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
       -- The proper fix(es) are tracked in:
       --   - https://github.com/wasp-lang/wasp/issues/897
       --   - https://github.com/wasp-lang/wasp/issues/1769
       ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
-      -- Removing `@wasp.sh/spec` from the package-lock.json file is not
-      -- strictly necessary (`npm install` would drop it anyway). We still do
+      -- Removing `@wasp/spec` from the package-lock.json file is not
+      -- strictly necessary (`npm ci` installs fine without it). We still do
       -- it because:
       --   - Npm throws a warning if it detects a mismatch.
       --   - Npm has become more strict about this over time and will possibly
@@ -152,14 +150,12 @@ buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir =
-  fmap (fromLeft [])
-    <$> compileIOWithOptions options waspProjectDir buildDir
+buildIO waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
-          setupGoal = GeneratedAppReady
+          setupGoals = allSetupGoals
         }

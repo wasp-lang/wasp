@@ -1,20 +1,78 @@
 {{={= =}=}}
-import { Lucia } from "lucia";
-import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
+import { Lucia, type Adapter, type DatabaseSession } from "lucia";
 import { prisma } from '../index.js'
 import type { {= userEntityUpper =} } from "../../entities/index.js"
 
-const prismaAdapter = new PrismaAdapter(
-  prisma.{= sessionEntityLower =},
-  prisma.{= authEntityLower =},
-);
+// Ported from `@lucia-auth/adapter-prisma` because that package is deprecated
+// and doesn't support Prisma 6:
+// https://github.com/lucia-auth/lucia/blob/v3/packages/adapter-prisma/src/index.ts
+const prismaAdapter: Adapter = {
+  async getSessionAndUser(sessionId) {
+    const session = await prisma.{= sessionEntityLower =}.findUnique({
+      where: { id: sessionId },
+      include: { {= authFieldOnSessionEntityName =}: true },
+    });
+    if (!session) {
+      return [null, null];
+    }
+    const { {= authFieldOnSessionEntityName =}: sessionAuth, ...sessionWithoutAuth } = session;
+    return [
+      toDatabaseSession(sessionWithoutAuth),
+      { id: sessionAuth.id, attributes: { userId: sessionAuth.userId } },
+    ];
+  },
+  async getUserSessions(userId) {
+    const sessions = await prisma.{= sessionEntityLower =}.findMany({ where: { userId } });
+    return sessions.map(toDatabaseSession);
+  },
+  async setSession(session) {
+    await prisma.{= sessionEntityLower =}.create({
+      data: {
+        id: session.id,
+        userId: session.userId,
+        expiresAt: session.expiresAt,
+      },
+    });
+  },
+  async updateSessionExpiration(sessionId, expiresAt) {
+    await prisma.{= sessionEntityLower =}.update({
+      where: { id: sessionId },
+      data: { expiresAt },
+    });
+  },
+  async deleteSession(sessionId) {
+    // `deleteMany` doesn't throw if the session doesn't exist.
+    await prisma.{= sessionEntityLower =}.deleteMany({ where: { id: sessionId } });
+  },
+  async deleteUserSessions(userId) {
+    await prisma.{= sessionEntityLower =}.deleteMany({ where: { userId } });
+  },
+  async deleteExpiredSessions() {
+    await prisma.{= sessionEntityLower =}.deleteMany({
+      where: { expiresAt: { lte: new Date() } },
+    });
+  },
+};
+
+function toDatabaseSession(session: {
+  id: string;
+  userId: string;
+  expiresAt: Date;
+}): DatabaseSession {
+  return {
+    id: session.id,
+    userId: session.userId,
+    expiresAt: session.expiresAt,
+    attributes: {},
+  };
+}
 
 // PRIVATE API
 /**
  * We are using Lucia for session management.
  * 
  * Some details:
- * 1. We are using the Prisma adapter for Lucia.
+ * 1. We are using our own Prisma adapter for Lucia.
  * 2. We are not using cookies for session management. Instead, we are using
  *    the Authorization header to send the session token.
  * 3. Our `Session` entity is connected to the `Auth` entity.

@@ -1,4 +1,4 @@
-import { type Spec, action, query } from "@wasp.sh/spec";
+import { type Spec, action, query } from "@wasp/spec";
 import { createTag } from "./actions" with { type: "ref" };
 import { getTags } from "./queries" with { type: "ref" };
 

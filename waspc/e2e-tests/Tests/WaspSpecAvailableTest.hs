@@ -26,7 +26,6 @@ import ShellCommands
     waspCliStartDb,
     waspCliStudio,
     waspCliTelemetry,
-    waspCliTestClient,
     waspCliVersion,
   )
 import StrongPath (fromAbsDir, reldir, (</>))
@@ -55,8 +54,7 @@ waspSpecAvailableTest =
                       waspCliDbReset,
                       waspCliDeploy ["fly", "setup"],
                       waspCliStartDb,
-                      waspCliStart,
-                      waspCliTestClient []
+                      waspCliStart
                     ]
             ]
         ),

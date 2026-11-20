@@ -35,11 +35,12 @@ import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
-import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
+import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
+import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand)
+import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
@@ -50,8 +51,14 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- so messages from long-running commands don't show up until the command exits.
   hSetBuffering stdout LineBuffering
 
+  -- So that Wasp also cleans up after itself (e.g. stops the processes it
+  -- started) when it's stopped with SIGTERM (process managers, `kill`) or
+  -- SIGHUP (closed terminal), and not only with Ctrl+C.
+  handleTerminationSignalsLikeInterrupt
+
   args <- getArgs
   let commandCall = case args of
+        [helpArg] | isHelpArg helpArg -> Command.Call.Help
         ("new" : newArgs) -> Command.Call.New newArgs
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ("start" : startArgs) -> Command.Call.Start startArgs
@@ -73,7 +80,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ("test" : testArgs) -> Command.Call.Test testArgs
         _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -102,7 +108,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
-    Command.Call.Test testArgs -> runCommand $ test testArgs
+    Command.Call.Help -> printUsage
     Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -116,6 +122,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors e = do
       putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
       exitFailure
+
+isHelpArg :: String -> Bool
+isHelpArg arg = arg `elem` ["help", "--help", "-h"]
 
 -- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.
@@ -145,6 +154,7 @@ printUsage =
               "        -t|--template <template-name>",
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
+        cmd   "    help                  Prints this help message.",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
@@ -160,7 +170,7 @@ printUsage =
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom port, Docker image, or Docker volume mount path.",
               "                          If the port is not specified, Wasp picks the first free port when the default one is taken.",
-        cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
+        cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.",
         cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
         cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
@@ -173,7 +183,6 @@ printUsage =
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd   "    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.",
         cmd   "    show build [--json]   Prints information about your app's current build.",
-        cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
         cmd   "    news                  Read the latest Wasp-related news.",
               "",
@@ -199,6 +208,7 @@ printVersion = do
         "",
         "If you want a specific x.y.z version of Wasp, do:",
         indent 2 $ getInstallationCommand $ Just "x.y.z",
+        legacyVersionsNote,
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
@@ -206,13 +216,14 @@ printVersion = do
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  [helpArg] | isHelpArg helpArg -> printDbUsage
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommand $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  "seed" : seedArgs -> runCommand $ Command.Db.Seed.seed seedArgs
-  ["studio"] -> runCommand Command.Db.Studio.studio
+  "reset" : resetArgs -> runCommand $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommand $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
+  "seed" : seedArgs -> runCommand $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
+  "studio" : studioArgs -> runCommand $ withArguments (ArgsParser "wasp db studio" (pure ())) (const Command.Db.Studio.studio) studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}

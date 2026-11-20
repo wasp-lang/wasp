@@ -22,7 +22,7 @@ where
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion.Version (Version (..), versionParser)
+import Wasp.SemanticVersion.Version (Version (..), lowestVersion, versionParser)
 import Wasp.Util.TH (quasiQuoterFromParser)
 
 data VersionBound = Inclusive !Version | Exclusive !Version | Inf
@@ -39,16 +39,16 @@ versionFromBound (Exclusive v) = Just v
 type VersionInterval = (VersionBound, VersionBound)
 
 -- | Version interval which satisfies any possible SemVer version.
--- As SemVer is defined on natural numbers,
--- the [0.0.0, inf) interval satisfies any possible version.
+-- As 0.0.0-0 is the version with the lowest precedence,
+-- the [0.0.0-0, inf) interval satisfies any possible version.
 allVersionsInterval :: VersionInterval
-allVersionsInterval = (Inclusive $ Version 0 0 0, Inf)
+allVersionsInterval = (Inclusive lowestVersion, Inf)
 
 -- | Version interval which satisfies no SemVer version.
 -- Any empty interval can be a no version interval.
--- For our implementation we picked the (0.0.0, 0.0.0) interval.
+-- For our implementation we picked the (0.0.0-0, 0.0.0-0) interval.
 noVersionInterval :: VersionInterval
-noVersionInterval = (Exclusive $ Version 0 0 0, Exclusive $ Version 0 0 0)
+noVersionInterval = (Exclusive lowestVersion, Exclusive lowestVersion)
 
 showInterval :: VersionInterval -> String
 showInterval (lowerBound, upperBound) =
@@ -91,6 +91,7 @@ vi = quasiQuoterFromParser parseInterval
 class HasVersionBounds a where
   -- | Returns lower and upper version bounds of the interval of valid versions.
   -- Interval of valid versions defined by these bounds may or may not be discontinous.
+  -- Pre-release versions inside the bounds may still be invalid, see `isVersionInRangeExpression`.
   versionBounds :: a -> VersionInterval
 
 -- | NOTE: Returned interval might be "empty", if lower bound is higher than the upper bound.

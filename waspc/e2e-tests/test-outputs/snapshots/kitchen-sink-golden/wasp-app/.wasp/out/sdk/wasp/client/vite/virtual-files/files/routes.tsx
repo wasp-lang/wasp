@@ -1,5 +1,6 @@
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "@wasp.sh/lib-sdk-core/browser";
+import { initializeQueryClient } from "wasp/client/operations";
+import { Outlet } from "react-router"
 
 import { createAuthRequiredPage } from "wasp/client/app"
 
@@ -160,6 +161,26 @@ const routesMapping = {
       }
     },
   },
+  ErrorsRoute: {
+    lazy: async () => {
+      const Component = await import("./src/features/errors/pages/ErrorsPage").then(m => m.ErrorsPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
+  ClientErrorsRoute: {
+    lazy: async () => {
+      const Component = await import("./src/features/errors/pages/ClientErrorsPage").then(m => m.ClientErrorsPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
   CrudListRoute: {
     lazy: async () => {
       const Component = await import("./src/features/crud/pages/ListPage").then(m => m.ListPage);
@@ -253,7 +274,11 @@ const rootElement =
   // We don't really need to wrap the app in a div nor name it "root", but we
   // keep it for backwards compatibility with older Wasp versions.
   <div id="root">
-    <App_ext />
+    {/* Users usually render `Outlet`, but we also pass it as `children`, as
+    it's a common convention for layout components. */}
+    <App_ext>
+      <Outlet />
+    </App_ext>
   </div>
 
 export const routeObjects = getRouteObjects({

@@ -2,6 +2,7 @@ module Wasp.Util.Network.Socket
   ( checkIfPortIsAcceptingConnections,
     checkIfPortIsInUse,
     checkIfPortCanBeOpened,
+    createIPv4TCPSocket,
     makeSocketAddress,
     makeLocalHostSocketAddress,
     IPv4,
@@ -87,7 +88,11 @@ checkIfPortCanBeOpened sockAddr = do
         || any (`isInfixOf` ioe_description e) ["WSAEADDRINUSE", "WSAEACCES"]
 
 createIPv4TCPSocket :: IO S.Socket
-createIPv4TCPSocket = S.socket S.AF_INET S.Stream S.defaultProtocol
+createIPv4TCPSocket =
+  -- On Windows, the network package initializes WinSock lazily, so concurrent
+  -- first sockets can fail with WinSock error 10107. 'S.withSocketsDo'
+  -- initializes it upfront (no-op elsewhere).
+  S.withSocketsDo $ S.socket S.AF_INET S.Stream S.defaultProtocol
 
 -- | Creates a socket address from host IP and port number.
 -- > makeSocketAddress (127,0,0,1) 8000

@@ -10,6 +10,7 @@ module Wasp.Util.IO.Retry
     MonadRetry (..),
     PauseStrategy,
     NumFailedTries,
+    Microseconds,
   )
 where
 

@@ -1,8 +1,8 @@
 {{={= =}=}}
 
-export { defineHandler, redirect } from '@wasp.sh/lib-sdk-core/node'
+export { defineHandler, redirect } from '@wasp/lib-sdk-core/node'
 
-export { sleep } from '@wasp.sh/lib-sdk-core'
+export { sleep } from '@wasp/lib-sdk-core'
 
 {=# isAuthEnabled =}
 import type { AuthUserData } from '../auth/user.js'

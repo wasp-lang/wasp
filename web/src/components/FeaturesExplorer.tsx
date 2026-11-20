@@ -237,7 +237,7 @@ const features: Feature[] = [
       {
         head: "main.wasp.ts",
         language: "typescript",
-        source: `import { app, job, page, query, route } from "@wasp.sh/spec";
+        source: `import { app, job, page, query, route } from "@wasp/spec";
 
 import { AdminDashboard } from "./src/admin/Dashboard" with { type: "ref" };
 import { dailyDigest, getMetrics } from "./src/admin/ops" with { type: "ref" };
@@ -708,7 +708,6 @@ $ wasp start           # run client + server in dev
 $ wasp start db        # spin up a local dev database
 $ wasp db migrate-dev  # run migrations, and more under \`wasp db ...\`
 $ wasp studio          # visualize your app's structure
-$ wasp test client     # run your tests
 $ wasp build           # generate production-ready code
 $ wasp deploy          # ship it to your provider`,
       },

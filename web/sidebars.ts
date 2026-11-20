@@ -220,6 +220,7 @@ const sidebars: SidebarsConfig = {
           "0.23",
           "0.24",
           "0.25",
+          "0.26",
         ]),
       ],
     },
@@ -255,7 +256,8 @@ const sidebars: SidebarsConfig = {
   api: [
     {
       type: "category",
-      label: "packages",
+      label: "API",
+      link: { type: "doc", id: "api/index" },
       collapsed: false,
       collapsible: false,
       items: typedocSidebar.items,

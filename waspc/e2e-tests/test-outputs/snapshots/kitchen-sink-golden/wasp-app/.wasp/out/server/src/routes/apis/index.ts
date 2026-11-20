@@ -15,6 +15,8 @@ import { barBaz as _waspbarBazfn } from "../../../../../../src/features/apis/api
 import { patchBarBaz as _wasppatchBarBazfn } from "../../../../../../src/features/apis/apis"
 import { webhookCallback as _waspwebhookCallbackfn } from "../../../../../../src/features/apis/apis"
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
+import { throwUnexpectedError as _waspthrowUnexpectedErrorfn } from "../../../../../../src/features/errors/apis"
+import { throwHttpError as _waspthrowHttpErrorfn } from "../../../../../../src/features/errors/apis"
 import { streamingText as _waspstreamingTextfn } from "../../../../../../src/features/streaming/api"
 
 const idFn: MiddlewareConfigFn = x => x
@@ -22,6 +24,8 @@ const idFn: MiddlewareConfigFn = x => x
 const _waspheadBarBazmiddlewareConfigFn = idFn
 const _waspbarBazmiddlewareConfigFn = idFn
 const _wasppatchBarBazmiddlewareConfigFn = idFn
+const _waspthrowUnexpectedErrormiddlewareConfigFn = idFn
+const _waspthrowHttpErrormiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
 
 const router = express.Router()
@@ -114,6 +118,40 @@ router.post(
         },
       }
       return _waspwebhookCallbackfn(req, res, context)
+    }
+  )
+)
+const throwUnexpectedErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowUnexpectedErrormiddlewareConfigFn)
+router.get(
+  "/errors/unexpected",
+  throwUnexpectedErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowUnexpectedErrorfn>[0],
+      res: Parameters<typeof _waspthrowUnexpectedErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowUnexpectedErrorfn(req, res, context)
+    }
+  )
+)
+const throwHttpErrorMiddleware = globalMiddlewareConfigForExpress(_waspthrowHttpErrormiddlewareConfigFn)
+router.get(
+  "/errors/http",
+  throwHttpErrorMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspthrowHttpErrorfn>[0],
+      res: Parameters<typeof _waspthrowHttpErrorfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspthrowHttpErrorfn(req, res, context)
     }
   )
 )

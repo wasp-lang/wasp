@@ -10,7 +10,7 @@ import {
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
 
-const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
+const installCmd = "npm i -g @wasp/cli@latest";
 
 const InstallCommand = () => {
   const [copied, setCopied] = useState(false);
@@ -66,7 +66,7 @@ const codeTabs = [
   {
     name: "main.wasp.ts",
     language: "typescript",
-    source: `import { app, page, query, route } from "@wasp.sh/spec";
+    source: `import { app, page, query, route } from "@wasp/spec";
 import { MainPage } from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/tasks" with { type: "ref" };
 
@@ -110,7 +110,7 @@ export function MainPage() {
     name: "tasks.ts",
     language: "typescript",
     source: `import { type GetTasks } from "wasp/server/operations";
-import { HttpError } from "wasp/server";
+import { HttpError } from "wasp/errors";
 import { Task } from "wasp/entities";
 
 export const getTasks: GetTasks<void, Task[]> = async (

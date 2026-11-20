@@ -76,18 +76,18 @@ spec_envVarCombining = do
     $ it "should let incoming env vars override the existing ones"
     $ addEnvVarsOverride
       [("B", "3"), ("C", "4")]
-      ([("A", "1"), ("B", "2")] :: [EnvVar])
+      [("A", "1"), ("B", "2")]
       `shouldBe` [("B", "3"), ("C", "4"), ("A", "1")]
 
   describe "addEnvVarsUnique" $ do
     it "should add the incoming env vars when there are no duplicates" $
       addEnvVarsUnique
         [("B", "2")]
-        ([("A", "1")] :: [EnvVar])
+        [("A", "1")]
         `shouldBe` Right [("B", "2"), ("A", "1")]
 
     it "should return the duplicate env var names when there are duplicates" $
       addEnvVarsUnique
         [("B", "3"), ("A", "4")]
-        ([("A", "1"), ("B", "2")] :: [EnvVar])
+        [("A", "1"), ("B", "2")]
         `shouldBe` Left (Set.fromList ["A", "B"])

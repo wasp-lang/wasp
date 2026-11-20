@@ -4,7 +4,7 @@ import {
   type OptionalRouteOptions,
   type ParamValue,
   type ExpandRouteOnOptionalStaticSegments,
-} from '@wasp.sh/lib-sdk-core'
+} from '@wasp/lib-sdk-core'
 
 // PUBLIC API
 export const routes = {
@@ -198,6 +198,32 @@ export const routes = {
     ) => interpolatePath(
         
         "/apis",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  ErrorsRoute: {
+    to: "/errors",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/errors",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  ClientErrorsRoute: {
+    to: "/errors/client",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/errors/client",
         undefined,
         options?.search,
         options?.hash

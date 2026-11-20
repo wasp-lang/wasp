@@ -5,15 +5,13 @@ sidebar_label: Email
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
-import { Required } from '@site/src/components/Tag'
-import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
 # Sending emails
 
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -80,7 +78,7 @@ To speed up development, Wasp offers a `Dummy` email sender that `console.log`s 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -96,7 +94,7 @@ export default app({
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -128,7 +126,7 @@ If you run into issues, check their documentation for a solution, or consider us
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -171,7 +169,7 @@ As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -199,7 +197,7 @@ SENDGRID_API_KEY=
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { app } from "@wasp/spec"
 
 export default app({
   name: "myApp",
@@ -227,7 +225,7 @@ RESEND_API_KEY=
 ### `emailSender` specification
 
 <CardLink
-  to="../api/@wasp.sh/spec/interfaces/EmailSender"
+  to="../api/@wasp/spec#emailsender-1"
   kind="api"
   title="EmailSender"
   description="All the options for the emailSender field of the app spec."
@@ -235,50 +233,9 @@ RESEND_API_KEY=
 
 ### JavaScript API
 
-Using the `emailSender` in <ShowForTs>Typescript</ShowForTs><ShowForJs>JavaScript</ShowForJs>:
-
-```ts title="src/actions/sendEmail.ts" auto-js
-import { emailSender } from "wasp/server/email";
-
-// In some action handler...
-const info = await emailSender.send({
-  from: {
-    name: "John Doe",
-    email: "john@doe.com",
-  },
-  to: "user@domain.com",
-  subject: "Saying hello",
-  text: "Hello world",
-  html: "Hello <strong>world</strong>",
-});
-```
-
-The `send` method accepts an object with the following fields:
-
-- `from: object`
-
-  The sender's details. If you set up the `defaultFrom` field in the `emailSender` config in your Wasp file, this field is optional.
-
-  - `name: string`
-
-    The name of the sender.
-
-  - `email: string`
-
-    The email address of the sender.
-
-- `to: string` <Required />
-
-  The recipient's email address.
-
-- `subject: string` <Required />
-
-  The subject of the email.
-
-- `text: string` <Required />
-
-  The text version of the email.
-
-- `html: string` <Required />
-
-  The HTML version of the email
+<CardLink
+  to="../api/wasp/server/email#emailsender-1"
+  kind="api"
+  title="emailSender"
+  description="Send emails from your server code, and all the fields of an email."
+/>

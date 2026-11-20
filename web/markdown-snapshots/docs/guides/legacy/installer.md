@@ -22,13 +22,17 @@ curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 Afterwards, you can use [the regular installation instructions](https://wasp.sh/docs/quick-start#detailed-installation) to install Wasp through npm:
 
 ```shell
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
 
 You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greater are available through npm:
 
 ```shell
-# Set x.y.z to the version you want to install, e.g. 0.20.2
+# Set x.y.z to the version you want to install.
+# Wasp 0.27 and newer:
+npm i -g @wasp/cli@x.y.z
+
+# Wasp 0.20.2 to 0.26.x:
 npm i -g @wasp.sh/wasp-cli@x.y.z
 ```
 
@@ -70,6 +74,10 @@ If you have already switched to npm installation but need to switch back to the 
 1. Uninstall the npm version of Wasp:
 
    ```shell
+   # Wasp 0.27 and newer:
+   npm uninstall -g @wasp/cli
+
+   # Wasp 0.20.2 to 0.26.x:
    npm uninstall -g @wasp.sh/wasp-cli
    ```
 

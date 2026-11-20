@@ -1,4 +1,4 @@
-import type { ActionFor } from '@wasp.sh/lib-sdk-core/browser'
+import type { ActionFor } from '@wasp/lib-sdk-core/browser'
 import { createAction } from "./core";
 import type {
   RegisteredCustomSignup,

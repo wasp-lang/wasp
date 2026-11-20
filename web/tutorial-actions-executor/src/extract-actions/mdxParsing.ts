@@ -6,13 +6,13 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { mdxJsxFromMarkdown } from "mdast-util-mdx-jsx";
 import { mdxJsx } from "micromark-extension-mdx-jsx";
 
-import type { Action, MdxFilePath } from "../actions/actions.js";
-import type { Branded } from "../brandedTypes.js";
-import type { PatchesDirPath } from "../tutorialApp.js";
-import { extractTutorialActionNodes } from "./astTraversal.js";
-import { mapTutorialActionNodeToAction } from "./nodeMapping.js";
+import type { Action, MdxFilePath } from "../actions/actions.ts";
+import type { Branded } from "../brandedTypes.ts";
+import type { PatchesDirPath } from "../tutorialApp.ts";
+import { extractTutorialActionNodes } from "./astTraversal.ts";
+import { mapTutorialActionNodeToAction } from "./nodeMapping.ts";
 
-type MdxContent = Branded<Buffer<ArrayBufferLike>, "MdxContent">;
+export type MdxContent = Branded<Buffer<ArrayBufferLike>, "MdxContent">;
 
 export async function getActionsFromMdxFile(
   sourceTutorialFilePath: MdxFilePath,

@@ -18,6 +18,10 @@ declare module "virtual:wasp/user/features/db/prisma" {
   export const setUpPrisma: import("./server/dbClient").RegisteredPrismaSetupFn;
 }
 
+declare module "virtual:wasp/user/features/auth/password" {
+  export const passwordValidationSchema: import("./auth/validation").RegisteredPasswordValidationSchema;
+}
+
 declare module "virtual:wasp/user/features/operations/queries" {
   export const getTasks: import("./server/operations/queries/index").RegisteredGetTasks;
 }
@@ -41,6 +45,10 @@ declare module "virtual:wasp/user/features/operations/queries" {
 
 declare module "virtual:wasp/user/features/jobs/uppercaseText" {
   export const getTextUppercaseRequests: import("./server/operations/queries/index").RegisteredGetTextUppercaseRequests;
+}
+
+declare module "virtual:wasp/user/features/errors/queries" {
+  export const getTeapot: import("./server/operations/queries/index").RegisteredGetTeapot;
 }
 
 declare module "virtual:wasp/user/rpcTests/operations/definitions" {

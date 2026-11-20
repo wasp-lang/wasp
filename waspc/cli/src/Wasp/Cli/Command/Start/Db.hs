@@ -28,12 +28,15 @@ import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Cli.Util.PortArgument (portParser)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec, defaultPostgresPort)
+import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
+import Wasp.Util (checkExitSuccess)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
+import qualified Wasp.Util.Docker as Docker
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.
@@ -128,11 +131,26 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
+  throwIfDockerDaemonIsNotReachable
 
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
     Nothing -> startDbOnPort =<< resolveDevDbPort
   where
+    throwIfDockerDaemonIsNotReachable :: Command ()
+    throwIfDockerDaemonIsNotReachable =
+      liftIO Docker.checkDockerDaemonConnection >>= \case
+        Right () -> return ()
+        Left dockerError ->
+          E.throwError $
+            CommandError
+              "Couldn't connect to the Docker daemon"
+              ( "To run PostgreSQL dev database, Wasp needs Docker to be running."
+                  <> " Make sure Docker is started (e.g. by opening Docker Desktop) and try again.\n\n"
+                  <> "Docker reported:\n"
+                  <> dockerError
+              )
+
     resolveDevDbPort :: Command PortNumber
     resolveDevDbPort =
       resolvePort
@@ -157,7 +175,9 @@ startPostgresDevDb waspProjectDir appName requestedDbPort dbDockerImage dbDocker
           : additionalInfoLines devDbSpec
             <> dockerRunInfoLines
       cliSendMessageC $ Msg.Info "..."
-      liftIO $ Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath
+      exitCode <- Job.run (Dev.Postgres.runDevPostgresDb devDbSpec dbDockerImage dbDockerVolumeMountPath)
+      either (E.throwError . CommandError "Dev database failed") return $
+        checkExitSuccess "Running the PostgreSQL dev database" exitCode
 
     additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
     additionalInfoLines devDbSpec =

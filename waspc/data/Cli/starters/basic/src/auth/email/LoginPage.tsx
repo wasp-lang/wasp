@@ -6,22 +6,19 @@ export function LoginPage() {
   return (
     <AuthLayout>
       <LoginForm />
-      <br />
-      <span className="text-sm font-medium text-neutral-900">
+      <p className="text-sm">
         Don&apos;t have an account yet?{" "}
-        <Link to="/signup" className="font-semibold underline">
+        <Link to="/signup" className="font-bold underline">
           Go to signup
         </Link>
         .
-      </span>
-      <br />
-      <span className="text-sm font-medium text-neutral-900">
+        <br />
         Forgot your password?{" "}
-        <Link to="/request-password-reset" className="font-semibold underline">
+        <Link to="/request-password-reset" className="font-bold underline">
           Reset it
         </Link>
         .
-      </span>
+      </p>
     </AuthLayout>
   );
 }

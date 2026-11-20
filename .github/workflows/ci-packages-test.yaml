@@ -18,4 +18,4 @@ jobs:
 
       - name: Test all packages
         working-directory: waspc
-        run: ./run test:packages
+        run: mise run test:packages

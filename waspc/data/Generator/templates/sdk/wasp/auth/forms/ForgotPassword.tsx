@@ -1,5 +1,5 @@
 import Auth from './Auth'
-import type { CustomizationOptions } from '@wasp.sh/lib-sdk-core/browser'
+import type { CustomizationOptions } from '@wasp/lib-sdk-core/browser'
 import { State } from './types'
 
 // PUBLIC API

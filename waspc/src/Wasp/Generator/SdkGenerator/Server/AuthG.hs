@@ -78,7 +78,7 @@ genLuciaTs auth =
     tmplData =
       object
         [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "authFieldOnSessionEntityName" .= (DbAuth.authFieldOnSessionEntityName :: String),
           "userEntityUpper" .= (userEntityName :: String)
         ]
 

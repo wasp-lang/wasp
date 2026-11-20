@@ -78,13 +78,19 @@ jobs:
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
+      - name: Wait for deployed app to be reachable
+        uses: $/.github/actions/wait-for-deployed-app
+        with:
+          server-url: https://${{ steps.get-hostnames.outputs.server }}
+          client-url: https://${{ steps.get-hostnames.outputs.client }}
+
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         env:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm test
+        run: npm run test:e2e
 
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
@@ -104,7 +110,10 @@ jobs:
 
       - name: Clean up test apps
         run: |
-          # NOTE: We are relying on Wasp's naming conventions here
+          # NOTE: We are relying on Wasp's naming conventions here.
+          # This cleanup is best-effort (`|| true` also swallows real destroy
+          # failures). Apps it fails to destroy are destroyed by the
+          # automation-fly-destroy-leftover-ci-apps.yaml workflow.
           flyctl apps destroy -y $APP_PREFIX-server || true
           flyctl apps destroy -y $APP_PREFIX-client || true
           flyctl apps destroy -y $APP_PREFIX-db || true
@@ -162,25 +171,10 @@ jobs:
       # starts routing. Poll the deployed URLs so e2e tests start against a
       # live app.
       - name: Wait for deployed app to be reachable
-        env:
-          SERVER_HOSTNAME: ${{ steps.get-hostnames.outputs.server }}
-          CLIENT_HOSTNAME: ${{ steps.get-hostnames.outputs.client }}
-        run: |
-          function wait_for_url() {
-            url="$1"
-            for attempt in $(seq 1 30); do
-              if curl -fsS -o /dev/null --max-time 10 "$url"; then
-                echo "$url is ready"
-                return 0
-              fi
-              echo "Attempt $attempt/30: $url not ready, retrying in 10s"
-              sleep 10
-            done
-            echo "Timed out waiting for $url"
-            return 1
-          }
-          wait_for_url "https://${SERVER_HOSTNAME}/up"
-          wait_for_url "https://${CLIENT_HOSTNAME}"
+        uses: $/.github/actions/wait-for-deployed-app
+        with:
+          server-url: https://${{ steps.get-hostnames.outputs.server }}
+          client-url: https://${{ steps.get-hostnames.outputs.client }}
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -188,7 +182,7 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npm test
+        run: npm run test:e2e
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project

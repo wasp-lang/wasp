@@ -17,6 +17,58 @@ test.describe("auth", () => {
     ).toBeVisible();
   });
 
+  test("password field can be toggled to show the password", async ({
+    page,
+  }) => {
+    await page.goto("/login");
+
+    const passwordInput = page.locator("input[name='password']");
+    await expect(passwordInput).toHaveAttribute("type", "password");
+
+    await page.getByRole("button", { name: "Show password" }).click();
+
+    await expect(passwordInput).toHaveAttribute("type", "text");
+  });
+
+  test("reset password form shows the new password error under its own field", async ({
+    page,
+  }) => {
+    await page.goto("/password-reset");
+
+    await page
+      .locator("input[name='passwordConfirmation']")
+      .fill("only-the-confirmation");
+    await page.getByRole("button", { name: "Reset password" }).click();
+
+    await expect(page.locator("body")).toContainText("Password is required");
+  });
+
+  test("reset password form shows a mismatched confirmation under its own field", async ({
+    page,
+  }) => {
+    await page.goto("/password-reset");
+
+    await page.locator("input[name='password']").fill("password1");
+    await page.locator("input[name='passwordConfirmation']").fill("password2");
+    await page.getByRole("button", { name: "Reset password" }).click();
+
+    await expect(page.locator("body")).toContainText("Passwords must match");
+  });
+
+  test("password that fails the app's password rules results in error message", async ({
+    page,
+  }) => {
+    await performSignup(page, {
+      email: generateRandomEmail(),
+      password: "a".repeat(65),
+      address: "Some at least 10 letter address",
+    });
+
+    await expect(page.locator("body")).toContainText(
+      "Password must be at most 64 characters",
+    );
+  });
+
   test.describe("signup and login", () => {
     // These tests require Mailcrab for email verification.
     test.skip(

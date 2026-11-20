@@ -2,7 +2,7 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext, appendToFile, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed, waspCliDbSeedWithoutName, waspCliDbSeedWithoutNameFailsNonInteractively, (~&&))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
@@ -25,26 +25,46 @@ waspDbSeedTest =
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       TestCase
-        "succeed-seed-database"
+        "succeed-seed-name-given-multiple-seeds"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $
+                setUpProjectWithMultipleSeeds
+                  ++ [ waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName,
+                       waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName,
+                       waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName
+                     ]
+            ]
+        ),
+      TestCase
+        "succeed-no-seed-name-single-seed"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $ setUpProjectWithSingleSeed ++ [waspCliDbSeedWithoutName]
+            ]
+        ),
+      TestCase
+        "fail-no-seed-name-multiple-seeds-non-interactive"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $ setUpProjectWithMultipleSeeds ++ [waspCliDbSeedWithoutNameFailsNonInteractively]
+            ]
+        ),
+      TestCase
+        "succeed-seed-from-project-dir-with-server-env"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ waspCliCompile,
-                  appendToPrismaFile taskPrismaModel,
+                [ appendToPrismaFile taskPrismaModel,
+                  appendToFile ".env.server" "SEED_TEST_VAR=fromEnvServer",
+                  createSeedFile
+                    (T.unpack seedScriptThatAssertsServerEnvName <> ".ts")
+                    seedScriptThatAssertsServerEnv,
+                  replaceMainWaspTsFile mainWaspTsWithServerEnvSeed,
+                  waspCliCompile,
                   waspCliDbMigrateDev "foo",
-                  createSeedFile
-                    (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
-                    seedScriptThatPopulatesTasksTable,
-                  createSeedFile
-                    (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
-                    seedScriptThatAssertsTasksTableIsEmpty,
-                  createSeedFile
-                    (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
-                    seedScriptThatAssertsTasksTableIsNotEmpty,
-                  replaceMainWaspTsFile mainWaspTsWithSeeds,
-                  waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName,
-                  waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName,
-                  waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName
+                  return replaceRootDotenvWithDecoy,
+                  waspCliDbSeed $ T.unpack seedScriptThatAssertsServerEnvName
                 ]
             ]
         )
@@ -52,6 +72,34 @@ waspDbSeedTest =
   where
     waspCliDbSeedFails :: ShellCommand
     waspCliDbSeedFails = "! $WASP_CLI_CMD db seed"
+
+    setUpProjectWithMultipleSeeds :: [ShellCommandBuilder WaspProjectContext ShellCommand]
+    setUpProjectWithMultipleSeeds =
+      [ waspCliCompile,
+        appendToPrismaFile taskPrismaModel,
+        waspCliDbMigrateDev "foo",
+        createSeedFile
+          (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
+          seedScriptThatPopulatesTasksTable,
+        createSeedFile
+          (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
+          seedScriptThatAssertsTasksTableIsEmpty,
+        createSeedFile
+          (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
+          seedScriptThatAssertsTasksTableIsNotEmpty,
+        replaceMainWaspTsFile mainWaspTsWithMultipleSeeds
+      ]
+
+    setUpProjectWithSingleSeed :: [ShellCommandBuilder WaspProjectContext ShellCommand]
+    setUpProjectWithSingleSeed =
+      [ waspCliCompile,
+        appendToPrismaFile taskPrismaModel,
+        waspCliDbMigrateDev "foo",
+        createSeedFile
+          (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
+          seedScriptThatPopulatesTasksTable,
+        replaceMainWaspTsFile mainWaspTsWithSingleSeed
+      ]
 
     taskPrismaModel :: T.Text
     taskPrismaModel =
@@ -63,10 +111,31 @@ waspDbSeedTest =
         }
       |]
 
-    mainWaspTsWithSeeds :: T.Text
-    mainWaspTsWithSeeds =
+    mainWaspTsWithSingleSeed :: T.Text
+    mainWaspTsWithSingleSeed =
       [trimming|
-        import { app, page, route } from "@wasp.sh/spec";
+        import { app, page, route } from "@wasp/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+        import { $seedScriptThatPopulatesTasksTableName } from "./src/db/$seedScriptThatPopulatesTasksTableName" with { type: "ref" };
+
+        export default app({
+          name: "waspDbSeedTest",
+          title: "waspDbSeedTest",
+          wasp: { version: "$textWaspVersion" },
+          head: ["<link rel='icon' href='/favicon.ico' />"],
+          db: {
+            seeds: [$seedScriptThatPopulatesTasksTableName]
+          },
+          spec: [
+            route("RootRoute", "/", page(MainPage)),
+          ]
+        })
+      |]
+
+    mainWaspTsWithMultipleSeeds :: T.Text
+    mainWaspTsWithMultipleSeeds =
+      [trimming|
+        import { app, page, route } from "@wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" };
         import { $seedScriptThatPopulatesTasksTableName } from "./src/db/$seedScriptThatPopulatesTasksTableName" with { type: "ref" };
         import { $seedScriptThatAssertsTasksTableIsEmptyName } from "./src/db/$seedScriptThatAssertsTasksTableIsEmptyName" with { type: "ref" };
@@ -127,6 +196,58 @@ waspDbSeedTest =
           const taskCount = await prisma.task.count()
           if (taskCount === 0) {
             throw new Error('Expected tasks table to have data, but it was empty')
+          }
+        }
+      |]
+
+    -- npm usually hoists `dotenv` to the project root's `node_modules`. We move it
+    -- into the server's `node_modules` and leave a decoy in its place, so the seed
+    -- only passes if the server loads `dotenv` from the server package. The decoy
+    -- still provides `parse`, which the Prisma CLI uses to check the db connection.
+    replaceRootDotenvWithDecoy :: ShellCommand
+    replaceRootDotenvWithDecoy =
+      "mkdir -p .wasp/out/server/node_modules"
+        ~&& "rm -rf .wasp/out/server/node_modules/dotenv"
+        ~&& "mv node_modules/dotenv .wasp/out/server/node_modules/dotenv"
+        ~&& "mkdir node_modules/dotenv"
+        ~&& "echo '{\"name\": \"dotenv\"}' > node_modules/dotenv/package.json"
+        ~&& "echo 'exports.parse = require(\"../../.wasp/out/server/node_modules/dotenv\").parse;' > node_modules/dotenv/index.js"
+        ~&& "echo 'exports.config = () => { throw new Error(\"Loaded the decoy dotenv\"); };' >> node_modules/dotenv/index.js"
+        ~&& "echo 'throw new Error(\"Loaded the decoy dotenv\");' > node_modules/dotenv/config.js"
+
+    mainWaspTsWithServerEnvSeed :: T.Text
+    mainWaspTsWithServerEnvSeed =
+      [trimming|
+        import { app, page, route } from "@wasp/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+        import { $seedScriptThatAssertsServerEnvName } from "./src/db/$seedScriptThatAssertsServerEnvName" with { type: "ref" };
+
+        export default app({
+          name: "waspDbSeedTest",
+          title: "waspDbSeedTest",
+          wasp: { version: "$textWaspVersion" },
+          head: ["<link rel='icon' href='/favicon.ico' />"],
+          db: {
+            seeds: [$seedScriptThatAssertsServerEnvName]
+          },
+          spec: [
+            route("RootRoute", "/", page(MainPage)),
+          ]
+        })
+      |]
+
+    seedScriptThatAssertsServerEnvName :: T.Text
+    seedScriptThatAssertsServerEnvName = "assertServerEnv"
+    seedScriptThatAssertsServerEnv =
+      [trimming|
+        import fs from 'node:fs'
+
+        export async function $seedScriptThatAssertsServerEnvName() {
+          if (!fs.existsSync('main.wasp.ts')) {
+            throw new Error(`Expected to run from the Wasp project dir, but ran from $${process.cwd()}`)
+          }
+          if (process.env.SEED_TEST_VAR !== 'fromEnvServer') {
+            throw new Error(`Expected SEED_TEST_VAR from .env.server, but got $${process.env.SEED_TEST_VAR}`)
           }
         }
       |]

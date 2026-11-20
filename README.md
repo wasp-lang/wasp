@@ -61,7 +61,7 @@ Simple Wasp spec file in which you describe the high-level details of your web a
 ```ts
 // file: main.wasp.ts
 
-import { app, page, query, route } from "@wasp.sh/spec";
+import { app, page, query, route } from "@wasp/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" }; // Your React code.
 import { DashboardPage } from "./src/dashboard/DashboardPage" with { type: "ref" };
@@ -132,7 +132,7 @@ For more information about Wasp, check [**docs**](https://wasp.sh/docs).
 Run to install Wasp on OSX/Linux/WSL(Win):
 
 ```sh
-npm i -g @wasp.sh/wasp-cli@latest
+npm i -g @wasp/cli@latest
 ```
 
 From there, follow the instructions to run your first app in less than a minute!

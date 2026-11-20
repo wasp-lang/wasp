@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link as RouterLink } from 'react-router'
-import { interpolatePath, type OptionalRouteOptions } from '@wasp.sh/lib-sdk-core'
+import { interpolatePath, type OptionalRouteOptions } from '@wasp/lib-sdk-core'
 import type { Routes } from './index'
 
 type RouterLinkProps = Parameters<typeof RouterLink>[0]

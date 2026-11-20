@@ -1,0 +1,13 @@
+{
+  "include": ["src/**/*"],
+  "extends": ["@tsconfig/node26", "@tsconfig/node-ts"],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "types": ["node"]
+  }
+}
