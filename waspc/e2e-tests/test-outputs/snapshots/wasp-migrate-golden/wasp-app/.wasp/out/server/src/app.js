@@ -1,5 +1,6 @@
 import express from 'express'
 
+import { config } from "wasp/server";
 import { sendErrorResponse } from "wasp/server/errors";
 import indexRouter from './routes/index.js'
 
@@ -18,7 +19,7 @@ app.use(/** @type {import('express').ErrorRequestHandler} */ ((err, _req, res, n
   // been sent to the client, we must delegate to the default error handler.
   if (res.headersSent) { return next(err) }
 
-  sendErrorResponse(res, err);
+  sendErrorResponse(res, err, { includeErrorDetails: config.isDevelopment });
 }))
 
 export default app
