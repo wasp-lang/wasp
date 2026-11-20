@@ -7,7 +7,7 @@
 //   maintaining access to logic from the server/ .
 
 import { prisma, DbSeedFn } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors/report";
 
 {=# dbSeeds =}
 {=& importStatement =}

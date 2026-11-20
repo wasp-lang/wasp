@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "cb75e01a6d03e5daf8a99a5b6c459d4a85f6a88894ed79890457028ec4d93620"
+        "4b9dc1adbb5c7c1805de6e082a11960be6c6f030ddc0a2c3dccd2e1d5c70b2db"
     ],
     [
         [
@@ -606,7 +606,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "32e2e0bf15a9af3b211816ebf9ca88a1b176d13d799ad0307fd54a44dc684e8e"
+        "1a614bdf973b3d9a26233f23f2dd8cc23d8f75b37893f6c3beb8e22a03c9c65a"
     ],
     [
         [
@@ -746,7 +746,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/redirect.ts"
         ],
-        "07fe55de5988d17c84aff418dac01bded70e018eb0301da02ec290d3c18f9cc1"
+        "b1f286c8b4f0c312ae6a19971411945c9d406fb35426518e9ab6f57d46deac08"
     ],
     [
         [
@@ -865,7 +865,14 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "db8094a3a4e7105661da08036e78959fe7a2c60df01170c27b0bad20a7862dd4"
+        "9c888f8f833e31c15b7c2eae1a23c9b23b74563d406c23e92a198b1ea1eed88b"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/server/errors/report.ts"
+        ],
+        "8941732f086134e9eb0758f735012bf53116e385f726d573cfedfe6125575391"
     ],
     [
         [
@@ -907,7 +914,7 @@
             "file",
             "sdk/wasp/server/jobs/core/pgBoss/pgBossJob.ts"
         ],
-        "eaa4719ec3b41931225660f0a660bca6ac40c33497a4378073efb64e55496778"
+        "4453014175c5244d9c42ddb97f22a5c720a7b8d814d45c56b082e407f30d122e"
     ],
     [
         [
@@ -1418,7 +1425,7 @@
             "file",
             "server/src/dbSeed.ts"
         ],
-        "fa1ab2adddbee4b0785116c1faea86abe3b2668d9c1094f98e28ac5c150237be"
+        "eb2bf8aeb0d93522d61a8cae66110dc568d5c44f559230fcbfb5696e91a6e135"
     ],
     [
         [
@@ -1866,7 +1873,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "49d12abf8119bf9e2e59b9e4999f356647d6bf135f5b5190046ace7c8ba65580"
+        "edaed17c53c2f360fd4ba586a74d486d6f8663c5db16bb53dfb0d0d28bdf1fd3"
+    ],
+    [
+        [
+            "file",
+            "server/src/uncaughtErrors.ts"
+        ],
+        "1ce67c0b8ddc753440198554ed67130868851a70a8b82586b9ee2cb96c1a5788"
     ],
     [
         [
@@ -1880,7 +1894,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "77a0bfb8ce02893ee3534205d5655cb45f66f7a8a2656552ac1f4b5aaae7c649"
+        "ceaff43eb269c12204f757e54b2ebb56c903496657d92f61e6ee3cb99624e0e0"
     ],
     [
         [

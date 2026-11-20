@@ -1,8 +1,12 @@
+// This import has to stay first, so it also catches the errors thrown while
+// the rest of the server's code loads.
+import "./uncaughtErrors.js";
+
 import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors/report";
 
 import { serverSetup } from "../../../../src/serverSetup"
 import { ServerSetupFn } from 'wasp/server'
