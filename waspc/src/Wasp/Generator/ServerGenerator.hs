@@ -36,6 +36,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import Wasp.AppSpec.Inspectable (InspectableAppSpec (InspectableAppSpec))
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
@@ -72,7 +73,6 @@ import Wasp.Generator.WaspLibs.AvailableLibs (serverWaspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
-import qualified Wasp.Project.Studio as Studio
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -319,8 +319,7 @@ genRoutesIndex spec =
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec),
           "isDevelopment" .= (AS.isDevelopment spec :: Bool),
           "appName" .= (app.name :: String),
-          "specRouteInRootRouter" .= (specRouteInRootRouter :: String),
-          "studioUrl" .= (Studio.studioUrl :: String)
+          "specRouteInRootRouter" .= (specRouteInRootRouter :: String)
         ]
     app = getApp spec
 
@@ -332,11 +331,12 @@ genSpec spec =
       (C.asServerFile [relfile|src/routes/spec.ts|])
       (Just tmplData)
   where
-    tmplData = object ["decls" .= TL.Encoding.decodeUtf8 declsJson]
-    declsJson =
+    tmplData = object ["spec" .= TL.Encoding.decodeUtf8 specJson]
+    -- The same JSON that `wasp show spec --json` prints.
+    specJson =
       Aeson.Pretty.encodePretty'
         Aeson.Pretty.defConfig {Aeson.Pretty.confIndent = Aeson.Pretty.Spaces 2}
-        (AS.decls spec)
+        (InspectableAppSpec spec)
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
@@ -349,7 +349,7 @@ operationsRouteInRootRouter = "operations"
 upRouteInRootRouter :: String
 upRouteInRootRouter = "up"
 
--- | Serves the app's declarations, in development only, for Wasp Studio.
+-- | Serves the app's spec, in development only, for Wasp Studio.
 specRouteInRootRouter :: String
 specRouteInRootRouter = "__wasp/spec"
 

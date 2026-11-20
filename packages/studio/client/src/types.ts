@@ -47,5 +47,8 @@ export type Data = {
       };
       methods: string[];
     } | null;
+    db: {
+      system: string;
+    };
   };
 };

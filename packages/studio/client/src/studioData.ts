@@ -8,11 +8,12 @@ import type {
   PageDecl,
   Ref,
   RouteDecl,
+  Spec,
 } from "./spec";
 import type { Data } from "./types";
 
-/** Picks the parts of the app's declarations that the graph shows. */
-export function getStudioData(decls: Decl[]): Data {
+/** Picks the parts of the app's spec that the graph shows. */
+export function getStudioData({ dbSystem, decls }: Spec): Data {
   const app = getDecls<AppDecl>(decls, "App")[0];
   if (!app) throw new Error("The app's spec has no `App` declaration.");
 
@@ -25,6 +26,7 @@ export function getStudioData(decls: Decl[]): Data {
           .filter(([, config]) => config !== null)
           .map(([method]) => method),
       },
+      db: { system: dbSystem },
     },
     pages: getDecls<PageDecl>(decls, "Page").map((page) => ({
       name: page.name,

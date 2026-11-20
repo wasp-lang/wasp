@@ -9,8 +9,18 @@ import { getStudioData } from "./studioData";
 const Flow = lazy(() => import("./Flow"));
 
 export default function App() {
-  const { decls, isConnected } = useSpec();
-  const data = useMemo(() => decls && getStudioData(decls), [decls]);
+  const { spec, isConnected } = useSpec();
+  const { data, error } = useMemo(() => {
+    if (!spec) return { data: null, error: null };
+    try {
+      return { data: getStudioData(spec), error: null };
+    } catch (error) {
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }, [spec]);
 
   return (
     <div className="h-full">
@@ -43,7 +53,15 @@ export default function App() {
       </nav>
       <div className="flow-container">
         <Suspense fallback={<Loading />}>
-          {data ? <Flow data={data} /> : <Loading />}
+          {data ? (
+            <Flow data={data} />
+          ) : error ? (
+            <p className="p-6 font-mono text-sm">
+              Wasp Studio couldn't read the app's spec: {error}
+            </p>
+          ) : (
+            <Loading />
+          )}
         </Suspense>
       </div>
     </div>

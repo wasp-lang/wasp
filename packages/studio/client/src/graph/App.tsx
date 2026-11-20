@@ -26,6 +26,7 @@ export const AppNode = ({
       position={sourcePosition}
       isConnectable={isConnectable}
     />
+    <Chip>{data.db.system}</Chip>
     {data.auth &&
       data.auth.methods.map((method: string) => (
         <Chip key={method}>Auth: {method}</Chip>
