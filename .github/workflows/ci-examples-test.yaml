@@ -52,6 +52,14 @@ jobs:
             cp .env.server.example .env.server
           fi
 
+      # Waspleau calls the GitHub API, which rate limits shared runner IPs.
+      - name: Provide GitHub token to waspleau
+        if: matrix.example == 'waspleau'
+        working-directory: examples/${{ matrix.example }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "GITHUB_TOKEN=$GITHUB_TOKEN" >> .env.server
+
       - name: Extract Database Provider
         id: extract-db-provider
         working-directory: examples/${{ matrix.example }}

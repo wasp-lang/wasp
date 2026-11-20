@@ -1,3 +1,4 @@
+import { docsReorganizationRedirectPaths } from "./docs-reorganization-redirects";
 import imageRedirects from "./image-redirects.json";
 import type { RedirectRule } from "./src/plugins/cloudflare-redirects";
 import docsVersions from "./versions.json";
@@ -58,64 +59,8 @@ const legacyDocsRedirects: RedirectRule[] = [
   permanent("/docs/tutorials/todo-app",                 "/docs/tutorial/create"),
 ];
 
-// Redirects for the big docs reorganization that introduced the "Getting
-// started", "Features" and "Advanced" sections.
-// prettier-ignore
-const docsReorganizationRedirects: RedirectRule[] = [
-  permanent("/docs/advanced/apis",                                      "/docs/features/apis"),
-  permanent("/docs/advanced/email",                                     "/docs/features/email"),
-  permanent("/docs/advanced/jobs",                                      "/docs/features/jobs"),
-  permanent("/docs/advanced/links",                                     "/docs/features/pages-and-routes#link-component"),
-  permanent("/docs/advanced/middleware-config",                         "/docs/advanced/server-customization/middleware"),
-  permanent("/docs/advanced/routing",                                   "/docs/features/pages-and-routes"),
-  permanent("/docs/advanced/web-sockets",                               "/docs/features/websockets"),
-  permanent("/docs/auth/advanced/custom-auth-actions",                  "/docs/features/auth/advanced/custom-auth-actions"),
-  permanent("/docs/auth/auth-hooks",                                    "/docs/features/auth/hooks"),
-  permanent("/docs/auth/email",                                         "/docs/features/auth/email/overview"),
-  permanent("/docs/auth/email/create-your-own-ui",                      "/docs/features/auth/email/create-your-own-ui"),
-  permanent("/docs/auth/entities",                                      "/docs/features/auth/entities"),
-  permanent("/docs/auth/overview",                                      "/docs/features/auth/overview"),
-  permanent("/docs/auth/social-auth/create-your-own-ui",                "/docs/features/auth/social-auth/create-your-own-ui"),
-  permanent("/docs/auth/social-auth/discord",                           "/docs/features/auth/social-auth/discord"),
-  permanent("/docs/auth/social-auth/github",                            "/docs/features/auth/social-auth/github"),
-  permanent("/docs/auth/social-auth/google",                            "/docs/features/auth/social-auth/google"),
-  permanent("/docs/auth/social-auth/keycloak",                          "/docs/features/auth/social-auth/keycloak"),
-  permanent("/docs/auth/social-auth/microsoft",                         "/docs/features/auth/social-auth/microsoft"),
-  permanent("/docs/auth/social-auth/overview",                          "/docs/features/auth/social-auth/overview"),
-  permanent("/docs/auth/social-auth/slack",                             "/docs/features/auth/social-auth/slack"),
-  permanent("/docs/auth/ui",                                            "/docs/features/auth/ui"),
-  permanent("/docs/auth/username-and-pass",                             "/docs/features/auth/username-and-pass/overview"),
-  permanent("/docs/auth/username-and-pass/create-your-own-ui",          "/docs/features/auth/username-and-pass/create-your-own-ui"),
-  permanent("/docs/data-model/crud",                                    "/docs/features/data/crud"),
-  permanent("/docs/data-model/databases",                               "/docs/features/data/databases"),
-  permanent("/docs/data-model/entities",                                "/docs/features/data/entities"),
-  permanent("/docs/data-model/operations/actions",                      "/docs/features/data/operations/actions"),
-  permanent("/docs/data-model/operations/overview",                     "/docs/features/data/operations/overview"),
-  permanent("/docs/data-model/operations/queries",                      "/docs/features/data/operations/queries"),
-  permanent("/docs/data-model/prisma-file",                             "/docs/features/data/prisma-file"),
-  permanent("/docs/deployment/deployment-methods/cloud-providers",      "/docs/deployment/methods/cloud-providers"),
-  permanent("/docs/deployment/deployment-methods/overview",             "/docs/deployment/methods/overview"),
-  permanent("/docs/deployment/deployment-methods/self-hosted",          "/docs/deployment/methods/self-hosted"),
-  permanent("/docs/deployment/deployment-methods/wasp-deploy/ci-cd",    "/docs/deployment/methods/wasp-deploy/cd"),
-  permanent("/docs/deployment/deployment-methods/wasp-deploy/fly",      "/docs/deployment/methods/wasp-deploy/fly"),
-  permanent("/docs/deployment/deployment-methods/wasp-deploy/overview", "/docs/deployment/methods/wasp-deploy/overview"),
-  permanent("/docs/deployment/deployment-methods/wasp-deploy/railway",  "/docs/deployment/methods/wasp-deploy/railway"),
-  permanent("/docs/deployment/intro",                                   "/docs/deployment/overview"),
-  permanent("/docs/features/routes",                                    "/docs/features/pages-and-routes"),
-  permanent("/docs/general/cli",                                        "/docs/advanced/cli"),
-  permanent("/docs/general/spec",                                       "/docs/features/spec"),
-  permanent("/docs/project/client-config",                              "/docs/advanced/client-customization/client-config"),
-  permanent("/docs/project/custom-vite-config",                         "/docs/advanced/client-customization/custom-vite-config"),
-  permanent("/docs/project/customizing-app",                            "/docs/advanced/client-customization/customizing-app"),
-  permanent("/docs/project/dependencies",                               "/docs/advanced/dependencies"),
-  permanent("/docs/project/env-vars",                                   "/docs/advanced/env-vars"),
-  permanent("/docs/project/server-config",                              "/docs/advanced/server-customization/server-config"),
-  permanent("/docs/project/starter-templates",                          "/docs/getting-started/starter-templates"),
-  permanent("/docs/project/static-assets",                              "/docs/advanced/client-customization/static-assets"),
-  permanent("/docs/project/testing",                                    "/docs/advanced/testing"),
-  permanent("/docs/wasp-ai/coding-agent-plugin",                        "/docs/getting-started/agent-integration"),
-  permanent("/docs/wasp-ai/git-worktrees",                              "/docs/advanced/git-worktrees"),
-];
+const docsReorganizationRedirects: RedirectRule[] =
+  docsReorganizationRedirectPaths.map(({ from, to }) => permanent(from, to));
 
 // Redirects for the reorganization of `static/img` into `blog/`, `docs/`,
 // `resources/` and `site/` folders. They keep external links to the old image

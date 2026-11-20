@@ -63,8 +63,10 @@ export function waspStudio(): Plugin {
     },
     configureServer(server) {
       // Vite DevTools leaves the process running when the dev server stops.
+      // `terminate` also stops the process's children, like the server that
+      // `wasp studio` starts.
       server.httpServer?.once("close", () => {
-        studioSession?.getChildProcess()?.kill();
+        void studioSession?.terminate();
       });
     },
   };

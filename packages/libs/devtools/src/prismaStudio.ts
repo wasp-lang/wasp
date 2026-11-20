@@ -69,8 +69,10 @@ export function prismaStudio({ schemaFile, cwd }: PrismaStudioOptions): Plugin {
     },
     configureServer(server) {
       // Vite DevTools leaves the process running when the dev server stops.
+      // `terminate` also stops the process's children, e.g. on Windows, where
+      // `prisma` runs through a shell.
       server.httpServer?.once("close", () => {
-        studioSession?.getChildProcess()?.kill();
+        void studioSession?.terminate();
       });
     },
   };

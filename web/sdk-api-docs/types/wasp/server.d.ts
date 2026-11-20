@@ -294,6 +294,11 @@ export type PrismaClient = {
  */
 export type { ServerSetupFn } from "@wasp/lib-sdk-core/node";
 
+export type {
+  ServerErrorContext,
+  ServerOnErrorFn,
+} from "@wasp/lib-sdk-core/node";
+
 /**
  * The type of a function that customizes Express middleware. You can pass it
  * to:

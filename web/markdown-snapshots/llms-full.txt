@@ -357,9 +357,9 @@ Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/inst
 
 **Windows**
 
-With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check it out [here](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
+With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check out [GitHub issue #48](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
 
-In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
+In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. If you prefer a step by step guide, read [our guide to using Wasp in WSL](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl). If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
 
 :::caution
 If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739). If you use VS Code, install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) and open the project from inside WSL (run `code .` in the project directory). Without it, TypeScript support in VS Code won't work on WSL2.
@@ -543,7 +543,7 @@ In this section, we'll guide you through the process of creating a simple Todo a
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
-You can find the complete code of the app we're about to build [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+You can find the complete code of the app we're about to build in [the TodoApp example on GitHub](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 
 ### Creating a Project
 
@@ -1248,7 +1248,7 @@ When you create a new task, the list of tasks is automatically updated to displa
 
 When you declared the `getTasks` and `createTask` operations, you specified that they both use the `Task` entity. So when `createTask` is called, Wasp knows that the data `getTasks` fetches may have changed and automatically updates it in the background. This means that **out of the box, Wasp keeps all your queries in sync with any changes made through Actions**.
 
-This behavior is convenient as a default but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. This feature is tracked [here](https://github.com/wasp-lang/wasp/issues/63).
+This behavior is convenient as a default but can cause poor performance in large apps. While there is no mechanism for overriding this behavior yet, it is something that we plan to include in Wasp in the future. This feature is tracked in [GitHub issue #63](https://github.com/wasp-lang/wasp/issues/63).
 :::
 
 ### A Second Action
@@ -1547,7 +1547,7 @@ You'll notice that we now have a `User` entity in the database alongside the `Ta
 
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because you haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
-You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](https://wasp.sh/docs/features/auth/entities).
+You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them in [the data entities guide](https://wasp.sh/docs/features/auth/entities).
 
 ### Defining a User-Task Relation
 
@@ -1688,7 +1688,7 @@ This is it, we have a working authentication system, and our Todo app is multi-u
 
 We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp.
 
-You can find the complete code for the TS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
+You can find the complete code for the TS version of the tutorial in [the TodoAppTs example on GitHub](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
 
 You should be ready to learn about more complicated features and go more in-depth with the features already covered. Scroll through the sidebar on the left side of the page to see every feature Wasp has to offer. Or, let your imagination run wild and start building your app! ✨
 
@@ -1701,7 +1701,7 @@ Looking for inspiration?
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](https://wasp.sh/docs/contributing).
+If you would like to contribute or help to build a feature, let us know! You can find more details on [contributing to Wasp](https://wasp.sh/docs/contributing).
 :::
 
 Oh, and do [**subscribe to our newsletter**](https://wasp.sh/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read \:D!
@@ -3207,7 +3207,7 @@ export default app({
 })
 ```
 
-Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API. Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
+Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API. Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about [Wasp's smart cache invalidation](#cache-invalidation).
 
 ```ts title="src/actions.ts"
 import { type CreateTask, type MarkTaskAsDone } from "wasp/server/operations"
@@ -4262,7 +4262,7 @@ generator client {
 // ...
 ```
 
-Read more about preview features in the Prisma docs [here](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about using PostgreSQL extensions [here](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).
+Read more about [Prisma preview features](https://www.prisma.io/docs/orm/reference/preview-features/client-preview-features) or about [using PostgreSQL extensions in Prisma](https://www.prisma.io/docs/orm/prisma-schema/postgresql-extensions).
 
 
 ## Features / Auth / Overview
@@ -5439,7 +5439,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 4. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -5486,7 +5486,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -5809,7 +5809,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 4. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -5898,7 +5898,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### 5. Set up an Email Sender
 
@@ -6721,7 +6721,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -6752,7 +6752,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -7111,7 +7111,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -7142,7 +7142,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -7443,7 +7443,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -7474,7 +7474,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -7762,7 +7762,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -7793,7 +7793,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -8122,7 +8122,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -8153,7 +8153,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -8485,7 +8485,7 @@ We'll define the React components for these pages in the `src/pages/auth.tsx` fi
 #### 6. Create the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](https://wasp.sh/docs/guides/libraries/tailwind).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it in [the Tailwind CSS guide](https://wasp.sh/docs/guides/libraries/tailwind).
 :::
 
 Let's create a `auth.tsx` file in the `src/pages` folder and add the following to it:
@@ -8516,7 +8516,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](https://wasp.sh/docs/features/auth/ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](https://wasp.sh/docs/features/auth/ui).
 
 #### Conclusion
 
@@ -9123,7 +9123,7 @@ The `AuthIdentity` fields:
 - `providerData` is a JSON string that contains additional data about the user from the authentication provider.
 
   - For example, for password based auth, this field contains the user's hashed password.
-  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/prisma/issues/3786).
+  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/orm/issues/3786).
 
 - `authId` is a foreign key to the `Auth` entity.
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
@@ -10395,7 +10395,7 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 
 ##### Requirements
 
-`PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider [here](https://wasp.sh/docs/features/data/databases#postgresql).
+`PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider in [the Databases guide](https://wasp.sh/docs/features/data/databases#postgresql).
 
 ##### Limitations
 
@@ -12419,6 +12419,39 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as e
 
 For the full description of the `setupFn` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn).
 
+### Handling Unexpected Errors
+
+`onError` declares a function that Wasp calls with every unexpected error on the client. Wasp logs the error to the browser console first, so use the function for anything on top of that, like sending the error to an error tracking service.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec";
+import { onClientError } from "./src/clientErrors" with { type: "ref" };
+
+export default app({
+  // ...
+  client: {
+    onError: onClientError,
+  },
+});
+```
+
+The function receives the error and a context whose `source` says where the error surfaced:
+
+```ts title="src/clientErrors.ts"
+import type { ClientOnErrorFn } from "wasp/client";
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  // Let's pretend that `errorTracker` exists.
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+An HTTP error response with a status below 500 is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for it.
+
+For every `source` and the rules for when Wasp calls the function, check the [`ClientOnErrorFn` API Reference](https://wasp.sh/docs/api/wasp/client#clientonerrorfn).
+
+For the full description of the `onError` field, check the [`Client` API Reference](https://wasp.sh/docs/api/@wasp/spec#onerror).
+
 ### Base Directory
 
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
@@ -12451,6 +12484,12 @@ For example, if you are serving your app from `https://example.com/my-app`, the 
 
 [All the options for the client field of the app spec.](https://wasp.sh/docs/api/@wasp/spec#client-1)
 
+[API reference](https://wasp.sh/docs/api/wasp/client#clientonerrorfn)
+
+#### [ClientOnErrorFn »](https://wasp.sh/docs/api/wasp/client#clientonerrorfn)
+
+[The type of your onError function.](https://wasp.sh/docs/api/wasp/client#clientonerrorfn)
+
 [API reference](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
 
 #### [configureQueryClient »](https://wasp.sh/docs/api/wasp/client/operations#configurequeryclient)
@@ -12476,7 +12515,7 @@ For example, `imgUrl` will be `/img.png` during development, and become `/assets
 
 This is what you want to use most of the time, as it ensures that the asset file exists and is included in the bundle.
 
-We are using Vite under the hood, read more about importing static assets in Vite's [docs](https://vitejs.dev/guide/assets.html#importing-asset-as-url).
+We are using Vite under the hood, read more about importing static assets in [Vite's guide to importing assets as URLs](https://vitejs.dev/guide/assets.html#importing-asset-as-url).
 
 ### The `public` Directory
 
@@ -12752,6 +12791,42 @@ This effectively turns your module into a singleton whose construction is perfor
 
 For the full description of the `setupFn` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#setupfn-1).
 
+### Handling Unexpected Errors
+
+`onError` declares a function that Wasp calls with every unexpected error on the server. Wasp logs the error first, so use the function for anything on top of that, like sending the error to an error tracking service.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec";
+import { onServerError } from "./src/serverErrors" with { type: "ref" };
+
+export default app({
+  // ...
+  server: {
+    onError: onServerError,
+  },
+});
+```
+
+The function receives the error and a context whose `source` says where the error happened:
+
+```ts title="src/serverErrors.ts"
+import type { ServerOnErrorFn } from "wasp/server";
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  if (context.source === "job") {
+    console.log(`The ${context.jobName} job failed.`);
+  }
+  // Let's pretend that `errorTracker` exists.
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+An [`HttpError`](https://wasp.sh/docs/features/data/operations/queries#error-handling) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
+
+For every `source` and the rules for when Wasp calls the function, check the [`ServerOnErrorFn` API Reference](https://wasp.sh/docs/api/wasp/server#serveronerrorfn).
+
+For the full description of the `onError` field, check the [`Server` API Reference](https://wasp.sh/docs/api/@wasp/spec#onerror-1).
+
 ### Middleware Config Function
 
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
@@ -12791,6 +12866,12 @@ Read more in the [deployment section](https://wasp.sh/docs/deployment/methods/ov
 #### [ServerSetupFn »](https://wasp.sh/docs/api/wasp/server#serversetupfn)
 
 [The type of your setupFn function.](https://wasp.sh/docs/api/wasp/server#serversetupfn)
+
+[API reference](https://wasp.sh/docs/api/wasp/server#serveronerrorfn)
+
+#### [ServerOnErrorFn »](https://wasp.sh/docs/api/wasp/server#serveronerrorfn)
+
+[The type of your onError function.](https://wasp.sh/docs/api/wasp/server#serveronerrorfn)
 
 [API reference](https://wasp.sh/docs/api/wasp/server#middlewareconfigfn)
 
@@ -13136,9 +13217,9 @@ $ wasp clean
 
 - `wasp deploy` makes it easy to get your app hosted on the web.
 
-Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy).
+Currently, Wasp offers support for [Fly.io](https://fly.io) and [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp). If you prefer a different hosting provider, you can [let us know on Discord](https://discord.gg/rzdnErX) or [contribute the code yourself](https://github.com/wasp-lang/wasp/tree/main/packages/deploy).
 
-Read more about automatic deployment [here](https://wasp.sh/docs/deployment/methods/wasp-deploy/overview).
+Read more about [automatic deployment](https://wasp.sh/docs/deployment/methods/wasp-deploy/overview).
 
 - `wasp telemetry` displays the status of [telemetry](https://wasp.sh/docs/telemetry).
 
@@ -13338,7 +13419,7 @@ Also, notice **that you can't and shouldn't provide client env vars to the clien
 :::info[How it works]
 What happens behind the scenes is that Wasp will replace all occurrences of `import.meta.env.REACT_APP_SOME_VAR_NAME` in your client code with the env var value you provided. This is done during the build process, so the value is injected into the static files produced from the client code.
 
-Read more about it in Vite's [docs](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
+Read more about it in [Vite's guide to env variables and modes](https://vitejs.dev/guide/env-and-mode.html#production-replacement).
 :::
 
 #### Server Env Vars
@@ -13716,7 +13797,7 @@ Two things to keep in mind:
 
 2. If your account is a member of **more than one organization** on Fly.io, you will need to specify under which one you want to execute the command. To do that, provide an additional `--org <org-slug>` option. You can find out the names (slugs) of your organizations by running `fly orgs list`.
 
-The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for *Dallas, Texas (US)*). Read more about Fly.io regions [here](#flyio-regions).
+The `launch` command uses the app basename `my-wasp-app` and deploy it to the `dfw` region (`dfw` is short for *Dallas, Texas (US)*). Read more about [Fly.io regions](#flyio-regions).
 
 The basename is used to create all three app tiers, resulting in three separate apps in your Fly dashboard:
 
@@ -13851,7 +13932,7 @@ Then you can run `npm run deploy` to deploy your app.
 
 > Fly.io runs applications physically close to users: in datacenters around the world, on servers we run ourselves. You can currently deploy your apps in 34 regions, connected to a global Anycast network that makes sure your users hit our nearest server, whether they’re in Tokyo, São Paolo, or Frankfurt.
 
-Read more on Fly regions [here](https://fly.io/docs/reference/regions/).
+Read more on [Fly.io regions in the Fly docs](https://fly.io/docs/reference/regions/).
 
 You can find the list of all available Fly regions by running:
 
@@ -13908,7 +13989,7 @@ It accepts the following arguments:
 
 - `<region>` required
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 Running `wasp deploy fly launch` is the same as running the following commands:
 
@@ -13982,7 +14063,7 @@ It accepts the following arguments:
 
 - `<region>` required
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 After running `setup`, Wasp creates two new files in your project root directory: `fly-server.toml` and `fly-client.toml`. You should include these files in your version control.
 
@@ -14006,7 +14087,7 @@ It accepts the following arguments:
 
 - `<region>` required
 
-  The region where your app will be deployed. Read how to find the available regions [here](#flyio-regions).
+  The region where your app will be deployed. Read how to find [the available regions](#flyio-regions).
 
 ##### Database options
 
@@ -14947,6 +15028,18 @@ Wasp finds those files by analyzing the server's imports. Some packages load the
 
 The build steps are also ordered so that a code change reuses the installed dependencies, which makes rebuilding the image after a code change faster.
 
+#### Error handling
+
+Wasp now handles errors in one consistent way on the server and the client.
+
+The server answers every failed request itself. It sends an `HttpError` you throw as is, and it turns any other error into a generic response that hides the error's details in production.
+
+The server and the client share a single `HttpError` class, which you import from `wasp/errors`. Failed Operations and auth actions throw it on the client, so you check for it the same way on both sides.
+
+Wasp logs every unexpected error in the same format and says where it happened. On the server, that now includes uncaught exceptions and unhandled promise rejections, and an unhandled promise rejection no longer stops the server.
+
+The new `server.onError` and `client.onError` functions receive those unexpected errors, so you can send them to an error tracking service. Read more in the [server config](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors) and [client config](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors) docs.
+
 ### How to migrate?
 
 #### 1. Upgrade Node.js to 26.13.1 or later {#upgrade-nodejs}
@@ -15462,7 +15555,61 @@ throw new HttpError(403, "Not allowed", {
 
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
-#### 15. Enjoy your updated Wasp app
+#### 15. Move your error tracking to `onError`
+
+This step is only for apps that send errors to an error tracking service, like Sentry.
+
+Wasp now answers failed requests itself, so an Express error handler you add in `setupFn`, like `Sentry.setupExpressErrorHandler(app)`, no longer receives them. Capture the errors in the new `server.onError` function instead:
+
+**Before**
+
+```ts title="src/serverSetup.ts"
+import * as Sentry from "@sentry/node";
+import type { ServerSetupFn } from "wasp/server";
+
+Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
+
+export const setupServer: ServerSetupFn = async ({ app }) => {
+  Sentry.setupExpressErrorHandler(app);
+};
+```
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  server: {
+    setupFn: setupServer,
+  },
+});
+```
+
+**After**
+
+```ts title="src/serverSentry.ts"
+import * as Sentry from "@sentry/node";
+import type { ServerOnErrorFn } from "wasp/server";
+
+Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  Sentry.captureException(error, { tags: { source: context.source } });
+};
+```
+
+```ts title="main.wasp.ts"
+export default app({
+  // ...
+  server: {
+    onError: onServerError,
+  },
+});
+```
+
+On the client, `client.onError` also receives the errors that an error tracker can't see on its own, like an error thrown while rendering a page.
+
+If you use Sentry, follow the updated [Sentry guide](https://wasp.sh/docs/guides/integrations/sentry) for the full setup on both sides.
+
+#### 16. Enjoy your updated Wasp app
 
 That's it!
 
@@ -22619,7 +22766,7 @@ For more options, see the [Multer documentation](https://github.com/expressjs/mu
 ## Integrations / Sentry
 
 :::note
-Last checked with Wasp 0.24, @sentry/node 8, and @sentry/react 8.
+Last checked with Wasp 0.27, @sentry/node 11, and @sentry/react 11.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
@@ -22652,35 +22799,35 @@ npm install @sentry/node @sentry/react
 
 #### 3. Configure your Wasp file
 
-Add both the server and client setup functions to your `main.wasp.ts`:
+Wasp calls the `onError` functions with every unexpected error on the [server](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors) and the [client](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors). Add both to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { setupClient } from "./src/clientSetup" with { type: "ref" }
-import { setupServer } from "./src/serverSetup" with { type: "ref" }
+import { app } from "@wasp/spec";
+import { onClientError } from "./src/clientSentry" with { type: "ref" };
+import { onServerError } from "./src/serverSentry" with { type: "ref" };
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.27.0" },
   title: "my-app",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
-    setupFn: setupServer,
+    onError: onServerError,
   },
   client: {
-    setupFn: setupClient,
+    onError: onClientError,
   },
   // ...
-})
+});
 ```
 
 #### 4. Configure Server-Side Sentry
 
-Create the server setup file:
+Create the server file:
 
-```ts title="src/serverSetup.ts"
+```ts title="src/serverSentry.ts"
 import * as Sentry from "@sentry/node";
-import { ServerSetupFn } from "wasp/server";
+import type { ServerOnErrorFn } from "wasp/server";
 
 Sentry.init({
   dsn: process.env.SENTRY_SERVER_DSN,
@@ -22688,21 +22835,37 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-export const setupServer: ServerSetupFn = async ({ app }) => {
-  Sentry.setupExpressErrorHandler(app);
+export const onServerError: ServerOnErrorFn = async (error, context) => {
+  Sentry.captureException(error, { tags: { source: context.source } });
+
+  // The server exits after these errors, so we wait for Sentry to send them.
+  if (
+    context.source === "startup" ||
+    context.source === "dbSeed" ||
+    (context.source === "process" && context.event === "uncaughtException")
+  ) {
+    await Sentry.flush(2000);
+  }
 };
 ```
+
+To see which errors reach `onServerError`, check the [`ServerOnErrorFn` API Reference](https://wasp.sh/docs/api/wasp/server#serveronerrorfn).
 
 :::note
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
 :::
 
+:::caution[Don't use Sentry.setupExpressErrorHandler]
+Sentry's Express error handler never runs in a Wasp app, because Wasp answers failed requests itself. Use `onError` instead.
+:::
+
 #### 5. Configure Client-Side Sentry
 
-Create the client setup file:
+Create the client file:
 
-```ts title="src/clientSetup.ts"
+```ts title="src/clientSentry.ts"
 import * as Sentry from "@sentry/react";
+import type { ClientOnErrorFn } from "wasp/client";
 
 Sentry.init({
   dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
@@ -22710,15 +22873,18 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-export const setupClient = async () => {
-  // Sentry is initialized above, before the setup function runs.
-  // You can add additional client-side setup here if needed.
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  Sentry.captureException(error, {
+    tags: { source: context.source },
+    contexts:
+      context.source === "render"
+        ? { react: { componentStack: context.componentStack } }
+        : undefined,
+  });
 };
 ```
 
-:::note
-The `setupFn` must be defined and exported even if it has no additional logic. Sentry's `init` call runs at module load time, which is before Wasp calls the setup function.
-:::
+Sentry catches errors in event handlers and unhandled promise rejections on its own. When `onClientError` passes Sentry an error it already caught, Sentry sends it only once. `onClientError` adds the errors Sentry can't see, like an error thrown while rendering a page, which Wasp's error page catches.
 
 #### 6. Set up environment variables
 
@@ -22740,31 +22906,49 @@ REACT_APP_SENTRY_CLIENT_DSN=https://your-client-dsn@sentry.io/your-project-id
 
 Create an API endpoint that throws an error:
 
+```ts title="main.wasp.ts"
+import { api, app } from "@wasp/spec";
+import { testError } from "./src/apis" with { type: "ref" };
+
+export default app({
+  // ...
+  spec: [api("GET", "/test-error", testError, { auth: false })],
+});
+```
+
 ```ts title="src/apis.ts"
-import { TestError } from "wasp/server/api";
+import type { TestError } from "wasp/server/api";
 
 export const testError: TestError = async (req, res) => {
   throw new Error("Test server error for Sentry");
 };
 ```
 
+Open `http://localhost:3001/test-error` and check that the error shows up in your Sentry server project with the `source: request` tag.
+
 #### Test Client Errors
 
-Add a button that triggers an error:
+Add a button that throws while rendering:
 
 ```tsx title="src/MainPage.tsx"
+import { useState } from "react";
+
 export const MainPage = () => {
-  const handleError = () => {
+  const [shouldThrow, setShouldThrow] = useState(false);
+
+  if (shouldThrow) {
     throw new Error("Test client error for Sentry");
-  };
+  }
 
   return (
     <div>
-      <button onClick={handleError}>Test Sentry Error</button>
+      <button onClick={() => setShouldThrow(true)}>Test Sentry Error</button>
     </div>
   );
 };
 ```
+
+Click the button and check that the error shows up in your Sentry client project with the `source: render` tag.
 
 ### Advanced Configuration
 
@@ -22772,7 +22956,7 @@ export const MainPage = () => {
 
 Track which user encountered an error:
 
-```ts title="src/serverSetup.ts"
+```ts title="src/operations.ts"
 import * as Sentry from "@sentry/node";
 
 // In your API handlers or operations
@@ -26912,6 +27096,24 @@ import { clientEnvSchema } from './src/env' with { type: 'ref' }
 
 See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 
+###### onError?
+
+> `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Function called with every unexpected error on the client, so you can send it to an error tracking service. Receives the error and a context whose `source` says where the error surfaced, e.g. `"render"` or `"window"`. An HTTP error response with a status below 500 is not unexpected, so Wasp doesn't call the function for it.
+
+In TypeScript, you can type the function with the `ClientOnErrorFn` type from `wasp/client`.
+
+###### Example
+
+```ts
+import { type ClientOnErrorFn } from "wasp/client";
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
 ###### rootComponent?
 
 > `optional` **rootComponent?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
@@ -27519,6 +27721,26 @@ See [Env Vars](https://wasp.sh/docs/advanced/env-vars).
 Function that customizes the global Express middleware stack. Affects all operations and APIs.
 
 See [Configuring Middleware](https://wasp.sh/docs/advanced/server-customization/middleware).
+
+###### onError?
+
+> `optional` **onError?**: [`Reference`](#reference)<[`AnyFunction`](#anyfunction)>
+
+Function called with every unexpected error on the server, so you can send it to an error tracking service. Receives the error and a context whose `source` says where the error happened, e.g. `"request"` or `"job"`. An `HttpError` you throw from a request is not unexpected, so Wasp doesn't call the function for it.
+
+Can be async. Wasp awaits it only when the server is about to exit because of the error, and for at most 5 seconds.
+
+In TypeScript, you can type the function with the `ServerOnErrorFn` type from `wasp/server`.
+
+###### Example
+
+```ts
+import { type ServerOnErrorFn } from "wasp/server";
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source });
+};
+```
 
 ###### setupFn?
 
@@ -28785,6 +29007,65 @@ The URL of your server (the app's backend), without a trailing slash, from the [
 
 ---
 
+#### ClientErrorContext
+
+> **ClientErrorContext** = { `componentStack?`: `string`; `source`: `"render"`; } | { `event`: `"error"` | `"unhandledrejection"`; `source`: `"window"`; } | { `source`: `"oauthCallback"`; } | { `source`: `"authForm"`; } | { `source`: `"optimisticUpdate"`; }
+
+Where an unexpected client error surfaced.
+
+- `"render"`: While rendering a page or the root component. `componentStack` lists the components that led to the error, when React provides it.
+- `"window"`: In the browser's `error` and `unhandledrejection` events, e.g. an error thrown in an event handler or a rejected promise nobody caught. `event` is the name of the browser event.
+- `"oauthCallback"`: While finishing an OAuth login.
+- `"authForm"`: While submitting one of Wasp's Auth UI forms.
+- `"optimisticUpdate"`: In the `updateQuery` function of an optimistic update.
+
+---
+
+#### ClientOnErrorFn
+
+> **ClientOnErrorFn** = (`error`, `context`) => `void` | `Promise`<`void`>
+
+The type of the function you pass to the `client.onError` field of the app spec. Wasp calls it with every unexpected error on the client, after logging the error to the browser console.
+
+It receives the error and the [ClientErrorContext](#clienterrorcontext) it surfaced in.
+
+- An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror), or the error the `api` client throws, is unexpected only with a status of 500 or above. A lower status means the server sent the error on purpose.
+- A failed Query or Action that your code handles is not unexpected. A failed Action that nobody catches arrives as a `"window"` error.
+- Wasp calls the function once per error, even if the error surfaces in more than one place.
+- Render errors arrive even when your own error boundaries catch them.
+- Wasp doesn't call the function while prerendering pages.
+- If the function throws, Wasp logs that error and keeps running.
+
+##### Parameters
+
+###### error
+
+`unknown`
+
+###### context
+
+[`ClientErrorContext`](#clienterrorcontext)
+
+##### Returns
+
+`void` | `Promise`<`void`>
+
+##### Example
+
+```ts
+import type { ClientOnErrorFn } from "wasp/client";
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+##### See
+
+[Handling unexpected errors](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors)
+
+---
+
 #### Route
 
 > **Route** = `object`
@@ -29176,7 +29457,7 @@ Only available if your app has [auth](https://wasp.sh/docs/features/auth/overvie
 - With [Username & password](https://wasp.sh/docs/features/auth/username-and-pass/overview) auth: the username versions of [login](#login) and [signup](#signup).
 - With a [social auth](https://wasp.sh/docs/features/auth/social-auth/overview) provider: that provider's sign-in URL and button, e.g. [googleSignInUrl](#googlesigninurl) and [GoogleSignInButton](#googlesigninbutton) for Google.
 
-[login](#login), [signup](#signup), [verifyEmail](#verifyemail), [requestPasswordReset](#requestpasswordreset), and [resetPassword](#resetpassword) reject with a [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) if the server responds with an error, instead of resolving with `success: false`.
+[login](#login), [logout](#logout), [signup](#signup), [verifyEmail](#verifyemail), [requestPasswordReset](#requestpasswordreset), and [resetPassword](#resetpassword) reject with a [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) if the server responds with an error, instead of resolving with `success: false`.
 
 ### Type Aliases
 
@@ -32662,6 +32943,64 @@ Disconnects from the database.
 ###### Returns
 
 `Promise`<`void`>
+
+---
+
+#### ServerErrorContext
+
+> **ServerErrorContext** = { `source`: `"request"`; } | { `jobName`: `string`; `source`: `"job"`; } | { `source`: `"webSocket"`; } | { `source`: `"oauth"`; } | { `source`: `"startup"`; } | { `source`: `"dbSeed"`; } | { `event`: `"uncaughtException"` | `"unhandledRejection"`; `source`: `"process"`; }
+
+Where an unexpected server error happened.
+
+- `"request"`: While handling a request to an Operation, API, or auth route.
+- `"job"`: In a Job. `jobName` is the name of the Job.
+- `"webSocket"`: While authenticating a WebSocket connection.
+- `"oauth"`: During an OAuth login.
+- `"startup"`: While starting the server, after your code has loaded, e.g. in `server.setupFn`.
+- `"dbSeed"`: In a database seed function, when running `wasp db seed`.
+- `"process"`: Anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads. `event` is the name of the Node.js process event.
+
+---
+
+#### ServerOnErrorFn
+
+> **ServerOnErrorFn** = (`error`, `context`) => `void` | `Promise`<`void`>
+
+The type of the function you pass to the `server.onError` field of the app spec. Wasp calls it with every unexpected error on the server, after logging the error.
+
+It receives the error and the [ServerErrorContext](#servererrorcontext) it happened in.
+
+- An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
+- The function can be async. Wasp waits for it only when the server exits because of the error, and for at most 5 seconds. The server exits after a `"startup"` or `"dbSeed"` error, and after a `"process"` error whose `event` is `uncaughtException`.
+- If the function throws, Wasp logs that error and keeps running.
+
+##### Parameters
+
+###### error
+
+`unknown`
+
+###### context
+
+[`ServerErrorContext`](#servererrorcontext)
+
+##### Returns
+
+`void` | `Promise`<`void`>
+
+##### Example
+
+```ts
+import type { ServerOnErrorFn } from "wasp/server";
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+##### See
+
+[Handling unexpected errors](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors)
 
 ---
 

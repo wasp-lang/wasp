@@ -1,9 +1,13 @@
 import type * as Preset from "@docusaurus/preset-classic";
-import type { Config, DocusaurusConfig } from "@docusaurus/types";
+import type { Config, DocusaurusConfig, RouteConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import {
+  getLatestDocCanonicalPath,
+  waspDslDocsVersions,
+} from "./src/lib/old-docs-versions";
 import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import { docusaurusPluginLlmFiles } from "./src/plugins/llm-files/docusaurus-plugin";
 import autoImportTabs from "./src/remark/auto-import-tabs";
@@ -104,21 +108,6 @@ const config: Config = {
           to: "blog",
           label: "Blog",
           position: "left",
-        },
-        {
-          href: "https://github.com/wasp-lang/wasp",
-          className: "navbar-item-github",
-          position: "right",
-        },
-        {
-          href: "https://twitter.com/WaspLang",
-          className: "navbar-item-twitter",
-          position: "right",
-        },
-        {
-          href: "https://discord.gg/rzdnErX",
-          className: "navbar-item-discord",
-          position: "right",
         },
       ],
     },
@@ -234,6 +223,13 @@ const config: Config = {
                 }
               : {}),
 
+            ...Object.fromEntries(
+              waspDslDocsVersions.map((version) => [
+                version,
+                { noIndex: true },
+              ]),
+            ),
+
             // Configuration example:
             // "0.11.1": {
             //   path: "0.11.1",  // default, but can be anything.
@@ -263,6 +259,22 @@ const config: Config = {
         },
         theme: {
           customCss: ["./src/css/custom.css"],
+        },
+        sitemap: {
+          // A sitemap should list only canonical URLs, so we leave out the old
+          // docs pages that point their canonical URL to the latest docs.
+          async createSitemapItems({ defaultCreateSitemapItems, ...params }) {
+            const items = await defaultCreateSitemapItems(params);
+            // The routes list every page, also the `noindex` ones that have no
+            // sitemap entry (e.g. the docs writing guide).
+            const sitePaths = new Set(getRoutePaths(params.routes));
+            return items.filter((item) => {
+              const path = new URL(item.url).pathname;
+              const keepsOwnCanonicalUrl =
+                getLatestDocCanonicalPath(path, sitePaths) === undefined;
+              return keepsOwnCanonicalUrl;
+            });
+          },
         },
       } as Preset.Options,
     ],
@@ -423,6 +435,13 @@ function mapToDocusaurusScripts(
     // `src/components/CookieConsentBanner.tsx` component.
     ...(requiresConsent ? { type: SCRIPT_WITH_CONSENT_TYPE } : {}),
   }));
+}
+
+function getRoutePaths(routes: RouteConfig[]): string[] {
+  return routes.flatMap((route) => [
+    route.path,
+    ...getRoutePaths(route.routes ?? []),
+  ]);
 }
 
 export default config;

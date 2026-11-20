@@ -68,7 +68,7 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.AvailableLibs (serverWaspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
@@ -197,7 +197,7 @@ npmDepsFromWasp spec =
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromServerDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromServerDir) serverWaspLibs
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec
@@ -248,6 +248,7 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
+      genUncaughtErrorsTs spec,
       genServerJs spec
     ]
     <++> genRoutesDir spec
@@ -260,6 +261,19 @@ genSrcDir spec =
     <++> genWebSockets spec
   where
     genFileCopy = return . C.mkSrcTmplFd
+
+genUncaughtErrorsTs :: AppSpec -> Generator FileDraft
+genUncaughtErrorsTs spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/uncaughtErrors.ts|])
+      (C.asServerFile [relfile|src/uncaughtErrors.ts|])
+      (Just $ object ["onErrorFn" .= extImportToImportJson relPathToServerSrcDir maybeOnErrorJsFunction])
+  where
+    maybeOnErrorJsFunction = AS.App.Server.onError =<< AS.App.server (getApp spec)
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
 
 genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
