@@ -29,6 +29,7 @@ import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as Job
+import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
@@ -59,7 +60,7 @@ analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
   return $ case specResultOrErrors of
     Left errs -> Left errs
     Right (SpecAnalysisError specErrorMessage) ->
-      Left [formatSpecAnalysisError specErrorMessage]
+      Left [Msg.Entry (formatSpecAnalysisError specErrorMessage) []]
     Right (SpecAnalysisOk specDecls) -> Right $ Entity.makeEntityDecls prismaSchemaAst ++ specDecls
   where
     waspTsConfigFile = fromJust tsConfigPaths.waspTsConfig
@@ -130,7 +131,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
         ]
 
   case runExitCode of
-    ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
+    ExitFailure _status -> return $ Left [Msg.Entry "Error while analyzing the *.wasp.ts file." []]
     ExitSuccess -> readSpecResultFile
   where
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
@@ -143,7 +144,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
     readSpecResultFile = do
       contents <- IOUtil.readFileBytes absSpecResultFile
       return
-        $ left (\err -> ["Error while reading the spec result from JSON: " ++ err])
+        $ left (\err -> [Msg.Entry ("Error while reading the spec result from JSON: " ++ err) []])
         $ Aeson.eitherDecode contents
 
 -- | The result handed back by the spec analyzer subprocess. Mirrors the

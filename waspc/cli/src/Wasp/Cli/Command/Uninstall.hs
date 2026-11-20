@@ -5,6 +5,7 @@ where
 
 import Control.Monad (filterM, forM_, unless)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
@@ -105,7 +106,7 @@ removeWaspPaths confirmationTerminal pathsToRemove = do
   putStr $
     unlines
       [ "We will remove the following files and directories:",
-        indent 2 $ unlines $ toFilePaths pathsToRemove
+        indent 2 $ intercalate "\n" $ toFilePaths pathsToRemove
       ]
 
   forM_ confirmationTerminal $ \terminal -> do

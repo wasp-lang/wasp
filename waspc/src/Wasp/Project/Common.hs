@@ -39,12 +39,13 @@ import System.Directory (doesFileExist)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
 import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
+import qualified Wasp.Message as Msg
 import qualified Wasp.Util as U
 import Wasp.Util.StrongPath (invertRelDir)
 
-type CompileError = String
+type CompileError = Msg.Entry
 
-type CompileWarning = String
+type CompileWarning = Msg.Entry
 
 data WaspProjectDir -- Root dir of Wasp project, containing source files.
 

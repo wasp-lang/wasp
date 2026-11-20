@@ -116,18 +116,13 @@ printWarningsIfAny :: [CompileWarning] -> IO ()
 printWarningsIfAny warns = do
   unless (null warns)
     $ cliSendMessage
-    $ Msg.Warning compilationWarningsTitle
-    $ formatErrorOrWarningMessages warns
+    $ Msg.Warning warns
 
 printErrorsIfAny :: [CompileError] -> IO ()
 printErrorsIfAny errs = do
   unless (null errs)
     $ cliSendMessage
-    $ Msg.Failure "Your wasp project failed to compile"
-    $ formatErrorOrWarningMessages errs
-
-formatErrorOrWarningMessages :: [String] -> String
-formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
+    $ Msg.Failure errs
 
 compilationWarningsTitle :: String
 compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
@@ -176,9 +171,9 @@ analyzeWithOptions waspProjectDir options = do
   (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
   liftIO $ printWarningsIfAny warnings
   case appSpecOrErrors of
-    Left errors ->
-      throwError $
-        CommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+    Left errors -> do
+      liftIO $ cliSendMessage $ Msg.Failure errors
+      throwError CommandAborted
     Right spec -> return spec
 
 -- | Like 'analyze', but keeps stdout free for machine-readable output:
@@ -191,12 +186,15 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
     liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions waspProjectDir
   liftIO
     $ unless (null warnings)
-    $ printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)
+    $ printDiagnosticToStderr compilationWarningsTitle warnings
   case appSpecOrErrors of
     Right spec -> return spec
     Left errors -> do
-      liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+      liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) errors
       throwError CommandAborted
 
-printDiagnosticToStderr :: String -> String -> IO ()
-printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
+printDiagnosticToStderr :: String -> [Msg.Entry] -> IO ()
+printDiagnosticToStderr diagnosticTitle entries = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> intercalate "\n\n" (map plainText entries)
+  where
+    plainText (Msg.Entry text parts) = intercalate "\n" $ filter (not . null) $ text : map plainPart parts
+    plainPart (Msg.Text text) = text

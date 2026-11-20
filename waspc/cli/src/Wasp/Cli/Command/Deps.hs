@@ -5,18 +5,21 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import qualified Wasp.Message as Msg
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
@@ -28,7 +31,7 @@ deps = do
     liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
     either
-      (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
+      (\errors -> liftIO (cliSendMessage $ Msg.Failure $ Msg.Entry "Determining dependencies failed due to a compilation error in your Wasp project" [] : errors) >> throwError CommandAborted)
       return
       appSpecOrAnalyzerErrors
 
@@ -36,7 +39,7 @@ deps = do
 
 depsMessage :: AppSpec -> String
 depsMessage appSpec =
-  unlines $
+  intercalate "\n" $
     [ "",
       title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
       ""

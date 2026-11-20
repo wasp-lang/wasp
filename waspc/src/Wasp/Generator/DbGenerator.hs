@@ -46,6 +46,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
+import qualified Wasp.Message as Msg
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
@@ -186,7 +187,7 @@ warnIfSchemaDiffersFromChecksum dbSchemaFileAbs dbschemachecksumfile =
     (return Nothing)
     ( return . Just $
         GeneratorNeedsMigrationWarning
-          "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready."
+          [Msg.Entry "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready." []]
     )
 
 -- | Checks if the project (schema and migrations) matches the DB state.
@@ -206,21 +207,25 @@ warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
           return Nothing
         else
           return . Just . GeneratorNeedsMigrationWarning $
-            "You have unapplied migrations. Please run `wasp db migrate-dev` when ready."
+            [Msg.Entry "You have unapplied migrations. Please run `wasp db migrate-dev` when ready." []]
     DbOps.SchemaDiffersFromDb ->
       return . Just . GeneratorNeedsMigrationWarning $
-        "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
+        [Msg.Entry "Your Prisma schema does not match your database, please run `wasp db migrate-dev`." []]
     -- DB not yet existing is not an error but a common case, i.e. when app is
     -- run for the first time on a new machine.
     DbOps.DbDoesNotExist ->
       return . Just . GeneratorNeedsMigrationWarning $
-        "Your database has not been created yet, please run `wasp db migrate-dev` to create it."
+        [Msg.Entry "Your database has not been created yet, please run `wasp db migrate-dev` to create it." []]
     -- If db match check failed we don't really know what is the issue so we
     -- suggest they call db migrate-dev and get more info.
     DbOps.SchemaDbMatchCheckFailed ->
       return . Just . GeneratorNeedsMigrationWarning $
-        "Wasp was unable to verify your database is up to date."
-          <> " Running `wasp db migrate-dev` may fix this and will provide more info."
+        [ Msg.Entry
+            ( "Wasp was unable to verify your database is up to date."
+                <> " Running `wasp db migrate-dev` may fix this and will provide more info."
+            )
+            []
+        ]
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
 generatePrismaClient spec generatedAppDir = do

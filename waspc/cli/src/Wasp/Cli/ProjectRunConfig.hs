@@ -8,6 +8,7 @@ module Wasp.Cli.ProjectRunConfig
   )
 where
 
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import Network.Socket (PortNumber)
 import Network.URI (URI)
@@ -50,7 +51,8 @@ makeProjectRunConfig appSpec ports@(clientPort, serverPort) (customClientUrl, cu
 
 showRunConfigUrls :: AppSpec -> ProjectRunConfig -> String
 showRunConfigUrls appSpec config =
-  unlines
+  intercalate
+    "\n"
     [ showUrls "Client" config.clientUrl localClientUrl,
       showUrls "Server" config.serverUrl localServerUrl
     ]
