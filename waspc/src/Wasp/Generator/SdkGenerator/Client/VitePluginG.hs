@@ -8,6 +8,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
+import Wasp.Generator.DbGenerator.Common (dbSchemaFileInGeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, spaFallbackFile, ssrEntryPointPath)
@@ -15,6 +16,7 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualUserModulesPluginG (
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPluginG (genVirtualWaspModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
@@ -29,6 +31,7 @@ genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
   sequence
     [ genViteIndex,
+      genViteDevTools,
       genWaspPlugin spec,
       genWaspConfigPlugin spec,
       genVirtualUserModulesPlugin spec
@@ -39,6 +42,11 @@ genViteIndex :: Generator FileDraft
 genViteIndex = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|index.ts|]
+
+genViteDevTools :: Generator FileDraft
+genViteDevTools = return $ C.mkTmplFd tmplPath
+  where
+    tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|devtools.ts|]
 
 genWaspPlugin :: AppSpec -> Generator FileDraft
 genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
@@ -53,7 +61,10 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
           "ssrEntryPointPath" .= ssrEntryPointPath,
           "spaFallbackFile" .= SP.fromRelFileP spaFallbackFile,
-          "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
+          "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths,
+          "prismaSchemaFilePath" .= SP.fromRelFile (generatedAppDirInWaspProjectDir </> dbSchemaFileInGeneratedAppDir),
+          -- Same as `wasp db studio`, so Prisma reads the server's `.env` file.
+          "prismaCwd" .= SP.fromRelDir (generatedAppDirInWaspProjectDir </> serverRootDirInGeneratedAppDir)
         ]
     prerenderPaths =
       concatMap AS.Route.prerender (AS.getRoutes spec)

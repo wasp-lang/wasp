@@ -32,6 +32,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^9.0.8",
+    "@vitejs/devtools": "^0.8.2",
     "@wasp/spec": "file:.wasp/spec",
     "@wasp/wasp-app-runner": "^0.0.19",
     "jsdom": "^30.1.3",
