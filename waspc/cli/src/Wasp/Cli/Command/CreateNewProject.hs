@@ -32,6 +32,7 @@ import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.DevDb.ArgumentsParser (defaultDevDbOptions)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
@@ -93,7 +94,7 @@ installDepsForNewProject absWaspProjectDir =
 -- in a warning.
 migrateDbForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> Command Bool
 migrateDbForNewProject absWaspProjectDir =
-  (throwIfDbUrlInEnvironment >> inProjectDir (migrateDev initialMigrateArgs) $> True)
+  (throwIfDbUrlInEnvironment >> inProjectDir (migrateDev (initialMigrateArgs, defaultDevDbOptions)) $> True)
     `catchError` warnAboutFailedMigration
   where
     initialMigrateArgs = defaultMigrateArgs {_migrationName = Just "initial-migration"}

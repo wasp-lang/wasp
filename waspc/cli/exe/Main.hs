@@ -38,7 +38,7 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
@@ -225,7 +225,7 @@ dbCli args = case args of
   "reset" : resetArgs -> runCommand $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommand $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
   "seed" : seedArgs -> runCommand $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
-  "studio" : studioArgs -> runCommand $ withArguments (ArgsParser "wasp db studio" (pure ())) (const Command.Db.Studio.studio) studioArgs
+  "studio" : studioArgs -> runCommand $ withArguments Command.Db.Studio.studioArgsParser Command.Db.Studio.studio studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
@@ -258,6 +258,10 @@ printDbUsage =
               "      --create-only"
         ],
         cmd   "  studio                       GUI for inspecting your database.",
+              "",
+              "  reset, seed, migrate-dev and studio start the managed dev database if it isn't running,",
+              "  and stop it when they finish. They accept the same options as start for it:",
+              "  [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "",
         title "EXAMPLES",
               "  wasp db migrate-dev",
