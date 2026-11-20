@@ -76,9 +76,7 @@ jobs:
           haskell: true
 
       - name: Compile TS packages and libs
-        run: |
-          mise run build:libs
-          mise run build:dev-packages
+        run: mise run build:dev-packages
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
