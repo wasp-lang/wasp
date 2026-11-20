@@ -168,6 +168,27 @@ export const validatePassword = (password: string) => password.length > 8 && /* 
 
 This Docusaurus plugin is implemented in [./src/remark/code-with-hole.ts](./src/remark/code-with-hole.ts).
 
+### Commands
+
+Each Wasp project installs Wasp as a dependency, so readers run Wasp either through their package manager or through the global Wasp CLI. These components show a command in the form the reader picked. Every docs page can use them without importing them:
+
+- `<WaspCommand command="wasp start" />` shows a Wasp command as a code block, with a tab for each form.
+- `<InlineWaspCommand command="wasp start" />` shows a Wasp command inside a sentence.
+- `<PackageManagerCommand npm="npm install" />` shows any other package manager command as a code block.
+
+Write the Wasp command the way you'd run it with the global Wasp CLI. The components work out the package manager form, e.g. `npm run dev` for `wasp start` and `npm run wasp -- db migrate-dev` for `wasp db migrate-dev`.
+
+A `WaspCommand` can have several lines. Write its package manager lines for npm:
+
+```mdx
+<WaspCommand
+  command={`npm install
+wasp start`}
+/>
+```
+
+The lines that run `wasp` follow how the reader runs Wasp. The package manager lines follow the reader's package manager, also for readers who use the global Wasp CLI.
+
 ## Links
 
 ### `fix-api-links`: rewrite absolute `wasp.sh` URLs to relative links in API docs
