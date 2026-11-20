@@ -1,16 +1,16 @@
 // A file or terminal preview. Lines starting with `$ ` are shown as commands.
 export function CodeWindow({ title, code }: { title: string; code: string }) {
   return (
-    <figure className="w-full overflow-hidden border-2 border-black bg-white">
-      <figcaption className="border-b-2 border-black px-4 py-2 text-xs text-gray">
-        [<span className="bg-yellow px-1 text-black">{title}</span>]
+    <figure className="border-line bg-canvas w-full overflow-hidden rounded-md border">
+      <figcaption className="border-line text-gray border-b px-4 py-2 font-mono text-xs">
+        {title}
       </figcaption>
-      <pre className="overflow-x-auto p-4 text-xs leading-relaxed">
+      <pre className="overflow-x-auto p-4 text-xs leading-relaxed [overflow-wrap:normal]">
         {code.split("\n").map((line, index) => (
           <div key={index}>
             {line.startsWith("$ ") ? (
               <>
-                <span className="text-yellow-dark select-none">$ </span>
+                <span className="text-gray select-none">$ </span>
                 {line.slice(2)}
               </>
             ) : (

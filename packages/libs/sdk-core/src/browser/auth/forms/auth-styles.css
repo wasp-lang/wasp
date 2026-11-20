@@ -24,6 +24,8 @@
   --color-successText: #2d3748;
   --color-submitButtonText: black;
   --color-formErrorText: var(--color-darkRed);
+  --color-inputBackground: #f8f4ff;
+  --color-inputText: currentColor;
 
   /* Font sizes */
   --font-size-sm: 1rem;

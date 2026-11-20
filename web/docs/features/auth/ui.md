@@ -340,6 +340,11 @@ We use CSS variables in our styling so you can customize the styles by overridin
 
 See the list of all available tokens which you can override in the [`CustomizationOptions` API Reference](../../api/wasp/client/auth.md#customizationoptions).
 
+Use the `inputBackground` and `inputText` color tokens to match the input fields
+(including password visibility controls) to your app's theme. Tokens can reference
+CSS variables, such as `inputBackground: "var(--surface)"`, so they update when
+your app switches between light and dark mode.
+
 :::
 
 <Tabs groupId="js-ts">

@@ -122,7 +122,7 @@ $ wasp db studio`}
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                className="flex justify-between border-2 border-black bg-white px-3 py-2 text-xs font-bold hover:bg-yellow"
+                className="border-line bg-surface hover:bg-subtle flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
               >
                 {link.label} <span aria-hidden>→</span>
               </a>
@@ -209,12 +209,13 @@ $ wasp deploy fly launch my-wasp-app dfw`}
 
 export function WelcomePage() {
   return (
-    <main className="w-[min(64rem,100%-3rem)] min-w-0 gap-10 self-start">
+    <main className="welcome w-[min(64rem,100%-2rem)] min-w-0 gap-8 self-start">
       <div className="flex flex-col items-start gap-4">
-        <h2 className="text-3xl leading-tight font-bold lg:text-4xl">
-          Your app is <span className="bg-yellow px-2">up and running</span>
+        <p className="text-gray text-sm font-semibold">Built with Wasp</p>
+        <h2 className="text-2xl leading-tight font-semibold sm:text-3xl">
+          Your app is <span className="text-ink">up and running</span>
         </h2>
-        <p className="max-w-2xl text-gray">
+        <p className="text-gray max-w-2xl">
           Follow these steps to get to know your new app. This page lives in{" "}
           <InlineCode>src/welcome/</InlineCode>, so feel free to change it, or
           delete it once you&apos;re done (the{" "}

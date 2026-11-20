@@ -19,14 +19,18 @@ export function Input({ className, label, fieldState, ...props }: InputProps) {
       <input
         id={id}
         className={twJoin(
-          "w-full border-2 border-black bg-white px-4 py-3 text-black placeholder:text-gray",
+          "border-line bg-surface text-ink placeholder:text-gray w-full rounded-md border px-3 py-2.5",
           className,
         )}
+        aria-invalid={!!fieldState.error}
+        aria-describedby={fieldState.error ? `${id}-error` : undefined}
         {...props}
       />
 
       {fieldState.error && (
-        <span className="text-sm text-red-600">{fieldState.error.message}</span>
+        <span id={`${id}-error`} className="text-error text-sm">
+          {fieldState.error.message}
+        </span>
       )}
     </div>
   );

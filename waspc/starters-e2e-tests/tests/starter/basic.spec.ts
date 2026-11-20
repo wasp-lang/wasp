@@ -32,6 +32,10 @@ test.describe(
           page.getByText("Your app is up and running"),
         ).toBeVisible();
         await expect(page.getByText("Not logged in")).toBeVisible();
+        await expect(
+          page.getByRole("heading", { name: "Deploy your app" }),
+        ).toBeVisible();
+        await expect(page.locator("button[aria-expanded]")).toHaveCount(0);
       });
     });
 
@@ -78,6 +82,14 @@ test.describe(
 
         await taskForm.getByRole("button", { name: "Add a Tag" }).click();
         await tagForm.getByLabel("Name").fill(tagName);
+        const color = tagForm.getByRole("radio", {
+          name: "Color 5",
+          exact: true,
+        });
+        await color.focus();
+        await page.keyboard.press("Space");
+        await expect(color).toBeChecked();
+        await expect(tagForm).toBeVisible();
         await tagForm.getByRole("button", { name: "Create" }).click();
         await page.waitForLoadState("networkidle");
 

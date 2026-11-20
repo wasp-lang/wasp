@@ -10,7 +10,9 @@
 }
 
 .headerText {
-  font-size: 1.875rem !important;
-  font-weight: 700 !important;
-  margin-top: 1.5rem !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  text-transform: none !important;
+  margin: 0 !important;
 }

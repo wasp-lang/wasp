@@ -1,12 +1,37 @@
 :root {
+  color-scheme: light dark;
   --yellow: #f5c842;
   --yellow-dark: #d4a930;
-  --black: #111;
-  --cream: #f7f5f0;
-  --white: #fafafa;
+  --on-accent: #111;
+  --background: #f7f5f0;
+  --surface: #fafafa;
+  --text: #111;
+  --muted: #555;
+  --line: #d8d5ce;
+  --subtle: #eeece6;
+  --error: #b42318;
+  --error-background: #fef3f2;
+  --success: #166534;
+  --success-background: #f0fdf4;
   --font-mono:
     ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --border: 2px solid var(--black);
+  --border: 1px solid var(--line);
+  --radius: 0.375rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #181818;
+    --surface: #222;
+    --text: #f7f5f0;
+    --muted: #b8b5ad;
+    --line: #484641;
+    --subtle: #2d2c29;
+    --error: #fda29b;
+    --error-background: #451a1a;
+    --success: #86efac;
+    --success-background: #163323;
+  }
 }
 
 * {
@@ -15,10 +40,32 @@
 
 body {
   margin: 0;
-  background: var(--cream);
-  color: var(--black);
-  font-family: var(--font-mono);
+  background: var(--background);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+
+  /* Match Wasp's built-in Auth UI to the app, including feedback states. */
+  --color-brand: var(--text);
+  --color-brandAccent: var(--muted);
+  --color-submitButtonText: var(--surface);
+  --color-gray700: var(--muted);
+  --color-gray600: var(--line);
+  --color-gray500: var(--muted);
+  --color-gray400: var(--subtle);
+  --color-inputBackground: var(--surface);
+  --color-inputText: var(--text);
+  --color-errorBackground: var(--error-background);
+  --color-errorText: var(--error);
+  --color-formErrorText: var(--error);
+  --color-successBackground: var(--success-background);
+  --color-successText: var(--success);
 }
 
 .page {
@@ -29,17 +76,19 @@ body {
 
 header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.5rem;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 4vw, 2rem);
   border-bottom: var(--border);
-  background: var(--white);
+  background: var(--surface);
 }
 
 main {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   align-self: center;
   width: min(32rem, 100% - 2rem);
   margin: 3rem auto;
@@ -48,19 +97,24 @@ main {
 h1 {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 h1 img {
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 h2 {
   margin: 0;
   font-size: 1.5rem;
-  text-transform: uppercase;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
 }
 
 p {
@@ -68,43 +122,68 @@ p {
 }
 
 a {
-  color: var(--black);
+  color: inherit;
+  text-underline-offset: 0.2em;
 }
 
 .card {
   border: var(--border);
-  background: var(--white);
-  box-shadow: 6px 6px 0 var(--yellow);
-  padding: 1rem 2rem 2rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 1.5rem;
 }
 
 :focus-visible {
-  outline: 2px solid var(--black);
-  outline-offset: 2px;
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
 }
 
 code {
-  padding: 0 0.25rem;
-  background: var(--cream);
-  font: inherit;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  background: var(--subtle);
+  font-size: 0.875em;
 }
 
 .links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .button {
-  padding: 0.75rem 1.25rem;
-  border: var(--border);
-  background: var(--yellow);
-  color: var(--black);
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--text);
+  color: var(--surface);
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
   text-decoration: none;
 }
 
 .button:hover {
+  background: var(--muted);
+}
+
+.welcome .button {
+  background: var(--yellow);
+  color: var(--on-accent);
+}
+
+.welcome .button:hover {
   background: var(--yellow-dark);
 }
 
@@ -121,18 +200,19 @@ input[type="checkbox"] {
 
 button,
 input[type="submit"] {
-  padding: 0.75rem 1.25rem;
-  border: var(--border);
-  background: var(--yellow);
-  color: var(--black);
+  padding: 0.625rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--text);
+  color: var(--surface);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
 button:hover,
 input[type="submit"]:hover {
-  background: var(--yellow-dark);
+  background: var(--muted);
 }
 
 header button {
@@ -141,15 +221,18 @@ header button {
 
 .new-task-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .new-task-form input[type="text"] {
-  flex: 1;
+  flex: 1 1 12rem;
   min-width: 0;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   border: var(--border);
-  background: var(--white);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
   font: inherit;
 }
 
@@ -157,8 +240,8 @@ header button {
   margin: 0;
   padding: 0;
   border: var(--border);
-  background: var(--white);
-  box-shadow: 6px 6px 0 var(--yellow);
+  border-radius: var(--radius);
+  background: var(--surface);
   list-style: none;
 }
 
@@ -175,6 +258,6 @@ header button {
 }
 
 .tasks label:has(input:checked) {
-  opacity: 0.6;
+  color: var(--muted);
   text-decoration: line-through;
 }

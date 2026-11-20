@@ -14,7 +14,7 @@ export function TaskList() {
   }
 
   if (!isSuccess) {
-    return <p className="text-red-600">Error loading tasks.</p>;
+    return <p className="text-error">Error loading tasks.</p>;
   }
 
   const completedTasks = tasks.filter((task) => task.isDone);
@@ -33,13 +33,13 @@ export function TaskList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ul className="card divide-y-2 divide-black p-0">
+      <ul className="card divide-line divide-y p-0">
         {tasks.map((task) => (
           <TaskListItem task={task} key={task.id} />
         ))}
       </ul>
-      <div className="flex min-h-10 items-center justify-between">
-        <div className="text-sm text-gray">
+      <div className="flex min-h-10 flex-wrap items-center justify-between gap-3">
+        <div className="text-gray text-sm">
           <span>
             {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
           </span>
@@ -47,7 +47,11 @@ export function TaskList() {
           <span>{completedTasks.length} completed</span>
         </div>
         {completedTasks.length > 0 && (
-          <Button size="sm" onClick={handleDeleteCompletedTasks}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleDeleteCompletedTasks}
+          >
             Clear completed
             <svg
               xmlns="http://www.w3.org/2000/svg"

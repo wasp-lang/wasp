@@ -4,10 +4,14 @@
 @theme {
   --color-yellow: var(--yellow);
   --color-yellow-dark: var(--yellow-dark);
-  --color-black: var(--black);
-  --color-gray: #555;
-  --color-cream: var(--cream);
-  --color-white: var(--white);
+  --color-ink: var(--text);
+  --color-gray: var(--muted);
+  --color-canvas: var(--background);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-subtle: var(--subtle);
+  --color-error: var(--error);
+  --color-on-accent: var(--on-accent);
 }
 
 @layer base {
@@ -17,5 +21,5 @@
 }
 
 @utility label {
-  @apply text-sm font-bold;
+  @apply text-sm font-medium;
 }

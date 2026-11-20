@@ -27,7 +27,7 @@ export function LogInStep() {
 
 function AuthStatus({ user }: { user: AuthUser | null }) {
   return (
-    <p className="flex items-center gap-2 text-xs font-bold uppercase">
+    <p className="text-gray flex items-center gap-2 text-sm">
       <span
         className={twJoin(
           "size-2 rounded-full",

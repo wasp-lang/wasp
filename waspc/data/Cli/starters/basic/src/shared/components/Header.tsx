@@ -8,8 +8,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-10">
-      <Link to="/">
-        <h1 className="font-bold">
+      <Link to="/" className="no-underline">
+        <h1>
           <img src={Logo} alt="Wasp logo" />
           To-Do App
         </h1>

@@ -33,6 +33,8 @@ export type CustomizationOptions = {
       submitButtonText?: string;
 
       formErrorText?: string;
+      inputBackground?: string;
+      inputText?: string;
     };
     fontSizes?: {
       sm?: string;

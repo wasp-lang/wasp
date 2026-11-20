@@ -10,7 +10,7 @@ export function MainPage() {
           My Wasp App
         </h1>
       </header>
-      <main className="card">
+      <main className="card welcome">
         <h2>Welcome to Wasp!</h2>
 
         <p>

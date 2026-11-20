@@ -1,12 +1,13 @@
 import { ComponentProps, useId } from "react";
 import { twJoin } from "tailwind-merge";
 
-interface ColorRadioButtonProps extends Required<
-  Pick<
-    ComponentProps<"input">,
-    "name" | "checked" | "value" | "onChange" | "title"
-  >
-> {
+interface ColorRadioButtonProps
+  extends Required<
+    Pick<
+      ComponentProps<"input">,
+      "name" | "checked" | "value" | "onChange" | "title"
+    >
+  > {
   bgColor: string;
 }
 
@@ -20,24 +21,24 @@ export function ColorRadioButton({
 
   return (
     <div className="relative flex items-center">
+      <input
+        type="radio"
+        className="peer sr-only"
+        id={id}
+        checked={checked}
+        aria-label={title}
+        {...props}
+      />
       <label
         htmlFor={id}
         className={twJoin(
-          "flex size-8 cursor-pointer items-center justify-center border-2 border-black",
-          "hover:outline-2 hover:outline-offset-2 hover:outline-black",
-          checked && "outline-2 outline-offset-2 outline-black",
+          "border-line flex size-8 cursor-pointer items-center justify-center rounded-md border",
+          "peer-focus-visible:outline-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2",
+          checked && "outline-ink outline-2 outline-offset-2",
         )}
         style={{ background: bgColor }}
         title={title}
-      >
-        <input
-          type="radio"
-          className="hidden"
-          id={id}
-          checked={checked}
-          {...props}
-        />
-      </label>
+      />
     </div>
   );
 }

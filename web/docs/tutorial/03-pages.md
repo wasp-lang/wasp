@@ -117,7 +117,7 @@ Start by cleaning up the starter project and removing unnecessary code and files
 
 <TutorialAction id="prepare-project" action="APPLY_PATCH">
 
-The starter already comes with the base styles for the Todo app. You only need to add the styles for the task list and its form. You don't need to understand them to follow the tutorial. They only make the app look nice.
+The starter already comes with the base styles for the Todo app, including light and dark colors that follow your system preference. You only need to add the styles for the task list and its form. You don't need to understand them to follow the tutorial. They only make the app look nice.
 
 Add these styles to the end of `src/Main.css`:
 
@@ -139,18 +139,19 @@ input[type="checkbox"] {
 
 button,
 input[type="submit"] {
-  padding: 0.75rem 1.25rem;
-  border: var(--border);
-  background: var(--yellow);
-  color: var(--black);
+  padding: 0.625rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--text);
+  color: var(--surface);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
 }
 
 button:hover,
 input[type="submit"]:hover {
-  background: var(--yellow-dark);
+  background: var(--muted);
 }
 
 header button {
@@ -159,15 +160,18 @@ header button {
 
 .new-task-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .new-task-form input[type="text"] {
-  flex: 1;
+  flex: 1 1 12rem;
   min-width: 0;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   border: var(--border);
-  background: var(--white);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
   font: inherit;
 }
 
@@ -175,8 +179,8 @@ header button {
   margin: 0;
   padding: 0;
   border: var(--border);
-  background: var(--white);
-  box-shadow: 6px 6px 0 var(--yellow);
+  border-radius: var(--radius);
+  background: var(--surface);
   list-style: none;
 }
 
@@ -193,7 +197,7 @@ header button {
 }
 
 .tasks label:has(input:checked) {
-  opacity: 0.6;
+  color: var(--muted);
   text-decoration: line-through;
 }
 ```

@@ -19,18 +19,19 @@ export function TagLabel({
   return (
     <span
       className={twJoin(
-        "inline-flex items-center gap-1 border-2 border-black font-bold",
+        "border-line inline-flex max-w-full items-center gap-2 rounded-md border font-medium",
         sizeStyles[size],
       )}
       style={{
         backgroundColor: isActive ? tag.color : "transparent",
+        color: isActive ? "var(--on-accent)" : undefined,
       }}
     >
       {tag.name}
       {showColorCircle && (
         <span
           className={twJoin(
-            "relative border-2 border-black bg-white",
+            "bg-surface shrink-0 rounded-full border border-black/20",
             colorCircleSizeStyles[size],
           )}
           style={{
@@ -49,7 +50,7 @@ const sizeStyles: Record<TagLabelSize, ClassNameValue> = {
 };
 
 const colorCircleSizeStyles: Record<TagLabelSize, ClassNameValue> = {
-  md: "h-3 w-3 -right-2",
-  sm: "h-2 w-2 -right-1",
-  tiny: "h-1.5 w-1.5 -right-0.5",
+  md: "size-3",
+  sm: "size-2",
+  tiny: "size-1.5",
 };

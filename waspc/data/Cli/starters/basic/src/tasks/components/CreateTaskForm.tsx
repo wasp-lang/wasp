@@ -83,6 +83,7 @@ export function CreateTaskForm() {
                 <li key={tag.id}>
                   <button
                     type="button"
+                    aria-pressed={tagIds.includes(tag.id)}
                     className="cursor-pointer"
                     onClick={() => toggleTag(tag.id)}
                   >

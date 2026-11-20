@@ -35,6 +35,9 @@ export function Dialog({
     (e: MouseEvent) => {
       const dialog = dialogRef.current;
       if (!closeOnClickOutside || !dialog) return;
+      // Keyboard-generated clicks have (0, 0) coordinates. Only clicks on the
+      // dialog itself can be backdrop clicks, never clicks on its children.
+      if (e.target !== dialog) return;
 
       const rect = dialog.getBoundingClientRect();
       const clickedOutside =
@@ -54,8 +57,8 @@ export function Dialog({
     <dialog
       ref={dialogRef}
       className={twJoin(
-        "top-[20vh] mx-auto my-0 flex max-h-[55vh] overflow-visible",
-        "bg-transparent backdrop:bg-black/50",
+        "top-[10dvh] mx-auto my-0 flex max-h-[80dvh] w-[min(32rem,100%-2rem)] p-0",
+        "text-ink bg-transparent backdrop:bg-black/50",
       )}
       onClose={onClose}
       onClick={handleClick}

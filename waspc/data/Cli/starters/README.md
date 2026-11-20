@@ -14,6 +14,17 @@ Due to this behavior, all files shared by all starters are placed in the [`skele
 
 The `basic` starter builds on top of `minimal`: `basic/src/Main.css` is a copy of `minimal/src/Main.css`, which `basic` loads into Tailwind's base layer. Keep both files identical.
 
+The tutorial examples start with these same base styles and add task/form styles
+at the end. Keep their base styles and the latest tutorial's CSS snippet/patch in
+sync when changing the starters. The standalone development server page
+(`Generator/templates/server/src/views/wrong-port.ts`) uses the same palette,
+typography, and spacing, inlined because it cannot load app assets.
+
+Colors follow `prefers-color-scheme`. Customize the semantic variables (`--text`,
+`--surface`, `--background`, `--line`, etc.) instead of assigning light-only colors
+to individual components. Yellow accents belong to `.welcome`; application
+controls and Auth UI use the neutral palette.
+
 ## Development Workflow
 
 The recommended approach for developing starter templates:

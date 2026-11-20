@@ -9,13 +9,18 @@ export function CreateTagDialog() {
 
   return (
     <>
-      <Button type="button" size="sm" onClick={() => setTagDialogOpen(true)}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => setTagDialogOpen(true)}
+      >
         <span>Add a Tag</span>
         <span>+</span>
       </Button>
       {tagDialogOpen && (
         <Dialog open={tagDialogOpen} onClose={() => setTagDialogOpen(false)}>
-          <section className="card flex min-h-0 flex-col p-0">
+          <section className="card flex min-h-0 w-full flex-col p-0">
             <div className="px-4 py-6 lg:px-6 lg:py-8">
               <h2 className="text-xl font-bold">Create a new tag</h2>
             </div>
