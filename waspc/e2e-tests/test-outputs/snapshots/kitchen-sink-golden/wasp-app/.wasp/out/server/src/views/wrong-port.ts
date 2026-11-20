@@ -28,15 +28,26 @@ export const makeWrongPortPage = ({
 
       <style>
         :root {
+          color-scheme: light dark;
           --yellow: #f5c842;
           --yellow-dark: #d4a930;
-          --black: #111;
-          --cream: #f7f5f0;
-          --white: #fafafa;
-          --font-mono:
-            ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono",
-            monospace;
-          --border: 2px solid var(--black);
+          --background: #f7f5f0;
+          --surface: #fafafa;
+          --text: #111;
+          --muted: #555;
+          --line: #d8d5ce;
+          --border: 1px solid var(--line);
+          --radius: 0.375rem;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --background: #181818;
+            --surface: #222;
+            --text: #f7f5f0;
+            --muted: #b8b5ad;
+            --line: #484641;
+          }
         }
 
         * {
@@ -45,10 +56,16 @@ export const makeWrongPortPage = ({
 
         body {
           margin: 0;
-          background: var(--cream);
-          color: var(--black);
-          font-family: var(--font-mono);
+          background: var(--background);
+          color: var(--text);
+          font-family:
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
           line-height: 1.5;
+          overflow-wrap: anywhere;
         }
 
         .page {
@@ -61,15 +78,15 @@ export const makeWrongPortPage = ({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.75rem 1.5rem;
+          padding: 1rem clamp(1rem, 4vw, 2rem);
           border-bottom: var(--border);
-          background: var(--white);
+          background: var(--surface);
         }
 
         main {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 1.25rem;
           align-self: center;
           width: min(32rem, 100% - 2rem);
           margin: 3rem auto;
@@ -78,20 +95,24 @@ export const makeWrongPortPage = ({
         h1 {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
           margin: 0;
-          font-size: 1.25rem;
+          font-size: 1.125rem;
+          font-weight: 600;
+          line-height: 1.5;
         }
 
         h1 svg {
-          height: 2.5rem;
-          width: 2.5rem;
+          height: 2rem;
+          width: 2rem;
         }
 
         h2 {
           margin: 0;
           font-size: 1.5rem;
-          text-transform: uppercase;
+          font-weight: 600;
+          line-height: 1.3;
+          letter-spacing: -0.025em;
         }
 
         p {
@@ -99,34 +120,39 @@ export const makeWrongPortPage = ({
         }
 
         a {
-          color: var(--black);
+          color: inherit;
         }
 
         .card {
           border: var(--border);
-          background: var(--white);
-          box-shadow: 6px 6px 0 var(--yellow);
-          padding: 1rem 2rem 2rem;
+          border-radius: var(--radius);
+          background: var(--surface);
+          padding: 1.5rem;
         }
 
         :focus-visible {
-          outline: 2px solid var(--black);
-          outline-offset: 2px;
+          outline: 2px solid var(--text);
+          outline-offset: 3px;
         }
 
         .button {
           align-self: flex-start;
-          padding: 0.75rem 1.25rem;
-          border: var(--border);
+          padding: 0.625rem 1rem;
+          border: 1px solid transparent;
+          border-radius: var(--radius);
           background: var(--yellow);
-          color: var(--black);
-          font-weight: 700;
+          color: #111;
+          font-weight: 600;
           text-decoration: none;
           word-break: break-all;
         }
 
         .button:hover {
           background: var(--yellow-dark);
+        }
+
+        small {
+          color: var(--muted);
         }
       </style>
     </head>

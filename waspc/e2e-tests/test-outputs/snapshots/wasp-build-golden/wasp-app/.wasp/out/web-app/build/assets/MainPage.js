@@ -9,7 +9,7 @@ function MainPage() {
 			src: wasp_logo_rounded_default,
 			alt: "Wasp logo"
 		}), "My Wasp App"] }) }), /* @__PURE__ */ jsxs("main", {
-			className: "card",
+			className: "card welcome",
 			children: [
 				/* @__PURE__ */ jsx("h2", { children: "Welcome to Wasp!" }),
 				/* @__PURE__ */ jsxs("p", { children: [
