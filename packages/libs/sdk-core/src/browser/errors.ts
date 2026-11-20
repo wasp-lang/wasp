@@ -2,6 +2,40 @@ import { isHTTPError as isKyHttpError } from "ky";
 import { HttpError } from "../HttpError.js";
 
 /**
+ * The type of the function you pass to the `client.onError` field of the app
+ * spec. Wasp calls it with every unexpected error on the client, after
+ * logging the error to the browser console.
+ *
+ * It receives the error and the {@link ClientErrorContext} it surfaced in.
+ *
+ * - An [`HttpError`](https://wasp.sh/docs/api/wasp/errors#httperror), or the
+ *   error the `api` client throws, is unexpected only with a status of 500 or
+ *   above. A lower status means the server sent the error on purpose.
+ * - A failed Query or Action that your code handles is not unexpected. A
+ *   failed Action that nobody catches arrives as a `"window"` error.
+ * - Wasp calls the function once per error, even if the error surfaces in
+ *   more than one place.
+ * - Render errors arrive even when your own error boundaries catch them.
+ * - Wasp doesn't call the function while prerendering pages.
+ * - If the function throws, Wasp logs that error and keeps running.
+ *
+ * @example
+ * ```ts
+ * import type { ClientOnErrorFn } from "wasp/client";
+ *
+ * export const onClientError: ClientOnErrorFn = (error, context) => {
+ *   errorTracker.capture(error, { source: context.source });
+ * };
+ * ```
+ *
+ * @see [Handling unexpected errors](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors)
+ */
+export type ClientOnErrorFn = (
+  error: unknown,
+  context: ClientErrorContext,
+) => void | Promise<void>;
+
+/**
  * Where an unexpected client error surfaced.
  *
  * - `"render"`: While rendering a page or the root component.
@@ -21,6 +55,12 @@ export type ClientErrorContext =
   | { source: "oauthCallback" }
   | { source: "authForm" }
   | { source: "optimisticUpdate" };
+
+let clientOnErrorFn: ClientOnErrorFn | undefined;
+
+export function registerClientOnErrorFn(onErrorFn: ClientOnErrorFn): void {
+  clientOnErrorFn = onErrorFn;
+}
 
 // The same error can be reported from more than one place.
 const handledErrors = new WeakSet<object>();
@@ -107,5 +147,19 @@ function reportUnexpectedClientError(
   console.error(`Unexpected error in ${context.source}:`, error);
   if (context.source === "render" && context.componentStack) {
     console.error(`The error happened in:${context.componentStack}`);
+  }
+  void callClientOnErrorFn(error, context);
+}
+
+// It never rejects, so a failing `client.onError` function isn't reported as
+// another unexpected error.
+async function callClientOnErrorFn(
+  error: unknown,
+  context: ClientErrorContext,
+): Promise<void> {
+  try {
+    await clientOnErrorFn?.(error, context);
+  } catch (onErrorFnError: unknown) {
+    console.error("The `client.onError` function failed:", onErrorFnError);
   }
 }

@@ -55,7 +55,7 @@ function toHttpError(
     : unknownErrors.toHttpError(unexpectedError, options);
 
   if (httpError.status >= 500) {
-    reportUnexpectedServerError(unexpectedError, { source: "request" });
+    void reportUnexpectedServerError(unexpectedError, { source: "request" });
   }
   return httpError;
 }

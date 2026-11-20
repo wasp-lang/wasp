@@ -17,6 +17,7 @@ import { webhookCallback as _waspwebhookCallbackfn } from "../../../../../../src
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from "../../../../../../src/features/apis/apis"
 import { throwUnexpectedError as _waspthrowUnexpectedErrorfn } from "../../../../../../src/features/errors/apis"
 import { throwHttpError as _waspthrowHttpErrorfn } from "../../../../../../src/features/errors/apis"
+import { getReportedServerErrors as _waspgetReportedServerErrorsfn } from "../../../../../../src/features/errors/serverOnError"
 import { streamingText as _waspstreamingTextfn } from "../../../../../../src/features/streaming/api"
 
 const idFn: MiddlewareConfigFn = x => x
@@ -26,6 +27,7 @@ const _waspbarBazmiddlewareConfigFn = idFn
 const _wasppatchBarBazmiddlewareConfigFn = idFn
 const _waspthrowUnexpectedErrormiddlewareConfigFn = idFn
 const _waspthrowHttpErrormiddlewareConfigFn = idFn
+const _waspgetReportedServerErrorsmiddlewareConfigFn = idFn
 const _waspstreamingTextmiddlewareConfigFn = idFn
 
 const router = express.Router()
@@ -152,6 +154,23 @@ router.get(
         },
       }
       return _waspthrowHttpErrorfn(req, res, context)
+    }
+  )
+)
+const getReportedServerErrorsMiddleware = globalMiddlewareConfigForExpress(_waspgetReportedServerErrorsmiddlewareConfigFn)
+router.get(
+  "/errors/reported",
+  getReportedServerErrorsMiddleware,
+  defineHandler(
+    (
+      req: Parameters<typeof _waspgetReportedServerErrorsfn>[0],
+      res: Parameters<typeof _waspgetReportedServerErrorsfn>[1],
+    ) => {
+      const context = {
+        entities: {
+        },
+      }
+      return _waspgetReportedServerErrorsfn(req, res, context)
     }
   )
 )

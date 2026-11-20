@@ -1,7 +1,11 @@
 import type { Response } from "express";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { HttpError } from "../src/HttpError";
-import { reportUnexpectedServerError } from "../src/node/errors/report";
+import {
+  registerServerOnErrorFn,
+  reportFatalServerError,
+  reportUnexpectedServerError,
+} from "../src/node/errors/report";
 import { sendErrorResponse } from "../src/node/errors/response";
 import { listenForUncaughtServerErrors } from "../src/node/errors/uncaught";
 import { toHeadersInit } from "../src/node/errors/utils";
@@ -176,12 +180,105 @@ describe("reportUnexpectedServerError", () => {
   });
 });
 
+describe("the `server.onError` function", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    registerServerOnErrorFn(() => {});
+  });
+
+  it("receives an unexpected error and its context", async () => {
+    const onErrorFn = vi.fn();
+    registerServerOnErrorFn(onErrorFn);
+    const error = new Error("Unexpected");
+
+    await reportUnexpectedServerError(error, { source: "webSocket" });
+
+    expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
+      source: "webSocket",
+    });
+  });
+
+  it("receives the unexpected error of a request", () => {
+    const onErrorFn = vi.fn();
+    registerServerOnErrorFn(onErrorFn);
+    const error = new Error("Unexpected");
+
+    send(error);
+
+    expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
+      source: "request",
+    });
+  });
+
+  it("doesn't receive an `HttpError`", () => {
+    const onErrorFn = vi.fn();
+    registerServerOnErrorFn(onErrorFn);
+
+    send(new HttpError(500, "Thrown on purpose"));
+
+    expect(onErrorFn).not.toHaveBeenCalled();
+  });
+
+  it("is logged and ignored when it fails", async () => {
+    const onErrorFnError = new Error("Tracker is down");
+    registerServerOnErrorFn(async () => {
+      throw onErrorFnError;
+    });
+
+    await expect(
+      reportUnexpectedServerError(new Error("Unexpected"), {
+        source: "startup",
+      }),
+    ).resolves.toBeUndefined();
+    expect(console.error).toHaveBeenCalledWith(
+      "The `server.onError` function failed:",
+      onErrorFnError,
+    );
+  });
+
+  it("is awaited before a fatal error is done reporting", async () => {
+    const order: string[] = [];
+    registerServerOnErrorFn(async () => {
+      await Promise.resolve();
+      order.push("onError finished");
+    });
+
+    await reportFatalServerError(new Error("Unexpected"), {
+      source: "startup",
+    });
+    order.push("reported");
+
+    expect(order).toEqual(["onError finished", "reported"]);
+  });
+
+  it("is awaited for at most 5 seconds when it never finishes", async () => {
+    vi.useFakeTimers();
+    registerServerOnErrorFn(() => new Promise(() => {}));
+    let isReported = false;
+
+    void reportFatalServerError(new Error("Unexpected"), {
+      source: "startup",
+    }).then(() => {
+      isReported = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(isReported).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(isReported).toBe(true);
+  });
+});
+
 describe("listenForUncaughtServerErrors", () => {
   beforeEach(() => {
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  it("reports an uncaught exception and exits", () => {
+  it("reports an uncaught exception and exits", async () => {
     const exit = vi.spyOn(process, "exit").mockImplementation(() => {
       return undefined as never;
     });
@@ -189,7 +286,7 @@ describe("listenForUncaughtServerErrors", () => {
     const error = new Error("Thrown in a timer");
 
     listenForUncaughtServerErrors();
-    listeners.uncaughtException?.(error);
+    await listeners.uncaughtException?.(error);
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Unexpected error in process uncaughtException:",
@@ -216,7 +313,9 @@ describe("listenForUncaughtServerErrors", () => {
   });
 });
 
-type ProcessListeners = { [eventName: string]: (error: unknown) => void };
+type ProcessListeners = {
+  [eventName: string]: (error: unknown) => void | Promise<void>;
+};
 
 // Collects the listeners instead of registering them, so a test can't change
 // how the test process itself reacts to errors.
@@ -224,7 +323,7 @@ function collectProcessListeners(): ProcessListeners {
   const listeners: ProcessListeners = {};
   vi.spyOn(process, "on").mockImplementation(((
     eventName: string,
-    listener: (error: unknown) => void,
+    listener: (error: unknown) => void | Promise<void>,
   ) => {
     listeners[eventName] = listener;
     return process;

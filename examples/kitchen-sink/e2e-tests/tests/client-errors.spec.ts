@@ -30,6 +30,21 @@ test.describe("client errors", () => {
     });
   });
 
+  test("passes an unexpected error to the `client.onError` function", async ({
+    page,
+  }) => {
+    const onErrorFnCalls = collectClientOnErrorFnCalls(page);
+    await page.goto("/errors/client");
+
+    await page.getByRole("button", { name: "Throw while rendering" }).click();
+
+    await expect
+      .poll(() => onErrorFnCalls)
+      .toEqual([
+        "client.onError got an error from render: Thrown while rendering",
+      ]);
+  });
+
   test("reports an error that the app's own error boundary caught", async ({
     page,
   }) => {
@@ -59,6 +74,16 @@ function collectClientErrorReports(page: Page): string[] {
     }
   });
   return reports;
+}
+
+function collectClientOnErrorFnCalls(page: Page): string[] {
+  const onErrorFnCalls: string[] = [];
+  page.on("console", (message) => {
+    if (message.text().startsWith("client.onError got an error")) {
+      onErrorFnCalls.push(message.text());
+    }
+  });
+  return onErrorFnCalls;
 }
 
 async function expectSingleReport(

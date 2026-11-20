@@ -7,10 +7,16 @@ import { RouterProvider } from "react-router/dom";
 import { Layout } from "wasp/client/app/layout";
 import {
   listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
   reportRenderError,
   WaspApp,
 } from "wasp/client/app";
 
+{=# onErrorFn.isDefined =}
+import type { ClientOnErrorFn } from "wasp/client";
+{=& onErrorFn.importStatement =}
+
+{=/ onErrorFn.isDefined =}
 {=& routeObjects.importStatement =}
 
 const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
@@ -36,6 +42,9 @@ const fullAppTree = (
   </Layout>
 )
 
+{=# onErrorFn.isDefined =}
+registerClientOnErrorFn({= onErrorFn.importIdentifier =} satisfies ClientOnErrorFn);
+{=/ onErrorFn.isDefined =}
 listenForUncaughtClientErrors();
 
 startTransition(() => {

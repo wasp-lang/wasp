@@ -15,6 +15,18 @@ test.describe("server errors", () => {
     });
   });
 
+  test("an unexpected error reaches the `server.onError` function", async ({
+    request,
+  }) => {
+    await request.get(`${WASP_SERVER_URL}/errors/unexpected`);
+
+    const response = await request.get(`${WASP_SERVER_URL}/errors/reported`);
+    expect(await response.json()).toContainEqual({
+      source: "request",
+      message: "Internal detail that must not reach the client",
+    });
+  });
+
   test("an HttpError keeps its status, headers, message, and data", async ({
     request,
   }) => {

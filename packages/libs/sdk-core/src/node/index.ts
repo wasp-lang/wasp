@@ -23,8 +23,11 @@ export {
   type SentMessageInfo,
 } from "./email/types.js";
 export {
+  registerServerOnErrorFn,
+  reportFatalServerError,
   reportUnexpectedServerError,
   type ServerErrorContext,
+  type ServerOnErrorFn,
 } from "./errors/report.js";
 export {
   sendErrorResponse,

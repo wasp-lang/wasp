@@ -6,9 +6,13 @@ import { RouterProvider } from "react-router/dom";
 import { Layout } from "wasp/client/app/layout";
 import {
   listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
   reportRenderError,
   WaspApp,
 } from "wasp/client/app";
+
+import type { ClientOnErrorFn } from "wasp/client";
+import { onClientError as onClientError_ext } from "./src/features/errors/clientOnError"
 
 import { routeObjects } from "/@wasp/routes.tsx"
 
@@ -35,6 +39,7 @@ const fullAppTree = (
   </Layout>
 )
 
+registerClientOnErrorFn(onClientError_ext satisfies ClientOnErrorFn);
 listenForUncaughtClientErrors();
 
 startTransition(() => {

@@ -32,6 +32,18 @@ Wasp finds those files by analyzing the server's imports. Some packages load the
 
 The build steps are also ordered so that a code change reuses the installed dependencies, which makes rebuilding the image after a code change faster.
 
+### Error handling
+
+Wasp now handles errors in one consistent way on the server and the client.
+
+The server answers every failed request itself. It sends an `HttpError` you throw as is, and it turns any other error into a generic response that hides the error's details in production.
+
+The server and the client share a single `HttpError` class, which you import from `wasp/errors`. Failed Operations and auth actions throw it on the client, so you check for it the same way on both sides.
+
+Wasp logs every unexpected error in the same format and says where it happened. On the server, that now includes uncaught exceptions and unhandled promise rejections, and an unhandled promise rejection no longer stops the server.
+
+The new `server.onError` and `client.onError` functions receive those unexpected errors, so you can send them to an error tracking service. Read more in the [server config](./advanced/server-customization/server-config.md#handling-unexpected-errors) and [client config](./advanced/client-customization/client-config.md#handling-unexpected-errors) docs.
+
 ## How to migrate?
 
 ### 1. Upgrade Node.js to 26.13.1 or later {#upgrade-nodejs}
@@ -574,6 +586,65 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
 
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
-### 14. Enjoy your updated Wasp app
+### 14. Move your error tracking to `onError`
+
+This step is only for apps that send errors to an error tracking service, like Sentry.
+
+Wasp now answers failed requests itself, so an Express error handler you add in `setupFn`, like `Sentry.setupExpressErrorHandler(app)`, no longer receives them. Capture the errors in the new `server.onError` function instead:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/serverSetup.ts"
+    import * as Sentry from "@sentry/node";
+    import type { ServerSetupFn } from "wasp/server";
+
+    Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
+
+    export const setupServer: ServerSetupFn = async ({ app }) => {
+      Sentry.setupExpressErrorHandler(app);
+    };
+    ```
+
+    ```ts title="main.wasp.ts"
+    export default app({
+      // ...
+      server: {
+        setupFn: setupServer,
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/serverSentry.ts"
+    import * as Sentry from "@sentry/node";
+    // highlight-next-line
+    import type { ServerOnErrorFn } from "wasp/server";
+
+    Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
+
+    // highlight-start
+    export const onServerError: ServerOnErrorFn = (error, context) => {
+      Sentry.captureException(error, { tags: { source: context.source } });
+    };
+    // highlight-end
+    ```
+
+    ```ts title="main.wasp.ts"
+    export default app({
+      // ...
+      server: {
+        // highlight-next-line
+        onError: onServerError,
+      },
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+On the client, `client.onError` also receives the errors that an error tracker can't see on its own, like an error thrown while rendering a page.
+
+If you use Sentry, follow the updated [Sentry guide](./guides/integrations/sentry.md) for the full setup on both sides.
+
+### 15. Enjoy your updated Wasp app
 
 That's it!

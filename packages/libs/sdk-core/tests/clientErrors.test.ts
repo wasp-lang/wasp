@@ -1,18 +1,29 @@
-import { HTTPError } from "ky";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   listenForUncaughtClientErrors,
-  reportClientError,
   reportRenderError,
 } from "../src/browser/errors";
-import { HttpError } from "../src/HttpError";
 
 describe("reportClientError", () => {
-  beforeEach(() => {
+  let HttpError: typeof import("../src/HttpError").HttpError;
+  let KyHttpError: typeof import("ky").HTTPError;
+  let reportClientError: typeof import("../src/browser/errors").reportClientError;
+  let registerClientOnErrorFn: typeof import("../src/browser/errors").registerClientOnErrorFn;
+
+  beforeEach(async () => {
+    // The registered `client.onError` function lives in module state, so each
+    // test needs fresh modules. The error classes must come from the same
+    // module instances for `instanceof` checks to work.
+    vi.resetModules();
     vi.spyOn(console, "error").mockImplementation(() => {});
+    ({ HttpError } = await import("../src/HttpError"));
+    ({ HTTPError: KyHttpError } = await import("ky"));
+    ({ reportClientError, registerClientOnErrorFn } = await import(
+      "../src/browser/errors"
+    ));
   });
 
-  it("reports an unexpected error with its source", () => {
+  it("logs an unexpected error with its source", () => {
     const error = new Error("Unexpected");
 
     reportClientError(error, { source: "render" });
@@ -23,54 +34,108 @@ describe("reportClientError", () => {
     );
   });
 
+  it("passes an unexpected error and its context to the `client.onError` function", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
+    const error = new Error("Unexpected");
+
+    reportClientError(error, { source: "render" });
+
+    expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
+      source: "render",
+    });
+  });
+
   it("doesn't report an `HttpError` with a status below 500", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
+
     reportClientError(new HttpError(404, "Not found"), {
       source: "window",
       event: "error",
     });
 
     expect(console.error).not.toHaveBeenCalled();
+    expect(onErrorFn).not.toHaveBeenCalled();
   });
 
   it("reports an `HttpError` with a status of 500 or above", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
     const error = new HttpError(502, "Bad gateway");
 
     reportClientError(error, { source: "window", event: "error" });
 
-    expect(console.error).toHaveBeenCalledExactlyOnceWith(
-      "Unexpected error in window:",
-      error,
-    );
+    expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
+      source: "window",
+      event: "error",
+    });
   });
 
   it("doesn't report an HTTP error that ky threw with a status below 500", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
+
     reportClientError(makeKyHttpError(401), {
       source: "window",
       event: "error",
     });
 
     expect(console.error).not.toHaveBeenCalled();
+    expect(onErrorFn).not.toHaveBeenCalled();
   });
 
   it("reports an HTTP error that ky threw with a status of 500 or above", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
     const kyHttpError = makeKyHttpError(503);
 
     reportClientError(kyHttpError, { source: "window", event: "error" });
 
-    expect(console.error).toHaveBeenCalledExactlyOnceWith(
-      "Unexpected error in window:",
-      kyHttpError,
-    );
+    expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(kyHttpError, {
+      source: "window",
+      event: "error",
+    });
   });
 
   it("reports the same error object only once", () => {
+    const onErrorFn = vi.fn();
+    registerClientOnErrorFn(onErrorFn);
     const error = new Error("Unexpected");
 
     reportClientError(error, { source: "render" });
     reportClientError(error, { source: "window", event: "error" });
 
-    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(onErrorFn).toHaveBeenCalledTimes(1);
   });
+
+  it("survives a `client.onError` function that fails", async () => {
+    registerClientOnErrorFn(async () => {
+      throw new Error("Tracker is down");
+    });
+
+    expect(() =>
+      reportClientError(new Error("Unexpected"), {
+        source: "window",
+        event: "error",
+      }),
+    ).not.toThrow();
+    await vi.waitFor(() =>
+      expect(console.error).toHaveBeenCalledWith(
+        "The `client.onError` function failed:",
+        expect.any(Error),
+      ),
+    );
+  });
+
+  function makeKyHttpError(status: number): InstanceType<typeof KyHttpError> {
+    return new KyHttpError(
+      new Response(null, { status }),
+      new Request("http://localhost:3001/foo"),
+      // `reportClientError` only reads the error's response.
+      {} as ConstructorParameters<typeof KyHttpError>[2],
+    );
+  }
 });
 
 describe("reportRenderError", () => {
@@ -129,12 +194,3 @@ describe("listenForUncaughtClientErrors", () => {
     );
   });
 });
-
-function makeKyHttpError(status: number): HTTPError {
-  return new HTTPError(
-    new Response(null, { status }),
-    new Request("http://localhost:3001/foo"),
-    // `reportClientError` only reads the error's response.
-    {} as ConstructorParameters<typeof HTTPError>[2],
-  );
-}

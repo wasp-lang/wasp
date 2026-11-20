@@ -6,6 +6,7 @@ import { RouterProvider } from "react-router/dom";
 import { Layout } from "wasp/client/app/layout";
 import {
   listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
   reportRenderError,
   WaspApp,
 } from "wasp/client/app";

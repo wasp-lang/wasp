@@ -166,10 +166,16 @@ export function mapServer(
   server: WaspSpec.Server,
   ctx: AppMapperContext,
 ): AppSpec.Server {
-  const { setupFn, middlewareConfigFn, envValidationSchema, traceDeps } =
-    server;
+  const {
+    setupFn,
+    onError,
+    middlewareConfigFn,
+    envValidationSchema,
+    traceDeps,
+  } = server;
   return {
     setupFn: setupFn && ctx.parseRefObject(setupFn),
+    onError: onError && ctx.parseRefObject(onError),
     middlewareConfigFn:
       middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
     envValidationSchema:
@@ -182,10 +188,12 @@ export function mapClient(
   client: WaspSpec.Client,
   ctx: AppMapperContext,
 ): AppSpec.Client {
-  const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
+  const { rootComponent, setupFn, onError, baseDir, envValidationSchema } =
+    client;
   return {
     rootComponent: rootComponent && ctx.parseRefObject(rootComponent),
     setupFn: setupFn && ctx.parseRefObject(setupFn),
+    onError: onError && ctx.parseRefObject(onError),
     baseDir,
     envValidationSchema:
       envValidationSchema && ctx.parseRefObject(envValidationSchema),

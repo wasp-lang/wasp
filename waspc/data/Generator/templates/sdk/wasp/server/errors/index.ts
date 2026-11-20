@@ -5,7 +5,8 @@
 // PRIVATE API (server)
 export {
   listenForUncaughtServerErrors,
+  registerServerOnErrorFn,
+  reportFatalServerError,
   reportUnexpectedServerError,
   sendErrorResponse,
-  type ServerErrorContext,
 } from "@wasp/lib-sdk-core/node";

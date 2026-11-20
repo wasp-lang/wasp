@@ -180,7 +180,6 @@ function toHttpErrorBody(error) {
 		data: error.data
 	};
 }
-// node_modules/@wasp/lib-sdk-core/dist/browser/errors.mjs
 var handledErrors = /* @__PURE__ */ new WeakSet();
 /**
 * Reports a client error if it is unexpected, once per error object.
@@ -240,6 +239,14 @@ function reportRenderError(error, { componentStack }) {
 function reportUnexpectedClientError(error, context) {
 	console.error(`Unexpected error in ${context.source}:`, error);
 	if (context.source === "render" && context.componentStack) console.error(`The error happened in:${context.componentStack}`);
+	callClientOnErrorFn(error, context);
+}
+async function callClientOnErrorFn(error, context) {
+	try {
+		await void 0;
+	} catch (onErrorFnError) {
+		console.error("The `client.onError` function failed:", onErrorFnError);
+	}
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
