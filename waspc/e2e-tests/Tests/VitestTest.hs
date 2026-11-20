@@ -19,7 +19,7 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | Sets up Vitest in a Wasp app the way the testing docs describe, and runs
--- client tests that use the `wasp/client/test` helpers.
+-- client tests that use the \@wasp/test-utils helpers.
 vitestTest :: Test
 vitestTest =
   Test
@@ -33,8 +33,9 @@ vitestTest =
                   writeProjectFile [relfile|src/queries.ts|] queriesTs,
                   writeProjectFile [relfile|src/TaskList.tsx|] taskListTsx,
                   writeProjectFile [relfile|vite.config.ts|] viteConfigTs,
-                  -- The SDK must compile without the testing libraries.
+                  -- The app must compile without the testing libraries.
                   waspCliCompile,
+                  addDevWaspTestUtilsPackage,
                   installTestingLibraries,
                   -- Wasp type-checks the tests too, so we add them once their
                   -- dependencies are installed.
@@ -46,6 +47,13 @@ vitestTest =
         )
     ]
   where
+    -- A user installs \@wasp/test-utils from npm. The dev one isn't there, so
+    -- the project depends on its tarball, which `wasp new` already put into
+    -- the `overrides`. npm wants the same specifier in both places.
+    addDevWaspTestUtilsPackage :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addDevWaspTestUtilsPackage =
+      return "npm pkg set \"devDependencies.@wasp/test-utils=$(jq -r '.overrides[\"@wasp/test-utils\"]' package.json)\""
+
     installTestingLibraries :: ShellCommandBuilder WaspProjectContext ShellCommand
     installTestingLibraries = return "npm install -D vitest jsdom @testing-library/react msw"
 
@@ -110,10 +118,10 @@ vitestTest =
     taskListTestTsx =
       [trimming|
         import { screen } from "@testing-library/react";
+        import { mockServer, renderInContext } from "@wasp/test-utils";
         import { expect, test } from "vitest";
         import { HttpMethod } from "wasp/client";
         import { getTasks } from "wasp/client/operations";
-        import { mockServer, renderInContext } from "wasp/client/test";
         import { TaskList } from "./TaskList";
 
         const { mockQuery, mockApi } = mockServer();
@@ -132,9 +140,9 @@ vitestTest =
     viteConfigTs :: T.Text
     viteConfigTs =
       [trimming|
+        import { waspTestConfig } from "@wasp/test-utils/config";
         import { defineConfig } from "vitest/config";
         import { wasp } from "wasp/client/vite";
-        import { waspTestConfig } from "wasp/test";
 
         export default defineConfig({
           plugins: [wasp()],
