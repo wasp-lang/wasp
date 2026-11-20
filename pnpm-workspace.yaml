@@ -16,7 +16,7 @@ packages:
   - scripts/make-npm-packages
   - waspc/starters-e2e-tests
   - waspc/tools
-  - tasks
+  - mise-tasks
 
 # `pnpm pack` replaces `catalog:` with the real version in published packages.
 catalog:
@@ -43,6 +43,7 @@ allowBuilds:
   esbuild: false
   fsevents: false
   msw: false
+  workerd: false
 
 # Third-party packages cannot resolve undeclared (phantom) dependencies
 # through `node_modules/.pnpm/node_modules`.

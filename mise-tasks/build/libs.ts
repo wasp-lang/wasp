@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-//MISE description="Builds the Wasp libs under packages/libs/ and packs them into data/Generator/libs/."
+//MISE description="Builds the Wasp libs under packages/libs/ and packs them into waspc/data/Generator/libs/."
 /// <reference types="node" />
 
 import { mkdirSync, readdirSync, rmSync } from "node:fs";

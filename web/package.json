@@ -92,6 +92,7 @@
     "unist-util-visit": "^5.1.0",
     "vfile": "^6.0.3",
     "wasp-sdk-api-docs": "workspace:*",
+    "wrangler": "^4.161.0",
     "yaml": "^2.9.1"
   },
   "browserslist": {

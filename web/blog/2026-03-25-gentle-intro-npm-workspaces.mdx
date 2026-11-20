@@ -57,7 +57,7 @@ The building blocks are interesting and require a dive into how package managers
 
 It seems like the second half of the 2010s was when the professionalization of JS development started to trickle down to the average developer. The rise of [Babel](https://babeljs.io/) and [Webpack](https://webpack.js.org/) gave us a modern development experience, one that more closely resembled what other languages had enjoyed for years. We finally had a proper module system, and the ability to target newer language versions, while still supporting older runtimes.
 
-![](/img/blog/2026-03-25-gentle-intro-npm-workspaces/timeline.png)
+![Timeline of JavaScript monorepo tools: Babel turns into a monorepo (October 2015), Lerna 1.0 (March 2017), Yarn workspaces (September 2017), pnpm workspaces (February 2018), npm workspaces (October 2020).](/img/blog/2026-03-25-gentle-intro-npm-workspaces/timeline.png)
 
 Our history of workspaces starts in 2015, when the 6to5 project [realized](https://babeljs.io/blog/2015/02/15/not-born-to-die) they didn't want to work only on ES6 code, but also on everything that came after it. They renamed themselves to Babel and started working on [modularizing the codebase](https://babeljs.io/blog/2015/10/29/6.0.0#modularization), knowing they'd need well-separated concerns to keep up with the ever-evolving language.
 
