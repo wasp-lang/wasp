@@ -5,8 +5,18 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
 import { Layout } from "wasp/client/app/layout";
-import { WaspApp } from "wasp/client/app";
+import {
+  listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
+  reportRenderError,
+  WaspApp,
+} from "wasp/client/app";
 
+{=# onErrorFn.isDefined =}
+import type { ClientOnErrorFn } from "wasp/client";
+{=& onErrorFn.importStatement =}
+
+{=/ onErrorFn.isDefined =}
 {=& routeObjects.importStatement =}
 
 const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
@@ -32,8 +42,19 @@ const fullAppTree = (
   </Layout>
 )
 
+{=# onErrorFn.isDefined =}
+registerClientOnErrorFn({= onErrorFn.importIdentifier =} satisfies ClientOnErrorFn);
+{=/ onErrorFn.isDefined =}
+listenForUncaughtClientErrors();
+
 startTransition(() => {
-  hydrateRoot(document, fullAppTree);
+  hydrateRoot(document, fullAppTree, {
+    // React calls these for errors thrown while rendering, with the stack of
+    // components that led to the error.
+    // https://react.dev/reference/react-dom/client/hydrateRoot#parameters
+    onUncaughtError: reportRenderError,
+    onCaughtError: reportRenderError,
+  });
 });
 
 async function waitForRouterInitialized(

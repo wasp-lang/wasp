@@ -27,6 +27,11 @@ export type ClientConfig = {
   apiUrl: string;
 };
 
+export type {
+  ClientErrorContext,
+  ClientOnErrorFn,
+} from "@wasp/lib-sdk-core/browser";
+
 /**
  * The client's validated environment variables.
  *

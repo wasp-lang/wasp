@@ -534,6 +534,29 @@ export interface Server {
    */
   setupFn?: Reference<AnyFunction>;
   /**
+   * Function called with every unexpected error on the server, so you can
+   * send it to an error tracking service. Receives the error and a context
+   * whose `source` says where the error happened, e.g. `"request"` or
+   * `"job"`. An `HttpError` you throw from a request is not unexpected, so
+   * Wasp doesn't call the function for it.
+   *
+   * Can be async. Wasp awaits it only when the server is about to exit
+   * because of the error, and for at most 5 seconds.
+   *
+   * In TypeScript, you can type the function with the `ServerOnErrorFn` type
+   * from `wasp/server`.
+   *
+   * @example
+   * ```ts
+   * import { type ServerOnErrorFn } from "wasp/server";
+   *
+   * export const onServerError: ServerOnErrorFn = (error, context) => {
+   *   errorTracker.capture(error, { source: context.source });
+   * };
+   * ```
+   */
+  onError?: Reference<AnyFunction>;
+  /**
    * Function that customizes the global Express middleware stack. Affects
    * all operations and APIs.
    *
@@ -664,6 +687,26 @@ export interface Client {
    * ```
    */
   setupFn?: Reference<AnyFunction>;
+  /**
+   * Function called with every unexpected error on the client, so you can
+   * send it to an error tracking service. Receives the error and a context
+   * whose `source` says where the error surfaced, e.g. `"render"` or
+   * `"window"`. An HTTP error response with a status below 500 is not
+   * unexpected, so Wasp doesn't call the function for it.
+   *
+   * In TypeScript, you can type the function with the `ClientOnErrorFn` type
+   * from `wasp/client`.
+   *
+   * @example
+   * ```ts
+   * import { type ClientOnErrorFn } from "wasp/client";
+   *
+   * export const onClientError: ClientOnErrorFn = (error, context) => {
+   *   errorTracker.capture(error, { source: context.source });
+   * };
+   * ```
+   */
+  onError?: Reference<AnyFunction>;
   /**
    *
    * If you need to serve the client from a subdirectory, you can use the

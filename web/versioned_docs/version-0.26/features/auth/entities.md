@@ -559,7 +559,7 @@ The `AuthIdentity` fields:
   - For example, the user's email or Google ID.
 - `providerData` is a JSON string that contains additional data about the user from the authentication provider.
   - For example, for password based auth, this field contains the user's hashed password.
-  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/prisma/issues/3786).
+  - This field is a `String` and not a `Json` type because [Prisma doesn't support the `Json` type for SQLite](https://github.com/prisma/orm/issues/3786).
 - `authId` is a foreign key to the `Auth` entity.
   - It is used to connect the `AuthIdentity` entity with the `Auth` entity.
 - `auth` is a relation to the `Auth` entity.

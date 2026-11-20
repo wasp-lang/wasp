@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { HttpError } from '@wasp/lib-sdk-core'
 import { config } from '../../index.js'
-import { reportUnexpectedServerError } from "../../errors/index.js";
+import { reportUnexpectedServerError } from "@wasp/lib-sdk-core/node";
 
 // PRIVATE API (server)
 export const loginPath = '{= serverOAuthLoginHandlerPath =}'
@@ -27,7 +27,7 @@ export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
       : error.message;
     return getRedirectUriForError(errorMessage)
   }
-  reportUnexpectedServerError(error, { source: "oauth" });
+  void reportUnexpectedServerError(error, { source: "oauth" });
   return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
 }
 

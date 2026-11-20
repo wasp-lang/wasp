@@ -223,7 +223,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
   </TabItem>
 </Tabs>
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](../ui).
 
 ### Conclusion
 

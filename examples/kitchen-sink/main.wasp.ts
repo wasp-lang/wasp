@@ -13,6 +13,9 @@ import {
   serverSetup,
 } from "./src/serverSetup" with { type: "ref" };
 
+import { onClientError } from "./src/features/errors/clientOnError" with { type: "ref" };
+import { onServerError } from "./src/features/errors/serverOnError" with { type: "ref" };
+
 import { apisSpec } from "./src/features/apis/apis.wasp";
 import { authConfig, authSpec } from "./src/features/auth/auth.wasp";
 import { chatSpec, webSocket } from "./src/features/chat/chat.wasp";
@@ -38,12 +41,14 @@ export default app({
   auth: authConfig,
   server: {
     setupFn: serverSetup,
+    onError: onServerError,
     middlewareConfigFn: serverMiddlewareFn,
     envValidationSchema: serverEnvValidationSchema,
   },
   client: {
     rootComponent: App,
     setupFn: clientSetup,
+    onError: onClientError,
     envValidationSchema: clientEnvValidationSchema,
   },
   db,

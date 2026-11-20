@@ -8,17 +8,16 @@
  * @see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
  */
 
-import * as Wasp from "@wasp/lib-sdk-core";
 import { STATUS_CODES } from "node:http";
+import { HttpError, isHttpErrorStatusCode } from "../../HttpError.js";
 import {
   getErrorDetails,
   toHeadersInit,
   type UnknownErrorHeaders,
 } from "./utils.js";
 
-// PRIVATE API (server)
 /**
- * Turns an unkown error into a `Wasp.HttpError`.
+ * Turns an unkown error into a `HttpError`.
  *
  * - It keeps the status code and headers when there is a valid status code,
  *   otherwise defaults to a generic 500 error.
@@ -27,13 +26,13 @@ import {
 export function toHttpError(
   error: unknown,
   { includeErrorDetails }: { includeErrorDetails: boolean },
-): Wasp.HttpError {
+): HttpError {
   const data = includeErrorDetails ? getErrorDetails(error) : undefined;
   const statusCode = findStatusCode(error);
   if (statusCode === undefined) {
-    return new Wasp.HttpError(500, STATUS_CODES[500], { data });
+    return new HttpError(500, STATUS_CODES[500], { data });
   }
-  return new Wasp.HttpError(statusCode, STATUS_CODES[statusCode], {
+  return new HttpError(statusCode, STATUS_CODES[statusCode], {
     data,
     headers: toHeadersInit(findHeaders(error)),
   });
@@ -47,7 +46,7 @@ function findStatusCode(error: unknown): number | undefined {
     status?: unknown;
     statusCode?: unknown;
   };
-  return [status, statusCode].find(Wasp.isHttpErrorStatusCode);
+  return [status, statusCode].find(isHttpErrorStatusCode);
 }
 
 function findHeaders(error: unknown): UnknownErrorHeaders | undefined {

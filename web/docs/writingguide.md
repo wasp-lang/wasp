@@ -4,6 +4,11 @@ sidebar_label: Wasp docs writing guide
 description: The Wasp docs writing guide sets principles, page structure, style and grammar rules, review steps and link rules, based on the Vue docs guide.
 ---
 
+<!-- This guide is for docs authors, not for Wasp users, so we keep it out of search results. -->
+<head>
+  <meta name="robots" content="noindex, follow" />
+</head>
+
 # Wasp docs writing guide
 
 Our docs are the first touch point for new Wasp users.
