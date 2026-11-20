@@ -3,6 +3,7 @@ module Wasp.Project.Studio
   )
 where
 
+import Network.Socket (PortNumber)
 import qualified System.Process as P
 import Wasp.NodePackageFFI (RunnablePackage (WaspStudioPackage), getPackageProcessOptions)
 import Wasp.Util (checkExitSuccess)
@@ -10,10 +11,11 @@ import Wasp.Util (checkExitSuccess)
 startStudio ::
   -- | Path to the data JSON file.
   FilePath ->
-  -- | All arguments from the Wasp CLI.
+  -- | Port to run the studio on.
+  PortNumber ->
   IO (Either String ())
-startStudio pathToDataFile = do
-  let startStudioArgs = ["--data-file", pathToDataFile]
+startStudio pathToDataFile port = do
+  let startStudioArgs = ["--data-file", pathToDataFile, "--port", show port]
 
   cp <- getPackageProcessOptions WaspStudioPackage startStudioArgs
   -- Set up the process so that it:
