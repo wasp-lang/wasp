@@ -302,13 +302,9 @@ waspCliStudio = return "$WASP_CLI_CMD studio"
 npmInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 npmInstall = return "npm install"
 
--- | TODO(#2262): Once the examples join the pnpm workspace, they depend on
--- \@wasp/wasp through `workspace:*`, which doesn't hold in the test dir either.
--- Decide then how a copied example gets the dev packages.
---
--- Points the project at the dev Wasp npm package tarballs by their absolute
--- paths. Projects copied from the repo, e.g. the examples, point at them
--- relative to their place in the repo, which doesn't hold in the test dir.
+-- | Points the project at the dev Wasp npm package tarballs by their absolute
+-- paths. Projects copied from the repo, e.g. the examples, depend on the
+-- packages through the repo's pnpm workspace, which the test dir isn't part of.
 -- `wasp new` does the same for a new project (see "Wasp.Cli.DevWaspNpmPackages").
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =

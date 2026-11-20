@@ -1,28 +1,19 @@
 #!/usr/bin/env node
-//MISE description="Switches the current Wasp app from the dev Wasp npm packages to a released Wasp version, and reinstalls its dependencies. Run it from a Wasp app directory."
+//MISE description="Switches the current Wasp app from the Wasp in this repo to a released Wasp version, and reinstalls its dependencies. Run it from a Wasp app directory."
 //MISE dir="{{cwd}}"
 //USAGE arg "<version>"
 
 import { execa } from "execa";
-import {
-  WASP_MAIN_PACKAGE_NAME,
-  WASP_NPM_SUBPACKAGE_NAMES,
-} from "../waspc/tools/packages/utils.ts";
-import { reinstallDevWaspAppDeps } from "../waspc/tools/reinstallDevWaspAppDeps.ts";
+import { WASP_MAIN_PACKAGE_NAME } from "../waspc/tools/packages/utils.ts";
 
 const [_node, _filename, version] = process.argv;
 if (!version) {
   throw new Error("Pass the Wasp version to switch to, e.g. 0.27.0.");
 }
 
-// TODO(#2262): Once the repo's Wasp apps join the pnpm workspace, there are no
-// overrides and no note to delete. This only swaps `workspace:*` for the version.
+// The repo's Wasp apps depend on `@wasp/wasp` through `workspace:*`. A plain
+// version makes pnpm install the released package from npm instead.
 const $ = execa({ stdio: "inherit", verbose: "short" });
-const devOverrides = WASP_NPM_SUBPACKAGE_NAMES.map(
-  (packageName) => `overrides.${packageName}`,
-);
-
-await $`npm pkg set dependencies.${WASP_MAIN_PACKAGE_NAME}=${version}`;
-// `//` holds the examples' note about the dev packages.
-await $`npm pkg delete ${devOverrides} //`;
-await reinstallDevWaspAppDeps(process.cwd());
+await $`pnpm pkg set dependencies.${WASP_MAIN_PACKAGE_NAME}=${version}`;
+// The lockfile changes, which CI would refuse by default.
+await $`pnpm install --no-frozen-lockfile`;

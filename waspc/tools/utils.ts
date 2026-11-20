@@ -1,7 +1,7 @@
 /// <reference types="node" />
 
 import { execaSync } from "execa";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getWaspcVersion } from "./get-waspc-version.ts";
@@ -57,40 +57,4 @@ export function runCmdAndGetStdout(
   options: { cwd: string },
 ): string {
   return execaSync(cmd, args, options).stdout;
-}
-
-const STARTING_SEARCH_LOCATIONS = ["examples"];
-const DIRS_TO_SKIP = new Set(["node_modules"]);
-export function findWaspProjectDirsAbsPathInRepo(): string[] {
-  const repoRootPath = getRepoRootPath();
-
-  return STARTING_SEARCH_LOCATIONS.flatMap((searchRoot) =>
-    findWaspProjectDirs(join(repoRootPath, searchRoot)),
-  );
-
-  function findWaspProjectDirs(currentDir: string): string[] {
-    if (isWaspProjectDir(currentDir)) {
-      return [currentDir];
-    }
-
-    const possibleWaspProjectDirs = readdirSync(currentDir, {
-      withFileTypes: true,
-    })
-      .filter(
-        (entry) =>
-          entry.isDirectory() &&
-          !entry.name.startsWith(".") &&
-          !DIRS_TO_SKIP.has(entry.name),
-      )
-      .map((subDir) => join(currentDir, subDir.name));
-
-    return possibleWaspProjectDirs.flatMap((possibleWaspProjectDir) =>
-      findWaspProjectDirs(possibleWaspProjectDir),
-    );
-  }
-}
-
-const WASP_PROJECT_FILE_NAMES = ["main.wasp.ts"];
-export function isWaspProjectDir(dir: string): boolean {
-  return WASP_PROJECT_FILE_NAMES.some((name) => existsSync(join(dir, name)));
 }

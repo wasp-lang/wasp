@@ -43,34 +43,32 @@ import Wasp.Util.Json (readJsonFile, updateJsonFile)
 import Wasp.Version (isRunByWaspCliNpmPackage)
 
 {-
-TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps join the pnpm
-workspace and depend on \@wasp/wasp through `workspace:*`. Then this module is
-only needed for projects outside the workspace, which `wasp new` creates with
-the dev CLI, and for their Docker builds.
+Lets Wasp projects run against the Wasp in this repo, before its npm packages
+are published. Only the dev Wasp CLI (@waspc/tools/wasp-cli-dev@ and the dev
+\@wasp/cli) sets 'devWaspNpmPackagesDirEnvVarName', and only projects that
+develop Wasp depend on the unreleased packages, so this does nothing for Wasp
+users.
 
-Lets the Wasp apps in this repo run against the Wasp in this repo, before its
-npm packages are published. Only the dev Wasp CLI (@waspc/tools/wasp-cli-dev@
-and the dev \@wasp/cli, see @waspc/tools/devCliSubPackage.ts@) sets
-'devWaspNpmPackagesDirEnvVarName', and only projects in this repo depend on
-the tarballs, so this does nothing for Wasp users.
-
+The repo's own Wasp apps are part of its pnpm workspace and depend on
+\@wasp/wasp through `workspace:*`. A project outside of the workspace, which
+`wasp new` creates with the dev CLI, depends on tarballs instead.
 `mise run build:dev-packages` packs the packages into `waspc/.dev-packages/`
 (see @tasks/build/dev-packages.ts@) and lists the tarballs in
-'devWaspNpmPackagesManifestFile' there. The repo's apps depend on the
-tarballs. The dev @wasp/wasp still pins the registry versions of the packages
-it brings, so `overrides` point npm at their tarballs too:
+'devWaspNpmPackagesManifestFile' there. The dev \@wasp/wasp still pins the
+registry versions of the packages it brings, so overrides point the package
+manager at their tarballs too. For npm:
 
 > "dependencies": {
->   "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz"
+>   "@wasp/wasp": "file:/repo/waspc/.dev-packages/wasp-wasp-0.27.0.tgz"
 > },
 > "overrides": {
->   "@wasp/cli": "file:../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
+>   "@wasp/cli": "file:/repo/waspc/.dev-packages/wasp-cli-0.27.0.tgz",
 >   ...
 > }
 
-With the env var set, `wasp new` writes the tarballs into the new project. For
-a project that depends on the tarballs, `wasp build` copies them into Docker's
-build context.
+With the env var set, `wasp new` writes the tarballs into the new project. A
+Docker image can't reach the workspace or the tarballs, so for both kinds of
+projects `wasp build` copies the tarballs into Docker's build context.
 -}
 
 data DevWaspNpmPackageTarballs = DevWaspNpmPackageTarballs
@@ -170,9 +168,10 @@ getDevWaspNpmPackageOverrides tarballs =
 -- where the Dockerfile picks them up, and point the build's package.json at
 -- the copies, and the overrides of the packages that \@wasp/wasp brings.
 --
--- Does nothing for a project that doesn't depend on the tarballs (see
--- 'dependsOnDevWaspNpmPackages'). Finds them next to the project's
--- \@wasp/wasp tarball, so it needs no 'devWaspNpmPackagesDirEnvVarName'.
+-- Does nothing for a project that doesn't depend on the unreleased packages
+-- (see 'dependsOnDevWaspNpmPackages'). Finds the tarballs next to the
+-- project's \@wasp/wasp tarball. A project of the repo's pnpm workspace has
+-- none, so it needs 'devWaspNpmPackagesDirEnvVarName'.
 prepareDevWaspNpmPackagesForDockerBuild ::
   PackageManager ->
   Path' Abs (Dir WaspProjectDir) ->
@@ -182,15 +181,18 @@ prepareDevWaspNpmPackagesForDockerBuild packageManager waspProjectDir buildDir =
   packageJson <- maybe (throwError "Couldn't read package.json in the build dir.") return =<< liftIO (readJsonFile packageJsonInBuildDir)
   parsedPackageJson <- either (throwError . ("Couldn't read package.json in the build dir: " ++)) return $ parseEither parseJSON packageJson
   when (dependsOnDevWaspNpmPackages parsedPackageJson) $ do
-    waspTarballPath <-
-      maybe (throwError "The project's package.json doesn't point at a tarball of the dev Wasp npm package.") return $
-        packageJson ^? waspDependency >>= stripPrefix "file:" . T.unpack
-    projectWaspTarball <-
-      liftIO $
-        if isAbsolute waspTarballPath
-          then parseAbsFile waspTarballPath
-          else (waspProjectDir </>) <$> parseRelFile waspTarballPath
-    tarballs <- ExceptT $ readDevWaspNpmPackageTarballs $ SP.parent projectWaspTarball
+    tarballs <- case packageJson ^? waspDependency >>= stripPrefix "file:" . T.unpack of
+      Just waspTarballPath -> do
+        projectWaspTarball <-
+          liftIO $
+            if isAbsolute waspTarballPath
+              then parseAbsFile waspTarballPath
+              else (waspProjectDir </>) <$> parseRelFile waspTarballPath
+        ExceptT $ readDevWaspNpmPackageTarballs $ SP.parent projectWaspTarball
+      -- A project of the Wasp repo's pnpm workspace.
+      Nothing ->
+        liftIO findDevWaspNpmPackageTarballs
+          >>= maybe (throwError $ "The project depends on the Wasp of a pnpm workspace, which only works in the Wasp repo, with " ++ devWaspNpmPackagesDirEnvVarName ++ " set.") return
 
     liftIO $ SD.createDirectoryIfMissing True $ SP.fromAbsDir tarballsDirInBuildDir
     liftIO $ mapM_ copyTarballIntoBuildDir $ waspTarball tarballs : map snd (dependencyTarballs tarballs)
