@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io'
 import type { ServerType } from 'wasp/server/webSocket'
 
 import { config, prisma } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors/report";
 
 import { getSessionAndUserFromSessionId } from 'wasp/server/auth/session'
 import { makeAuthUserIfPossible } from 'wasp/auth/user'

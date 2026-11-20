@@ -1,4 +1,4 @@
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { reportUnexpectedServerError } from "wasp/server/errors/report";
 
 // Node.js prints an uncaught exception and exits. We report it first, and
 // still exit because the server can be in a broken state after it.
