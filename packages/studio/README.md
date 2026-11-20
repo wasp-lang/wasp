@@ -4,15 +4,27 @@ Wasp Studio shows a Wasp app as a graph of its pages, routes, operations, APIs, 
 
 It has two components:
 
-- the client, a page that reads the app's spec from the server that `wasp start` runs, at `/__wasp/spec`. The server only has this route in development.
-- the server, which `wasp studio` runs to serve the client on `http://localhost:4000`.
+- the client, a page that reads the app's spec from `/__wasp/spec`, in the same JSON that `wasp show spec --json` prints.
+- the server, which `wasp studio` runs on `http://localhost:4000`. It serves the client, and the spec from the data file that `wasp studio` writes (`.wasp/out/.wasp-studio-data.json`).
 
-To develop the studio, run `wasp start` in a Wasp app, and then run the client in development mode:
+The Wasp Studio panel in Vite DevTools (in `@wasp/lib-devtools`) serves the same client from the Vite dev server instead. It passes the client a `serverUrl` query parameter, so the client reads the spec from the server that `wasp start` runs, which has the same route in development.
+
+### Server
+
+Run `wasp studio` once in a Wasp app to write its data file. Then build the server and run it with that file:
+
+```bash
+pnpm run build
+pnpm run dev --data-file < path_to_wasp_app > /.wasp/out/.wasp-studio-data.json
+```
+
+### Client
+
+Run `wasp start` in a Wasp app, and then run the client in development mode:
 
 ```bash
 cd client
-pnpm install
 pnpm run dev
 ```
 
-Then open `http://localhost:4000` in your browser. To try the server, run `pnpm run build` and then `pnpm run start`.
+Then open the URL Vite prints, with `?serverUrl=http://localhost:3001` so it reads the spec from the app's server.
