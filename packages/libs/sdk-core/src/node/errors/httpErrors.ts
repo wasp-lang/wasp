@@ -5,15 +5,14 @@
  * @see https://github.com/jshttp/http-errors#error-properties
  */
 
-import * as Wasp from "@wasp/lib-sdk-core";
 import { STATUS_CODES } from "node:http";
+import { HttpError, isHttpErrorStatusCode } from "../../HttpError.js";
 import {
   getErrorDetails,
   toHeadersInit,
   type UnknownErrorHeaders,
 } from "./utils.js";
 
-// PRIVATE API (server)
 export interface HttpErrorsError extends Error {
   status: number;
   statusCode: number;
@@ -21,7 +20,6 @@ export interface HttpErrorsError extends Error {
   headers?: UnknownErrorHeaders;
 }
 
-// PRIVATE API (server)
 /**
  * The same check as `http-errors`'s own `isHttpError`, plus a check that the
  * status code is valid.
@@ -34,15 +32,14 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
     "expose" in error &&
     typeof error.expose === "boolean" &&
     "statusCode" in error &&
-    Wasp.isHttpErrorStatusCode(error.statusCode) &&
+    isHttpErrorStatusCode(error.statusCode) &&
     "status" in error &&
     error.status === error.statusCode
   );
 }
 
-// PRIVATE API (server)
 /**
- * Turns an `http-errors` error into a `Wasp.HttpError`.
+ * Turns an `http-errors` error into a `HttpError`.
  *
  * - It keeps the status code and headers.
  * - It only keeps the message when `expose` marks it as safe to show.
@@ -50,12 +47,12 @@ export function isHttpErrorsError(error: unknown): error is HttpErrorsError {
 export function toHttpError(
   error: HttpErrorsError,
   { includeErrorDetails }: { includeErrorDetails: boolean },
-): Wasp.HttpError {
+): HttpError {
   const options = { headers: toHeadersInit(error.headers) };
   if (error.expose) {
-    return new Wasp.HttpError(error.statusCode, error.message, options);
+    return new HttpError(error.statusCode, error.message, options);
   }
-  return new Wasp.HttpError(error.statusCode, STATUS_CODES[error.statusCode], {
+  return new HttpError(error.statusCode, STATUS_CODES[error.statusCode], {
     data: includeErrorDetails ? getErrorDetails(error) : undefined,
     ...options,
   });

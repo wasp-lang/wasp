@@ -1,6 +1,6 @@
 import { HttpError } from '@wasp/lib-sdk-core'
 import { config } from '../../index.js'
-import { reportUnexpectedServerError } from "../../errors/report.js";
+import { reportUnexpectedServerError } from "@wasp/lib-sdk-core/node";
 
 // PRIVATE API (server)
 export const loginPath = 'login'

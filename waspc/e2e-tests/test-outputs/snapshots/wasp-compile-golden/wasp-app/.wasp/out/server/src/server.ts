@@ -6,7 +6,7 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors/report";
+import { reportUnexpectedServerError } from "wasp/server/errors";
 
 
 

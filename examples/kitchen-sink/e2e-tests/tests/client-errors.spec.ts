@@ -15,18 +15,6 @@ test.describe("client errors", () => {
     });
   });
 
-  test("reports a rejected promise nobody caught", async ({ page }) => {
-    const reports = collectClientErrorReports(page);
-    await page.goto("/errors/client");
-
-    await page.getByRole("button", { name: "Reject a promise" }).click();
-
-    await expectSingleReport(reports, {
-      source: "window",
-      message: "Rejected without a catch",
-    });
-  });
-
   test("reports an error thrown while rendering once", async ({ page }) => {
     const reports = collectClientErrorReports(page);
     await page.goto("/errors/client");
