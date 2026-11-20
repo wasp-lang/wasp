@@ -11,13 +11,13 @@ const waspMainPackageJson = getPackageJson(
 );
 
 // The packages `@wasp/wasp` always brings, e.g. `@wasp/cli` and `@wasp/spec`.
-export const REQUIRED_WASP_NPM_SUBPACKAGE_NAMES: string[] = Object.keys(
+const REQUIRED_WASP_NPM_SUBPACKAGE_NAMES: string[] = Object.keys(
   waspMainPackageJson.dependencies ?? {},
 ).filter(isWaspPackageName);
 
 // The packages a project can add next to `@wasp/wasp`, which lists them as
-// optional peer dependencies. None yet.
-export const OPTIONAL_WASP_NPM_SUBPACKAGE_NAMES: string[] = Object.keys(
+// optional peer dependencies, e.g. `@wasp/test-utils`.
+const OPTIONAL_WASP_NPM_SUBPACKAGE_NAMES: string[] = Object.keys(
   waspMainPackageJson.peerDependencies ?? {},
 ).filter(
   (packageName) =>
