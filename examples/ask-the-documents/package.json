@@ -1,10 +1,6 @@
 {
   "name": "askTheDocuments",
   "type": "module",
-  "workspaces": [
-    ".wasp/out/*",
-    ".wasp/out/sdk/wasp"
-  ],
   "scripts": {
     "build": "wasp build",
     "dev": "wasp start",
@@ -20,9 +16,11 @@
     "@heroui/react": "^2.8.7",
     "@tanstack/react-query": "~4.42.0",
     "@wasp/wasp": "file:../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz",
+    "arctic": "^1.9.2",
     "cheerio": "1.0.0-rc.12",
     "framer-motion": "^12.23.26",
     "ky": "^2.0.0-0",
+    "lucia": "^3.2.2",
     "node-html-markdown": "1.3.0",
     "openai": "^6.27.0",
     "pgvector": "0.1.5",
@@ -32,6 +30,7 @@
     "react-markdown": "^10.1.0",
     "react-router": "^8.0.1",
     "tailwindcss": "^4.1.18",
+    "wasp": "file:.wasp/out/sdk/wasp",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -46,10 +45,14 @@
     "vite": "^8.1.0"
   },
   "overrides": {
+    "@wasp/auth": "file:../../waspc/.dev-packages/wasp-auth-0.27.0.tgz",
     "@wasp/cli": "file:../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
     "@wasp/deploy": "file:../../waspc/.dev-packages/wasp-deploy-0.27.0.tgz",
+    "@wasp/sdk-core": "file:../../waspc/.dev-packages/wasp-sdk-core-0.27.0.tgz",
     "@wasp/spec": "file:../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
-    "@wasp/studio": "file:../../waspc/.dev-packages/wasp-studio-0.27.0.tgz"
+    "@wasp/studio": "file:../../waspc/.dev-packages/wasp-studio-0.27.0.tgz",
+    "@wasp/test-utils": "file:../../waspc/.dev-packages/wasp-test-utils-0.27.0.tgz",
+    "@wasp/vite-ssr": "file:../../waspc/.dev-packages/wasp-vite-ssr-0.27.0.tgz"
   },
   "//": "TODO(#2262): Depends on the unreleased Wasp in this repo through `file:` tarballs. Install with `mise run build:dev-packages` and then `mise run reinstall-dev-wasp-app-deps`, since plain `npm install` fails on the tarballs' stale lockfile entries. Switch to a plain version once the examples join the pnpm workspace."
 }
