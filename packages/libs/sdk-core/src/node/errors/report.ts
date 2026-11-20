@@ -52,3 +52,54 @@ export type ServerErrorContext =
   | { source: "startup" }
   | { source: "dbSeed" }
   | { source: "process"; event: "uncaughtException" | "unhandledRejection" };
+
+const MAX_ON_ERROR_FN_WAIT_MS = 5000;
+
+let serverOnErrorFn: ServerOnErrorFn | undefined;
+
+export function registerServerOnErrorFn(onErrorFn: ServerOnErrorFn): void {
+  serverOnErrorFn = onErrorFn;
+}
+
+// TODO: Refactor this once Wasp has proper logging.
+/**
+ * Logs the error and passes it to the user's `server.onError` function.
+ * It never rejects, so callers can ignore the promise.
+ */
+export async function reportUnexpectedServerError(
+  error: unknown,
+  context: ServerErrorContext,
+): Promise<void> {
+  console.error(`Unexpected error in ${formatContext(context)}:`, error);
+  try {
+    await serverOnErrorFn?.(error, context);
+  } catch (onErrorFnError: unknown) {
+    console.error("The `server.onError` function failed:", onErrorFnError);
+  }
+}
+
+/**
+ * Reports an error that the caller exits the process after.
+ *
+ * It waits for the user's `server.onError` function, so an error tracker can
+ * send the error first. It stops waiting after
+ * {@link MAX_ON_ERROR_FN_WAIT_MS}, so a function that never finishes can't
+ * keep a broken server running.
+ */
+export async function reportFatalServerError(
+  error: unknown,
+  context: ServerErrorContext,
+): Promise<void> {
+  await Promise.race([
+    reportUnexpectedServerError(error, context),
+    sleep(MAX_ON_ERROR_FN_WAIT_MS),
+  ]);
+}
+
+function formatContext({ source, ...details }: ServerErrorContext): string {
+  return [source, ...Object.values(details)].join(" ");
+}
+
+function sleep(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}

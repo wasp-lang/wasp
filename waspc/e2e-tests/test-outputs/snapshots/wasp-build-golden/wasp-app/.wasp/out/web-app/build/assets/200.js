@@ -224,6 +224,18 @@ function listenForUncaughtClientErrors() {
 		});
 	});
 }
+/**
+* Reports an error thrown while rendering. It has the shape of React's
+* `onCaughtError` and `onUncaughtError` root options.
+*
+* @see https://react.dev/reference/react-dom/client/hydrateRoot#parameters
+*/
+function reportRenderError(error, { componentStack }) {
+	reportClientError(error, {
+		source: "render",
+		componentStack
+	});
+}
 function reportUnexpectedClientError(error, context) {
 	console.error(`Unexpected error in ${context.source}:`, error);
 	if (context.source === "render" && context.componentStack) console.error(`The error happened in:${context.componentStack}`);
@@ -629,12 +641,6 @@ startTransition(() => {
 		onCaughtError: reportRenderError
 	});
 });
-function reportRenderError(error, { componentStack }) {
-	reportClientError(error, {
-		source: "render",
-		componentStack
-	});
-}
 async function waitForRouterInitialized(router) {
 	if (router.state.initialized) return;
 	return new Promise((resolve) => {

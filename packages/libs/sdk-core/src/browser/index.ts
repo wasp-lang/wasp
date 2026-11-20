@@ -64,6 +64,7 @@ export {
   listenForUncaughtClientErrors,
   registerClientOnErrorFn,
   reportClientError,
+  reportRenderError,
   type ClientErrorContext,
   type ClientOnErrorFn,
 } from "./errors.js";

@@ -7,7 +7,7 @@ import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import { reportFatalServerError } from "wasp/server/errors/report";
+import { reportFatalServerError } from "wasp/server/errors";
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}

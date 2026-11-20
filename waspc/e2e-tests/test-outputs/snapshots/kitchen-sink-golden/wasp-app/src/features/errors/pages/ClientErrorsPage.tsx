@@ -19,13 +19,6 @@ export const ClientErrorsPage = () => {
         >
           Throw in an event handler
         </Button>
-        <Button
-          onClick={() => {
-            void Promise.reject(new Error("Rejected without a catch"));
-          }}
-        >
-          Reject a promise
-        </Button>
         <Button onClick={() => setShouldThrowWhileRendering(true)}>
           Throw while rendering
         </Button>

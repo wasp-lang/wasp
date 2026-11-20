@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  listenForUncaughtClientErrors,
+  reportRenderError,
+} from "../src/browser/errors";
 
 describe("reportClientError", () => {
   let HttpError: typeof import("../src/HttpError").HttpError;
@@ -132,4 +136,61 @@ describe("reportClientError", () => {
       {} as ConstructorParameters<typeof KyHttpError>[2],
     );
   }
+});
+
+describe("reportRenderError", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("reports the error as a render error with its component stack", () => {
+    const error = new Error("Thrown while rendering");
+
+    reportRenderError(error, { componentStack: "\n    at Page" });
+
+    expect(console.error).toHaveBeenCalledWith(
+      "Unexpected error in render:",
+      error,
+    );
+    expect(console.error).toHaveBeenCalledWith(
+      "The error happened in:\n    at Page",
+    );
+  });
+});
+
+describe("listenForUncaughtClientErrors", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal("window", new EventTarget());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("reports the error of an `error` event", () => {
+    const error = new Error("Thrown in an event handler");
+
+    listenForUncaughtClientErrors();
+    window.dispatchEvent(Object.assign(new Event("error"), { error }));
+
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(
+      "Unexpected error in window:",
+      error,
+    );
+  });
+
+  it("reports the reason of an `unhandledrejection` event", () => {
+    const reason = new Error("Rejected without a catch");
+
+    listenForUncaughtClientErrors();
+    window.dispatchEvent(
+      Object.assign(new Event("unhandledrejection"), { reason }),
+    );
+
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(
+      "Unexpected error in window:",
+      reason,
+    );
+  });
 });

@@ -126,6 +126,19 @@ export function listenForUncaughtClientErrors(): void {
   );
 }
 
+/**
+ * Reports an error thrown while rendering. It has the shape of React's
+ * `onCaughtError` and `onUncaughtError` root options.
+ *
+ * @see https://react.dev/reference/react-dom/client/hydrateRoot#parameters
+ */
+export function reportRenderError(
+  error: unknown,
+  { componentStack }: { componentStack?: string },
+): void {
+  reportClientError(error, { source: "render", componentStack });
+}
+
 // TODO: Refactor this once Wasp has proper logging.
 function reportUnexpectedClientError(
   error: unknown,

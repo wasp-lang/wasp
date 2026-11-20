@@ -1,17 +1,15 @@
-import * as Wasp from "@wasp/lib-sdk-core";
+import { getErrorMessage } from "../../errors.js";
 
-// PRIVATE API (server)
 export function getErrorDetails(error: unknown): {
   message: string;
   stack: string | undefined;
 } {
   return {
-    message: Wasp.getErrorMessage(error),
+    message: getErrorMessage(error),
     stack: error instanceof Error ? error.stack : undefined,
   };
 }
 
-// PRIVATE API (server)
 /**
  * The `headers` of an error that isn't ours. Express sets each of them with
  * Node's `response.setHeader`, which takes a string, a number, or a list of
@@ -19,7 +17,6 @@ export function getErrorDetails(error: unknown): {
  */
 export type UnknownErrorHeaders = { [headerName: string]: unknown };
 
-// PRIVATE API (server)
 /**
  * Converts them to the standard form, with one pair for each value of a
  * repeated header.

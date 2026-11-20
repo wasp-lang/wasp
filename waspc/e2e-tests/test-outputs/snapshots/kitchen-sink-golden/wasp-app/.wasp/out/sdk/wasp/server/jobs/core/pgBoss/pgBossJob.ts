@@ -3,7 +3,7 @@ export { PG_BOSS_EXECUTOR_NAME } from '@wasp/lib-sdk-core/node'
 import PgBoss from 'pg-boss';
 import type { JSONObject, JSONValue } from '../../../../core/serialization/index.js';
 import type { PrismaDelegate } from '../../../_types/index.js';
-import { reportUnexpectedServerError } from "../../../errors/report.js";
+import { reportUnexpectedServerError } from "@wasp/lib-sdk-core/node";
 import { Job, SubmittedJob } from '@wasp/lib-sdk-core';
 import { pgBossStarted } from './pgBoss.js';
 import type { JobFn } from './types.js';

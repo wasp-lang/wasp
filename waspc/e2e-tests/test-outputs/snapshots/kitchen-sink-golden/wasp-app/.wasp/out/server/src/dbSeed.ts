@@ -6,10 +6,10 @@
 //   maintaining access to logic from the server/ .
 
 import { prisma, DbSeedFn } from 'wasp/server'
-import { reportFatalServerError } from "wasp/server/errors/report";
+import { reportFatalServerError } from "wasp/server/errors";
 
 import { onServerError } from "../../../../src/features/errors/serverOnError"
-import { registerServerOnErrorFn } from "wasp/server/errors/report";
+import { registerServerOnErrorFn } from "wasp/server/errors";
 import type { ServerOnErrorFn } from "wasp/server";
 
 import { devSeedSimple } from "../../../../src/features/db/seeds"
