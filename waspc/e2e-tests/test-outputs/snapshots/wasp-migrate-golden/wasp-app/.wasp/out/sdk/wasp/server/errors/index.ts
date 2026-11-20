@@ -12,7 +12,8 @@ export type ServerErrorContext =
   | { source: "webSocket" }
   | { source: "oauth" }
   | { source: "startup" }
-  | { source: "dbSeed" };
+  | { source: "dbSeed" }
+  | { source: "process" };
 
 // PRIVATE API (server)
 // TODO: Refactor this once Wasp has proper logging.

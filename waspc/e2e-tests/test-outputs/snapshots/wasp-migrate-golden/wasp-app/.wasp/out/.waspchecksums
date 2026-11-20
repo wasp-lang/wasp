@@ -354,7 +354,7 @@
             "file",
             "sdk/wasp/server/errors/index.ts"
         ],
-        "db8094a3a4e7105661da08036e78959fe7a2c60df01170c27b0bad20a7862dd4"
+        "ac62074a25f5c549fff7564f98ae9d0e3f516dc55e7551fd8d2b1d545745e3cb"
     ],
     [
         [
@@ -599,7 +599,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "fb7d3e5b74d6e3dbf5544f7d03d9af02e4c2de97ff6747603c1a0297ddd669cd"
+        "3e1bb35c58d8615e2b2ffb10153b613acebca61d70a8c4a9e2e4c78f875a2474"
+    ],
+    [
+        [
+            "file",
+            "server/src/uncaughtErrors.ts"
+        ],
+        "fa293735f14015b4e63a6b462a83eddc715191cdcb26951862f01abcd7500bed"
     ],
     [
         [
