@@ -172,13 +172,14 @@ export async function deleteFn(args, context) {
 }
 {=/ crud.operations.Delete =}
 
+{=# isAuthEnabled =}
 function throwIfNotAuthenticated (context) {
-  {=# isAuthEnabled =}
   if (!context.user) {
     throw createInvalidCredentialsError()
   }
-  {=/ isAuthEnabled =}
-  {=^ isAuthEnabled =}
-  // Auth is not enabled
-  {=/ isAuthEnabled =}
 }
+{=/ isAuthEnabled =}
+{=^ isAuthEnabled =}
+// Auth is not enabled
+function throwIfNotAuthenticated (_context) {}
+{=/ isAuthEnabled =}

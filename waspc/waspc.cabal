@@ -723,6 +723,7 @@ test-suite waspc-e2e-tests
     TestLogging
     Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
+    Tests.ServerTypeCheckingTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
