@@ -12639,7 +12639,7 @@ export default defineConfig({
 
 Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal. Wasp adds these panels:
 
-- **Wasp Studio**: click **Start Wasp Studio** to see your app as a graph of pages, routes, operations, APIs, jobs, and entities, the same as running `wasp studio`.
+- **Wasp Studio**: see your app as a graph of pages, routes, operations, APIs, jobs, and entities, the same as running `wasp studio`.
 - **Prisma Studio**: click **Start Prisma Studio** to browse and edit the data in your database, the same as running `wasp db studio`.
 
 Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
@@ -13236,7 +13236,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 - `wasp deps` lists the dependencies that Wasp uses in your project.
 - `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
 - `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
-- `wasp studio` shows you a graphical overview of your application in a graph: pages, queries, actions, data model etc. It reads your app from `wasp start`, so keep that running.
+- `wasp studio` shows you a graphical overview of your application in a graph: pages, queries, actions, data model etc.
 
 #### Database Commands
 

@@ -7,7 +7,7 @@ import { rootCrudRouter } from './crud/index.js'
 import { config } from 'wasp/server'
 import { makeWrongPortPage } from '../views/wrong-port.js'
 import cors from 'cors'
-import { decls } from './spec.js'
+import { spec } from './spec.js'
 
 
 const router = express.Router()
@@ -20,14 +20,15 @@ router.get('/up', middleware, function (_req, res) {
   res.status(200).json({ status: 'ok' })
 })
 
-// The app's declarations, for Wasp Studio. Only in development, since they
-// describe the app's internals. Instead of the global middleware, it allows
-// the Wasp Studio page as well as the client to read it.
+// The app's spec, for Wasp Studio. Only in development, since it describes
+// the app's internals. Without the global middleware, since Wasp Studio polls
+// this route and its request logger would flood the terminal. It still gets
+// the same CORS policy, so the Wasp Studio page can read it.
 router.get(
   '/__wasp/spec',
-  cors({ origin: [config.frontendUrl, 'http://localhost:4000'] }),
+  cors({ origin: config.allowedCORSOrigins }),
   function (_req, res) {
-    res.status(200).json(decls)
+    res.status(200).json(spec)
   }
 )
 
