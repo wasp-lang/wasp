@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { Router } from "express";
 
-import { ProviderConfig } from "wasp/auth/providers/types";
+import type { ProviderConfig } from "wasp/auth/providers/types";
 import type { EmailFromField } from "wasp/server/email/core/types";
 
 import { getLoginRoute } from "../email/login.js";
@@ -9,7 +9,7 @@ import { getSignupRoute } from "../email/signup.js";
 import { getRequestPasswordResetRoute } from "../email/requestPasswordReset.js";
 import { resetPassword } from "../email/resetPassword.js";
 import { verifyEmail } from "../email/verifyEmail.js";
-import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "wasp/server/auth";
+import type { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "wasp/server/auth";
 import { defineHandler } from "wasp/server/utils";
 import { env } from "wasp/server";
 
