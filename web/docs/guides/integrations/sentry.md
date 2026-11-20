@@ -83,7 +83,7 @@ export const onServerError: ServerOnErrorFn = async (error, context) => {
   if (
     context.source === "startup" ||
     context.source === "dbSeed" ||
-    context.source === "process"
+    (context.source === "process" && context.event === "uncaughtException")
   ) {
     await Sentry.flush(2000);
   }
