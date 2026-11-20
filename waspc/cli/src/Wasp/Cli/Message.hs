@@ -24,31 +24,46 @@ cliSendMessage (Msg.Warning entries) =
   waspWarns =<< labeledMessage Term.Yellow "!" "WARNING" entries
 
 -- | Every entry starts with the label and everything else it says hangs
--- indented under that line. A one-line part continues the line instead, as
--- the next sentence.
+-- indented under that line. A short part continues the line instead: a
+-- one-line text joins it as the next sentence, and a tool output joins it as
+-- "Output of `cmd`:", followed by the output behind a gutter.
 labeledMessage :: Term.Style -> String -> String -> [Msg.Entry] -> IO String
 labeledMessage color symbol label entries =
   Interactive.getInteractiveTerminal <&> \case
-    Just _ -> render bold $ Term.applyStyles [Term.Bold, color] symbol ++ " " ++ Term.applyStyles [Term.Bold, Term.Reverse, color] (" " ++ label ++ " ")
-    Nothing -> render id $ symbol ++ " " ++ label ++ ":"
+    Just _ -> render (Just color) $ Term.applyStyles [Term.Bold, color] symbol ++ " " ++ Term.applyStyles [Term.Bold, Term.Reverse, color] (" " ++ label ++ " ")
+    Nothing -> render Nothing $ symbol ++ " " ++ label ++ ":"
   where
-    render emphasized labelText = intercalate "\n" $ concatMap renderEntry entries
+    render gutterColor labelText = intercalate "\n" $ concatMap renderEntry entries
       where
         renderEntry (Msg.Entry text parts) = case foldl addPart (lines text) parts of
           [] -> [labelText]
           (firstLine : rest) -> (labelText ++ " " ++ emphasized firstLine) : map (indent 2) rest
 
-        addPart entryLines (Msg.Text text) = case (entryLines, lines text) of
-          ([firstLine], [oneLine]) -> [firstLine `continuedBy` oneLine]
-          (_, textLines) -> entryLines ++ textLines
+        emphasized = maybe id (const bold) gutterColor
+        -- Styled words in the line end with a reset, so bold is re-applied after each one.
+        bold line = Term.applyStyles [Term.Bold] $ replace "\ESC[0m" "\ESC[0m\ESC[1m" line
+
+        addPart entryLines = \case
+          Msg.Text text -> case (entryLines, lines text) of
+            ([firstLine], [oneLine]) -> [firstLine `continuedBy` oneLine]
+            (_, textLines) -> entryLines ++ textLines
+          Msg.ToolOutput command exitCode output ->
+            let heading = "Output of " ++ Term.styleCode command ++ ":"
+                block = map gutterLine (lines output) ++ [corner ++ " exited with code " ++ show exitCode]
+             in case entryLines of
+                  [firstLine] -> (firstLine `continuedBy` heading) : block
+                  _ -> entryLines ++ heading : block
 
         continuedBy "" more = more
         continuedBy line more
           | last line `elem` (".!?:" :: String) = line ++ " " ++ more
           | otherwise = line ++ ". " ++ more
 
-    -- Styled words in the line end with a reset, so bold is re-applied after each one.
-    bold line = Term.applyStyles [Term.Bold] $ replace "\ESC[0m" "\ESC[0m\ESC[1m" line
+        gutterLine "" = gutter
+        gutterLine line = gutter ++ " " ++ line
+        gutter = colored "│"
+        corner = colored "└─"
+        colored = maybe id (\c -> Term.applyStyles [c]) gutterColor
 
 styleIfInteractive :: [Term.Style] -> String -> IO String
 styleIfInteractive styles text =

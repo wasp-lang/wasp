@@ -18,7 +18,7 @@ import Data.Either (fromLeft)
 import Data.List (nub)
 import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -31,6 +31,7 @@ import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
+import Wasp.Util.TaskStatus (runTaskWithStatusReport)
 
 -- | Something a command needs from the generated app, after code generation.
 data SetupGoal
@@ -106,10 +107,10 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
 runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
 runSetupStep step spec generatedAppDir sendMessage = case step of
   InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
-  FormatPrismaSchema -> formatPrismaSchema generatedAppDir
+  FormatPrismaSchema -> formatPrismaSchema generatedAppDir sendMessage
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
-  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
+  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir sendMessage
   GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
@@ -123,47 +124,32 @@ installDependencies spec generatedAppDir sendMessage = do
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> return ()
 
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir = do
+warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+warnIfDbNeedsMigration spec generatedAppDir sendMessage = do
   warning <- liftIO $ do
     envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
-    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
+    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir sendMessage
   tell $ maybeToList warning
 
-formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
-formatPrismaSchema generatedAppDir = do
-  result <- liftIO $ DbGenerator.formatPrismaSchema generatedAppDir
-  case result of
-    Just generatorError -> throwError [generatorError]
-    Nothing -> return ()
+formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
+formatPrismaSchema generatedAppDir sendMessage =
+  abortIfFailed $ DbGenerator.formatPrismaSchema generatedAppDir sendMessage
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-generatePrismaClient spec generatedAppDir sendMessage = do
-  result <- liftIO $ do
-    sendMessage $ Msg.Start "Generating Prisma client..."
-    DbGenerator.generatePrismaClient spec generatedAppDir
-  case result of
-    Just generatorError -> throwError [generatorError]
-    Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."
+generatePrismaClient spec generatedAppDir sendMessage =
+  abortIfFailed $ DbGenerator.generatePrismaClient spec generatedAppDir sendMessage
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-buildSdk generatedAppDir sendMessage = do
-  result <- liftIO $ do
-    sendMessage $ Msg.Start "Building SDK..."
-    SdkGenerator.buildSdk generatedAppDir
-  case result of
-    Left errorMessage -> throwError [GenericGeneratorError errorMessage]
-    Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
+buildSdk generatedAppDir sendMessage =
+  abortIfFailed
+    $ runTaskWithStatusReport sendMessage "Building the SDK" "Built the SDK" "Failed to build the SDK"
+    $ SdkGenerator.buildSdk generatedAppDir
 
 typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
-typeCheckUserCode spec sendMessage = do
-  exitCode <- liftIO $ do
-    sendMessage $ Msg.Start "Type-checking user code..."
-    J.run typeCheck
-  case exitCode of
-    ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
-    ExitFailure code ->
-      throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
+typeCheckUserCode spec sendMessage =
+  abortIfFailed
+    $ runTaskWithStatusReport sendMessage "Type-checking user code" "Type-checked user code" "Failed to type-check user code"
+    $ J.captureFailure "tsc" typeCheck
   where
     typeCheck :: J.Job ExitCode
     typeCheck =
@@ -171,3 +157,7 @@ typeCheckUserCode spec sendMessage = do
         NodeCommand.proc
           (AS.waspProjectDir spec)
           (NodeCommands.typeCheckUserCode $ AS.srcTsConfigPath spec)
+
+-- | The task reports its own failure, so the setup only has to stop.
+abortIfFailed :: IO (Either [Msg.Part] ()) -> Setup ()
+abortIfFailed task = liftIO task >>= either (const $ throwError [GeneratorAborted]) return

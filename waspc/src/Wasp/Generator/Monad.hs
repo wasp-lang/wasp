@@ -43,14 +43,19 @@ data GeneratorState = GeneratorState
     errors :: [GeneratorError]
   }
 
-data GeneratorError = GenericGeneratorError String
+data GeneratorError
+  = GenericGeneratorError String
+  | -- | The step has already reported its error and only has to fail.
+    GeneratorAborted
   deriving (Eq)
 
 instance Show GeneratorError where
   show (GenericGeneratorError e) = e
+  show GeneratorAborted = ""
 
 generatorErrorParts :: GeneratorError -> [Msg.Entry]
 generatorErrorParts (GenericGeneratorError e) = [Msg.Entry e []]
+generatorErrorParts GeneratorAborted = []
 
 data GeneratorWarning
   = GenericGeneratorWarning String
@@ -58,7 +63,7 @@ data GeneratorWarning
 
 generatorWarningParts :: GeneratorWarning -> [Msg.Entry]
 generatorWarningParts (GenericGeneratorWarning w) = [Msg.Entry w []]
-generatorWarningParts (GeneratorNeedsMigrationWarning entries) = entries
+generatorWarningParts (GeneratorNeedsMigrationWarning parts) = parts
 
 -- Runs the generator and either returns a result, or a list of 1 or more errors.
 -- Results in error if any error was ever logged and thrown (even if caught).

@@ -37,7 +37,7 @@ import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
+import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -88,11 +88,10 @@ compileWithOptions options = do
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
-  let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-  liftIO $ printCompilationResult (warnings, errors)
+  liftIO $ printCompilationResult compileResult
   case _compileOutcome compileResult of
-    Right appSpec -> return (warnings, appSpec)
+    Right appSpec -> return (_compileWarnings compileResult, appSpec)
     Left _ -> throwError CommandAborted
 
 -- | Given any compile warnings and errors, prints information about how compilation went:
@@ -100,12 +99,12 @@ compileWithOptions options = do
 -- also shows any warnings (and errors), ... .
 -- Normally you will want to call this function after compile step is done and you want
 -- to report to user how it went.
-printCompilationResult :: ([CompileWarning], [CompileError]) -> IO ()
-printCompilationResult (warns, errs) = do
-  if null errs
-    then cliSendMessage $ Msg.Success "Your wasp project has successfully compiled."
-    else printErrorsIfAny errs
-  printWarningsIfAny warns
+printCompilationResult :: CompileResult -> IO ()
+printCompilationResult compileResult = do
+  case _compileOutcome compileResult of
+    Right _ -> cliSendMessage $ Msg.Success "Your wasp project has successfully compiled."
+    Left errs -> printErrorsIfAny errs
+  printWarningsIfAny $ _compileWarnings compileResult
 
 printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()
 printWarningsAndErrorsIfAny (warns, errs) = do
@@ -171,6 +170,7 @@ analyzeWithOptions waspProjectDir options = do
   (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
   liftIO $ printWarningsIfAny warnings
   case appSpecOrErrors of
+    Left [] -> throwError CommandAborted
     Left errors -> do
       liftIO $ cliSendMessage $ Msg.Failure errors
       throwError CommandAborted
@@ -189,6 +189,7 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
     $ printDiagnosticToStderr compilationWarningsTitle warnings
   case appSpecOrErrors of
     Right spec -> return spec
+    Left [] -> throwError CommandAborted
     Left errors -> do
       liftIO $ printDiagnosticToStderr (analysisErrorsTitle errors) errors
       throwError CommandAborted
@@ -198,3 +199,4 @@ printDiagnosticToStderr diagnosticTitle entries = hPutStrLn stderr $ diagnosticT
   where
     plainText (Msg.Entry text parts) = intercalate "\n" $ filter (not . null) $ text : map plainPart parts
     plainPart (Msg.Text text) = text
+    plainPart (Msg.ToolOutput command exitCode output) = "Output of " <> command <> " (exit code " <> show exitCode <> "):\n" <> output

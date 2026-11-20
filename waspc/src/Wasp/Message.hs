@@ -15,7 +15,10 @@ data Message = Info String | Start String | Success String | Failure [Entry] | W
 data Entry = Entry String [Part]
   deriving (Show, Eq)
 
-newtype Part = Text String
+data Part
+  = Text String
+  | -- | The output of a command Wasp ran: the command, its exit code, then what it printed.
+    ToolOutput String Int String
   deriving (Show, Eq)
 
 type SendMessage = Message -> IO ()
