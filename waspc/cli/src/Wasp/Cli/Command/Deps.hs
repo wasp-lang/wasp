@@ -5,7 +5,6 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
@@ -14,10 +13,7 @@ import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable
 import Wasp.Cli.Terminal (title)
 import Wasp.Docs (versionedWaspDocsUrl)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.NpmDependencies as N
-import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import Wasp.Generator.OptionalNpmDeps (allOptionalNpmDeps, getAllDependencies, getNpmDepsOfUsedFeatures)
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project (analyzeWaspProject)
 import Wasp.Project.WaspNpmPackage (InstalledWaspNpmPackageError (..), tryGettingInstalledWaspNpmPackagePeerDeps)
@@ -55,18 +51,14 @@ depsMessage appSpec waspNpmPackagePeerDeps =
     ]
       ++ printDeps
         ("Peer dependencies of " ++ waspNpmPackageName ++ ":")
-        waspNpmPackagePeerDeps
+        (filter (not . isOptionalDep) waspNpmPackagePeerDeps)
       ++ [""]
       ++ printDeps
-        "Server dependencies:"
-        (filterOutWaspLibDeps $ N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
-      ++ [""]
-      ++ printDeps
-        "Server devDependencies:"
-        (filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
+        "Packages for the features your app uses:"
+        (concatMap getAllDependencies $ getNpmDepsOfUsedFeatures appSpec)
   where
-    waspLibPackageNames = Set.fromList $ map WaspLib.packageName AvailableLibs.waspLibs
-    filterOutWaspLibDeps = filter ((`Set.notMember` waspLibPackageNames) . Npm.Dependency.name)
+    -- Only the optional peer dependencies that the app's features need are in use.
+    isOptionalDep dep = Npm.Dependency.name dep `elem` (Npm.Dependency.name <$> allOptionalNpmDeps)
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =

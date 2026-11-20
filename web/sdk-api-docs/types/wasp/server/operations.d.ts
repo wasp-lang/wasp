@@ -26,7 +26,7 @@
  * @module
  */
 
-import type { Payload } from "@wasp/lib-sdk-core";
+import type { Payload } from "@wasp/sdk-core";
 import type { AuthUser } from "../auth";
 
 /**

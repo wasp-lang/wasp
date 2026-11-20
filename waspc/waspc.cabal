@@ -37,7 +37,6 @@ data-files:
   Cli/starters/skeleton/gitignore
   Cli/starters/skeleton/npmrc
   Cli/starters/skeleton/public/favicon.ico
-  Generator/libs/**/*.tgz
   Generator/templates/**/*.cjs
   Generator/templates/**/*.css
   Generator/templates/**/*.js
@@ -50,7 +49,6 @@ data-files:
   Generator/templates/Dockerfile
   Generator/templates/dockerignore
   Generator/templates/server/gitignore
-  Generator/templates/server/npmrc
   Lsp/templates/**/*.js
   Lsp/templates/**/*.jsx
   Lsp/templates/**/*.ts
@@ -186,7 +184,6 @@ library
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
     Wasp.ExternalConfig.Npm.PackageJson.DepValidators
-    Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -208,20 +205,16 @@ library
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
-    Wasp.Generator.FileDraft.CopyLibDraft
     Wasp.Generator.FileDraft.TemplateFileDraft
     Wasp.Generator.FileDraft.TextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
+    Wasp.Generator.InstalledNpmDeps
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NodeCommand
     Wasp.Generator.NodeCommands
-    Wasp.Generator.NpmDependencies
-    Wasp.Generator.NpmInstall
-    Wasp.Generator.NpmInstall.Common
-    Wasp.Generator.NpmInstall.InstalledNpmDepsLog
-    Wasp.Generator.NpmWorkspaces
+    Wasp.Generator.OptionalNpmDeps
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.Common
@@ -286,15 +279,9 @@ library
     Wasp.Generator.TypeAugmentationGenerator.Spec
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
-    Wasp.Generator.Valid.PackageJson.Common
     Wasp.Generator.Valid.PackageJson.Dependencies
-    Wasp.Generator.Valid.PackageJson.WaspConfig
     Wasp.Generator.Valid.PackageJson.Workspaces
     Wasp.Generator.WaspInfo
-    Wasp.Generator.WaspLibs
-    Wasp.Generator.WaspLibs.AvailableLibs
-    Wasp.Generator.WaspLibs.Common
-    Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.NodeCommands
@@ -461,6 +448,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.AvailableTemplates
     Wasp.Cli.Command.CreateNewProject.Common
+    Wasp.Cli.Command.CreateNewProject.NpmInstall
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled
@@ -576,9 +564,7 @@ test-suite waspc-tests
     AppSpec.FromJSONTest
     AppSpec.ValidTest
     EnvTest
-    ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
-    ExternalConfig.Npm.TarballTest
     Fixtures.AppSpec
     Fixtures.Paths
     Generator.AuthInjectionTest
@@ -587,7 +573,6 @@ test-suite waspc-tests
     Generator.DbGeneratorTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.CopyFileDraftTest
-    Generator.FileDraft.CopyLibDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
@@ -595,7 +580,8 @@ test-suite waspc-tests
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
-    Generator.Valid.PackageJson.WaspConfigTest
+    Generator.Valid.PackageJson.DependenciesTest
+    Generator.Valid.PackageJson.WorkspacesTest
     Generator.VirtualUserModulesTest
     Generator.WaspNpmPackageJsonTest
     Generator.WriteFileDraftsTest
@@ -608,7 +594,6 @@ test-suite waspc-tests
     Paths_waspc
     Project.Db.DevTest
     Project.DbTest
-    Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
     Project.ExternalConfig.SrcTsConfigTest
     Project.ExternalConfig.TsConfigTest

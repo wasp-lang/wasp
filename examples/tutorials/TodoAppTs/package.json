@@ -1,10 +1,6 @@
 {
   "name": "todo-app-ts",
   "type": "module",
-  "workspaces": [
-    ".wasp/out/*",
-    ".wasp/out/sdk/wasp"
-  ],
   "scripts": {
     "build": "wasp build",
     "dev": "wasp start",
@@ -16,9 +12,11 @@
   },
   "dependencies": {
     "@wasp/wasp": "file:../../../waspc/.dev-packages/wasp-wasp-0.27.0.tgz",
+    "lucia": "^3.2.2",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-router": "^8.0.1"
+    "react-router": "^8.0.1",
+    "wasp": "file:.wasp/out/sdk/wasp"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
@@ -31,10 +29,14 @@
     "vite": "^8.1.0"
   },
   "overrides": {
+    "@wasp/auth": "file:../../../waspc/.dev-packages/wasp-auth-0.27.0.tgz",
     "@wasp/cli": "file:../../../waspc/.dev-packages/wasp-cli-0.27.0.tgz",
     "@wasp/deploy": "file:../../../waspc/.dev-packages/wasp-deploy-0.27.0.tgz",
+    "@wasp/sdk-core": "file:../../../waspc/.dev-packages/wasp-sdk-core-0.27.0.tgz",
     "@wasp/spec": "file:../../../waspc/.dev-packages/wasp-spec-0.27.0.tgz",
-    "@wasp/studio": "file:../../../waspc/.dev-packages/wasp-studio-0.27.0.tgz"
+    "@wasp/studio": "file:../../../waspc/.dev-packages/wasp-studio-0.27.0.tgz",
+    "@wasp/test-utils": "file:../../../waspc/.dev-packages/wasp-test-utils-0.27.0.tgz",
+    "@wasp/vite-ssr": "file:../../../waspc/.dev-packages/wasp-vite-ssr-0.27.0.tgz"
   },
   "//": "TODO(#2262): Depends on the unreleased Wasp in this repo through `file:` tarballs. Install with `mise run build:dev-packages` and then `mise run reinstall-dev-wasp-app-deps`, since plain `npm install` fails on the tarballs' stale lockfile entries. Switch to a plain version once the examples join the pnpm workspace."
 }

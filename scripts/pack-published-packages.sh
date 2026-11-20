@@ -7,7 +7,13 @@ packages_dir="$repo_root/packages"
 
 # The packages this script packs. `cli` isn't here, because
 # `packages/cli/scripts/make-cli-npm-packages` packs it with its platform sub-packages.
+# `auth`, `sdk-core` and `test-utils` come in the order they depend on each
+# other's build output.
 publish_packages=(
+  auth
+  sdk-core
+  test-utils
+  vite-ssr
   deploy
   spec
   studio

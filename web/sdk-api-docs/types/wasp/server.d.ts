@@ -292,7 +292,7 @@ export type PrismaClient = {
  * @see [Server config](https://wasp.sh/docs/advanced/server-customization/server-config)
  * @see [Storing some values for later use](https://wasp.sh/docs/advanced/server-customization/server-config#storing-some-values-for-later-use)
  */
-export type { ServerSetupFn } from "@wasp/lib-sdk-core/node";
+export type { ServerSetupFn } from "@wasp/sdk-core/node";
 
 /**
  * The type of a function that customizes Express middleware. You can pass it
@@ -338,7 +338,7 @@ export type { ServerSetupFn } from "@wasp/lib-sdk-core/node";
  *
  * @see [Middleware](https://wasp.sh/docs/advanced/server-customization/middleware)
  */
-export type { MiddlewareConfigFn } from "@wasp/lib-sdk-core/node";
+export type { MiddlewareConfigFn } from "@wasp/sdk-core/node";
 
 /**
  * The type of a seed function you list in the `db.seeds` field of the app
