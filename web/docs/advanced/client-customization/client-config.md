@@ -287,7 +287,7 @@ export default app({
 The function receives the error and a context whose `source` says where the error surfaced:
 
 ```ts title="src/clientErrors.ts" auto-js
-import { type ClientOnErrorFn } from "wasp/client";
+import type { ClientOnErrorFn } from "wasp/client";
 
 export const onClientError: ClientOnErrorFn = (error, context) => {
   // Let's pretend that `errorTracker` exists.

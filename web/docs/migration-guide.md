@@ -596,7 +596,7 @@ Wasp now answers failed requests itself, so an Express error handler you add in 
   <TabItem value="before" label="Before">
     ```ts title="src/serverSetup.ts"
     import * as Sentry from "@sentry/node";
-    import { type ServerSetupFn } from "wasp/server";
+    import type { ServerSetupFn } from "wasp/server";
 
     Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
 
@@ -618,7 +618,7 @@ Wasp now answers failed requests itself, so an Express error handler you add in 
     ```ts title="src/serverSentry.ts"
     import * as Sentry from "@sentry/node";
     // highlight-next-line
-    import { type ServerOnErrorFn } from "wasp/server";
+    import type { ServerOnErrorFn } from "wasp/server";
 
     Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
 

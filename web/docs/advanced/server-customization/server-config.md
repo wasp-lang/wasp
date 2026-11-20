@@ -162,7 +162,7 @@ export default app({
 The function receives the error and a context whose `source` says where the error happened:
 
 ```ts title="src/serverErrors.ts" auto-js
-import { type ServerOnErrorFn } from "wasp/server";
+import type { ServerOnErrorFn } from "wasp/server";
 
 export const onServerError: ServerOnErrorFn = (error, context) => {
   if (context.source === "job") {

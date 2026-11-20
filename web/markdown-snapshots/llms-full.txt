@@ -12438,7 +12438,7 @@ export default app({
 The function receives the error and a context whose `source` says where the error surfaced:
 
 ```ts title="src/clientErrors.ts"
-import { type ClientOnErrorFn } from "wasp/client";
+import type { ClientOnErrorFn } from "wasp/client";
 
 export const onClientError: ClientOnErrorFn = (error, context) => {
   // Let's pretend that `errorTracker` exists.
@@ -12783,7 +12783,7 @@ export default app({
 The function receives the error and a context whose `source` says where the error happened:
 
 ```ts title="src/serverErrors.ts"
-import { type ServerOnErrorFn } from "wasp/server";
+import type { ServerOnErrorFn } from "wasp/server";
 
 export const onServerError: ServerOnErrorFn = (error, context) => {
   if (context.source === "job") {
@@ -15514,7 +15514,7 @@ Wasp now answers failed requests itself, so an Express error handler you add in 
 
 ```ts title="src/serverSetup.ts"
 import * as Sentry from "@sentry/node";
-import { type ServerSetupFn } from "wasp/server";
+import type { ServerSetupFn } from "wasp/server";
 
 Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
 
@@ -15536,7 +15536,7 @@ export default app({
 
 ```ts title="src/serverSentry.ts"
 import * as Sentry from "@sentry/node";
-import { type ServerOnErrorFn } from "wasp/server";
+import type { ServerOnErrorFn } from "wasp/server";
 
 Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
 
@@ -22776,7 +22776,7 @@ Create the server file:
 
 ```ts title="src/serverSentry.ts"
 import * as Sentry from "@sentry/node";
-import { type ServerOnErrorFn } from "wasp/server";
+import type { ServerOnErrorFn } from "wasp/server";
 
 Sentry.init({
   dsn: process.env.SENTRY_SERVER_DSN,
@@ -22814,7 +22814,7 @@ Create the client file:
 
 ```ts title="src/clientSentry.ts"
 import * as Sentry from "@sentry/react";
-import { type ClientOnErrorFn } from "wasp/client";
+import type { ClientOnErrorFn } from "wasp/client";
 
 Sentry.init({
   dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
@@ -22866,7 +22866,7 @@ export default app({
 ```
 
 ```ts title="src/apis.ts"
-import { type TestError } from "wasp/server/api";
+import type { TestError } from "wasp/server/api";
 
 export const testError: TestError = async (req, res) => {
   throw new Error("Test server error for Sentry");

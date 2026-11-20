@@ -68,7 +68,7 @@ Create the server file:
 
 ```ts title="src/serverSentry.ts" auto-js
 import * as Sentry from "@sentry/node";
-import { type ServerOnErrorFn } from "wasp/server";
+import type { ServerOnErrorFn } from "wasp/server";
 
 Sentry.init({
   dsn: process.env.SENTRY_SERVER_DSN,
@@ -106,7 +106,7 @@ Create the client file:
 
 ```ts title="src/clientSentry.ts" auto-js
 import * as Sentry from "@sentry/react";
-import { type ClientOnErrorFn } from "wasp/client";
+import type { ClientOnErrorFn } from "wasp/client";
 
 Sentry.init({
   dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
@@ -158,7 +158,7 @@ export default app({
 ```
 
 ```ts title="src/apis.ts" auto-js
-import { type TestError } from "wasp/server/api";
+import type { TestError } from "wasp/server/api";
 
 export const testError: TestError = async (req, res) => {
   throw new Error("Test server error for Sentry");
