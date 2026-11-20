@@ -11248,7 +11248,7 @@ Wasp gives each worktree a unique [development database](https://wasp.sh/docs/fe
 
 ##### Seed data
 
-If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command. It starts the development database if needed. Stop `wasp start` before running database commands such as migrations or seeds.
+If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command. It starts the development database if needed.
 
 #### Start the app
 
@@ -13511,7 +13511,7 @@ While it's not identical to a real production environment, it's the closest you 
 
 ### Usage
 
-`wasp build start` does not start a database. Keep `wasp db start` running in a separate terminal while previewing the production build.
+`wasp build start` doesn't start a database. Run `wasp db start` in a separate terminal before previewing the production build.
 
 ```bash
 # Start a local database, copy the connection URL
@@ -19968,9 +19968,9 @@ Copy this password and type `exit` to leave the SSH session.
 
 ### Step 3: Open a Database Tunnel
 
-Stop `wasp start` before running Studio because they use the same project lock.
+Stop `wasp start` first. It runs the development database on port `5432`, which the tunnel needs, and after Step 4 your local server would connect to the production database.
 
-The tunnel below needs local port `5432` to be free. Stop any database or other process using that port.
+The tunnel below needs local port `5432` to be free. Stop any other database or process using that port.
 
 Open the tunnel:
 

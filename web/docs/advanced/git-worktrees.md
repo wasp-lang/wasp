@@ -77,7 +77,7 @@ Wasp gives each worktree a unique [development database](../features/data/databa
 
 #### Seed data
 
-If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command. It starts the development database if needed. Stop `wasp start` before running database commands such as migrations or seeds.
+If your app needs to seed scaffold data, you can apply it with the `wasp db seed <name>` command. It starts the development database if needed.
 
 ### Start the app
 
