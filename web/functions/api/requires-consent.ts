@@ -1,3 +1,5 @@
+import type { RequiresConsentResponse } from "../../src/lib/cookie-consent";
+
 // Cloudflare adds the country of the visitor to each request, in `cf`.
 type RequestWithCountry = Request & { cf?: { country?: string } };
 
@@ -75,9 +77,9 @@ export const onRequestGet = async (context: {
     UNKNOWN_COUNTRY_CODES.has(countryCode) ||
     CONSENT_COUNTRY_CODES.has(countryCode);
 
-  return new Response(JSON.stringify({ requiresConsent }), {
+  const body: RequiresConsentResponse = { requiresConsent };
+  return Response.json(body, {
     headers: {
-      "Content-Type": "application/json",
       // The answer depends on the country of each request, so no browser and
       // no CDN may cache it. `isAnalyticsConsentRequired()` in
       // `src/lib/cookie-consent.ts` also asks with `cache: "no-store"`.

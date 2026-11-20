@@ -2,29 +2,28 @@ import type { PostHog } from "posthog-js";
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { track, trackPlacementAttributes } from "../lib/analytics";
 import {
-  COOKIE_SETTINGS_HREF,
+  COOKIE_SETTINGS_ATTRIBUTE,
   isAnalyticsConsentRequired,
 } from "../lib/cookie-consent";
 import { optInToPostHog, optOutOfPostHog, startPostHog } from "../lib/posthog";
 import classes from "./CookieConsentBanner.module.css";
 
-// "banner": the banner shows by itself, because the visitor in the consent
-// region did not choose yet. "settings": the visitor opened it with the
-// "Cookie settings" link.
-type BannerState = "closed" | "banner" | "settings";
+enum BannerState {
+  Closed,
+  // The banner shows by itself, because the visitor in the consent region did
+  // not choose yet.
+  Banner,
+  // The visitor opened the banner with the "Cookie settings" button.
+  Settings,
+}
 
 export default function CookieConsentBanner() {
   const [posthog, setPostHog] = useState<PostHog>();
-  const [bannerState, setBannerState] = useState<BannerState>("closed");
+  const [bannerState, setBannerState] = useState(BannerState.Closed);
 
   useEffect(() => {
-    // PostHog runs only in a production build, the same as Plausible in
-    // `prodOnlyScripts` in `docusaurus.config.ts`.
-    if (process.env.NODE_ENV !== "production") {
-      return;
-    }
-
-    isAnalyticsConsentRequired().then(async (isConsentRequired) => {
+    async function start() {
+      const isConsentRequired = await isAnalyticsConsentRequired();
       const posthog = await startPostHog(isConsentRequired);
       setPostHog(posthog);
       // PostHog keeps the choice, so a visitor sees this banner only once.
@@ -32,19 +31,25 @@ export default function CookieConsentBanner() {
         isConsentRequired &&
         posthog.get_explicit_consent_status() === "pending"
       ) {
-        setBannerState("banner");
+        setBannerState(BannerState.Banner);
       }
+    }
+
+    start().catch(() => {
+      // PostHog did not load, for example because of a network error. The site
+      // works without PostHog, so the banner stays closed.
     });
   }, []);
 
   useEffect(() => {
+    // The footer in `docusaurus.config.ts` is plain HTML, so one listener on
+    // the page handles the "Cookie settings" buttons of both footers.
     function openSettings(event: MouseEvent) {
       if (
         event.target instanceof Element &&
-        event.target.closest(`a[href="${COOKIE_SETTINGS_HREF}"]`)
+        event.target.closest(`[${COOKIE_SETTINGS_ATTRIBUTE}]`)
       ) {
-        event.preventDefault();
-        setBannerState("settings");
+        setBannerState(BannerState.Settings);
       }
     }
 
@@ -52,28 +57,30 @@ export default function CookieConsentBanner() {
     return () => document.removeEventListener("click", openSettings);
   }, []);
 
-  if (!posthog || bannerState === "closed") {
+  if (!posthog || bannerState === BannerState.Closed) {
     return null;
   }
 
   const handleAccept = (event: ReactMouseEvent<HTMLButtonElement>) => {
     optInToPostHog(posthog);
     track(event.currentTarget, "Cookie Consent: Accept", {});
-    setBannerState("closed");
+    setBannerState(BannerState.Closed);
   };
 
   const handleReject = (event: ReactMouseEvent<HTMLButtonElement>) => {
     // The opt-out comes first, so PostHog drops the "Reject" event.
     optOutOfPostHog(posthog);
     track(event.currentTarget, "Cookie Consent: Reject", {});
-    setBannerState("closed");
+    setBannerState(BannerState.Closed);
   };
 
   return (
     <section
       aria-label="Cookie consent"
       {...trackPlacementAttributes(
-        bannerState === "settings" ? "cookie_settings" : "cookie_banner",
+        bannerState === BannerState.Settings
+          ? "cookie_settings"
+          : "cookie_banner",
       )}
       // `ph-no-capture` turns off PostHog autocapture in the banner. PostHog
       // records a click before our handlers run, so without it PostHog sends

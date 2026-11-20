@@ -3,7 +3,7 @@ import type { Config, DocusaurusConfig, RouteConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { getRedirects } from "./redirects";
 import { SKIP_IN_MARKDOWN_DOCS_CLASS } from "./src/lib/constants";
-import { COOKIE_SETTINGS_HREF } from "./src/lib/cookie-consent";
+import { COOKIE_SETTINGS_ATTRIBUTE } from "./src/lib/cookie-consent";
 import {
   getLatestDocCanonicalPath,
   waspDslDocsVersions,
@@ -159,7 +159,7 @@ const config: Config = {
               to: "docs/contact",
             },
             {
-              html: `<a class="footer__link-item" href="${COOKIE_SETTINGS_HREF}">Cookie settings</a>`,
+              html: `<button type="button" class="footer__link-item cookie-settings-button" ${COOKIE_SETTINGS_ATTRIBUTE}>Cookie settings</button>`,
             },
           ],
         },

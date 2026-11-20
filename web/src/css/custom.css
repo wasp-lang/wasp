@@ -942,3 +942,15 @@ div[class*="announcementBarContent_"] {
 div[class*="announcementBarContent_"] a {
   font-weight: 400;
 }
+
+/* The "Cookie settings" buttons in both footers look like the links next to
+   them. Tailwind's preflight is off on this site, so a button keeps the
+   browser's own look without these lines. */
+.cookie-settings-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}

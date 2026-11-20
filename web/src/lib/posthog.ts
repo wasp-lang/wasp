@@ -35,6 +35,10 @@ export function captureInPostHog(...event: CaptureArguments): void {
 export async function startPostHog(
   isConsentRequired: boolean,
 ): Promise<PostHog> {
+  if (startedPostHog) {
+    return startedPostHog;
+  }
+
   const earlierChoice = copyChoiceFromEarlierBanner();
 
   // The `no-external` build of PostHog contains no code that downloads other
@@ -106,11 +110,12 @@ function syncHeatmaps(posthog: PostHog): void {
   posthog.set_config({ capture_heatmaps: posthog.is_capturing() });
 }
 
-// The earlier banner kept the choice in a cookie with the same name, as `true`
-// or `false`. PostHog reads these values too, so this function copies the
-// cookie into localStorage before `init`, and a "Reject all" from the earlier
-// banner still counts. It returns the choice from the cookie. The cookie lasts
-// one year, so one year after this change is live, this function can go.
+// Moves the old `wasp-cookies-consent` cookie of the earlier banner into
+// localStorage under the same key, so PostHog reads it as the stored choice.
+// If localStorage is blocked, an earlier "Reject all" still forces the opt-out
+// through `opt_out_capturing_by_default`, with the choice that this function
+// returns. The cookie lasts one year, so one year after this change is live,
+// this function can go.
 function copyChoiceFromEarlierBanner(): "true" | "false" | undefined {
   const earlierChoice = document.cookie
     .split("; ")

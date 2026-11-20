@@ -1,8 +1,12 @@
-// A link with this `href` opens the cookie banner again, so visitors can change
-// their choice. `src/components/CookieConsentBanner.tsx` handles the click.
-// The `href` marks the link, so the link needs no second attribute. Both
-// footers take it from this constant.
-export const COOKIE_SETTINGS_HREF = "#cookie-settings";
+// A button with this attribute opens the cookie banner again, so visitors can
+// change their choice. `src/components/CookieConsentBanner.tsx` handles the
+// click. Both footers add the attribute from this constant.
+export const COOKIE_SETTINGS_ATTRIBUTE = "data-cookie-settings";
+
+// The answer of `functions/api/requires-consent.ts`.
+export interface RequiresConsentResponse {
+  requiresConsent: boolean;
+}
 
 /**
  * Asks `functions/api/requires-consent.ts` if the law in the country of the
@@ -19,7 +23,7 @@ export async function isAnalyticsConsentRequired(): Promise<boolean> {
     if (!response.ok) {
       return true;
     }
-    const body = (await response.json()) as { requiresConsent?: unknown };
+    const body = (await response.json()) as Partial<RequiresConsentResponse>;
     return body.requiresConsent !== false;
   } catch {
     return true;
