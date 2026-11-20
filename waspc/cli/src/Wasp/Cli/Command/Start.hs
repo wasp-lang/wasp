@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny, printWarningsIfAny)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
@@ -29,10 +29,10 @@ import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning)
+import Wasp.Project (CompileError, CompileWarning, warnIfDbNeedsMigration)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Project.RunConfig (ProjectRunConfig (databaseUrl))
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -55,7 +55,7 @@ start = withArguments startArgsParser $ \args ->
 
     cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-    (warnings, appSpec) <- compile
+    (compileWarnings, appSpec) <- compile
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
     -- The ports and custom URLs stay the same for the whole session, while the
@@ -65,6 +65,9 @@ start = withArguments startArgsParser $ \args ->
     assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig
 
     throwIfDbConnectionNotEstablished projectRunConfig
+    dbWarnings <- liftIO $ warnIfDbNeedsMigration appSpec projectRunConfig.databaseUrl outDir
+    liftIO $ printWarningsIfAny dbWarnings
+    let warnings = compileWarnings ++ dbWarnings
 
     cliSendMessageC $ Msg.Start "Listening for file changes..."
     cliSendMessageC $ Msg.Start "Starting up generated project..."
