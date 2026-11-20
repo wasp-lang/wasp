@@ -35,6 +35,16 @@ spec_choosePackageManager = do
             markerFileNamesInNearestDir = markerFileNames
           }
 
+spec_parsePackageManagerFromUserAgent :: Spec
+spec_parsePackageManagerFromUserAgent = do
+  it "reads the package manager that ran the command" $ do
+    parsePackageManagerFromUserAgent "pnpm/10.4.1 npm/? node/v26.13.1 darwin arm64" `shouldBe` Just Pnpm
+    parsePackageManagerFromUserAgent "npm/11.11.0 node/v26.13.1 darwin arm64 workspaces/false" `shouldBe` Just Npm
+    parsePackageManagerFromUserAgent "bun/1.3.0 npm/? node/v24.3.0 darwin arm64" `shouldBe` Just Bun
+
+  it "is nothing for a package manager that Wasp doesn't work with" $ do
+    parsePackageManagerFromUserAgent "yarn/4.9.1 npm/? node/v26.13.1 darwin arm64" `shouldBe` Nothing
+
 spec_packageManagerCommands :: Spec
 spec_packageManagerCommands = do
   describe "makeAddPackagesCommand" $ do

@@ -13,6 +13,7 @@ import StrongPath (Dir, Dir', Path', Rel, Rel', reldir)
 import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import Wasp.Project (WaspProjectDir)
+import Wasp.Project.PackageManager (PackageManager)
 import qualified Wasp.Util.Interactive as Interactive
 
 -- More on how starter templates work in Wasp, including the development process,
@@ -51,8 +52,9 @@ data TemplateMetadata = TemplateMetadata
     -- database migration. Only meant for templates whose database doesn't need any
     -- setup (i.e. SQLite) and that define entities.
     _migratesDbOnCreation :: !Bool,
-    -- | Given the name of the project directory, makes the starting instructions.
-    _buildStartingInstructions :: !(String -> String)
+    -- | Given the project's package manager and the name of the project
+    -- directory, makes the starting instructions.
+    _buildStartingInstructions :: !(PackageManager -> String -> String)
   }
 
 instance Show StarterTemplate where
@@ -70,10 +72,10 @@ instance Interactive.IsOption StarterTemplate where
 -- | Returns instructions for running the newly created (from the template) Wasp project.
 -- Instructions assume that user is positioned right next to the just created project directory,
 -- whose name is provided via projectDirName.
-getTemplateStartingInstructions :: String -> StarterTemplate -> String
-getTemplateStartingInstructions projectDirName = \case
-  GhRepoReleaseArchiveTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' projectDirName
-  BundledStarterTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' projectDirName
+getTemplateStartingInstructions :: PackageManager -> String -> StarterTemplate -> String
+getTemplateStartingInstructions packageManager projectDirName = \case
+  GhRepoReleaseArchiveTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' packageManager projectDirName
+  BundledStarterTemplate {metadata = metadata'} -> _buildStartingInstructions metadata' packageManager projectDirName
 
 findTemplateByString :: [StarterTemplate] -> String -> Maybe StarterTemplate
 findTemplateByString templates query = find ((== query) . show) templates

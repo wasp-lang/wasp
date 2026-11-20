@@ -3,20 +3,20 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
-import Control.Monad (when)
+import Control.Monad (unless, when)
 import Control.Monad.Catch (bracket_)
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Functor (($>))
 import Data.Maybe (isJust)
 import qualified StrongPath as SP
-import System.Directory (getCurrentDirectory, setCurrentDirectory)
+import System.Directory (findExecutable, getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
-import Wasp.Cli.Command.CreateNewProject.NpmInstall (installProjectNpmDependencies)
+import Wasp.Cli.Command.CreateNewProject.InstallDependencies (installProjectDependencies)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     getAbsWaspProjectDir,
@@ -39,6 +39,7 @@ import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Project.PackageManager (PackageManager, getPackageManagerName, makeInstallCommand, makeRunScriptCommand)
 import Wasp.Util (indent)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Util.Terminal as Term
@@ -52,9 +53,11 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
   let absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
       needsMigration = newProjectDescription._template.metadata._migratesDbOnCreation
+      packageManager = newProjectDescription._packageManager
+  ensurePackageManagerIsInstalled packageManager
 
   createProjectOnDisk newProjectDescription
-  areDepsInstalled <- liftIO $ installDepsForNewProject absWaspProjectDir
+  areDepsInstalled <- liftIO $ installDepsForNewProject packageManager absWaspProjectDir
 
   isDbMigrated <-
     if needsMigration && areDepsInstalled
@@ -65,8 +68,20 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
   liftIO
     $ printExtraInstructionsForProject
-    $ ["npm install" | not areDepsInstalled]
-      ++ ["npm run wasp -- db migrate-dev" | needsMigration && not isDbMigrated]
+    $ [makeInstallCommand packageManager | not areDepsInstalled]
+      ++ [makeRunScriptCommand packageManager "wasp" ["db", "migrate-dev"] | needsMigration && not isDbMigrated]
+
+-- | Wasp installs a new project's packages, so it needs the package manager
+-- before it creates anything.
+ensurePackageManagerIsInstalled :: PackageManager -> Command ()
+ensurePackageManagerIsInstalled packageManager = do
+  isInstalled <- liftIO $ isJust <$> findExecutable packageManagerName
+  unless isInstalled
+    $ throwError
+    $ CommandError "Package manager not found"
+    $ "Couldn't find " ++ styleCode packageManagerName ++ ". Install it, or choose another package manager with " ++ styleCode "--package-manager" ++ "."
+  where
+    packageManagerName = getPackageManagerName packageManager
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
@@ -79,9 +94,9 @@ createProjectOnDisk
         liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
 
 -- | Returns whether the dependencies got installed.
-installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
-installDepsForNewProject absWaspProjectDir =
-  installProjectNpmDependencies absWaspProjectDir >>= \case
+installDepsForNewProject :: PackageManager -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
+installDepsForNewProject packageManager absWaspProjectDir =
+  installProjectDependencies packageManager absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
       putStrLn $
@@ -134,7 +149,7 @@ migrateDbForNewProject absWaspProjectDir =
 printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
 printGettingStartedInstructionsForProject projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
-  let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
+  let instructions = getTemplateStartingInstructions (_packageManager projectDescription) projectDirName $ _template projectDescription
   cliSendMessage $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
   putStrLn instructions
 

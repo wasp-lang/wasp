@@ -29,6 +29,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🎉 New Features
 
+- Wasp projects can now use pnpm or Bun instead of npm. `wasp new` asks which package manager to use, or takes it from `--package-manager`. ([#5412](https://github.com/wasp-lang/wasp/pull/5412), [#5413](https://github.com/wasp-lang/wasp/pull/5413), [#5414](https://github.com/wasp-lang/wasp/pull/5414), [#5415](https://github.com/wasp-lang/wasp/pull/5415), [#5416](https://github.com/wasp-lang/wasp/pull/5416))
 - A globally installed `wasp` now runs the Wasp version of the project you call it in, so each project keeps the version it installed. ([#5265](https://github.com/wasp-lang/wasp/pull/5265))
 - The server and the client now share one `HttpError` class, exported from `wasp/errors`. Client code can check for it with `instanceof`, and read the response's headers from its `response`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - `HttpError`'s status code is now available as `status`. `statusCode` still works, but is deprecated. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))

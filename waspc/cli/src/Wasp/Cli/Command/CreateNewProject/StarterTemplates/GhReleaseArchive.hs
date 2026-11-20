@@ -38,7 +38,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef 
       liftIO $ fetchFolderFromGithubReleaseArchiveToDisk ghRepoRef assetName templatePathInRepo (_absTemplateOutputDir newProjectDescription)
 
     replaceTemplatePlaceholders =
-      liftIO $ replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) absWaspProjectDir
+      liftIO $ replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) (_packageManager newProjectDescription) absWaspProjectDir
 
     throwOutdatedTagError =
       throwProjectCreationError $
