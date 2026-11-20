@@ -31,6 +31,7 @@ export type ServerOnErrorFn = (
  * - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
  * - `"process"`: Anywhere else in the server, as an uncaught error or an
  *   unhandled promise rejection, e.g. in a timer or while your code loads.
+ *   `event` is the name of the Node.js process event.
  */
 export type ServerErrorContext =
   | { source: "request" }
@@ -39,4 +40,4 @@ export type ServerErrorContext =
   | { source: "oauth" }
   | { source: "startup" }
   | { source: "dbSeed" }
-  | { source: "process" };
+  | { source: "process"; event: "uncaughtException" | "unhandledRejection" };

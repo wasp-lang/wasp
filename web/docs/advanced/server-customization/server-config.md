@@ -12,11 +12,8 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec";
-import {
-  myMiddlewareConfigFn,
-  mySetupFunction,
-} from "./src/myServerSetupCode" with { type: "ref" };
+import { app } from "@wasp/spec"
+import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
   name: "MyApp",
@@ -25,7 +22,7 @@ export default app({
     middlewareConfigFn: myMiddlewareConfigFn,
   },
   // ...
-});
+})
 ```
 
 ## Setup Function
@@ -55,7 +52,6 @@ As an example, adding a custom route would look something like:
       })
     }
     ```
-
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
@@ -73,7 +69,6 @@ As an example, adding a custom route would look something like:
       })
     }
     ```
-
   </TabItem>
 </Tabs>
 
@@ -108,7 +103,6 @@ Dummy example of such function and its usage:
       return queryDataFromSomeResource(args, someResource)
     }
     ```
-
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
@@ -138,7 +132,6 @@ Dummy example of such function and its usage:
       return queryDataFromSomeResource(args, someResource)
     }
     ```
-
   </TabItem>
 </Tabs>
 
@@ -188,7 +181,7 @@ export const onServerError: ServerOnErrorFn = (error, context) => {
 | `"oauth"`     | during an OAuth login.                                                                                                         |
 | `"startup"`   | while starting the server, after your code has loaded, e.g. in `setupFn`.                                                      |
 | `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                                                                      |
-| `"process"`   | anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads. |
+| `"process"`   | anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads. The context also has `event`, the name of the Node.js process event. |
 
 A few things to keep in mind:
 

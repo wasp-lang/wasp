@@ -273,32 +273,32 @@ For the full description of the `setupFn` field, check the [`Client` API Referen
 `onError` declares a function that Wasp calls with every unexpected error on the client. Wasp logs the error to the browser console first, so use the function for anything on top of that, like sending the error to an error tracking service.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { onClientError } from "./src/clientErrors" with { type: "ref" }
+import { app } from "@wasp/spec";
+import { onClientError } from "./src/clientErrors" with { type: "ref" };
 
 export default app({
   // ...
   client: {
     onError: onClientError,
   },
-})
+});
 ```
 
 The function receives the error and a context whose `source` says where the error surfaced:
 
 ```ts title="src/clientErrors.ts" auto-js
-import { type ClientOnErrorFn } from "wasp/client"
+import { type ClientOnErrorFn } from "wasp/client";
 
 export const onClientError: ClientOnErrorFn = (error, context) => {
   // Let's pretend errorTracker is implemented below or imported from another file.
-  errorTracker.capture(error, { source: context.source })
-}
+  errorTracker.capture(error, { source: context.source });
+};
 ```
 
 | `source`             | The error surfaced...                                                                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------- |
 | `"render"`           | while rendering a page or the root component. The context also has `componentStack`, when React provides it. |
-| `"window"`           | in an event handler, or as a rejected promise nobody caught. These are the browser's `error` and `unhandledrejection` events. |
+| `"window"`           | in an event handler, or as a rejected promise nobody caught. The context also has `event`, the name of the browser event, which is `error` or `unhandledrejection`. |
 | `"oauthCallback"`    | while finishing an OAuth login.                                                                         |
 | `"authForm"`         | while submitting one of Wasp's Auth UI forms.                                                           |
 | `"optimisticUpdate"` | in the `updateQuery` function of an optimistic update.                                                  |

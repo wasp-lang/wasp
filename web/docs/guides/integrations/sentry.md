@@ -41,9 +41,9 @@ npm install @sentry/node @sentry/react
 Wasp calls the `onError` functions with every unexpected error on the [server](../../advanced/server-customization/server-config.md#handling-unexpected-errors) and the [client](../../advanced/client-customization/client-config.md#handling-unexpected-errors). Add both to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { onClientError } from "./src/clientSentry" with { type: "ref" }
-import { onServerError } from "./src/serverSentry" with { type: "ref" }
+import { app } from "@wasp/spec";
+import { onClientError } from "./src/clientSentry" with { type: "ref" };
+import { onServerError } from "./src/serverSentry" with { type: "ref" };
 
 export default app({
   name: "MyApp",
@@ -59,7 +59,7 @@ export default app({
     onError: onClientError,
   },
   // ...
-})
+});
 ```
 
 ### 4. Configure Server-Side Sentry
@@ -148,15 +148,13 @@ REACT_APP_SENTRY_CLIENT_DSN=https://your-client-dsn@sentry.io/your-project-id
 Create an API endpoint that throws an error:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp/spec"
-import { testError } from "./src/apis" with { type: "ref" }
+import { api, app } from "@wasp/spec";
+import { testError } from "./src/apis" with { type: "ref" };
 
 export default app({
   // ...
-  spec: [
-    api("GET", "/test-error", testError, { auth: false }),
-  ],
-})
+  spec: [api("GET", "/test-error", testError, { auth: false })],
+});
 ```
 
 ```ts title="src/apis.ts" auto-js

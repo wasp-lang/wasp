@@ -30,7 +30,7 @@ export type ClientOnErrorFn = (
  *   provides it.
  * - `"window"`: In the browser's `error` and `unhandledrejection` events,
  *   e.g. an error thrown in an event handler or a rejected promise nobody
- *   caught.
+ *   caught. `event` is the name of the browser event.
  * - `"oauthCallback"`: While finishing an OAuth login.
  * - `"authForm"`: While submitting one of Wasp's Auth UI forms.
  * - `"optimisticUpdate"`: In the `updateQuery` function of an optimistic
@@ -38,7 +38,7 @@ export type ClientOnErrorFn = (
  */
 export type ClientErrorContext =
   | { source: "render"; componentStack?: string }
-  | { source: "window" }
+  | { source: "window"; event: "error" | "unhandledrejection" }
   | { source: "oauthCallback" }
   | { source: "authForm" }
   | { source: "optimisticUpdate" };
@@ -97,12 +97,18 @@ function isExpectedHttpError(error: unknown): boolean {
  */
 export function listenForUncaughtClientErrors(): void {
   window.addEventListener("error", (event: ErrorEvent) => {
-    reportClientError(event.error ?? event.message, { source: "window" });
+    reportClientError(event.error ?? event.message, {
+      source: "window",
+      event: "error",
+    });
   });
   window.addEventListener(
     "unhandledrejection",
     (event: PromiseRejectionEvent) => {
-      reportClientError(event.reason, { source: "window" });
+      reportClientError(event.reason, {
+        source: "window",
+        event: "unhandledrejection",
+      });
     },
   );
 }

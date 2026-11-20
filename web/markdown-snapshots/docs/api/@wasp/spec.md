@@ -1736,11 +1736,11 @@ In TypeScript, you can type the function with the `ClientOnErrorFn` type from `w
 ###### Example
 
 ```ts
-import { type ClientOnErrorFn } from "wasp/client"
+import { type ClientOnErrorFn } from "wasp/client";
 
 export const onClientError: ClientOnErrorFn = (error, context) => {
-  errorTracker.capture(error, { source: context.source })
-}
+  errorTracker.capture(error, { source: context.source });
+};
 ```
 
 ##### rootComponent?
@@ -2366,11 +2366,11 @@ In TypeScript, you can type the function with the `ServerOnErrorFn` type from `w
 ###### Example
 
 ```ts
-import { type ServerOnErrorFn } from "wasp/server"
+import { type ServerOnErrorFn } from "wasp/server";
 
 export const onServerError: ServerOnErrorFn = (error, context) => {
-  errorTracker.capture(error, { source: context.source })
-}
+  errorTracker.capture(error, { source: context.source });
+};
 ```
 
 ##### setupFn?

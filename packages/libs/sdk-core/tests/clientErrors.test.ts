@@ -48,6 +48,7 @@ describe("reportClientError", () => {
 
     reportClientError(new HttpError(404, "Not found"), {
       source: "window",
+      event: "error",
     });
 
     expect(console.error).not.toHaveBeenCalled();
@@ -59,10 +60,11 @@ describe("reportClientError", () => {
     registerClientOnErrorFn(onErrorFn);
     const error = new HttpError(502, "Bad gateway");
 
-    reportClientError(error, { source: "window" });
+    reportClientError(error, { source: "window", event: "error" });
 
     expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(error, {
       source: "window",
+      event: "error",
     });
   });
 
@@ -70,7 +72,10 @@ describe("reportClientError", () => {
     const onErrorFn = vi.fn();
     registerClientOnErrorFn(onErrorFn);
 
-    reportClientError(makeKyHttpError(401), { source: "window" });
+    reportClientError(makeKyHttpError(401), {
+      source: "window",
+      event: "error",
+    });
 
     expect(console.error).not.toHaveBeenCalled();
     expect(onErrorFn).not.toHaveBeenCalled();
@@ -81,10 +86,11 @@ describe("reportClientError", () => {
     registerClientOnErrorFn(onErrorFn);
     const kyHttpError = makeKyHttpError(503);
 
-    reportClientError(kyHttpError, { source: "window" });
+    reportClientError(kyHttpError, { source: "window", event: "error" });
 
     expect(onErrorFn).toHaveBeenCalledExactlyOnceWith(kyHttpError, {
       source: "window",
+      event: "error",
     });
   });
 
@@ -94,7 +100,7 @@ describe("reportClientError", () => {
     const error = new Error("Unexpected");
 
     reportClientError(error, { source: "render" });
-    reportClientError(error, { source: "window" });
+    reportClientError(error, { source: "window", event: "error" });
 
     expect(onErrorFn).toHaveBeenCalledTimes(1);
   });
@@ -105,7 +111,10 @@ describe("reportClientError", () => {
     });
 
     expect(() =>
-      reportClientError(new Error("Unexpected"), { source: "window" }),
+      reportClientError(new Error("Unexpected"), {
+        source: "window",
+        event: "error",
+      }),
     ).not.toThrow();
     await vi.waitFor(() =>
       expect(console.error).toHaveBeenCalledWith(

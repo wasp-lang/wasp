@@ -10,7 +10,7 @@ import { reportUnexpectedServerError } from "wasp/server/errors";
 
 import { onServerError } from "../../../../src/features/errors/serverOnError"
 import { registerServerOnErrorFn } from "wasp/server/errors";
-import type { ServerOnErrorFn } from 'wasp/server'
+import type { ServerOnErrorFn } from "wasp/server";
 
 import { devSeedSimple } from "../../../../src/features/db/seeds"
 import { prodSeed } from "../../../../src/features/db/seeds"
@@ -20,7 +20,7 @@ const seeds = {
   prodSeed,
 }
 
-registerServerOnErrorFn(onServerError satisfies ServerOnErrorFn)
+registerServerOnErrorFn(onServerError satisfies ServerOnErrorFn);
 
 async function main() {
   const nameOfSeedToRun = process.env.WASP_DB_SEED_NAME

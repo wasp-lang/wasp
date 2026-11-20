@@ -12,7 +12,7 @@ import { reportUnexpectedServerError } from "wasp/server/errors";
 {=# onErrorFn.isDefined =}
 {=& onErrorFn.importStatement =}
 import { registerServerOnErrorFn } from "wasp/server/errors";
-import type { ServerOnErrorFn } from 'wasp/server'
+import type { ServerOnErrorFn } from "wasp/server";
 {=/ onErrorFn.isDefined =}
 
 {=# dbSeeds =}
@@ -26,7 +26,7 @@ const seeds = {
 }
 
 {=# onErrorFn.isDefined =}
-registerServerOnErrorFn({= onErrorFn.importIdentifier =} satisfies ServerOnErrorFn)
+registerServerOnErrorFn({= onErrorFn.importIdentifier =} satisfies ServerOnErrorFn);
 
 {=/ onErrorFn.isDefined =}
 async function main() {

@@ -39,7 +39,7 @@
             "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
-        "176dd89cdf394926e6c5deabf9dc6425e940c3a68f03f6ec2ba7bfbda9b60108"
+        "6dd12e6ed63c340bc095f4e3fd4d1982138a5613d33013388cc6e25a96b736d4"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "sdk/wasp/client/index.ts"
         ],
-        "c29cfc9b5671a4e29b42d402b6aeb504f94ecbdcb946ccfa49cd21c641fcbd52"
+        "d82116d1549af75c31a10b92c7d6c0fac03e582f15af23ccbd9e261347137f01"
     ],
     [
         [
@@ -886,7 +886,7 @@
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "1d9533a39f6cc320c08922ae2bf8a88fbbae9f919e2035a8aab1ac19ad319a2d"
+        "68855bdd0e06a7e6582e55c87b24b9e1d3fdeec3f85c475c6811848d3dc315ad"
     ],
     [
         [
@@ -1418,7 +1418,7 @@
             "file",
             "server/src/dbSeed.ts"
         ],
-        "5fc4cac251653d11dc6ab89299d1b6cc7bd9f268b7c612d1a1e7f7f70136d0e8"
+        "fe369c4d876d26a04190ef9fbcb0342e5f58edd48e004c9679167603220356b8"
     ],
     [
         [
@@ -1873,7 +1873,7 @@
             "file",
             "server/src/uncaughtErrors.ts"
         ],
-        "285923a21dfe08e8119c346123cc211dc1b6165a82c472f2d4c8fb66b9591314"
+        "d5f523881f48f6c779f405be84527b704e7c227a055f13c8bffd80618c08b90e"
     ],
     [
         [

@@ -12424,15 +12424,15 @@ For the full description of the `setupFn` field, check the [`Client` API Referen
 `onError` declares a function that Wasp calls with every unexpected error on the client. Wasp logs the error to the browser console first, so use the function for anything on top of that, like sending the error to an error tracking service.
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { onClientError } from "./src/clientErrors" with { type: "ref" }
+import { app } from "@wasp/spec";
+import { onClientError } from "./src/clientErrors" with { type: "ref" };
 
 export default app({
   // ...
   client: {
     onError: onClientError,
   },
-})
+});
 ```
 
 The function receives the error and a context whose `source` says where the error surfaced:
@@ -12446,13 +12446,13 @@ export const onClientError: ClientOnErrorFn = (error, context) => {
 };
 ```
 
-| `source`             | The error surfaced...                                                                                                         |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `"render"`           | while rendering a page or the root component. The context also has `componentStack`, when React provides it.                  |
-| `"window"`           | in an event handler, or as a rejected promise nobody caught. These are the browser's `error` and `unhandledrejection` events. |
-| `"oauthCallback"`    | while finishing an OAuth login.                                                                                               |
-| `"authForm"`         | while submitting one of Wasp's Auth UI forms.                                                                                 |
-| `"optimisticUpdate"` | in the `updateQuery` function of an optimistic update.                                                                        |
+| `source`             | The error surfaced...                                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"render"`           | while rendering a page or the root component. The context also has `componentStack`, when React provides it.                                                        |
+| `"window"`           | in an event handler, or as a rejected promise nobody caught. The context also has `event`, the name of the browser event, which is `error` or `unhandledrejection`. |
+| `"oauthCallback"`    | while finishing an OAuth login.                                                                                                                                     |
+| `"authForm"`         | while submitting one of Wasp's Auth UI forms.                                                                                                                       |
+| `"optimisticUpdate"` | in the `updateQuery` function of an optimistic update.                                                                                                              |
 
 A few things to keep in mind:
 
@@ -12700,11 +12700,8 @@ The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Dock
 You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec";
-import {
-  myMiddlewareConfigFn,
-  mySetupFunction,
-} from "./src/myServerSetupCode" with { type: "ref" };
+import { app } from "@wasp/spec"
+import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
 export default app({
   name: "MyApp",
@@ -12713,7 +12710,7 @@ export default app({
     middlewareConfigFn: myMiddlewareConfigFn,
   },
   // ...
-});
+})
 ```
 
 ### Setup Function
@@ -12810,15 +12807,15 @@ export const onServerError: ServerOnErrorFn = (error, context) => {
 };
 ```
 
-| `source`      | The error happened...                                                                                                          |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `"request"`   | while handling a request to an Operation, API, or auth route.                                                                  |
-| `"job"`       | in a [Job](https://wasp.sh/docs/features/jobs). The context also has `jobName`.                                                |
-| `"webSocket"` | while authenticating a WebSocket connection.                                                                                   |
-| `"oauth"`     | during an OAuth login.                                                                                                         |
-| `"startup"`   | while starting the server, after your code has loaded, e.g. in `setupFn`.                                                      |
-| `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                                                                      |
-| `"process"`   | anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads. |
+| `source`      | The error happened...                                                                                                                                                                               |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"request"`   | while handling a request to an Operation, API, or auth route.                                                                                                                                       |
+| `"job"`       | in a [Job](https://wasp.sh/docs/features/jobs). The context also has `jobName`.                                                                                                                     |
+| `"webSocket"` | while authenticating a WebSocket connection.                                                                                                                                                        |
+| `"oauth"`     | during an OAuth login.                                                                                                                                                                              |
+| `"startup"`   | while starting the server, after your code has loaded, e.g. in `setupFn`.                                                                                                                           |
+| `"dbSeed"`    | in a database seed function, when running `wasp db seed`.                                                                                                                                           |
+| `"process"`   | anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads. The context also has `event`, the name of the Node.js process event. |
 
 A few things to keep in mind:
 
@@ -22713,9 +22710,9 @@ npm install @sentry/node @sentry/react
 Wasp calls the `onError` functions with every unexpected error on the [server](https://wasp.sh/docs/advanced/server-customization/server-config#handling-unexpected-errors) and the [client](https://wasp.sh/docs/advanced/client-customization/client-config#handling-unexpected-errors). Add both to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp/spec"
-import { onClientError } from "./src/clientSentry" with { type: "ref" }
-import { onServerError } from "./src/serverSentry" with { type: "ref" }
+import { app } from "@wasp/spec";
+import { onClientError } from "./src/clientSentry" with { type: "ref" };
+import { onServerError } from "./src/serverSentry" with { type: "ref" };
 
 export default app({
   name: "MyApp",
@@ -22729,7 +22726,7 @@ export default app({
     onError: onClientError,
   },
   // ...
-})
+});
 ```
 
 #### 4. Configure Server-Side Sentry
@@ -22818,15 +22815,13 @@ REACT_APP_SENTRY_CLIENT_DSN=https://your-client-dsn@sentry.io/your-project-id
 Create an API endpoint that throws an error:
 
 ```ts title="main.wasp.ts"
-import { api, app } from "@wasp/spec"
-import { testError } from "./src/apis" with { type: "ref" }
+import { api, app } from "@wasp/spec";
+import { testError } from "./src/apis" with { type: "ref" };
 
 export default app({
   // ...
-  spec: [
-    api("GET", "/test-error", testError, { auth: false }),
-  ],
-})
+  spec: [api("GET", "/test-error", testError, { auth: false })],
+});
 ```
 
 ```ts title="src/apis.ts"
@@ -27022,11 +27017,11 @@ In TypeScript, you can type the function with the `ClientOnErrorFn` type from `w
 ###### Example
 
 ```ts
-import { type ClientOnErrorFn } from "wasp/client"
+import { type ClientOnErrorFn } from "wasp/client";
 
 export const onClientError: ClientOnErrorFn = (error, context) => {
-  errorTracker.capture(error, { source: context.source })
-}
+  errorTracker.capture(error, { source: context.source });
+};
 ```
 
 ###### rootComponent?
@@ -27652,11 +27647,11 @@ In TypeScript, you can type the function with the `ServerOnErrorFn` type from `w
 ###### Example
 
 ```ts
-import { type ServerOnErrorFn } from "wasp/server"
+import { type ServerOnErrorFn } from "wasp/server";
 
 export const onServerError: ServerOnErrorFn = (error, context) => {
-  errorTracker.capture(error, { source: context.source })
-}
+  errorTracker.capture(error, { source: context.source });
+};
 ```
 
 ###### setupFn?
@@ -28926,12 +28921,12 @@ The URL of your server (the app's backend), without a trailing slash, from the [
 
 #### ClientErrorContext
 
-> **ClientErrorContext** = { `componentStack?`: `string`; `source`: `"render"`; } | { `source`: `"window"`; } | { `source`: `"oauthCallback"`; } | { `source`: `"authForm"`; } | { `source`: `"optimisticUpdate"`; }
+> **ClientErrorContext** = { `componentStack?`: `string`; `source`: `"render"`; } | { `event`: `"error"` | `"unhandledrejection"`; `source`: `"window"`; } | { `source`: `"oauthCallback"`; } | { `source`: `"authForm"`; } | { `source`: `"optimisticUpdate"`; }
 
 Where an unexpected client error surfaced.
 
 - `"render"`: While rendering a page or the root component. `componentStack` lists the components that led to the error, when React provides it.
-- `"window"`: In the browser's `error` and `unhandledrejection` events, e.g. an error thrown in an event handler or a rejected promise nobody caught.
+- `"window"`: In the browser's `error` and `unhandledrejection` events, e.g. an error thrown in an event handler or a rejected promise nobody caught. `event` is the name of the browser event.
 - `"oauthCallback"`: While finishing an OAuth login.
 - `"authForm"`: While submitting one of Wasp's Auth UI forms.
 - `"optimisticUpdate"`: In the `updateQuery` function of an optimistic update.
@@ -32856,7 +32851,7 @@ Disconnects from the database.
 
 #### ServerErrorContext
 
-> **ServerErrorContext** = { `source`: `"request"`; } | { `jobName`: `string`; `source`: `"job"`; } | { `source`: `"webSocket"`; } | { `source`: `"oauth"`; } | { `source`: `"startup"`; } | { `source`: `"dbSeed"`; } | { `source`: `"process"`; }
+> **ServerErrorContext** = { `source`: `"request"`; } | { `jobName`: `string`; `source`: `"job"`; } | { `source`: `"webSocket"`; } | { `source`: `"oauth"`; } | { `source`: `"startup"`; } | { `source`: `"dbSeed"`; } | { `event`: `"uncaughtException"` | `"unhandledRejection"`; `source`: `"process"`; }
 
 Where an unexpected server error happened.
 
@@ -32866,7 +32861,7 @@ Where an unexpected server error happened.
 - `"oauth"`: During an OAuth login.
 - `"startup"`: While starting the server, after your code has loaded, e.g. in `server.setupFn`.
 - `"dbSeed"`: In a database seed function, when running `wasp db seed`.
-- `"process"`: Anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads.
+- `"process"`: Anywhere else in the server, as an uncaught error or an unhandled promise rejection, e.g. in a timer or while your code loads. `event` is the name of the Node.js process event.
 
 ---
 

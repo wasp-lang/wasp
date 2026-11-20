@@ -549,11 +549,11 @@ export interface Server {
    *
    * @example
    * ```ts
-   * import { type ServerOnErrorFn } from "wasp/server"
+   * import { type ServerOnErrorFn } from "wasp/server";
    *
    * export const onServerError: ServerOnErrorFn = (error, context) => {
-   *   errorTracker.capture(error, { source: context.source })
-   * }
+   *   errorTracker.capture(error, { source: context.source });
+   * };
    * ```
    */
   onError?: Reference<AnyFunction>;
@@ -702,11 +702,11 @@ export interface Client {
    *
    * @example
    * ```ts
-   * import { type ClientOnErrorFn } from "wasp/client"
+   * import { type ClientOnErrorFn } from "wasp/client";
    *
    * export const onClientError: ClientOnErrorFn = (error, context) => {
-   *   errorTracker.capture(error, { source: context.source })
-   * }
+   *   errorTracker.capture(error, { source: context.source });
+   * };
    * ```
    */
   onError?: Reference<AnyFunction>;
