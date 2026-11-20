@@ -10,6 +10,7 @@ import { initWaspAppWithGitRepo } from "../../actions/init.ts";
 import { assertUnreachable } from "../../assert.ts";
 import { mainBranchName } from "../../git.ts";
 import { log } from "../../log.ts";
+import { npmInstallPackages } from "../../npm.ts";
 import type { TutorialApp } from "../../tutorialApp.ts";
 import { waspDbMigrate, type WaspCliCommand } from "../../waspCli.ts";
 
@@ -59,6 +60,12 @@ export async function executeActions({
           waspCliCommand,
           appDir: tutorialApp.appDirPath,
           migrationName: action.id,
+        });
+        break;
+      case "INSTALL_PACKAGES":
+        await npmInstallPackages({
+          appDir: tutorialApp.appDirPath,
+          packageSpecifiers: action.packageSpecifiers,
         });
         break;
       default:

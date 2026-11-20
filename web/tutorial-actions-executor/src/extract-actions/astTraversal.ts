@@ -10,6 +10,8 @@ export type TutorialActionNode = {
   id: ActionId;
   action: Action["kind"];
   starterTemplateName: string | null;
+  /** Space-separated, like the arguments of `npm install`. */
+  packageSpecifiers: string | null;
 };
 
 export function extractTutorialActionNodes(ast: Root): TutorialActionNode[] {
@@ -18,11 +20,12 @@ export function extractTutorialActionNodes(ast: Root): TutorialActionNode[] {
   visit(ast, "mdxJsxFlowElement", (node) => {
     if (node.name === TUTORIAL_ACTION_NODE_NAME) {
       nodes.push(
-        createTutorialActionNode(
-          getAttributeValue(node, "id"),
-          getAttributeValue(node, "action"),
-          getAttributeValue(node, "starterTemplateName"),
-        ),
+        createTutorialActionNode({
+          id: getAttributeValue(node, "id"),
+          action: getAttributeValue(node, "action"),
+          starterTemplateName: getAttributeValue(node, "starterTemplateName"),
+          packageSpecifiers: getAttributeValue(node, "packageSpecifiers"),
+        }),
       );
     }
   });
@@ -30,11 +33,17 @@ export function extractTutorialActionNodes(ast: Root): TutorialActionNode[] {
   return nodes;
 }
 
-export function createTutorialActionNode(
-  id: string | null,
-  action: string | null,
-  starterTemplateName: string | null,
-): TutorialActionNode {
+export function createTutorialActionNode({
+  id,
+  action,
+  starterTemplateName,
+  packageSpecifiers,
+}: {
+  id: string | null;
+  action: string | null;
+  starterTemplateName: string | null;
+  packageSpecifiers: string | null;
+}): TutorialActionNode {
   if (!id) {
     throw new Error(`TutorialAction component requires the 'id' attribute.`);
   }
@@ -49,6 +58,7 @@ export function createTutorialActionNode(
     id: id as ActionId,
     action: action as Action["kind"],
     starterTemplateName,
+    packageSpecifiers,
   };
 }
 
