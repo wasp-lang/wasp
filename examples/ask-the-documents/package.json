@@ -30,7 +30,6 @@
     "react-markdown": "^10.1.0",
     "react-router": "^8.0.1",
     "tailwindcss": "^4.1.18",
-    "wasp": "file:.wasp/out/sdk/wasp",
     "zod": "^4.3.6"
   },
   "devDependencies": {

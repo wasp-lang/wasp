@@ -17,7 +17,8 @@ spec_TsConfig = do
 anyTsConfig :: T.TsConfig
 anyTsConfig =
   T.TsConfig
-    { T.compilerOptions = Nothing,
+    { T.extends = Nothing,
+      T.compilerOptions = Nothing,
       T.include = Nothing,
       T.exclude = Nothing,
       T.files = Nothing,

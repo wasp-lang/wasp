@@ -38,7 +38,6 @@
     "tailwindcss": "^4.1.18",
     "uuid": "^9.0.1",
     "wait-port": "^1.1.0",
-    "wasp": "file:.wasp/out/sdk/wasp",
     "zod": "^4.3.6"
   },
   "devDependencies": {

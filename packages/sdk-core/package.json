@@ -34,6 +34,10 @@
     "./node/vite": {
       "types": "./dist/vite.d.mts",
       "default": "./dist/vite.mjs"
+    },
+    "./node/sdk": {
+      "types": "./dist/sdk.d.mts",
+      "default": "./dist/sdk.mjs"
     }
   },
   "files": [

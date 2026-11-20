@@ -66,7 +66,8 @@ assertReturnsValidationErrorMentioningField fieldName config =
 validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
-    { T.compilerOptions = Just validCompilerOptions,
+    { T.extends = Nothing,
+      T.compilerOptions = Just validCompilerOptions,
       T.include = Just ["**/*.wasp.ts", ".wasp/out/types/spec"],
       T.exclude = Nothing,
       T.files = Nothing,

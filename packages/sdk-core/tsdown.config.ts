@@ -8,6 +8,8 @@ export default defineConfig({
     node: "./src/node/index.ts",
     // Keep Vite's runtime dependency out of the general Node.js entry.
     vite: "./src/node/vite/index.ts",
+    // What Wasp's build tooling needs to find the generated SDK.
+    sdk: "./src/node/sdk/index.ts",
   },
   platform: "neutral",
   deps: {
