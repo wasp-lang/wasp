@@ -22,6 +22,7 @@ describe("reportClientError", () => {
   it("doesn't report an `HttpError` with a status below 500", () => {
     reportClientError(new HttpError(404, "Not found"), {
       source: "window",
+      event: "error",
     });
 
     expect(console.error).not.toHaveBeenCalled();
@@ -30,7 +31,7 @@ describe("reportClientError", () => {
   it("reports an `HttpError` with a status of 500 or above", () => {
     const error = new HttpError(502, "Bad gateway");
 
-    reportClientError(error, { source: "window" });
+    reportClientError(error, { source: "window", event: "error" });
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Unexpected error in window:",
@@ -39,7 +40,10 @@ describe("reportClientError", () => {
   });
 
   it("doesn't report an HTTP error that ky threw with a status below 500", () => {
-    reportClientError(makeKyHttpError(401), { source: "window" });
+    reportClientError(makeKyHttpError(401), {
+      source: "window",
+      event: "error",
+    });
 
     expect(console.error).not.toHaveBeenCalled();
   });
@@ -47,7 +51,7 @@ describe("reportClientError", () => {
   it("reports an HTTP error that ky threw with a status of 500 or above", () => {
     const kyHttpError = makeKyHttpError(503);
 
-    reportClientError(kyHttpError, { source: "window" });
+    reportClientError(kyHttpError, { source: "window", event: "error" });
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Unexpected error in window:",
@@ -59,7 +63,7 @@ describe("reportClientError", () => {
     const error = new Error("Unexpected");
 
     reportClientError(error, { source: "render" });
-    reportClientError(error, { source: "window" });
+    reportClientError(error, { source: "window", event: "error" });
 
     expect(console.error).toHaveBeenCalledTimes(1);
   });

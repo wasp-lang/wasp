@@ -213,10 +213,16 @@ function isExpectedHttpError(error) {
 */
 function listenForUncaughtClientErrors() {
 	window.addEventListener("error", (event) => {
-		reportClientError(event.error ?? event.message, { source: "window" });
+		reportClientError(event.error ?? event.message, {
+			source: "window",
+			event: "error"
+		});
 	});
 	window.addEventListener("unhandledrejection", (event) => {
-		reportClientError(event.reason, { source: "window" });
+		reportClientError(event.reason, {
+			source: "window",
+			event: "unhandledrejection"
+		});
 	});
 }
 function reportUnexpectedClientError(error, context) {

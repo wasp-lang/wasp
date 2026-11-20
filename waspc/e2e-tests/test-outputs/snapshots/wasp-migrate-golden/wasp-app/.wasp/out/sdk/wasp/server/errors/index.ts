@@ -13,7 +13,7 @@ export type ServerErrorContext =
   | { source: "oauth" }
   | { source: "startup" }
   | { source: "dbSeed" }
-  | { source: "process" };
+  | { source: "process"; event: "uncaughtException" | "unhandledRejection" };
 
 // PRIVATE API (server)
 // TODO: Refactor this once Wasp has proper logging.
