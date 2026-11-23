@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny, printWarningsIfAny)
+import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
@@ -66,7 +66,6 @@ start = withArguments startArgsParser $ \args ->
 
     throwIfDbConnectionNotEstablished projectRunConfig
     dbWarnings <- liftIO $ warnIfDbNeedsMigration appSpec outDir
-    liftIO $ printWarningsIfAny dbWarnings
     let warnings = compileWarnings ++ dbWarnings
 
     cliSendMessageC $ Msg.Start "Listening for file changes..."

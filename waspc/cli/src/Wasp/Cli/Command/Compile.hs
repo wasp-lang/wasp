@@ -11,7 +11,6 @@ module Wasp.Cli.Command.Compile
     withSetupGoals,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
-    printWarningsIfAny,
     analyze,
     analyzeWithOptions,
     analyzeWithDiagnosticsOnStderr,
@@ -48,13 +47,7 @@ import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
 compileCommand :: Command ([CompileWarning], AS.AppSpec)
-compileCommand = ProjectLock.acquireExclusive $ do
-  (warnings, appSpec) <- compile
-  InWaspProject waspProjectDir <- require
-  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-  dbWarnings <- liftIO $ Wasp.Project.warnIfDbNeedsMigration appSpec outDir
-  liftIO $ printWarningsIfAny dbWarnings
-  return (warnings, appSpec)
+compileCommand = ProjectLock.acquireExclusive compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command ([CompileWarning], AS.AppSpec)
