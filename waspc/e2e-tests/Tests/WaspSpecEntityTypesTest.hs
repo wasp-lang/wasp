@@ -15,7 +15,6 @@ import ShellCommands
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
 waspSpecEntityTypesTest :: Test
 waspSpecEntityTypesTest =
@@ -87,7 +86,6 @@ waspSpecEntityTypesTest =
         export default app({
           name: "enti",
           title: "enti",
-          wasp: { version: "$textWaspVersion" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           auth: {
             userEntity: "$entityName",
@@ -108,6 +106,3 @@ waspSpecEntityTypesTest =
     validEntityName, invalidEntityName :: T.Text
     validEntityName = "User"
     invalidEntityName = "InvalidUser"
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion
