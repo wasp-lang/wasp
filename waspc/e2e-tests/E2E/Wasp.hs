@@ -4,12 +4,14 @@ module E2E.Wasp
     wasp,
     waspFails,
     assertFailsWithoutInteractiveTerminal,
+    waspCliNew,
     createWaspProject,
     withNewWaspProject,
     waspDbMigrateDev,
     waspCliDbResetForce,
+    dbMigrationsDirs,
     setDbToPostgres,
-    waspPidFromLockFile,
+    getWaspPidFromLockFile,
     textWaspVersion,
   )
 where
@@ -20,7 +22,7 @@ import qualified Data.Aeson as Aeson
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
 import E2E.Assertions (assertOutputContains)
-import E2E.Command (Command, waspCli, withEnv)
+import E2E.Command (Command, waspCli, withEnv, withoutEnv)
 import E2E.Files (replaceInFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
 import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
@@ -31,7 +33,8 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..))
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import Wasp.Version (waspVersion)
 
@@ -56,8 +59,15 @@ assertFailsWithoutInteractiveTerminal commandName cmd = do
   assertOutputContains "stdin is not an interactive terminal" result
   assertOutputContains (T.pack $ "Usage: " ++ commandName) result
 
+-- | Creates the Wasp project in 'waspAppDirName'.
+--
+-- Without the test runner's @DATABASE_URL@, which makes starters with
+-- migrations skip them.
+waspCliNew :: StarterTemplate -> Command
+waspCliNew template = withoutEnv [databaseUrlEnvVarName] $ waspCli ["new", waspAppDirName, "-t", show template]
+
 createWaspProject :: StarterTemplate -> TestM ()
-createWaspProject template = void $ wasp ["new", waspAppDirName, "-t", show template]
+createWaspProject = void . run . waspCliNew
 
 -- | Creates a Wasp project and runs the steps inside of it.
 withNewWaspProject :: StarterTemplate -> TestM a -> TestM a
@@ -72,7 +82,7 @@ withNewWaspProject template steps = createWaspProject template >> inDirectory wa
 waspDbMigrateDev :: String -> TestM ()
 waspDbMigrateDev migrationName = do
   void $ wasp ["db", "migrate-dev", "--name", migrationName]
-  mapM resolvePath migrationsDirs >>= mapM_ removeDatePrefix
+  mapM resolvePath dbMigrationsDirs >>= mapM_ removeDatePrefix
   where
     removeDatePrefix migrationsDir = liftIO $ do
       exists <- doesDirectoryExist migrationsDir
@@ -81,15 +91,13 @@ waspDbMigrateDev migrationName = do
       forM_ (filter (("_" ++ migrationName) `isSuffixOf`) entries) $ \migrationDir ->
         renameDirectory (migrationsDir </> migrationDir) (migrationsDir </> ("no-date-" ++ migrationName))
 
-    -- The migrations dir in the project and its copy in the generated app.
-    migrationsDirs =
-      [ SP.fromRelDir dbMigrationsDirInWaspProjectDir,
-        SP.fromRelDir $
-          dotWaspDirInWaspProjectDir
-            SP.</> generatedAppDirInDotWaspDir
-            SP.</> dbRootDirInGeneratedAppDir
-            SP.</> dbMigrationsDirInDbRootDir
-      ]
+-- | The migrations dir in the Wasp project and its copy in the generated app,
+-- relative to the Wasp project dir.
+dbMigrationsDirs :: [FilePath]
+dbMigrationsDirs =
+  [ SP.fromRelDir dbMigrationsDirInWaspProjectDir,
+    SP.fromRelDir $ generatedAppDirInWaspProjectDir SP.</> dbRootDirInGeneratedAppDir SP.</> dbMigrationsDirInDbRootDir
+  ]
 
 -- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g.
 -- when the e2e tests are run from Claude Code), unless the consent env var is
@@ -106,8 +114,8 @@ setDbToPostgres = replaceInFile "schema.prisma" "provider = \"sqlite\"" "provide
 --
 -- We signal this PID instead of the one of the process we started, since the
 -- Wasp CLI might run through a wrapper (e.g. @tools/wasp-cli-dev@).
-waspPidFromLockFile :: TestM Int
-waspPidFromLockFile = do
+getWaspPidFromLockFile :: TestM Int
+getWaspPidFromLockFile = do
   lockFile <- resolvePath $ SP.fromRelFile projectLockFileInWaspProjectDir
   liftIO (Aeson.eitherDecodeFileStrict lockFile) >>= \case
     Right (lockData :: ProjectLockData) -> return $ fromIntegral lockData.pid

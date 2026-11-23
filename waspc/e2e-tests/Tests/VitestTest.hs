@@ -3,6 +3,7 @@ module Tests.VitestTest (vitestTest) where
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
+import Tests.Fixtures (addTasksQueryToMainWaspTs)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | Sets up Vitest in a Wasp app the way the testing docs describe, and runs
@@ -13,7 +14,7 @@ vitestTest =
     "vitest"
     [ test "runs-client-tests" $
         withNewWaspProject minimalStarterTemplate $ do
-          writeToFile "main.wasp.ts" mainWaspTs
+          addTasksQueryToMainWaspTs
           writeToFile "src/queries.ts" queriesTs
           writeToFile "src/TaskList.tsx" taskListTsx
           writeToFile "vite.config.ts" viteConfigTs
@@ -27,24 +28,6 @@ vitestTest =
           run $ nodeModulesBin "vitest" ["run"]
     ]
   where
-    mainWaspTs :: T.Text
-    mainWaspTs =
-      [trimming|
-        import { app, page, query, route } from "@wasp/spec";
-        import { MainPage } from "./src/MainPage" with { type: "ref" };
-        import { getTasks } from "./src/queries" with { type: "ref" };
-
-        export default app({
-          name: "vitestPackage",
-          title: "Vitest package",
-          wasp: { version: "$textWaspVersion" },
-          spec: [
-            route("RootRoute", "/", page(MainPage)),
-            query(getTasks),
-          ],
-        });
-      |]
-
     queriesTs :: T.Text
     queriesTs =
       [trimming|
@@ -117,5 +100,8 @@ vitestTest =
       |]
 
 {- HLINT ignore installTestingLibraries "Avoid npm and npx" -}
+
+-- | Like the testing docs, we install the latest versions, so that we notice
+-- when a new release of these libraries breaks the `wasp/client/test` helpers.
 installTestingLibraries :: Command
 installTestingLibraries = command "npm" ["install", "-D", "vitest", "jsdom", "@testing-library/react", "msw"]

@@ -11,6 +11,7 @@ module E2E
     module E2E.Test,
     module E2E.TestM,
     module E2E.Wasp,
+    ExitCode (..),
   )
 where
 
@@ -20,8 +21,9 @@ import E2E.Files
 import E2E.Net
 import E2E.Ports
 import E2E.Process
-import E2E.Signals (Signal (..), processGroupExists, signal)
+import E2E.Signals (Signal (..))
 import E2E.Snapshot
 import E2E.Test (E2ETest, sequentialTestGroup, test, testGroup)
-import E2E.TestM (TestM, failTest, inDirectory, registerCleanupStep, resolvePath, skipIfDockerDisabled, waitUntil, whenDockerEnabled)
+import E2E.TestM (TestM, failTest, inDirectory, makeUniqueName, registerCleanupStep, resolvePath, skipIfDockerDisabled, waitUntil, whenDockerEnabled)
 import E2E.Wasp
+import System.Exit (ExitCode (..))

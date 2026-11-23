@@ -7,7 +7,6 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E
 import NeatInterpolation (trimming)
-import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
 
@@ -86,7 +85,7 @@ waspProjectLockTest =
     -- into the lock file.
     getLockHolderMessage :: TestM (T.Text -> T.Text)
     getLockHolderMessage = do
-      lockHolderPid <- waspPidFromLockFile
+      lockHolderPid <- getWaspPidFromLockFile
       return $ \message -> "A Wasp command (PID " <> T.pack (show lockHolderPid) <> ") " <> message
 
 -- | Starts a real `wasp install`, which acquires the project lock and then runs
@@ -143,5 +142,5 @@ writeLockFile =
 -- | Rewrites the lock file on behalf of the process holding the lock, keeping its PID.
 setLockFileWatcherStatus :: WatcherStatus -> TestM ()
 setLockFileWatcherStatus watcherStatus = do
-  pid <- fromIntegral <$> waspPidFromLockFile
+  pid <- fromIntegral <$> getWaspPidFromLockFile
   writeLockFile ProjectLockData {pid, watcherStatus = Just watcherStatus}

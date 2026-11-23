@@ -2,6 +2,7 @@ module Tests.ViteConfigTest (viteConfigTest) where
 
 import E2E
 import NeatInterpolation (trimming)
+import Tests.Fixtures (viteBuild)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 viteConfigTest :: E2ETest
@@ -11,7 +12,7 @@ viteConfigTest =
     [ test "fail-on-missing-vite-config" $
         withNewWaspProject minimalStarterTemplate $ do
           deleteFile "vite.config.ts"
-          waspFails ["compile"],
+          waspFails ["compile"] >>= assertOutputContains "Couldn't find `vite.config.ts`",
       test "fail-on-missing-wasp-plugin-import" $
         withNewWaspProject minimalStarterTemplate $ do
           writeToFile
@@ -21,7 +22,7 @@ viteConfigTest =
 
               export default defineConfig({});
             |]
-          waspFails ["compile"],
+          waspFails ["compile"] >>= assertOutputContains "doesn't seem to import the Wasp Vite plugin",
       test "fail-on-overriding-forced-options" $
         withNewWaspProject minimalStarterTemplate $ do
           writeToFile
@@ -40,6 +41,6 @@ viteConfigTest =
               });
             |]
           wasp ["compile"]
-          runExpectingFailure (nodeModulesBin "vite" ["build"])
+          runExpectingFailure (viteBuild [])
             >>= assertOutputContains "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config."
     ]

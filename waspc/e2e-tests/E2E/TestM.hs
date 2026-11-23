@@ -1,5 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
+-- | The monad test steps run in, and what every step can do: fail, skip, run
+-- in a directory, register cleanups, log, and wait.
 module E2E.TestM
   ( TestM,
     TestEnv (..),
@@ -15,17 +17,18 @@ module E2E.TestM
     getWorkingDir,
     resolvePath,
     allocateWithCleanup,
-    registerCleanup,
     registerCleanupStep,
+    makeUniqueName,
     writeToLog,
     logLine,
     waitUntil,
+    pollUntil,
   )
 where
 
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.MVar (MVar, withMVar)
-import Control.Monad (unless, void, when)
+import Control.Monad (unless, void)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT)
 import Control.Monad.Trans.Resource (InternalState, MonadResource (..), ReleaseKey, allocate, runInternalState)
@@ -33,20 +36,14 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Data.Time.Clock (addUTCTime, getCurrentTime)
+import Data.Time.Clock.POSIX (getPOSIXTime)
+import Data.Unique (hashUnique, newUnique)
+import E2E.RunConfig (RunConfig (..), skipDockerEnvVar)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
 import System.IO (Handle, hFlush)
 import UnliftIO (MonadUnliftIO, throwIO)
 import UnliftIO.Exception (Exception, catchAny, displayException)
-
--- | Settings shared by all tests in a run.
-data RunConfig = RunConfig
-  { -- | The Wasp CLI under test.
-    waspCliPath :: FilePath,
-    gitRootDir :: FilePath,
-    -- | Docker can be disabled with the @WASP_E2E_TESTS_SKIP_DOCKER@ env var.
-    isDockerEnabled :: Bool
-  }
 
 data TestEnv = TestEnv
   { runConfig :: RunConfig,
@@ -92,6 +89,11 @@ runTestM testEnv (TestM reader) = runReaderT reader testEnv
 failTest :: String -> TestM a
 failTest = throwIO . TestFailure
 
+-- | Ends the test early, as passed, when Docker is disabled. Steps before it
+-- still run.
+--
+-- Not for snapshot tests, which must produce a snapshot: use
+-- 'whenDockerEnabled' in them.
 skipIfDockerDisabled :: TestM ()
 skipIfDockerDisabled = do
   isDockerEnabled <- asks (.runConfig.isDockerEnabled)
@@ -104,7 +106,7 @@ whenDockerEnabled steps = do
   if isDockerEnabled then steps else logLine dockerDisabledMessage
 
 dockerDisabledMessage :: String
-dockerDisabledMessage = "SKIPPED: Docker is disabled via the WASP_E2E_TESTS_SKIP_DOCKER environment variable."
+dockerDisabledMessage = "SKIPPED: Docker is disabled via the " ++ skipDockerEnvVar ++ " environment variable."
 
 -- | Runs the steps with the working directory set to a path relative to the
 -- current one.
@@ -139,6 +141,15 @@ registerCleanupStep step = do
   testEnv <- ask
   registerCleanup $ runTestM testEnv step
 
+-- | The name with a suffix that no other test run uses, for resources outside
+-- the test dir that runs from other checkouts could also create, e.g. Docker
+-- image tags. Register a cleanup for the resource, since it's never reused.
+makeUniqueName :: String -> TestM String
+makeUniqueName name = liftIO $ do
+  microseconds <- floor . (* 1000000) <$> getPOSIXTime
+  unique <- newUnique
+  return $ name ++ "-" ++ show (microseconds :: Integer) ++ "-" ++ show (hashUnique unique)
+
 writeToLog :: TestLog -> BS.ByteString -> IO ()
 writeToLog testLog content =
   withMVar testLog.logLock $ \() -> BS.hPut testLog.logHandle content >> hFlush testLog.logHandle
@@ -153,12 +164,18 @@ logLine line = do
 -- seconds.
 waitUntil :: String -> Int -> TestM Bool -> TestM ()
 waitUntil description seconds condition = do
+  holds <- pollUntil seconds condition
+  unless holds $ failTest $ "Timed out after " ++ show seconds ++ "s waiting until " ++ description ++ "."
+
+-- | Like 'waitUntil', but returns whether the condition held in time instead
+-- of failing, for waits that fail with more context.
+pollUntil :: Int -> TestM Bool -> TestM Bool
+pollUntil seconds condition = do
   deadline <- liftIO $ addUTCTime (fromIntegral seconds) <$> getCurrentTime
   let poll = do
         holds <- condition
-        unless holds $ do
-          now <- liftIO getCurrentTime
-          when (now > deadline) $ failTest $ "Timed out after " ++ show seconds ++ "s waiting until " ++ description ++ "."
-          liftIO $ threadDelay 500000
-          poll
+        now <- liftIO getCurrentTime
+        if holds || now > deadline
+          then return holds
+          else liftIO (threadDelay 500000) >> poll
   poll

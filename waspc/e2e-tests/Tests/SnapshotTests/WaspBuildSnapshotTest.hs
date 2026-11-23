@@ -4,8 +4,9 @@ import Control.Monad (void)
 import E2E
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
+import Tests.Fixtures (viteBuild, withApiUrl)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 waspBuildSnapshotTest :: E2ETest
 waspBuildSnapshotTest =
@@ -15,20 +16,17 @@ waspBuildSnapshotTest =
       wasp ["build"]
       buildAndRemoveDockerImage
       writeDeterministicViteConfig
-      run
-        $ withEnv [("REACT_APP_API_URL", "http://localhost:3001")]
-        $ nodeModulesBin "vite" ["build", "--config", wrapperViteConfigFile]
+      run . withApiUrl $ viteBuild ["--config", wrapperViteConfigFile]
 
 -- | Builds the Docker image of the generated app, to check that its
 -- Dockerfile works.
 buildAndRemoveDockerImage :: TestM ()
 buildAndRemoveDockerImage =
   whenDockerEnabled $
-    inDirectory (SP.fromRelDir $ dotWaspDirInWaspProjectDir SP.</> generatedAppDirInDotWaspDir) $ do
-      run $ command "docker" ["build", "--build-arg", "BUILDKIT_DOCKERFILE_CHECK=error=true", "-t", imageTag, "."]
-      void . run $ command "docker" ["image", "rm", imageTag]
-  where
-    imageTag = "waspc-e2e-tests-" ++ waspAppDirName
+    inDirectory (SP.fromRelDir generatedAppDirInWaspProjectDir) $ do
+      imageTag <- makeUniqueName "waspc-e2e-tests-wasp-build"
+      registerCleanupStep . void . runAllowingFailure $ command "docker" ["image", "rm", "--force", imageTag]
+      void . run $ command "docker" ["build", "--build-arg", "BUILDKIT_DOCKERFILE_CHECK=error=true", "-t", imageTag, "."]
 
 -- | Wraps the generated vite.config.ts with a config that adds
 -- deterministic build options (no minification, no hashes, externalized deps),

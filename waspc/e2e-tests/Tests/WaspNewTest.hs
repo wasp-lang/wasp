@@ -7,6 +7,7 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplat
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Dev.Sqlite (devDbFileInDbRootDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
@@ -23,9 +24,7 @@ waspNewTest =
           assertDirectoryExists migrationsDir
           assertFileExists devDbFile,
       test "create-basic-leaves-database-from-environment-alone" $ do
-        result <-
-          run . withEnv [("DATABASE_URL", "file:./unrelated.db")] $
-            waspCli ["new", waspAppDirName, "-t", show basicStarterTemplate]
+        result <- run . withEnv [(databaseUrlEnvVarName, "file:./unrelated.db")] $ waspCliNew basicStarterTemplate
         assertOutputContains "Migration skipped" result
         assertOutputContains "wasp db migrate-dev" result
         inDirectory waspAppDirName $ assertDirectoryDoesNotExist migrationsDir,
