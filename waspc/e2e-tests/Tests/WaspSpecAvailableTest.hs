@@ -15,8 +15,7 @@ waspSpecAvailableTest =
     [ test "commands-requiring-wasp-spec-fail-with-install-hint-when-missing" $
         withNewWaspProject minimalStarterTemplate $ do
           removeNodeModules
-          mapM_
-            assertFailsWithInstallHint
+          forM_
             [ waspCli ["compile"],
               waspCli ["build"],
               waspCli ["show", "spec"],
@@ -27,7 +26,8 @@ waspSpecAvailableTest =
               waspCli ["deploy", "fly", "setup"],
               waspCli ["start", "db"],
               waspCli ["start"]
-            ],
+            ]
+            assertFailsWithInstallHint,
       test "compile-fails-with-install-hint-when-wasp-spec-version-mismatches-cli" $
         withNewWaspProject minimalStarterTemplate $ do
           corruptWaspSpecVersion
@@ -49,11 +49,11 @@ waspSpecAvailableTest =
             ["install"],
             ["show", "build"],
             -- Project-agnostic commands. They don't read the project, so
-            -- they should be unaffected by wasp-spec presence.
+            -- they should be unaffected by wasp-spec presence. Not `wasp
+            -- news`, which fetches the news, so the test would fail offline.
             ["version"],
             ["completion"],
-            ["telemetry"],
-            ["news"]
+            ["telemetry"]
           ]
         $ \args -> removeNodeModules >> wasp args
     ]

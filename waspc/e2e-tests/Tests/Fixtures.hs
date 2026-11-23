@@ -153,8 +153,9 @@ addSeedsToMainWaspTs seedNames = do
 
 -- | `vite build` in the Wasp project, with the extra arguments.
 --
--- Without the test runner's @REACT_APP_API_URL@, since the client needs it to
--- build. Use 'withApiUrl' to set it.
+-- Without the test runner's @REACT_APP_API_URL@, so that each test decides
+-- whether the client gets it, which it needs to build. Use 'withApiUrl' to
+-- set it.
 viteBuild :: [String] -> Command
 viteBuild arguments = withoutEnv [serverUrlEnvVarName] $ nodeModulesBin "vite" ("build" : arguments)
 

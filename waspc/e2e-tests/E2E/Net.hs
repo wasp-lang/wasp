@@ -51,10 +51,10 @@ waitUntilStopped runningProcess ports = do
 -- | Stops the process like Ctrl+C in a terminal does, by interrupting its
 -- whole process group, and waits until it's stopped (see 'waitUntilStopped').
 --
--- For commands that don't take the project lock, so we can't read Wasp's PID
--- from it to signal only Wasp, like the tests of `wasp start` do. That only
--- checks that interrupting everything stops everything, and not that Wasp
--- stops the processes it started.
+-- For commands that don't take the project lock. The tests of `wasp start`
+-- read Wasp's PID from the lock to signal only Wasp, but these commands don't
+-- write it. So this only checks that interrupting everything stops everything,
+-- and not that Wasp stops the processes it started.
 interruptProcessGroupAndWaitUntilStopped :: RunningProcess -> [Int] -> TestM ExitCode
 interruptProcessGroupAndWaitUntilStopped runningProcess ports = do
   signalProcessGroupOf SIGINT runningProcess

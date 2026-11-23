@@ -2,6 +2,7 @@ module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
 import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Project.Db (databaseUrlEnvVarName)
 
 waspBuildStartTest :: E2ETest
 waspBuildStartTest =
@@ -19,7 +20,7 @@ waspBuildStartTest =
           ports <- allocateAppPorts
           setDbToPostgres
           wasp ["build"]
-          app <- startInBackground $ waspCli (["build", "start", "-s", "DATABASE_URL=none"] ++ appPortArgs ports)
+          app <- startInBackground $ waspCli (["build", "start", "-s", databaseUrlEnvVarName ++ "=none"] ++ appPortArgs ports)
           waitUntilListening app (appPortList ports) (15 * 60)
           interruptProcessGroupAndWaitUntilStopped app (appPortList ports)
     ]

@@ -22,8 +22,9 @@ import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 assertSdkPackageExportsExist :: TestM ()
 assertSdkPackageExportsExist = do
   sdkPackageDir <- resolvePath . SP.fromRelDir $ generatedAppDirInWaspProjectDir SP.</> sdkRootDirInGeneratedAppDir
-  packageJson <- liftIO . BS.readFile $ sdkPackageDir </> "package.json"
-  packageExports <- either (failTest . ("Unexpected SDK package.json: " ++)) return $ parsePackageExports packageJson
+  let packageJsonFile = sdkPackageDir </> "package.json"
+  packageJson <- liftIO $ BS.readFile packageJsonFile
+  packageExports <- either (failTest . (("Unexpected " ++ packageJsonFile ++ ": ") ++)) return $ parsePackageExports packageJson
   missingExportTargets <- liftIO $ filterM (fmap not . exportTargetExists sdkPackageDir) packageExports
   unless (null missingExportTargets)
     $ failTest
