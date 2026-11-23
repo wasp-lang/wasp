@@ -42,23 +42,13 @@ runs:
           fi
         fi
 
-    - name: Select Mise environment
-      shell: bash
-      env:
-        # Loads `.config/mise/config.$MISE_ENV.toml` on top of `mise.toml`,
-        # which disables dev-only tools that are not used in CI.
-        MISE_ENV: ${{ inputs.haskell == 'true' && 'ci' || 'ci-no-haskell' }}
-      run:
-        # We control the value passed here completely.
-        # zizmor: ignore[github-env]
-        echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
-
     - name: Install Mise
       uses: jdx/mise-action@v5
       with:
         version: 2026.11.5
         bootstrap: true
         bootstrap_args: --update --yes
+        mise_env: ${{ inputs.haskell == 'true' && 'ci' || 'ci-no-haskell' }}
 
     - name: Probe pnpm store path
       id: probe-pnpm-store
