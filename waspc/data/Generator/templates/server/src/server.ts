@@ -11,8 +11,8 @@ import { reportFatalServerError } from "wasp/server/errors";
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
-import { ServerSetupFn } from 'wasp/server'
-import { ServerSetupFnContext } from 'wasp/server/types'
+import type { ServerSetupFn } from 'wasp/server'
+import type { ServerSetupFnContext } from 'wasp/server/types'
 {=/ setupFn.isDefined =}
 
 {=# isPgBossJobExecutorUsed =}

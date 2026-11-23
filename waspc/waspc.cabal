@@ -516,6 +516,8 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.Compile
+    Wasp.Cli.DevDb
+    Wasp.Cli.DevDb.ArgumentsParser
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
@@ -723,6 +725,7 @@ test-suite waspc-e2e-tests
     TestLogging
     Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
+    Tests.ServerTypeCheckingTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest

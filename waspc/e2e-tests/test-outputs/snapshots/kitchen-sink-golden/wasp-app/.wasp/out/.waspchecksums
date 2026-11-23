@@ -1264,7 +1264,7 @@
             "file",
             "server/src/auth/providers/config/email.ts"
         ],
-        "2b4559a1bfe631d9da6ca302b0b3ef00b9ac8cc508f859e15480d09a274cbedb"
+        "fdec43f8c51611f95478af8054ee678f4cb1df78fe3cdd5d91307ad2ec5408f7"
     ],
     [
         [
@@ -1299,35 +1299,35 @@
             "file",
             "server/src/auth/providers/email/login.ts"
         ],
-        "766d2b6a186a1f16e4aba25d53a4ae38f0b7da8730e7827d2ae400c7544faff5"
+        "ecf8e0f6713fd21ab576e35a5be8f2b191f5f3e86b30b70da81b5071d1e67ef4"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/requestPasswordReset.ts"
         ],
-        "4259dd757e9bde63e59ddf509dee970a65b21624bc968099907bd79d9ddb8c96"
+        "66786afb361f19b6d4071577956b69e54146550ec4363fc85aeb1383fef433b7"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/resetPassword.ts"
         ],
-        "9b840248c8e49ec1bbbaf6d5cdbdd4495e589010b7a20bbe48cfaaa2eee782a3"
+        "4280753df6819770ca9bf9ff31bad7a978b821f14ee9ac9ace55542674ff9ad3"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/signup.ts"
         ],
-        "380a1406fde5dfc9b48cc8b96791c48a39f7d46dc9a0f3ab89e353eddeed3d15"
+        "2c5077a2dc8959b2d600c175d682a5ae0a3ceb2ad724c3770498dcc733e32f3d"
     ],
     [
         [
             "file",
             "server/src/auth/providers/email/verifyEmail.ts"
         ],
-        "99223985071ef57b648285ed5686c9f0c1d3394077dabead869e65952faf6d8c"
+        "5b67bddbc3d5a4c75a01b03f3160fdeaccbecddf14e0271556e0f7ed7d63c29a"
     ],
     [
         [
@@ -1348,14 +1348,14 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "8941684c6b3d452a7724f51182cff4abdc782daf84b708216c39e8ecc63b4925"
+        "d3516c5897a6d1ba4964b07735302ef25cbd473fa3ba6d236cdcf4cd7aa65711"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "d46a9a950d2ba172ef9e7ae18c7361561e0e07a76bc0f1bb555a1e836c3ec1dc"
+        "7e87f1b3c72437695df8086acc35b0ff9703ff769d85e6a649384b058649a887"
     ],
     [
         [
@@ -1369,7 +1369,7 @@
             "file",
             "server/src/auth/providers/oauth/state.ts"
         ],
-        "4bc17100193ccaa253e30eadf4533baa5449e5935d80e7503bf3d9729b96ba54"
+        "78a2e57457b89535c13224e48b8b6c7026c0423957add30af691fe0e263f3bc6"
     ],
     [
         [
@@ -1383,7 +1383,7 @@
             "file",
             "server/src/auth/providers/oauth/user.ts"
         ],
-        "70c10d31134efc795abb2f38a3c1a81dbbb21a2806551d74867df1f8a80dee42"
+        "fb669e1a5d7eeca4f9f0a011cf98febadf8f6c895c6eabd5635817b9c21abd84"
     ],
     [
         [
@@ -1397,7 +1397,7 @@
             "file",
             "server/src/crud/taskVotes.ts"
         ],
-        "b12e5eedb5cf9dc9d4316bdd731a142172fd59c9b51f94faa3361f0e2a294c45"
+        "f2d3f80a7223d00f9e4d5d79510b2e1bf4f38354731ef29590c9b9d597b5337a"
     ],
     [
         [
@@ -1411,7 +1411,7 @@
             "file",
             "server/src/dbSeed.ts"
         ],
-        "22ce7a61c034c8349da191d4806093c990f088d76e99a15875e3ac21f72820a0"
+        "1e5e7ed79bb75d1cb3d6f4b81065a7542050f2c01544a55d07b071fb425eb3cf"
     ],
     [
         [
@@ -1572,7 +1572,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "dd8194da21f4ec221eb5562c2cb867b7d967bfef6f668e9eb7b4e1aa4494bcf0"
+        "e6d3300dcbfda04e75f74f915b12f451435523320c88adf6dd744c0e356cc3db"
     ],
     [
         [
@@ -1859,7 +1859,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "ca9725f002393d635d9f598f45bd823fb634948ef5ef83bb31a0830721fff82f"
+        "8c40a9b2a81d62409a883d61c7ecf0d9b98780953e3ac03d2cc9dc66b7844e65"
     ],
     [
         [
@@ -1887,7 +1887,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "25058d170dc4ad7b3f4c2b6f1a1482ef4f558e2495ea3446584a34d8db4cf3b0"
+        "aabaec15363fb0061d52769969e5a2e4f7389411f63f7f8d14fc31e5277975a1"
     ],
     [
         [
