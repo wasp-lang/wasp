@@ -2,7 +2,6 @@
 module E2E.Paths
   ( getWaspcDir,
     getTestOutputsDir,
-    snapshotsDirInTestOutputsDir,
   )
 where
 
@@ -22,8 +21,3 @@ getWaspcDir = do
 -- | Where tests run and leave their outputs, e.g. @<test-group>/<test-name>/@.
 getTestOutputsDir :: IO FilePath
 getTestOutputsDir = getWaspcDir <&> (</> "e2e-tests" </> "test-outputs")
-
--- | Contains the current and golden snapshot dirs, e.g. @wasp-new-current/@
--- and @wasp-new-golden/@.
-snapshotsDirInTestOutputsDir :: FilePath
-snapshotsDirInTestOutputsDir = "snapshots"
