@@ -24,6 +24,6 @@ import E2E.Process
 import E2E.Signals (Signal (..))
 import E2E.Snapshot
 import E2E.Test (E2ETest, sequentialTestGroup, test, testGroup)
-import E2E.TestM (TestM, failTest, inDirectory, makeUniqueName, registerCleanupStep, resolvePath, skipIfDockerDisabled, waitUntil, whenDockerEnabled)
+import E2E.TestM (TestM, cleanupCommandTimeoutSeconds, failTest, getWorkingDir, inDirectory, makeUniqueName, registerCleanupStep, resolvePath, skipIfDockerDisabled, waitUntil, whenDockerEnabled)
 import E2E.Wasp
 import System.Exit (ExitCode (..))

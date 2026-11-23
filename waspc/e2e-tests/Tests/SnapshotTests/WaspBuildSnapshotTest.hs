@@ -25,7 +25,8 @@ buildAndRemoveDockerImage =
   whenDockerEnabled $
     inDirectory (SP.fromRelDir generatedAppDirInWaspProjectDir) $ do
       imageTag <- makeUniqueName "waspc-e2e-tests-wasp-build"
-      registerCleanupStep . void . runAllowingFailure $ command "docker" ["image", "rm", "--force", imageTag]
+      registerCleanupStep . void . runAllowingFailure $
+        (command "docker" ["image", "rm", "--force", imageTag]) {timeoutSeconds = cleanupCommandTimeoutSeconds}
       void . run $ command "docker" ["build", "--build-arg", "BUILDKIT_DOCKERFILE_CHECK=error=true", "-t", imageTag, "."]
 
 -- | Wraps the generated vite.config.ts with a config that adds
