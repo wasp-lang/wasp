@@ -4,6 +4,7 @@ import Control.Monad (void)
 import Data.Char (isSpace)
 import qualified Data.Text as T
 import E2E
+import Text.Read (readMaybe)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Db.Postgres (defaultPostgresPort)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
@@ -81,25 +82,24 @@ stopDevDbWithSignal sig devDb containerName volumeName = do
   getWaspPid >>= signal sig
   waitForExit devDb 60
   waitUntil ("the dev database container is gone after " ++ show sig) 30 $
-    null . dockerOutputLines <$> docker ["ps", "-a", "-q", "--filter", "volume=" ++ volumeName]
+    null . stdoutLines <$> docker ["ps", "-a", "-q", "--filter", "volume=" ++ volumeName]
   where
     -- The process we started might not be Wasp itself (e.g. when the Wasp CLI
     -- runs through a wrapper script), so we look for the parent of the
     -- `docker run` client instead, which is Wasp.
     getWaspPid = do
-      dockerRunPid <- firstLine <$> run (command "pgrep" ["-f", "docker run --name " ++ containerName ++ " "])
-      read . firstLine <$> run (command "ps" ["-o", "ppid=", "-p", dockerRunPid])
-
-    firstLine = takeWhile (/= '\n') . dropWhile isSpace . T.unpack . (.stdout)
+      dockerRunPid <- firstOutputLine =<< run (command "pgrep" ["-f", "docker run --name " ++ containerName ++ " "])
+      waspPid <- firstOutputLine =<< run (command "ps" ["-o", "ppid=", "-p", dockerRunPid])
+      maybe (failTest $ "`ps` printed an invalid parent PID: " ++ show waspPid) return (readMaybe waspPid)
 
 -- | Opens a database session that stays open, like the app's server's.
 holdDevDbSessionOpen :: String -> TestM ()
 holdDevDbSessionOpen volumeName = do
-  containerId <- firstOutputLine <$> docker ["ps", "-q", "--filter", "volume=" ++ volumeName]
+  containerId <- firstOutputLine =<< docker ["ps", "-q", "--filter", "volume=" ++ volumeName]
   docker ["exec", "-d", containerId, "sh", "-c", psqlCommand "select pg_sleep(600)"]
   waitUntil "the database session opens" 30 $
-    (/= "0") . firstOutputLine
-      <$> docker
+    fmap (/= "0") . firstOutputLine
+      =<< docker
         [ "exec",
           containerId,
           "sh",
@@ -121,7 +121,7 @@ getReportedVolumeName devDb = do
 
 getDevDbContainerName :: String -> TestM String
 getDevDbContainerName volumeName =
-  firstOutputLine <$> docker ["ps", "--format", "{{.Names}}", "--filter", "volume=" ++ volumeName]
+  firstOutputLine =<< docker ["ps", "--format", "{{.Names}}", "--filter", "volume=" ++ volumeName]
 
 -- | Creates a stopped container with the name of the dev db container, like
 -- the one that `docker run` leaves behind when it's stopped while creating it.
@@ -143,10 +143,12 @@ portHolderContainerName = "wasp-e2e-tests-db-port-holder"
 docker :: [String] -> TestM ProcessResult
 docker = run . command "docker"
 
-dockerOutputLines :: ProcessResult -> [String]
-dockerOutputLines = filter (not . null) . lines . T.unpack . (.stdout)
+-- | The non-empty lines of stdout, without surrounding whitespace.
+stdoutLines :: ProcessResult -> [String]
+stdoutLines = filter (not . null) . map (T.unpack . T.strip) . T.lines . (.stdout)
 
-firstOutputLine :: ProcessResult -> String
-firstOutputLine result = case dockerOutputLines result of
-  firstLine : _ -> firstLine
-  [] -> ""
+-- | Fails the test if the command printed nothing.
+firstOutputLine :: ProcessResult -> TestM String
+firstOutputLine result = case stdoutLines result of
+  firstLine : _ -> return firstLine
+  [] -> failTest "Expected the command to print something, but it printed nothing."

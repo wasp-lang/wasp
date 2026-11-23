@@ -1,6 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 
 -- | Running commands as processes, without a shell.
+--
+-- We use @typed-process@ over @process@ for its STM exit codes, which let
+-- 'waitForOutput' race a process's output against its exit, and @resourcet@
+-- (through 'allocateWithCleanup') to register a process's cleanup in the same
+-- masked step that starts it, so a cancelled test can't leave it running.
 module E2E.Process
   ( ProcessResult (..),
     RunningProcess,
@@ -9,6 +14,7 @@ module E2E.Process
     runAllowingFailure,
     startInBackground,
     waitForOutput,
+    failIfExited,
     getOutput,
     waitForExit,
     signalProcessGroupOf,
@@ -25,7 +31,7 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.Maybe (isJust, isNothing)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Command (Command (..), StdinMode (..), showCommand)
+import E2E.Command (Command (..), Executable (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
 import E2E.Signals (Signal (..), signalProcessGroup)
 import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, runTestM)
@@ -90,7 +96,9 @@ startInBackground cmd = snd <$> startInBackgroundWithStopKey cmd
 -- | Releasing the key stops the process. Otherwise, that happens when the test ends.
 startInBackgroundWithStopKey :: Command -> TestM (ReleaseKey, RunningProcess)
 startInBackgroundWithStopKey cmd = do
-  executable <- if cmd.executable == "wasp" then asks (.runConfig.waspCliPath) else return cmd.executable
+  executable <- case cmd.executable of
+    WaspCli -> asks (.runConfig.waspCliPath)
+    Program program -> return program
   workingDir <- getWorkingDir
   environment <- liftIO $ buildEnvironment cmd.environmentOverrides
   testEnv <- ask
@@ -149,6 +157,16 @@ waitForOutput runningProcess expectedText seconds = do
 
 data WaitForOutputOutcome = OutputFound | ProcessExited
 
+-- | Fails the test if the process has exited, e.g. while a test polls for
+-- something the process should do, so that it fails with the process's output
+-- right away instead of when the poll times out.
+failIfExited :: RunningProcess -> String -> TestM ()
+failIfExited runningProcess expectation = do
+  exited <- liftIO $ isJust <$> TP.getExitCode runningProcess.process
+  when exited $ do
+    output <- getOutput runningProcess
+    failTest $ describeFailure runningProcess.processCommand ("exited before " ++ expectation) output
+
 -- | Stdout and stderr the process printed so far, interleaved.
 getOutput :: RunningProcess -> TestM T.Text
 getOutput runningProcess = liftIO . atomically $ readCombinedOutput runningProcess.output
@@ -167,7 +185,7 @@ waitForExit runningProcess seconds = do
       -- readers a moment to finish. We don't wait longer since children that
       -- outlive the process (e.g. daemons) can keep the pipes open.
       liftIO . void . waitAtMost 5 $ isFullyRead runningProcess.output >>= check
-      logLine $ "<== " ++ showExitCode exitCode
+      logLine $ "\n<== " ++ showExitCode exitCode
       return exitCode
 
 -- | Sends the signal to the process group the process runs in, like
@@ -196,12 +214,13 @@ stopProcess runningProcess = do
     logLine $ "\n==> Stopping: " ++ showCommand runningProcess.processCommand
     signalGroup SIGINT
     maybeExitCode <- liftIO . waitAtMost 10 $ TP.waitExitCodeSTM runningProcess.process
-    logLine $ maybe "<== didn't stop within 10s, killing it" (("<== " ++) . showExitCode) maybeExitCode
+    logLine $ maybe "\n<== didn't stop within 10s, killing it" (("\n<== " ++) . showExitCode) maybeExitCode
   signalGroup SIGKILL
   -- Only once the process is killed: this sends it SIGTERM, which it can
   -- ignore, and then waits for it to exit without a time limit.
   liftIO $ TP.stopProcess runningProcess.process
   where
+    -- Fails when the group is already gone, which is what we want anyway.
     signalGroup sig = liftIO . forM_ runningProcess.processGroupId $ \processGroupId ->
       signalProcessGroup sig processGroupId `catchAny` const (return ())
 
