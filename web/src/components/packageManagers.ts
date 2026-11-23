@@ -17,7 +17,7 @@ export type PackageManagerCommands = Record<PackageManagerName, string>;
  * Reads a command passed as children, e.g.
  * `<WaspCommand>{`wasp start`}</WaspCommand>`. MDX parses plain text children
  * as Markdown, so only a template literal works. MDX also drops the leading
- * spaces of each line, so a command with indented lines needs the prop.
+ * spaces of each line, so the lines can't be indented.
  */
 export function getCommandFromChildren(
   componentName: string,

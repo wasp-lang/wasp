@@ -187,7 +187,7 @@ wasp start
 `}</WaspCommand>
 ```
 
-MDX drops the leading spaces of each line in the children. For a command whose lines need indentation, like a `\` line continuation, use the prop with `\n` instead.
+MDX drops the leading spaces of each line in the children, so don't indent the lines, not even after a `\` line continuation.
 
 The lines that run `wasp` follow how the reader runs Wasp. The package manager lines follow the reader's package manager, also for readers who use the global Wasp CLI.
 
