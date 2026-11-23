@@ -144,11 +144,11 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 
 Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and runs `npm install`, which installs Wasp along with the rest of the project's dependencies. After you clone a project, run `npm install` yourself.
 
-The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. See [Running Wasp commands](../advanced/cli.md#running-wasp-commands) for how to run it.
+The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. Read how to run it in [Running Wasp commands](../advanced/cli.md#running-wasp-commands).
 
 #### Installing Wasp globally {#global-cli}
 
-You don't need a global install to use Wasp. If you prefer shorter commands, and want the Wasp CLI available anywhere, even outside of projects, install it globally:
+You don't need a global install to use Wasp. If you prefer shorter commands, like `wasp start` instead of `npm run dev`, install the Wasp CLI globally:
 
 <Trackable event="Install Command: Copy">
 
@@ -156,9 +156,7 @@ You don't need a global install to use Wasp. If you prefer shorter commands, and
 
 </Trackable>
 
-Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`.
-
-Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. You can update the global CLI at any time to run these commands with the latest Wasp.
+Inside a project, it runs the project's own Wasp version. Read more in [Global CLI](../advanced/cli.md#global-cli).
 
 :::note Looking for the old installer script?
 

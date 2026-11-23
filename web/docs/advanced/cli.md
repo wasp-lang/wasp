@@ -9,34 +9,52 @@ This guide provides an overview of the Wasp CLI commands, arguments, and options
 
 ## Running Wasp commands
 
-Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version in `package.json` is the project's Wasp version. You run that Wasp through npm, or through the global Wasp CLI.
+Once you've [set up Wasp](../getting-started/quick-start.md), you can run Wasp commands through your project's [npm scripts](#npm-scripts), or through the [global Wasp CLI](#global-cli). The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
 
-**npm.** Wasp projects come with npm scripts that run the project's Wasp:
+<WaspCommand command="wasp db migrate-dev --name init" />
+
+### npm scripts {#npm-scripts}
+
+Each Wasp project has `@wasp/wasp` as a dependency, which brings the Wasp CLI. The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project runs the same Wasp. `npm install` installs it with the rest of the project's dependencies, so run it first in a fresh clone.
+
+Each project also comes with npm scripts that run its Wasp:
 
 | Script | Runs |
 | --- | --- |
 | `npm run dev` | `wasp start` |
 | `npm run build` | `wasp build` |
-| `npm run preview` | `wasp build start`, after `npm run build` |
+| `npm run preview` | `wasp build start` (run `npm run build` first) |
 | `npm run wasp -- <command>` | any other Wasp command |
 
-npm reads the flags after `npm run <script>` as its own, so pass Wasp's arguments after `--`, e.g. `npm run wasp -- db migrate-dev --name init`.
+:::info
+npm reads the arguments after the script name as its own. Use `--` to pass the rest to Wasp:
 
-**Global CLI.** If you'd rather type `wasp <command>` directly, install the Wasp CLI globally:
-
-<PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
-
-Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the version from your `package.json`. Outside of a project, it runs commands with its own version, so `wasp new` creates projects on the global CLI's version. Read more in [Installing Wasp globally](../getting-started/quick-start.md#global-cli).
-
-To create a project without a global install, run `npx @wasp/cli@latest new`.
-
-The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
-
-<WaspCommand command="wasp db migrate-dev --name init" />
+`npm run wasp -- db migrate-dev --name init`
+:::
 
 :::caution Don't run `npx wasp`
 
 The `wasp` package on npm is not Wasp. In a project with installed dependencies, `npx wasp` happens to run the project's Wasp, but in a fresh clone npx downloads that unrelated package instead. Use `npm run wasp --` instead.
+
+:::
+
+### Global CLI {#global-cli}
+
+You don't need a global install to use Wasp. If you prefer typing `wasp <command>` directly, and want the Wasp CLI available anywhere, even outside of projects, install it globally:
+
+<PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
+
+Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the `@wasp/wasp` version from your `package.json`.
+
+Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. Update the global CLI at any time to run these commands with the latest Wasp.
+
+To run a command outside of a project without installing the global CLI, run it through npx with the latest version. This is how you create a project without a global install:
+
+<PackageManagerCommand npm="npx @wasp/cli@latest new" />
+
+:::note Looking for the old installer script?
+
+Check out the **[Legacy installer guide](../guides/legacy/installer.md)** for instructions on how to migrate to npm-based installation.
 
 :::
 

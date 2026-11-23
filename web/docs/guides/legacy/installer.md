@@ -46,7 +46,7 @@ npm i -g @wasp/cli@latest
 
 </Trackable>
 
-Inside a project, the global CLI hands each command over to the project's own Wasp, so you don't need to match its version to your projects. Read more in [Installing Wasp globally](../../getting-started/quick-start.md#global-cli).
+Inside a project, the global CLI hands each command over to the project's own Wasp, so you don't need to match its version to your projects. Read more in [Global CLI](../../advanced/cli.md#global-cli).
 
 ### Upgrade a project on an older Wasp version
 
