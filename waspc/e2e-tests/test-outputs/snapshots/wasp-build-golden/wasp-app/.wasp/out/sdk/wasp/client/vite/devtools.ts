@@ -26,6 +26,7 @@ export function waspDevTools(options: DevToolsOptions = {}): DevToolsOptions {
     apply: "serve",
     enabled: !process.env["VITEST"],
     ...options,
+    builtinDevTools: withoutViteIntegrations(options.builtinDevTools),
     branding: {
       productName: "Wasp DevTools",
       windowTitle: "Wasp DevTools",
@@ -38,5 +39,35 @@ export function waspDevTools(options: DevToolsOptions = {}): DevToolsOptions {
       favicon: waspLogo,
       ...options.branding,
     },
+  };
+}
+
+type BuiltinDevToolsOptions = DevToolsOptions["builtinDevTools"];
+
+/**
+ * Hides the Vite+ integrations (Rolldown, Vite, Vitest, and Oxc). Wasp apps
+ * don't install them, so their panels only offer to install them. The other
+ * built-in panels, like Terminals, stay. Integrations the user enables in
+ * `options` are kept, and the ones they don't mention stay hidden.
+ */
+function withoutViteIntegrations(
+  options: BuiltinDevToolsOptions = {},
+): BuiltinDevToolsOptions {
+  if (typeof options === "boolean") {
+    return options;
+  }
+  const { integrations = {} } = options;
+  return {
+    ...options,
+    integrations:
+      typeof integrations === "boolean"
+        ? integrations
+        : {
+            rolldown: false,
+            vite: false,
+            vitest: false,
+            oxc: false,
+            ...integrations,
+          },
   };
 }
