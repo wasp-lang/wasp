@@ -39,7 +39,7 @@ waspDbStartTest =
               waspDbMigrateDev "first_migration"
               -- Does the second `wasp db start` detect and report an already
               -- running dev database?
-              waspFails ["db", "start"] >>= assertOutputContains "already running on port"
+              devDbStartFails [] >>= assertOutputContains "already running on port"
 
               -- Does SIGINT stop the database and delete the container, even
               -- while a client is still connected to it?
@@ -66,11 +66,11 @@ waspDbStartTest =
 
               -- Does `wasp db start` fail when the database stops before
               -- accepting connections?
-              waspFails ["db", "start", "--db-image", alpineImage]
+              devDbStartFails ["--db-image", alpineImage]
                 >>= assertOutputContains "The database stopped before accepting connections"
               -- Does `wasp db start` fail when it can't check the connection,
               -- e.g. when the image isn't a PostgreSQL image?
-              waspFails ["db", "start", "--db-image", nginxImage]
+              devDbStartFails ["--db-image", nginxImage]
                 >>= assertOutputContains "Unable to check the database connection"
 
               -- Can the user remove the volume reported by `wasp db start`?
@@ -86,6 +86,13 @@ startDevDb = do
   devDb <- startInBackground $ waspCli ["db", "start"]
   waitForOutput devDb "PostgreSQL dev database is ready" (3 * 60)
   return devDb
+
+-- | Runs @wasp db start@ with extra arguments, expecting it to fail before the
+-- database is up. If it doesn't, we don't want to wait for the database to run
+-- until the default timeout.
+devDbStartFails :: [String] -> TestM ProcessResult
+devDbStartFails arguments =
+  runExpectingFailure (waspCli (["db", "start"] ++ arguments)) {timeoutSeconds = 2 * 60}
 
 -- | The names of the dev database's Docker container and volume, which Wasp
 -- derives from the project.
