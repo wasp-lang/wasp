@@ -647,9 +647,9 @@ If you use Sentry, follow the updated [Sentry guide](./guides/integrations/sentr
 
 ### 15. Pass raw values as route params
 
-**If you don't call `encodeURIComponent` (or similar) on the `params` you pass to `Link`, `NavLink`, or `routes.<name>.build()`, you can skip this step.**
+**If you don't use `Link`, `NavLink`, or `routes.<name>.build()` with params, you can skip this step.**
 
-Wasp now encodes route params for you, so characters like `/`, `?`, and `#` stay inside the param. If you encode them yourself, they get encoded twice. Pass the raw values instead:
+Wasp now correctly encodes characters like `0`, `/`, `?`, and `#` in route params. If you were encoding them yourself, they might end up encoded twice. From now on, you should pass the raw values instead:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
