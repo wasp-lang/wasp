@@ -8,6 +8,8 @@ export default defineConfig({
   platform: "node",
   target: "node22",
   format: "esm",
+  // Inlines imported images, like the Wasp logo, into the bundle.
+  loader: { ".svg": "dataurl" },
 
   sourcemap: true,
   dts: { sourcemap: true },

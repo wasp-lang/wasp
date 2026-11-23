@@ -1,18 +1,11 @@
 import type { DevToolsChildProcessTerminalSession } from "@vitejs/devtools-kit";
 import { createProcessLauncher } from "@vitejs/devtools-kit/node";
 import type { Plugin } from "vite";
-
-import { findFreePort } from "./findFreePort";
-import { waitForServer } from "./waitForServer";
+import { findFreePort, waitForServer, WASP_COMMAND_BIN } from "./common";
 
 const WASP_STUDIO_ID = "wasp-studio";
 
-/**
- * Adds Wasp Studio as a panel to Vite DevTools. The panel runs `wasp studio`
- * on a free port when the user opens it, and embeds it once it's up.
- */
 export function waspStudio(): Plugin {
-  let projectRoot = process.cwd();
   let studioUrl = "";
   let studioSession: DevToolsChildProcessTerminalSession | undefined;
 
@@ -28,11 +21,8 @@ export function waspStudio(): Plugin {
         const port = await findFreePort();
         studioUrl = `http://localhost:${port}/`;
         return {
-          // `wasp start` passes the path to its own executable, so the panel
-          // uses the same Wasp version as the app.
-          command: process.env["WASP_EXE_PATH"] ?? "wasp",
+          command: WASP_COMMAND_BIN,
           args: ["studio", "--port", String(port)],
-          cwd: projectRoot,
         };
       },
       serve: {
@@ -44,13 +34,7 @@ export function waspStudio(): Plugin {
       },
     }),
     apply: "serve",
-    configResolved(config) {
-      projectRoot = config.root;
-    },
     configureServer(server) {
-      // Vite DevTools leaves the process running when the dev server stops.
-      // `terminate` also stops the process's children, like the server that
-      // `wasp studio` starts.
       server.httpServer?.once("close", () => {
         void studioSession?.terminate();
       });

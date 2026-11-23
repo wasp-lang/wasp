@@ -73,7 +73,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.AvailableLibs (allWaspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as Job
@@ -201,7 +201,6 @@ npmDepsForSdk spec =
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersionRange),
             ("@vitejs/plugin-react", "^6.0.3"),
-            -- Vite loads it when the project enables its `devtools` option.
             ("@vitejs/devtools", "^0.8.3")
           ]
           ++ depsRequiredByOAuth spec
@@ -230,7 +229,7 @@ npmDepsForSdk spec =
           ]
     }
   where
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) allWaspLibs
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =

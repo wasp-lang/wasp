@@ -5,7 +5,7 @@ where
 
 import Wasp.Generator.FileDraft (FileDraft, createCopyLibFileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.AvailableLibs (allWaspLibs)
 import Wasp.Generator.WaspLibs.WaspLib
   ( WaspLib,
     getTarballPathInGeneratedAppDir,
@@ -13,7 +13,7 @@ import Wasp.Generator.WaspLibs.WaspLib
   )
 
 genWaspLibs :: Generator [FileDraft]
-genWaspLibs = return $ mkLibCopyDraft <$> waspLibs
+genWaspLibs = return $ mkLibCopyDraft <$> allWaspLibs
   where
     mkLibCopyDraft :: WaspLib -> FileDraft
     mkLibCopyDraft waspLib =
