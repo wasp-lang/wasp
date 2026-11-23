@@ -29,8 +29,8 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.Generator.NodeCommand as NodeCommand
 import qualified Wasp.Job as Job
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -42,6 +42,7 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     tsConfigPaths,
   )
+import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspSpecAnalyzerScript), waspNpmPackageScriptCommand)
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
@@ -102,9 +103,6 @@ runWaspSpecAnalyzer ::
   Path' Abs (File SpecResultFile) ->
   IO (Either [CompileError] SpecAnalysisResult)
 runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath absSpecResultFile = do
-  -- We invoke the script directly via `node` instead of `npx` because
-  -- `npx` requires the bin file to be executable, and `cabal install`
-  -- strips executable permissions from data files.
   runExitCode <-
     Job.run
       $ Job.prefixWith Job.Wasp
@@ -118,11 +116,10 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
           --       Maybe consider using a different key, e.g. `WASP_MODE`?
           ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
         ]
-      $ Job.setCwd compileOptions.waspProjectDir
-      $ Job.proc
-        "node"
-        [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
-          "analyze",
+      $ NodeCommand.proc compileOptions.waspProjectDir
+      $ waspNpmPackageScriptCommand
+        WaspSpecAnalyzerScript
+        [ "analyze",
           fromAbsFile waspFilePath,
           fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
           fromAbsDir compileOptions.waspProjectDir,

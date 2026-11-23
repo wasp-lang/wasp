@@ -218,8 +218,21 @@ function scaffoldProject({
       writeProjectFile(projectRootDir, "main.wasp.ts", sourceText);
 
       cp.execSync("npm i", { cwd: projectRootDir, stdio: "inherit" });
-      cp.execSync(
-        "npx @wasp/spec analyze main.wasp.ts tsconfig.json . result.json '[]'",
+      // Runs the analyzer like the Wasp CLI does, through the package's export.
+      cp.execFileSync(
+        "node",
+        [
+          "--input-type=module",
+          "--eval",
+          'import "@wasp/spec/internal/run";',
+          "--",
+          "analyze",
+          "main.wasp.ts",
+          "tsconfig.json",
+          ".",
+          "result.json",
+          "[]",
+        ],
         { cwd: projectRootDir, stdio: "inherit" },
       );
 
