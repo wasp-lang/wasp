@@ -304,6 +304,7 @@ export function getServerConfig(scope: ConfigScope): Config<WaspSpec.Server> {
     case "full":
       return {
         setupFn: getRefObject("full", "named"),
+        onError: getRefObject("full", "named"),
         middlewareConfigFn: getRefObject("full", "named"),
         envValidationSchema: getRefObject("full", "named"),
         traceDeps: ["some-native-pkg*", "!aws-crt"],
@@ -324,6 +325,7 @@ export function getClientConfig(scope: ConfigScope): Config<WaspSpec.Client> {
       return {
         rootComponent: getRefObject("full", "named"),
         setupFn: getRefObject("full", "named"),
+        onError: getRefObject("full", "named"),
         baseDir: "/src",
         envValidationSchema: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.Client>;
@@ -456,6 +458,7 @@ export function getUsernameAndPasswordConfig(
     case "full":
       return {
         userSignupFields: getRefObject("full", "named"),
+        passwordValidationSchema: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.UsernameAndPasswordConfig>;
     default:
       assertUnreachable(scope);
@@ -500,6 +503,7 @@ export function getEmailAuthConfig(
         emailVerification: getEmailVerificationConfig("full"),
         passwordReset: getPasswordResetConfig("full"),
         userSignupFields: getRefObject("full", "named"),
+        passwordValidationSchema: getRefObject("full", "named"),
       } satisfies FullConfig<WaspSpec.EmailAuthConfig>;
     default:
       assertUnreachable(scope);

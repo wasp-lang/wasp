@@ -12,6 +12,7 @@ import Test.Tasty (TestTree, defaultMainWithIngredients, localOption, testGroup)
 import Test.Tasty.Ingredients (composeReporters)
 import Test.Tasty.Runners (NumThreads (..), consoleTestReporter, listingTests)
 import Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest)
+import Tests.ServerTypeCheckingTest (serverTypeCheckingTest)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -130,6 +131,7 @@ e2eTests =
             waspDbResetTest,
             waspDbMigrateDevTest,
             waspSpecEntityTypesTest,
-            incrementalTypeCheckingTest
+            incrementalTypeCheckingTest,
+            serverTypeCheckingTest
           ]
     ]

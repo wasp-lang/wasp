@@ -26,6 +26,7 @@ import getTask from "./getTask.js"
 import getOldestTask from "./getOldestTask.js"
 import getSerializedObjects from "./getSerializedObjects.js"
 import getTextUppercaseRequests from "./getTextUppercaseRequests.js"
+import getTeapot from "./getTeapot.js"
 import getDate from "./getDate.js"
 import getAnythingNoAuth from "./getAnythingNoAuth.js"
 import getAnythingAuth from "./getAnythingAuth.js"
@@ -60,6 +61,7 @@ router.post('/get-task', auth, getTask)
 router.post('/get-oldest-task', auth, getOldestTask)
 router.post('/get-serialized-objects', auth, getSerializedObjects)
 router.post('/get-text-uppercase-requests', auth, getTextUppercaseRequests)
+router.post('/get-teapot', getTeapot)
 router.post('/get-date', auth, getDate)
 router.post('/get-anything-no-auth', getAnythingNoAuth)
 router.post('/get-anything-auth', auth, getAnythingAuth)

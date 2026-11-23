@@ -1,6 +1,6 @@
 import { Option } from "@commander-js/extra-typings";
 
-import type { WaspCliCommand } from "../waspCli";
+import type { WaspCliCommand } from "../waspCli.ts";
 
 export const waspCliCommandOption = new Option(
   "--wasp-cli-command <command>",

@@ -38,7 +38,7 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
-import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
+import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.Terminal as Term
@@ -76,7 +76,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["dockerfile"] -> Command.Call.Dockerfile
         ("show" : showArgs) -> Command.Call.Show showArgs
         ["news"] -> Command.Call.News
-        ["studio"] -> Command.Call.Studio
+        ("studio" : studioArgs) -> Command.Call.Studio studioArgs
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
@@ -96,7 +96,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor
-    Command.Call.Studio -> runCommand studio
+    Command.Call.Studio studioArgs -> runCommand $ studio studioArgs
     Command.Call.Uninstall uninstallArgs -> runCommand $ uninstall uninstallArgs
     Command.Call.Build -> runCommand build
     Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
@@ -183,7 +183,9 @@ printUsage =
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd   "    show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.",
         cmd   "    show build [--json]   Prints information about your app's current build.",
-        cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
+        cmd   "    studio [--port <port>]",
+              "                          (experimental) GUI for inspecting your Wasp app.",
+              "                          If the port is not specified, Wasp picks a free port.",
         cmd   "    news                  Read the latest Wasp-related news.",
               "",
         title "EXAMPLES",
@@ -223,7 +225,7 @@ dbCli args = case args of
   "reset" : resetArgs -> runCommand $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommand $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
   "seed" : seedArgs -> runCommand $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
-  "studio" : studioArgs -> runCommand $ withArguments (ArgsParser "wasp db studio" (pure ())) (const Command.Db.Studio.studio) studioArgs
+  "studio" : studioArgs -> runCommand $ withArguments Command.Db.Studio.studioArgsParser Command.Db.Studio.studio studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
@@ -255,7 +257,10 @@ printDbUsage =
               "      --name [migration-name]",
               "      --create-only"
         ],
-        cmd   "  studio                       GUI for inspecting your database.",
+        cmd $ intercalate "\n" [
+              "  studio [--port <port>]       GUI for inspecting your database.",
+              "                               If the port is not specified, Wasp picks a free port."
+        ],
               "",
         title "EXAMPLES",
               "  wasp db migrate-dev",

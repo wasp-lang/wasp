@@ -74,11 +74,13 @@ describe("RefObject input types", () => {
     });
     assertType<WaspSpec.Server>({
       setupFn: setup,
+      onError: hook,
       middlewareConfigFn: middleware,
     });
     assertType<WaspSpec.Client>({
       rootComponent: component,
       setupFn: setup,
+      onError: hook,
     });
     assertType<WaspSpec.Db>({
       seeds: [hook],

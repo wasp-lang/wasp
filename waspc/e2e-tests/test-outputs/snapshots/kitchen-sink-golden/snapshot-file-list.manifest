@@ -391,6 +391,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/env/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/env/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/env/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/env/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js
+wasp-app/.wasp/out/sdk/wasp/dist/errors/index.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/scripts/copy-assets.js
@@ -527,22 +531,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/env.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/env.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/httpErrors.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/httpErrors.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/httpErrors.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/httpErrors.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/errors/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/errors/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/errors/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/errors/index.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/unknownErrors.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/unknownErrors.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/unknownErrors.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/unknownErrors.js.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/utils.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/utils.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/utils.js
-wasp-app/.wasp/out/sdk/wasp/dist/server/errors/utils.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/index.js
@@ -634,6 +626,7 @@ wasp-app/.wasp/out/sdk/wasp/dist/types/register.js
 wasp-app/.wasp/out/sdk/wasp/dist/types/register.js.map
 wasp-app/.wasp/out/sdk/wasp/entities/index.ts
 wasp-app/.wasp/out/sdk/wasp/env/index.ts
+wasp-app/.wasp/out/sdk/wasp/errors/index.ts
 wasp-app/.wasp/out/sdk/wasp/package.json
 wasp-app/.wasp/out/sdk/wasp/prisma-runtime-library.d.ts
 wasp-app/.wasp/out/sdk/wasp/scripts/copy-assets.js
@@ -670,10 +663,7 @@ wasp-app/.wasp/out/sdk/wasp/server/email/core/providers/smtp.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/core/types.ts
 wasp-app/.wasp/out/sdk/wasp/server/email/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/env.ts
-wasp-app/.wasp/out/sdk/wasp/server/errors/httpErrors.ts
 wasp-app/.wasp/out/sdk/wasp/server/errors/index.ts
-wasp-app/.wasp/out/sdk/wasp/server/errors/unknownErrors.ts
-wasp-app/.wasp/out/sdk/wasp/server/errors/utils.ts
 wasp-app/.wasp/out/sdk/wasp/server/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/index.ts
 wasp-app/.wasp/out/sdk/wasp/server/jobs/core/pgBoss/pgBoss.ts
@@ -770,6 +760,7 @@ wasp-app/.wasp/out/server/src/queries/getOldestTask.ts
 wasp-app/.wasp/out/server/src/queries/getSerializedObjects.ts
 wasp-app/.wasp/out/server/src/queries/getTask.ts
 wasp-app/.wasp/out/server/src/queries/getTasks.ts
+wasp-app/.wasp/out/server/src/queries/getTeapot.ts
 wasp-app/.wasp/out/server/src/queries/getTextUppercaseRequests.ts
 wasp-app/.wasp/out/server/src/queries/getTrueVoid.ts
 wasp-app/.wasp/out/server/src/routes/apis/index.ts
@@ -798,6 +789,7 @@ wasp-app/.wasp/out/server/src/routes/operations/getOldestTask.js
 wasp-app/.wasp/out/server/src/routes/operations/getSerializedObjects.js
 wasp-app/.wasp/out/server/src/routes/operations/getTask.js
 wasp-app/.wasp/out/server/src/routes/operations/getTasks.js
+wasp-app/.wasp/out/server/src/routes/operations/getTeapot.js
 wasp-app/.wasp/out/server/src/routes/operations/getTextUppercaseRequests.js
 wasp-app/.wasp/out/server/src/routes/operations/getTrueVoid.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
@@ -813,6 +805,7 @@ wasp-app/.wasp/out/server/src/routes/operations/updateTaskIsDone.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringAuth.js
 wasp-app/.wasp/out/server/src/routes/operations/voidToStringNoAuth.js
 wasp-app/.wasp/out/server/src/server.ts
+wasp-app/.wasp/out/server/src/uncaughtErrors.ts
 wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
@@ -831,6 +824,7 @@ wasp-app/e2e-tests/tests/auth-hooks.spec.ts
 wasp-app/e2e-tests/tests/auth.spec.ts
 wasp-app/e2e-tests/tests/auth.ts
 wasp-app/e2e-tests/tests/catch-all-route.spec.ts
+wasp-app/e2e-tests/tests/client-errors.spec.ts
 wasp-app/e2e-tests/tests/crud.spec.ts
 wasp-app/e2e-tests/tests/custom-apis-methods.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
@@ -841,6 +835,7 @@ wasp-app/e2e-tests/tests/liveness.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/oauth-callback.spec.ts
+wasp-app/e2e-tests/tests/operation-errors.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
 wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
@@ -896,6 +891,7 @@ wasp-app/src/features/auth/pages/ProfilePage.tsx
 wasp-app/src/features/auth/pages/RequestPasswordReset.tsx
 wasp-app/src/features/auth/pages/Signup.tsx
 wasp-app/src/features/auth/pages/auth-ui.ts
+wasp-app/src/features/auth/password.ts
 wasp-app/src/features/auth/providers/discord.ts
 wasp-app/src/features/auth/providers/email.ts
 wasp-app/src/features/auth/providers/github.ts
@@ -914,7 +910,12 @@ wasp-app/src/features/db/db.wasp.ts
 wasp-app/src/features/db/prisma.ts
 wasp-app/src/features/db/seeds.ts
 wasp-app/src/features/errors/apis.ts
+wasp-app/src/features/errors/clientOnError.ts
 wasp-app/src/features/errors/errors.wasp.ts
+wasp-app/src/features/errors/pages/ClientErrorsPage.tsx
+wasp-app/src/features/errors/pages/ErrorsPage.tsx
+wasp-app/src/features/errors/queries.ts
+wasp-app/src/features/errors/serverOnError.ts
 wasp-app/src/features/jobs/bar.js
 wasp-app/src/features/jobs/jobs.wasp.ts
 wasp-app/src/features/jobs/pages/JobsPage.tsx

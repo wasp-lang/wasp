@@ -1,6 +1,6 @@
 ```ts
 const slackIdentity = user.identities.slack
 
-// Discord User ID for example "80351110224678912"
+// Slack User ID for example "U1234ABCD"
 slackIdentity.id
 ```

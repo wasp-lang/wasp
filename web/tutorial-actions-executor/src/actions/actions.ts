@@ -1,4 +1,4 @@
-import type { Branded } from "../brandedTypes";
+import type { Branded } from "../brandedTypes.ts";
 
 // If you modify or add new action kinds, make sure to also update the type in `web/docs/tutorial/TutorialAction.tsx`.
 export type Action = InitAppAction | ApplyPatchAction | MigrateDbAction;

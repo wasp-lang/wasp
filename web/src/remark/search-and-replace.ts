@@ -17,7 +17,7 @@ const plugin: Plugin<[], Root> = () => (tree, file) => {
     pinnedLatestWaspVersion: waspVersion,
     // NOTE: Don't change Wasp's lowest supported Node version without updating it
     // in all required places. Check /.node-version for the full list.
-    minimumNodeJsVersion: "24.22.1",
+    minimumNodeJsVersion: "26.13.1",
   });
 
   visit(tree, (node) => {

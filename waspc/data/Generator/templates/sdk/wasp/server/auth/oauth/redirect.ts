@@ -1,6 +1,7 @@
 {{={= =}=}}
-import { config, HttpError } from '../../index.js'
-import { reportUnexpectedServerError } from "../../errors/index.js";
+import { HttpError } from '@wasp/lib-sdk-core'
+import { config } from '../../index.js'
+import { reportUnexpectedServerError } from "@wasp/lib-sdk-core/node";
 
 // PRIVATE API (server)
 export const loginPath = '{= serverOAuthLoginHandlerPath =}'
@@ -21,12 +22,12 @@ export function getRedirectUriForOneTimeCode(oneTimeCode: string): URL {
 // PRIVATE API (server)
 export function handleOAuthErrorAndGetRedirectUri(error: unknown): URL {
   if (error instanceof HttpError) {
-    const errorMessage = isHttpErrorWithExtraMessage(error)
+    const errorMessage = typeof error.data?.message === "string"
       ? `${error.message}: ${error.data.message}`
       : error.message;
     return getRedirectUriForError(errorMessage)
   }
-  reportUnexpectedServerError(error, { source: "oauth" });
+  void reportUnexpectedServerError(error, { source: "oauth" });
   return getRedirectUriForError("An unknown error occurred while trying to log in with the OAuth provider.");
 }
 
@@ -39,8 +40,4 @@ function getRedirectUriForError(error: string): URL {
   const url = new URL(`${config.frontendUrl}${clientOAuthCallbackPath}`);
   url.searchParams.set("error", error);
   return url;
-}
-
-function isHttpErrorWithExtraMessage(error: HttpError): error is HttpError & { data: { message: string } } {
-  return !!error.data && typeof (error.data as any).message === 'string';
 }

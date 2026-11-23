@@ -196,6 +196,7 @@ export type AuthMethods = {
 
 export type UsernameAndPasswordConfig = {
   userSignupFields: Optional<ExtImport>;
+  passwordValidationSchema: Optional<ExtImport>;
 };
 
 export type ExternalAuthConfig = {
@@ -205,6 +206,7 @@ export type ExternalAuthConfig = {
 
 export type EmailAuthConfig = {
   userSignupFields: Optional<ExtImport>;
+  passwordValidationSchema: Optional<ExtImport>;
   fromField: EmailFromField;
   emailVerification: EmailVerificationConfig;
   passwordReset: PasswordResetConfig;
@@ -244,6 +246,7 @@ export type Ref<T extends DeclType> = {
 
 export type Server = {
   setupFn: Optional<ExtImport>;
+  onError: Optional<ExtImport>;
   middlewareConfigFn: Optional<ExtImport>;
   envValidationSchema: Optional<ExtImport>;
   traceDeps: Optional<string[]>;
@@ -251,6 +254,7 @@ export type Server = {
 
 export type Client = {
   setupFn: Optional<ExtImport>;
+  onError: Optional<ExtImport>;
   rootComponent: Optional<ExtImport>;
   baseDir: Optional<`/${string}`>;
   envValidationSchema: Optional<ExtImport>;

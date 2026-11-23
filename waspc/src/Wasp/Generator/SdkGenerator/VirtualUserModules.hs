@@ -9,6 +9,7 @@ module Wasp.Generator.SdkGenerator.VirtualUserModules
     mkVirtualUserModulePluginData,
     mkVirtualUserModulesDeclarationData,
     nubByModuleId, -- Exported for testing.
+    nubByDeclaredExport, -- Exported for testing.
   )
 where
 
@@ -22,6 +23,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
@@ -29,7 +31,7 @@ import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getRegisteredOperationTypeName)
-import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), getJsImportPathStringFromPath)
+import Wasp.JsImport (JsImportPath (RawImportName, RelativeImportPath), defaultExportName, getJsImportPathStringFromPath)
 import Wasp.Util.Js (makeJsStringLiteral)
 
 {-
@@ -101,6 +103,8 @@ getVirtualUserModules spec =
     [ maybeToList $ mkClientEnvValidationSchemaModule <$> maybeClientEnvValidationSchema,
       maybeToList $ mkServerEnvValidationSchemaModule <$> maybeServerEnvValidationSchema,
       maybeToList $ mkPrismaSetupFnModule <$> maybePrismaSetupFn,
+      maybeToList $ mkPasswordValidationSchemaModule ClientRuntime <$> maybePasswordValidationSchema,
+      maybeToList $ mkPasswordValidationSchemaModule ServerRuntime <$> maybePasswordValidationSchema,
       map mkOperationModule (AS.getOperations spec)
     ]
   where
@@ -117,6 +121,13 @@ getVirtualUserModules spec =
         extImport'
         [relfileP|./server/env|]
         "RegisteredServerEnvValidationSchema"
+
+    mkPasswordValidationSchemaModule runtime' extImport' =
+      VirtualUserModule
+        runtime'
+        extImport'
+        [relfileP|./auth/validation|]
+        "RegisteredPasswordValidationSchema"
 
     mkPrismaSetupFnModule extImport' =
       VirtualUserModule
@@ -139,6 +150,7 @@ getVirtualUserModules spec =
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    maybePasswordValidationSchema = AS.App.auth app >>= AS.Auth.getPasswordValidationSchema
     app = getApp spec
 
 -- | Virtual user modules that end up in the client bundle.
@@ -153,6 +165,17 @@ getServerVirtualUserModules = nubByModuleId . filter ((== ServerRuntime) . runti
 -- from @queries.ts@), but a bundler maps a module id to a file only once.
 nubByModuleId :: [VirtualUserModule] -> [VirtualUserModule]
 nubByModuleId = nubBy ((==) `on` getVirtualUserModuleId)
+
+-- | The same export can be registered more than once (e.g. one value for both
+-- runtimes), but TS needs it declared only once.
+-- Keyed by the exported name, not the local import name.
+nubByDeclaredExport :: [VirtualUserModule] -> [VirtualUserModule]
+nubByDeclaredExport = nubBy ((==) `on` declaredExportKey)
+  where
+    declaredExportKey virtualUserModule = (getVirtualUserModuleId virtualUserModule, getExportedName virtualUserModule)
+    getExportedName virtualUserModule = case EI.name $ extImport virtualUserModule of
+      EI.ExtImportModule _ -> defaultExportName
+      EI.ExtImportField name -> name
 
 -- | Specifier the SDK imports a user module through, e.g. @virtual:wasp/user/queries.ts@.
 extImportToVirtualUserModuleJsImportPath :: EI.ExtImportPath -> JsImportPath
@@ -173,7 +196,7 @@ mkVirtualUserModulePluginData extImportToImportJson virtualUserModule =
 -- | Data for virtual user modules ambient module declaration.
 mkVirtualUserModulesDeclarationData :: AppSpec -> Aeson.Value
 mkVirtualUserModulesDeclarationData spec =
-  object ["virtualUserModules" .= map mkDeclarationData (getVirtualUserModules spec)]
+  object ["virtualUserModules" .= map mkDeclarationData (nubByDeclaredExport $ getVirtualUserModules spec)]
   where
     mkDeclarationData virtualUserModule =
       object
