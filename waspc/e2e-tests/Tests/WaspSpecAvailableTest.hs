@@ -21,7 +21,7 @@ waspSpecAvailableTest =
               waspCli ["deps"],
               waspCli ["dockerfile"],
               waspCli ["studio"],
-              waspDbResetForce,
+              waspCliDbResetForce,
               waspCli ["deploy", "fly", "setup"],
               waspCli ["start", "db"],
               waspCli ["start"]

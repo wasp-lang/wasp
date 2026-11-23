@@ -7,7 +7,7 @@ module E2E.Wasp
     createWaspProject,
     withNewWaspProject,
     waspDbMigrateDev,
-    waspDbResetForce,
+    waspCliDbResetForce,
     setDbToPostgres,
     waspPidFromLockFile,
     textWaspVersion,
@@ -94,8 +94,8 @@ waspDbMigrateDev migrationName = do
 -- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g.
 -- when the e2e tests are run from Claude Code), unless the consent env var is
 -- set. Tests only reset their own throwaway database, so we always consent.
-waspDbResetForce :: Command
-waspDbResetForce =
+waspCliDbResetForce :: Command
+waspCliDbResetForce =
   withEnv [("PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION", "Resetting the throwaway e2e test database")] $
     waspCli ["db", "reset", "--force"]
 

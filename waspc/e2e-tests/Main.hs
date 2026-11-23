@@ -1,10 +1,11 @@
 import Control.Monad (mfilter, when)
 import E2E.Heartbeat (heartbeatReporter)
+import E2E.Paths (getWaspcDir)
 import E2E.Signals (stopOnFirstCtrlC)
 import E2E.Test (toTestTree)
-import System.Directory (findExecutable)
 import System.Environment (lookupEnv, setEnv)
 import System.Exit (ExitCode (..))
+import System.FilePath ((</>))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
 import Test.Tasty (TestTree, defaultMainWithIngredients, localOption, testGroup)
@@ -57,16 +58,13 @@ main = do
         [listingTests, composeReporters heartbeatReporter consoleTestReporter]
         (maybe id (localOption . NumThreads) (mfilter (>= 1) maxJobs) e2eTests)
 
--- | The tests run the Wasp CLI from @WASP_CLI_CMD@ (e.g. @tools/wasp-cli-dev@
--- from the mise tasks). When it's not set, we use the @wasp-cli@ that Cabal builds
--- and puts on the PATH for this test suite.
+-- | The tests run the Wasp CLI from @WASP_CLI_CMD@. When it's not set, we use
+-- @tools/wasp-cli-dev@, which runs the current state of the waspc source.
 setWaspCliCmd :: IO ()
 setWaspCliCmd =
   lookupEnv "WASP_CLI_CMD" >>= \case
     Just waspCliCmd | not (null waspCliCmd) -> return ()
-    _ ->
-      findExecutable "wasp-cli"
-        >>= maybe (fail "Couldn't find the wasp-cli executable. Set WASP_CLI_CMD.") (setEnv "WASP_CLI_CMD")
+    _ -> getWaspcDir >>= setEnv "WASP_CLI_CMD" . (</> "tools" </> "wasp-cli-dev")
 
 -- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
 -- concurrently.

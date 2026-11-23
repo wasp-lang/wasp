@@ -1,6 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 
 -- | Running commands as processes, without a shell.
+--
+-- We use @typed-process@ over @process@ for its STM exit codes, which let
+-- 'waitForOutput' race a process's output against its exit, and @resourcet@
+-- (through 'allocateWithCleanup') to register a process's cleanup in the same
+-- masked step that starts it, so a cancelled test can't leave it running.
 module E2E.Process
   ( ProcessResult (..),
     RunningProcess,
@@ -9,6 +14,7 @@ module E2E.Process
     runAllowingFailure,
     startInBackground,
     waitForOutput,
+    failIfExited,
     getOutput,
     waitForExit,
     signalProcessGroupOf,
@@ -26,7 +32,7 @@ import Data.List (intercalate)
 import Data.Maybe (isJust, isNothing, maybeToList)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Command (Command (..), StdinMode (..), showCommand)
+import E2E.Command (Command (..), Executable (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
 import E2E.Signals (Signal (..), signalProcessGroup)
 import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
@@ -120,11 +126,14 @@ startInBackgroundWithStopKey cmd = do
 
   allocateWithCleanup start (runTestM testEnv . stopProcess)
 
-resolveExecutable :: String -> TestM FilePath
-resolveExecutable "wasp" = asks (.runConfig.waspCliPath)
-resolveExecutable executable
-  | any FP.isPathSeparator executable = resolvePath executable
-  | otherwise = return executable
+-- | We make relative paths absolute ourselves, since with a working directory
+-- set, it depends on the platform whether @process@ resolves them against it
+-- or against ours.
+resolveExecutable :: Executable -> TestM FilePath
+resolveExecutable WaspCli = asks (.runConfig.waspCliPath)
+resolveExecutable (Program program)
+  | any FP.isPathSeparator program = resolvePath program
+  | otherwise = return program
 
 stdinSpec :: StdinMode -> TP.StreamSpec 'TP.STInput ()
 stdinSpec = \case
@@ -162,6 +171,16 @@ waitForOutput runningProcess expectedText seconds = do
     processExitedWithAllOutputRead = (&&) . isJust <$> TP.getExitCodeSTM runningProcess.process <*> isFullyRead runningProcess.output
 
 data WaitForOutputOutcome = OutputFound | ProcessExited
+
+-- | Fails the test if the process has exited, e.g. while a test polls for
+-- something the process should do, so that it fails with the process's output
+-- right away instead of when the poll times out.
+failIfExited :: RunningProcess -> String -> TestM ()
+failIfExited runningProcess expectation = do
+  exited <- liftIO $ isJust <$> TP.getExitCode runningProcess.process
+  when exited $ do
+    output <- getOutput runningProcess
+    failTest $ describeFailure runningProcess.processCommand ("exited before " ++ expectation) output
 
 -- | Stdout and stderr the process printed so far, interleaved.
 getOutput :: RunningProcess -> TestM T.Text
@@ -216,6 +235,7 @@ stopProcess runningProcess = do
   -- ignore, and then waits for it to exit without a time limit.
   liftIO $ TP.stopProcess runningProcess.process
   where
+    -- Fails when the group is already gone, which is what we want anyway.
     signalGroup sig = liftIO . forM_ runningProcess.processGroupId $ \processGroupId ->
       signalProcessGroup sig processGroupId `catchAny` const (return ())
 
