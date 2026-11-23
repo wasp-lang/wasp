@@ -12,4 +12,5 @@ waspDepsTest =
       test "succeed-inside-project"
         $ withNewWaspProject minimalStarterTemplate
         $ wasp ["deps"]
+          >>= assertStdoutContains "Server dependencies:"
     ]

@@ -7,7 +7,7 @@ import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, renameDirectory)
 import System.FilePath (takeDirectory, (</>))
-import Tests.Fixtures (TaskSeed (..), addSeedsToMainWaspTs, allTaskSeeds, runTaskSeed, setUpProjectWithTaskSeeds, taskPrismaModel)
+import Tests.Fixtures (TaskSeed (..), addSeedsToMainWaspTs, allTaskSeeds, runTaskSeed, setUpProjectWithTaskSeeds, taskPrismaModel, waspDbSeed)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -26,7 +26,7 @@ waspDbSeedTest =
       test "succeed-no-seed-name-single-seed" $
         withNewWaspProject minimalStarterTemplate $ do
           setUpProjectWithTaskSeeds [PopulateTasks]
-          wasp ["db", "seed"],
+          waspDbSeed [],
       -- With more than one seed and no name, `wasp db seed` has to ask which
       -- one to run. Without an interactive terminal it must fail instead.
       test "fail-no-seed-name-multiple-seeds-non-interactive" $
@@ -42,7 +42,7 @@ waspDbSeedTest =
           wasp ["compile"]
           waspDbMigrateDev "foo"
           replaceRootDotenvWithDecoy
-          wasp ["db", "seed", serverEnvSeedName]
+          waspDbSeed [serverEnvSeedName]
     ]
   where
     -- npm usually hoists `dotenv` to the project root's `node_modules`. We move it
