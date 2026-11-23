@@ -27,7 +27,6 @@ data WaspLib = WaspLib
     libDirName :: Path' Rel' Dir',
     tarballFilename :: TarballFilename
   }
-  deriving (Show, Eq)
 
 makeWaspLib :: String -> Path' Rel' Dir' -> WaspLib
 makeWaspLib waspLibPackageName libDirName' =

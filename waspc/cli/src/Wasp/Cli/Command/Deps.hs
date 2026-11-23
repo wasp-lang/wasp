@@ -49,7 +49,7 @@ depsMessage appSpec =
         "Server devDependencies:"
         (filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
   where
-    waspLibPackageNames = Set.fromList $ map WaspLib.packageName AvailableLibs.allWaspLibs
+    waspLibPackageNames = Set.fromList $ map WaspLib.packageName AvailableLibs.waspLibs
     filterOutWaspLibDeps = filter ((`Set.notMember` waspLibPackageNames) . Npm.Dependency.name)
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
