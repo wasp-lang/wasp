@@ -162,6 +162,5 @@
   },
   "license": "ISC",
   {=& depsChunk =},
-  {=& devDepsChunk =},
-  {=& peerDepsChunk =}
+  {=& devDepsChunk =}
 }
