@@ -3,10 +3,10 @@ module Wasp.Project.Studio
   )
 where
 
+import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspStudioScript), runWaspNpmPackageScript)
-import Network.Socket (PortNumber)
 import Wasp.Util (checkExitSuccess)
 
 startStudio ::
