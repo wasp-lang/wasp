@@ -24,18 +24,19 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 We test Wasp CLI commands whose outputs we can discard.
 
-Tests execute their test cases in the `TestCaseDir`s.
-The `TestCaseDir`s are created in the `waspc/e2e-tests/test-outputs/` directory.
-While the exact files within a `TestCaseDir` aren't strictly defined, they usually have the following structure:
+Each test runs in its own test directory in `waspc/e2e-tests/test-outputs/`.
+While the exact files within a test directory aren't strictly defined, they usually have the following structure:
 
 ```
 # Where:
-#   `<name>` = the test's name.
+#   `<group>` = the name of the test's group.
+#   `<test>`  = the test's name.
 
 e2e-tests/
 └── test-outputs/
-    └── <test-name>/<test-case-name>/  # test case directory
+    └── <group>/<test>/  # test directory
         ├── wasp-app/ # contains the Wasp app for that test
+        ├── output.log # the commands the test ran, and their output
         └── ...
 ```
 
@@ -51,8 +52,7 @@ Snapshots are compared in two ways:
 
 For more details, check out the `waspc/e2e-tests/E2E/Snapshot.hs` file.
 
-Snapshot tests are executed in the `SnapshotDir`.
-The `SnapshotDir`s are created in the `waspc/e2e-tests/test-outputs/snapshots/` directory.
+Snapshot tests run in their snapshot directory in `waspc/e2e-tests/test-outputs/snapshots/`.
 While the exact files within a snapshot aren't strictly defined, they usually have the following structure:
 
 ```
@@ -103,6 +103,8 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 
 - `mise run test:waspc:e2e` runs all of the tests.
 - `mise run test:waspc:e2e "<pattern>"` runs only the tests that match the [tasty pattern](https://github.com/UnkindPartition/tasty#patterns), e.g. `"/wasp-start/"`.
-- `mise run test:waspc:e2e:accept-all` runs all of the tests, and replaces the golden snapshots that differ from the current ones. Missing golden snapshots are always created.
+- `mise run test:waspc:e2e:accept-all` runs all of the tests, and replaces the golden snapshots that differ from the current ones. Pass `--accept` to `test:waspc:e2e` to do that only for the tests that match a pattern.
+  - It doesn't delete golden snapshots that no test uses anymore (e.g. of a removed test), or files that became ignored in the golden snapshots. Delete those by hand.
+- Missing golden snapshots are always created, also without `--accept`.
 - `WASP_E2E_TEST_MAX_JOBS` limits how many tests run at once.
 - `WASP_E2E_TESTS_SKIP_DOCKER=1` skips the tests that need Docker.

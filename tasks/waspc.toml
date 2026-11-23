@@ -48,21 +48,20 @@ run = 'cabal test waspc-tests --test-option=--hide-successes --test-option=--pat
 
 ["test:waspc:e2e"]
 description = "Executes only cli e2e tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
-usage = 'arg "[pattern]"'
+usage = '''
+flag "--accept" help="Replace the golden snapshots that differ from the current ones"
+arg "[pattern]"
+'''
 dir = "waspc"
 shell = "bash -c"
 env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 # We run the test binary directly, since `cabal test` exits on Ctrl+C without
 # waiting for the tests to stop the processes they started.
-run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-tests)" --hide-successes --pattern="$usage_pattern"'
+run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-tests)" --hide-successes $([ "${usage_accept:-}" = true ] && echo --accept) --pattern="$usage_pattern"'
 
 ["test:waspc:e2e:accept-all"]
 description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by running the e2e tests and replacing the golden snapshots that differ with the current ones."
-dir = "waspc"
-shell = "bash -c"
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-# See `test:waspc:e2e` for why we don't use `cabal test`.
-run = 'cabal build waspc-e2e-tests && exec "$(cabal list-bin test:waspc-e2e-tests)" --hide-successes --accept'
+run = [{ task = "test:waspc:e2e --accept" }]
 
 ["test:cli"]
 description = "Executes only cli tests. Builds the project first if needed."
