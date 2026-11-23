@@ -96,6 +96,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
 - Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
+  - Except for the Studio tests: Wasp fixes Studio's and Prisma Studio's ports (see `E2E/Ports.hs`), so they fail if anything else is using those ports, e.g. the e2e tests of another checkout.
 - Use `skipIfDockerDisabled` in tests that need Docker.
 
 Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we port them (see [#3404](https://github.com/wasp-lang/wasp/issues/3404)).
