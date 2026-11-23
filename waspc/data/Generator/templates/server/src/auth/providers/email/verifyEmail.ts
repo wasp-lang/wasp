@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { validateJWT } from 'wasp/server/auth/jwt';
 import {
   createInvalidCredentialsError,

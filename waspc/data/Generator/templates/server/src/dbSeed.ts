@@ -6,7 +6,7 @@
 // TODO: Consider in the future moving it into a a separate project (maybe db/ ?), while still
 //   maintaining access to logic from the server/ .
 
-import { prisma, DbSeedFn } from 'wasp/server'
+import { prisma, type DbSeedFn } from 'wasp/server'
 import { reportFatalServerError } from "wasp/server/errors";
 
 {=# onErrorFn.isDefined =}
