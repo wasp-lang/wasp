@@ -24,7 +24,7 @@
     "vite": "^8.3.5"
   },
   "dependencies": {
-    "@vitejs/devtools-kit": "^0.8.2"
+    "@vitejs/devtools-kit": "^0.8.3"
   },
   "devDependencies": {
     "@tsconfig/node-ts": "^23.6.4",

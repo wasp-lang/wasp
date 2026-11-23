@@ -324,8 +324,8 @@ importers:
   packages/libs/devtools:
     dependencies:
       '@vitejs/devtools-kit':
-        specifier: ^0.8.2
-        version: 0.8.2(@devframes/agentic@1.3.2)(cac@7.1.0)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
+        specifier: ^0.8.3
+        version: 0.8.3(cac@7.1.0)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)
     devDependencies:
       '@tsconfig/node-ts':
         specifier: ^23.6.4
@@ -2216,6 +2216,15 @@ packages:
     peerDependencies:
       '@devframes/agentic': 1.3.2
       devframe: 1.3.2
+    peerDependenciesMeta:
+      '@devframes/agentic':
+        optional: true
+
+  '@devframes/hub@1.3.5':
+    resolution: {integrity: sha512-XNJRsmDNdE3wqljpBNbnoqrKEFn4E8Qwb983WPxthAbSbiZaYQ1f4vKSpNPyBBMM3vatdXwQA9TmcSdXrGsFHw==}
+    peerDependencies:
+      '@devframes/agentic': 1.3.5
+      devframe: 1.3.5
     peerDependenciesMeta:
       '@devframes/agentic':
         optional: true
@@ -5339,6 +5348,11 @@ packages:
     peerDependencies:
       vite: '*'
 
+  '@vitejs/devtools-kit@0.8.3':
+    resolution: {integrity: sha512-CDmcjJg3vPnXCka0s7KC9EYRD3/pFu011Bi1tGv0YRPAXHnjyfabukumZFVUcIs+U/ei9O5EpqDvxr6Jatybzg==}
+    peerDependencies:
+      vite: '*'
+
   '@vitejs/devtools@0.8.2':
     resolution: {integrity: sha512-NJ26Xz0vFKXgdNWZpfNDxuWJ3DXNY+xsO68jw9zVc/ifhmXi/OaQgxCupO4EOpciwFiDMKfF9DuxdgLEiGDFOg==}
     hasBin: true
@@ -6595,6 +6609,18 @@ packages:
     hasBin: true
     peerDependencies:
       '@devframes/agentic': 1.3.2
+      cac: ^7.0.0
+    peerDependenciesMeta:
+      '@devframes/agentic':
+        optional: true
+      cac:
+        optional: true
+
+  devframe@1.3.5:
+    resolution: {integrity: sha512-WvMFRU/quCkZFl4ZVd69UDfDoHdSwn1Wd4ThuycOa6YPvy/NRv8vxbraWREEbAGmiBFexWIzLcywyshbAcLc4Q==}
+    hasBin: true
+    peerDependencies:
+      '@devframes/agentic': 1.3.5
       cac: ^7.0.0
     peerDependenciesMeta:
       '@devframes/agentic':
@@ -12898,6 +12924,19 @@ snapshots:
     transitivePeerDependencies:
       - crossws
       - ocache
+    optional: true
+
+  '@devframes/hub@1.3.5(crossws@0.4.17)(devframe@1.3.5)':
+    dependencies:
+      destr: 2.0.5
+      devframe: 1.3.5(cac@7.1.0)(srvx@1.0.8)
+      h3: 2.0.8(crossws@0.4.17)
+      pathe: 2.0.3
+      tinyexec: 1.3.1
+      zigpty: 0.2.1
+    transitivePeerDependencies:
+      - crossws
+      - ocache
 
   '@devframes/json-render-ui@1.3.2(@devframes/hub@1.3.2)(devframe@1.3.2)':
     optionalDependencies:
@@ -16773,6 +16812,22 @@ snapshots:
       - crossws
       - ocache
       - srvx
+    optional: true
+
+  '@vitejs/devtools-kit@0.8.3(cac@7.1.0)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)':
+    dependencies:
+      '@devframes/hub': 1.3.5(crossws@0.4.17)(devframe@1.3.5)
+      devframe: 1.3.5(cac@7.1.0)(srvx@1.0.8)
+      local-pkg: 2.0.0
+      nostics: 1.3.0
+      package-manager-detector: 1.9.0
+      vite: 8.3.5(@types/node@26.6.6)(@vitejs/devtools@0.8.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
+    transitivePeerDependencies:
+      - '@devframes/agentic'
+      - cac
+      - crossws
+      - ocache
+      - srvx
 
   '@vitejs/devtools@0.8.2(@devframes/plugin-terminals--assets@1.3.2)(crossws@0.4.17)(srvx@1.0.8)(vite@8.3.5)':
     dependencies:
@@ -18152,6 +18207,19 @@ snapshots:
       pathe: 2.0.3
     optionalDependencies:
       '@devframes/agentic': 1.3.2(crossws@0.4.17)(devframe@1.3.2)
+      cac: 7.1.0
+    transitivePeerDependencies:
+      - ocache
+      - srvx
+    optional: true
+
+  devframe@1.3.5(cac@7.1.0)(srvx@1.0.8):
+    dependencies:
+      crossws: 0.4.17(srvx@1.0.8)
+      h3: 2.0.8(crossws@0.4.17)
+      nostics: 1.3.0
+      pathe: 2.0.3
+    optionalDependencies:
       cac: 7.1.0
     transitivePeerDependencies:
       - ocache
@@ -23928,8 +23996,6 @@ snapshots:
 
   yoctocolors@2.2.0: {}
 
-  zigpty@0.2.1: {}
-
   youch-core@0.3.3:
     dependencies:
       '@poppinss/exception': 1.2.3
@@ -23942,6 +24008,8 @@ snapshots:
       '@speed-highlight/core': 1.2.24
       cookie: 1.1.1
       youch-core: 0.3.3
+
+  zigpty@0.2.1: {}
 
   zod-validation-error@4.0.2(zod@4.6.7):
     dependencies:
