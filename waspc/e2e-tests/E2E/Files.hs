@@ -20,9 +20,9 @@ import qualified Data.Text.Encoding as TE
 import E2E.Command (command)
 import E2E.Process (ProcessResult (..), run)
 import E2E.TestM (RunConfig (..), TestEnv (..), TestM, failTest, inDirectory, resolvePath)
-import System.Directory (createDirectoryIfMissing, createFileLink, getSymbolicLinkTarget, pathIsSymbolicLink, removeFile, removePathForcibly)
+import System.Directory (createDirectoryIfMissing, removeFile, removePathForcibly)
 import qualified System.Directory as Directory
-import System.FilePath (makeRelative, takeDirectory, (</>))
+import System.FilePath (takeDirectory, (</>))
 
 -- | Creates or overwrites the file, along with any missing parent directories.
 writeToFile :: FilePath -> T.Text -> TestM ()
@@ -53,10 +53,10 @@ readFromFile path = do
   liftIO $ TE.decodeUtf8 <$> BS.readFile absPath
 
 copyFile :: FilePath -> FilePath -> TestM ()
-copyFile srcPath destPath = do
+copyFile srcPath dstPath = do
   absSrcPath <- resolvePath srcPath
-  absDestPath <- resolvePath destPath
-  liftIO $ Directory.copyFile absSrcPath absDestPath
+  absDstPath <- resolvePath dstPath
+  liftIO $ Directory.copyFile absSrcPath absDstPath
 
 deleteFile :: FilePath -> TestM ()
 deleteFile path = resolvePath path >>= liftIO . removeFile
@@ -66,21 +66,17 @@ deleteDirectory :: FilePath -> TestM ()
 deleteDirectory path = resolvePath path >>= liftIO . removePathForcibly
 
 -- | Copies the git-tracked files of a directory in the Wasp repo into the
--- destination directory, keeping symlinks as they are. Ignored and untracked
--- files (e.g. @node_modules@, build outputs) are left out.
+-- destination directory. Ignored and untracked files (e.g. @node_modules@,
+-- build outputs) are left out. Symlinks are copied as the files they point to.
 copyGitTrackedDir :: FilePath -> FilePath -> TestM ()
-copyGitTrackedDir srcDirInGitRoot destDir = do
-  gitRootDir <- asks (.runConfig.gitRootDir)
-  absDestDir <- resolvePath destDir
+copyGitTrackedDir srcDirInGitRoot dstDir = do
+  srcDir <- asks ((</> srcDirInGitRoot) . (.runConfig.gitRootDir))
+  absDstDir <- resolvePath dstDir
+  -- Run in the source directory, so the paths are relative to it.
   trackedFiles <-
     map T.unpack . filter (not . T.null) . T.splitOn "\0" . (.stdout)
-      <$> inDirectory gitRootDir (run $ command "git" ["ls-files", "-z", "--", srcDirInGitRoot])
+      <$> inDirectory srcDir (run $ command "git" ["ls-files", "-z"])
   liftIO $
-    forM_ trackedFiles $ \fileInGitRoot -> do
-      let srcFile = gitRootDir </> fileInGitRoot
-          destFile = absDestDir </> makeRelative srcDirInGitRoot fileInGitRoot
-      createDirectoryIfMissing True (takeDirectory destFile)
-      isSymlink <- pathIsSymbolicLink srcFile
-      if isSymlink
-        then getSymbolicLinkTarget srcFile >>= (`createFileLink` destFile)
-        else Directory.copyFile srcFile destFile
+    forM_ trackedFiles $ \file -> do
+      createDirectoryIfMissing True (takeDirectory $ absDstDir </> file)
+      Directory.copyFile (srcDir </> file) (absDstDir </> file)
