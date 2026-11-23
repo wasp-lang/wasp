@@ -51,7 +51,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
 - Wasp Studio no longer draws nodes on top of each other when their contents are wider than their name (e.g. an API with a long route). ([#5360](https://github.com/wasp-lang/wasp/pull/5360))
-- `Link`, `NavLink`, and `routes.<name>.build()` no longer drop path params that are `0`. ([#5451](https://github.com/wasp-lang/wasp/pull/5451))
+- `Link`, `NavLink`, and `routes.<name>.build()` no longer drop path params that are `0` (by @pcbeingused333). ([#5451](https://github.com/wasp-lang/wasp/pull/5451))
 
 ### 🔧 Small improvements
 
