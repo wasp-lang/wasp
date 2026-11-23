@@ -19,7 +19,7 @@ waspNewTest =
         withNewWaspProject minimalStarterTemplate $ do
           assertFileExists "main.wasp.ts"
           assertDirectoryDoesNotExist migrationsDir,
-      test "create-minimal-with-piped-answers-fails" $ createWaspProjectWithPipedAnswersFails minimalStarterTemplate,
+      test "create-minimal-with-piped-answers-fails" $ assertWaspNewFailsWithPipedAnswers minimalStarterTemplate,
       test "create-basic" $
         withNewWaspProject basicStarterTemplate $ do
           assertDirectoryExists migrationsDir
@@ -28,16 +28,18 @@ waspNewTest =
         result <- run . withEnv [(databaseUrlEnvVarName, "file:./unrelated.db")] $ waspCliNew basicStarterTemplate
         assertOutputContains "Migration skipped" result
         assertOutputContains "wasp db migrate-dev" result
-        inDirectory waspAppDirName $ assertDirectoryDoesNotExist migrationsDir,
-      test "create-basic-with-piped-answers-fails" $ createWaspProjectWithPipedAnswersFails basicStarterTemplate
+        inDirectory waspAppDirName $ do
+          assertFileExists "main.wasp.ts"
+          assertDirectoryDoesNotExist migrationsDir,
+      test "create-basic-with-piped-answers-fails" $ assertWaspNewFailsWithPipedAnswers basicStarterTemplate
       -- NOTE: We can't test the `saas` template here, since its "dev" tag doesn't exist.
     ]
   where
     migrationsDir = SP.fromRelDir dbMigrationsDirInWaspProjectDir
     devDbFile = SP.fromRelFile $ generatedAppDirInWaspProjectDir SP.</> dbRootDirInGeneratedAppDir SP.</> devDbFileInDbRootDir
 
-    createWaspProjectWithPipedAnswersFails :: StarterTemplate -> TestM ()
-    createWaspProjectWithPipedAnswersFails template =
+    assertWaspNewFailsWithPipedAnswers :: StarterTemplate -> TestM ()
+    assertWaspNewFailsWithPipedAnswers template =
       assertFailsWithoutInteractiveTerminal
         "wasp new"
         (waspCli ["new"]) {stdinMode = StdinText (T.pack $ waspAppDirName ++ "\n" ++ show template ++ "\n")}

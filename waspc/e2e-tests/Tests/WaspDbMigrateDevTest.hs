@@ -1,10 +1,8 @@
 module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 
 import Control.Monad (forM_)
-import Control.Monad.IO.Class (liftIO)
 import Data.List (isInfixOf)
 import E2E
-import System.Directory (doesDirectoryExist, listDirectory)
 import Tests.Fixtures (taskPrismaModel)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -13,7 +11,7 @@ waspDbMigrateDevTest :: E2ETest
 waspDbMigrateDevTest =
   testGroup
     "wasp-db-migrate-dev"
-    [ test "fail-outside-project" $ waspFails ["db", "migrate-dev"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "migrate-dev"],
       test "succeed-migrations-up-to-date" $
         withNewWaspProject minimalStarterTemplate $ do
           waspDbMigrateDev "no_migration"
@@ -40,7 +38,7 @@ waspDbMigrateDevTest =
     assertMigrationExists :: String -> TestM ()
     assertMigrationExists migrationName =
       forM_ dbMigrationsDirs $ \migrationsDir -> do
-        migrations <- listMigrations migrationsDir
+        migrations <- listDbMigrations migrationsDir
         assertTrue
           ("there's a migration named " ++ show migrationName ++ " in " ++ migrationsDir)
           (any (migrationName `isInfixOf`) migrations)
@@ -49,15 +47,7 @@ waspDbMigrateDevTest =
     assertNoMigrationExists :: String -> TestM ()
     assertNoMigrationExists migrationName =
       forM_ dbMigrationsDirs $ \migrationsDir -> do
-        migrations <- listMigrations migrationsDir
+        migrations <- listDbMigrations migrationsDir
         assertTrue
           ("there's no migration named " ++ show migrationName ++ " in " ++ migrationsDir)
           (not $ any (migrationName `isInfixOf`) migrations)
-
-    -- Without migrations, there might be no migrations dir.
-    listMigrations :: FilePath -> TestM [FilePath]
-    listMigrations migrationsDir = do
-      absMigrationsDir <- resolvePath migrationsDir
-      liftIO $ do
-        exists <- doesDirectoryExist absMigrationsDir
-        if exists then listDirectory absMigrationsDir else return []

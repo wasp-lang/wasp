@@ -7,7 +7,7 @@ import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, renameDirectory)
 import System.FilePath (takeDirectory, (</>))
-import Tests.Fixtures (TaskSeed (..), addSeedsToMainWaspTs, allTaskSeeds, runTaskSeed, setUpProjectWithTaskSeeds, taskPrismaModel, waspDbSeed)
+import Tests.Fixtures (TaskSeed (..), addSeeds, allTaskSeeds, runTaskSeed, setUpProjectWithTaskSeeds, taskPrismaModel, taskSeedName, waspDbSeed)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -16,7 +16,7 @@ waspDbSeedTest :: E2ETest
 waspDbSeedTest =
   testGroup
     "wasp-db-seed"
-    [ test "fail-outside-project" $ waspFails ["db", "seed"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "seed"],
       test "succeed-seed-name-given-multiple-seeds" $
         withNewWaspProject minimalStarterTemplate $ do
           setUpProjectWithTaskSeeds allTaskSeeds
@@ -26,7 +26,7 @@ waspDbSeedTest =
       test "succeed-no-seed-name-single-seed" $
         withNewWaspProject minimalStarterTemplate $ do
           setUpProjectWithTaskSeeds [PopulateTasks]
-          waspDbSeed [],
+          waspDbSeed [] >>= assertOutputContains (T.pack $ "Running database seed " ++ taskSeedName PopulateTasks ++ "..."),
       -- With more than one seed and no name, `wasp db seed` has to ask which
       -- one to run. Without an interactive terminal it must fail instead.
       test "fail-no-seed-name-multiple-seeds-non-interactive" $
@@ -37,8 +37,7 @@ waspDbSeedTest =
         withNewWaspProject minimalStarterTemplate $ do
           appendToFile "schema.prisma" taskPrismaModel
           writeToFile ".env.server" "SEED_TEST_VAR=fromEnvServer"
-          writeToFile ("src/db/" ++ serverEnvSeedName ++ ".ts") serverEnvSeedScript
-          addSeedsToMainWaspTs [serverEnvSeedName]
+          addSeeds [(serverEnvSeedName, serverEnvSeedScript)]
           wasp ["compile"]
           waspDbMigrateDev "foo"
           replaceRootDotenvWithDecoy
