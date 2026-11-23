@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { Data } from "./types";
 
-export const socket = io("http://localhost:4000");
+export const socket = io();
 
 export function useSocket() {
   const [isConnected, setIsConnected] = useState(false);

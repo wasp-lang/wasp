@@ -1,0 +1,87 @@
+/* Diagram colours, as variables on the diagram root with a dark override
+   that follows the Docusaurus theme. `light-dark()` would be simpler, but
+   Lightning CSS (the production minifier) rewrites it into a polyfill that
+   renders as black unless a `color-scheme` rule sits on an ancestor.
+   Raw hex values are off-palette: brand colours and bespoke tints. */
+
+.diagram {
+  --ink: theme("colors.wasp.black");
+  --text: theme("colors.wasp.g7");
+  --muted: theme("colors.wasp.g6");
+  --surface: theme("colors.wasp.white");
+  --plate: theme("colors.white");
+  --stripe-background: #f7f7f7;
+  --stripe-line: #e2e2e2;
+  --ir: #e8e8e8;
+  --frontend: #e6f7fb;
+  --backend: #e8f5e0;
+  --database: #2d3748;
+  --prisma-logo: #090a15;
+}
+
+/* The landing page is always light, so it opts out with `.alwaysLight`. */
+:global([data-theme="dark"]) .diagram:not(.alwaysLight) {
+  --ink: theme("colors.wasp.g1");
+  --text: theme("colors.wasp.g3");
+  --muted: theme("colors.wasp.g4");
+  --surface: #242424;
+  --plate: #1a1a1a;
+  --stripe-background: #1f1f1f;
+  --stripe-line: #2c2c2c;
+  --ir: theme("colors.wasp.g7");
+  --frontend: #16323a;
+  --backend: #1d3018;
+  --database: #a0aec0;
+  --prisma-logo: theme("colors.wasp.g1");
+}
+
+.ink {
+  fill: var(--ink);
+}
+.inkStroke {
+  stroke: var(--ink);
+}
+/* Text and marks on the yellow headers stay dark in both schemes. */
+.onYellow {
+  fill: theme("colors.wasp.black");
+}
+.onYellowStroke {
+  stroke: theme("colors.wasp.black");
+}
+.text {
+  fill: var(--text);
+}
+.muted {
+  fill: var(--muted);
+}
+.surface {
+  fill: var(--surface);
+}
+.yellow {
+  fill: theme("colors.wasp.yellow");
+}
+/* Behind the COMPILE and DEPLOY labels, where they cross the striped frame. */
+.plate {
+  fill: var(--plate);
+}
+.stripeBackground {
+  fill: var(--stripe-background);
+}
+.stripeLine {
+  stroke: var(--stripe-line);
+}
+.ir {
+  fill: var(--ir);
+}
+.frontend {
+  fill: var(--frontend);
+}
+.backend {
+  fill: var(--backend);
+}
+.database {
+  stroke: var(--database);
+}
+.prismaLogo {
+  fill: var(--prisma-logo);
+}

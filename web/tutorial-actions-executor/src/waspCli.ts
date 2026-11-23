@@ -1,7 +1,7 @@
 import { $ } from "zx";
 
-import type { Branded } from "./brandedTypes";
-import type { AppDirPath, AppName, OutputDir } from "./tutorialApp";
+import type { Branded } from "./brandedTypes.ts";
+import type { AppDirPath, AppName, OutputDir } from "./tutorialApp.ts";
 
 export type WaspCliCommand = Branded<string, "WaspCliCommand">;
 

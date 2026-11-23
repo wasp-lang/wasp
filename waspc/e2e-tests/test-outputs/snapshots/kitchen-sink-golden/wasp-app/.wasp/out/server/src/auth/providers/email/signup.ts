@@ -1,13 +1,13 @@
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import type { UserSignupFields } from 'wasp/auth/providers/types'
 import {
   ensurePasswordIsPresent,
   ensureValidEmail,
   ensureValidPassword,
 } from 'wasp/auth/validation'
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/errors";
 import {
-  GetVerificationEmailContentFn,
+  type GetVerificationEmailContentFn,
   createEmailVerificationLink,
   isEmailResendAllowed,
   sendEmailVerificationEmail,
@@ -23,7 +23,7 @@ import {
   sanitizeAndSerializeProviderData,
   validateAndGetUserFields,
 } from 'wasp/server/auth/utils'
-import { EmailFromField } from 'wasp/server/email/core/types'
+import type { EmailFromField } from 'wasp/server/email/core/types'
 import { onAfterSignupHook, onBeforeSignupHook } from '../../hooks.js'
 
 export function getSignupRoute({
@@ -94,10 +94,7 @@ export function getSignupRoute({
         'emailVerificationSentAt',
       )
       if (!isResendAllowed) {
-        throw new HttpError(
-          400,
-          `Please wait ${timeLeft} secs before trying again.`,
-        )
+        throw new HttpError(400, `Please wait ${timeLeft} secs before trying again.`)
       }
 
       try {

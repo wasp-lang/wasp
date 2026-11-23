@@ -22,9 +22,11 @@ module Wasp.AppSpec.App.Auth
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
     userSignupFieldsForExternalAuth,
+    getPasswordValidationSchema,
   )
 where
 
+import Control.Applicative ((<|>))
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.Maybe (isJust)
@@ -63,7 +65,8 @@ data AuthMethods = AuthMethods
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 data UsernameAndPasswordConfig = UsernameAndPasswordConfig
-  { userSignupFields :: Maybe ExtImport
+  { userSignupFields :: Maybe ExtImport,
+    passwordValidationSchema :: Maybe ExtImport
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
@@ -75,6 +78,7 @@ data ExternalAuthConfig = ExternalAuthConfig
 
 data EmailAuthConfig = EmailAuthConfig
   { userSignupFields :: Maybe ExtImport,
+    passwordValidationSchema :: Maybe ExtImport,
     fromField :: EmailFromField,
     emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig
@@ -147,3 +151,10 @@ userSignupFieldsForUsernameAuth = (.userSignupFields)
 
 userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
 userSignupFieldsForExternalAuth = (.userSignupFields)
+
+-- | Only one local auth method can be enabled, so at most one schema exists.
+getPasswordValidationSchema :: Auth -> Maybe ExtImport
+getPasswordValidationSchema auth = emailSchema <|> usernameSchema
+  where
+    emailSchema = email (methods auth) >>= (.passwordValidationSchema)
+    usernameSchema = usernameAndPassword (methods auth) >>= (.passwordValidationSchema)

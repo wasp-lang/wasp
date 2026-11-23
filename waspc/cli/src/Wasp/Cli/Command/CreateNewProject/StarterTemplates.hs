@@ -47,6 +47,10 @@ waspProjectDirFromTemplateOutputDir template@(GhRepoReleaseArchiveTemplate {}) =
 data TemplateMetadata = TemplateMetadata
   { _name :: !String,
     _description :: !String,
+    -- | Whether `wasp new` should try to create and apply the project's initial
+    -- database migration. Only meant for templates whose database doesn't need any
+    -- setup (i.e. SQLite) and that define entities.
+    _migratesDbOnCreation :: !Bool,
     -- | Given the name of the project directory, makes the starting instructions.
     _buildStartingInstructions :: !(String -> String)
   }

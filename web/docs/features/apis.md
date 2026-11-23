@@ -5,7 +5,7 @@ description: Add custom HTTP endpoints in Wasp when Operations do not fit. Decla
 ---
 
 import { CardLink } from '@site/src/components/CardLink'
-import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
+import { ShowForTs } from '@site/src/components/TsJsHelpers'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
 
 # API routes
@@ -116,7 +116,7 @@ export const fooBar: FooBar = (req, res, context) => {
 
 To use the API externally, you simply call the endpoint using the method and path you used.
 
-For example, if your app is running at `https://example.com` then from the above you could issue a `GET` to `https://example/com/foo/callback` (in your browser, Postman, `curl`, another web service, etc.).
+For example, if your app is running at `https://example.com` then from the above you could issue a `GET` to `https://example.com/foo/bar` (in your browser, Postman, `curl`, another web service, etc.).
 
 ### Using the API from the Client
 
@@ -142,7 +142,7 @@ export const Foo = () => {
 
 #### Making Sure CORS Works
 
-APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
+Each API gets the default middleware, including CORS (Cross-Origin Resource Sharing), but only on its own HTTP method. Browsers first send an `OPTIONS` preflight request for requests with the auth header or a JSON body, and that request doesn't go through the API's middleware (unless the API's method is `ALL`). As a result, to use these APIs on the client side, you must ensure that CORS is also enabled for `OPTIONS` requests.
 
 You can do this by defining custom middleware for your APIs in the Wasp file.
 
@@ -353,15 +353,36 @@ async function fetchStream(
 ## API Reference
 
 <CardLink
-  to="../api/@wasp/spec/functions/api"
+  to="../api/@wasp/spec#api-1"
   kind="api"
   title="api"
-  description="All the options for declaring an API endpoint in the Wasp spec."
+  description="All the options for declaring an API endpoint in the Wasp Spec."
 />
 
 <CardLink
-  to="../api/@wasp/spec/functions/apiNamespace"
+  to="../api/@wasp/spec#apinamespace-1"
   kind="api"
   title="apiNamespace"
-  description="All the options for declaring an API namespace in the Wasp spec."
+  description="All the options for declaring an API namespace in the Wasp Spec."
+/>
+
+<CardLink
+  to="../api/wasp/server/api"
+  kind="api"
+  title="wasp/server/api"
+  description="The types Wasp generates for implementing your APIs (e.g. FooBar)."
+/>
+
+<CardLink
+  to="../api/wasp/server/api#authenticatedapi"
+  kind="api"
+  title="AuthenticatedApi"
+  description="The type of an API's implementation: its req, res, and context arguments, and its type arguments."
+/>
+
+<CardLink
+  to="../api/wasp/client/api"
+  kind="api"
+  title="wasp/client/api"
+  description="The HTTP client for calling your APIs from the client, and its error helpers."
 />

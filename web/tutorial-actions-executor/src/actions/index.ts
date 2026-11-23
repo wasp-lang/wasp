@@ -1,7 +1,7 @@
 import path, { basename } from "path";
 
-import { getFileNameWithoutExtension } from "../files";
-import type { PatchesDirPath } from "../tutorialApp";
+import { getFileNameWithoutExtension } from "../files.ts";
+import type { PatchesDirPath } from "../tutorialApp.ts";
 import type {
   ActionId,
   ApplyPatchAction,
@@ -10,7 +10,7 @@ import type {
   MdxFilePath,
   MigrateDbAction,
   PatchFilePath,
-} from "./actions";
+} from "./actions.ts";
 
 export function createInitAppAction(
   commonData: BaseAction,

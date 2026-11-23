@@ -1,4 +1,8 @@
-import { Edge, Node, Position } from "reactflow";
+import { Edge, Node, Position } from "@xyflow/react";
+
+// Node data comes untyped from the Wasp Studio data file.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type StudioNode = Node<Record<string, any>>;
 
 let id = 1;
 
@@ -14,7 +18,7 @@ export function createPageNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -23,14 +27,14 @@ export function createPageNode(
     position: { x: 0, y: 0 },
     targetPosition: Position.Left,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createActionNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -39,14 +43,14 @@ export function createActionNode(
     sourcePosition: Position.Right,
     type: "actionNode",
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createQueryNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -55,14 +59,14 @@ export function createQueryNode(
     sourcePosition: Position.Right,
     type: "queryNode",
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createRouteNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -72,7 +76,7 @@ export function createRouteNode(
     targetPosition: Position.Left,
     type: "routeNode",
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createEntityNode(
@@ -80,7 +84,7 @@ export function createEntityNode(
   name: string,
   isUserEntity: boolean,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -90,14 +94,14 @@ export function createEntityNode(
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createApiNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -106,14 +110,14 @@ export function createApiNode(
     type: "apiNode",
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createJobNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -122,14 +126,14 @@ export function createJobNode(
     type: "jobNode",
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createAppNode(
   id: string,
   name: string,
   data: AnyData,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id,
@@ -139,13 +143,13 @@ export function createAppNode(
     targetPosition: Position.Left,
     sourcePosition: Position.Right,
     selected: selectedNode?.id === id,
-  } satisfies Node;
+  } satisfies StudioNode;
 }
 
 export function createEdge(
   source: string,
   target: string,
-  selectedNode: Node | null,
+  selectedNode: StudioNode | null,
 ) {
   return {
     id: `${source}-${target}`,

@@ -30,9 +30,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@playwright/test": "1.55.1",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/vite": "^4.3.1",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@wasp/spec": "file:.wasp/spec",

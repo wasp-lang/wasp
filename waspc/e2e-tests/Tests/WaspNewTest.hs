@@ -2,20 +2,40 @@ module Tests.WaspNewTest (waspNewTest) where
 
 import qualified Data.Text as T
 import E2E
+import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplate, minimalStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
+import Wasp.Generator.DbGenerator.Common (dbRootDirInGeneratedAppDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Db.Dev.Sqlite (devDbFileInDbRootDir)
+import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 waspNewTest :: E2ETest
 waspNewTest =
   testGroup
     "wasp-new"
-    [ test "create-minimal" $ createWaspProject minimalStarterTemplate,
+    [ test "create-minimal"
+        $ withNewWaspProject minimalStarterTemplate
+        $ assertDirectoryDoesNotExist migrationsDir,
       test "create-minimal-with-piped-answers-fails" $ createWaspProjectWithPipedAnswersFails minimalStarterTemplate,
-      test "create-basic" $ createWaspProject basicStarterTemplate,
+      test "create-basic" $
+        withNewWaspProject basicStarterTemplate $ do
+          assertDirectoryExists migrationsDir
+          assertFileExists devDbFile,
+      test "create-basic-leaves-database-from-environment-alone" $ do
+        result <-
+          run . withEnv [("DATABASE_URL", "file:./unrelated.db")] $
+            waspCli ["new", waspAppDirName, "-t", show basicStarterTemplate]
+        assertOutputContains "Migration skipped" result
+        assertOutputContains "wasp db migrate-dev" result
+        inDirectory waspAppDirName $ assertDirectoryDoesNotExist migrationsDir,
       test "create-basic-with-piped-answers-fails" $ createWaspProjectWithPipedAnswersFails basicStarterTemplate
       -- NOTE: We can't test the `saas` template here, since its "dev" tag doesn't exist.
     ]
   where
+    migrationsDir = SP.fromRelDir dbMigrationsDirInWaspProjectDir
+    devDbFile = SP.fromRelFile $ generatedAppDirInWaspProjectDir SP.</> dbRootDirInGeneratedAppDir SP.</> devDbFileInDbRootDir
+
     createWaspProjectWithPipedAnswersFails :: StarterTemplate -> TestM ()
     createWaspProjectWithPipedAnswersFails template =
       assertFailsWithoutInteractiveTerminal
