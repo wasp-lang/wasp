@@ -7,6 +7,7 @@ import ShellCommands
     assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
+    reportedDevDbVolumeName,
     setWaspDbToPSQL,
     skipIfDockerDisabled,
     waitUntil,
@@ -17,7 +18,6 @@ import ShellCommands
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Db.Postgres (defaultPostgresPort)
-import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 
 waspDbStartTest :: Test
 waspDbStartTest =
@@ -127,7 +127,7 @@ waspCliDbStartInBackground =
 stopWaspCliDbStartWithSignal :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 stopWaspCliDbStartWithSignal signal =
   return $
-    ("docker ps --format '{{.Names}}' --filter volume=" ++ reportedDevDbVolumeName ++ " > " ++ devDbContainerNameFile)
+    ("docker ps --format '{{.Names}}' --filter volume=" ++ reportedDevDbVolumeName devDbOutputFile ++ " > " ++ devDbContainerNameFile)
       ~&& ("kill -" ++ signal ++ " $(ps -o ppid= -p \"$(pgrep -f \"docker run --name $(cat " ++ devDbContainerNameFile ++ ") \")\")")
       ~&& waitUntil
         60
@@ -135,7 +135,7 @@ stopWaspCliDbStartWithSignal signal =
         ("Wasp didn't stop after SIG" ++ signal ++ ".")
       ~&& waitUntil
         30
-        ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\" ]")
+        ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName devDbOutputFile ++ ")\" ]")
         ("The dev database container was left behind after SIG" ++ signal ++ ".")
 
 -- | Opens a database session that stays open, like the app's server's.
@@ -153,7 +153,7 @@ holdDevDbSessionOpen =
         )
         "The database session didn't open."
   where
-    devDbContainerId = "\"$(docker ps -q --filter volume=" ++ reportedDevDbVolumeName ++ ")\""
+    devDbContainerId = "\"$(docker ps -q --filter volume=" ++ reportedDevDbVolumeName devDbOutputFile ++ ")\""
     psqlInDevDbContainer sql = "sh -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -tAc \"" ++ sql ++ "\"'"
 
 -- | Creates a stopped container with the name of the dev db container that
@@ -194,13 +194,7 @@ removeDefaultDevDbPortHolder = return $ "docker rm -f " ++ devDbPortHolderContai
 
 removeReportedDevDbVolume :: ShellCommandBuilder WaspProjectContext ShellCommand
 removeReportedDevDbVolume =
-  return $ "docker volume rm \"" ++ reportedDevDbVolumeName ++ "\""
-
--- | Shell substitution that extracts the volume name `wasp db start` reported
--- because it's the same place users learn it from.
-reportedDevDbVolumeName :: String
-reportedDevDbVolumeName =
-  "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ devDbOutputFile ++ ")"
+  return $ "docker volume rm \"" ++ reportedDevDbVolumeName devDbOutputFile ++ "\""
 
 devDbPortHolderContainerName :: String
 devDbPortHolderContainerName = "wasp-e2e-tests-db-port-holder"

@@ -55,6 +55,6 @@ throwIfDbConnectionNotEstablished projectRunConfig = do
       CommandError
         "Can not connect to database"
         ( "The database needs to be running in order to execute this command."
-            ++ " Wasp starts its managed dev database when you run `wasp start`,"
-            ++ " or you can start just the database with `wasp start db`."
+            ++ " Wasp starts its managed dev database when you run `wasp start`."
+            ++ " To start only the database, run `wasp db start`."
         )
