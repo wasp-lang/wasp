@@ -13,6 +13,10 @@ describe("interpolatePath", () => {
     ["/items/:id?/details", {}, "/items/details"],
     ["/items/:id?", { id: "" }, "/items"],
     ["/files/*", { "*": "a/b" }, "/files/a/b"],
+    ["/items/:id", { id: "a/b" }, "/items/a%2Fb"],
+    ["/items/:id", { id: "a?b#c" }, "/items/a%3Fb%23c"],
+    ["/items/:id", { id: "a b%" }, "/items/a%20b%25"],
+    ["/files/*", { "*": "a b/c?d" }, "/files/a%20b/c%3Fd"],
   ])("interpolates %s with %j as %s", (path, params, expected) => {
     expect(interpolatePath(path, params)).toBe(expected);
   });
