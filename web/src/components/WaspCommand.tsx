@@ -9,18 +9,13 @@ import {
   type WaspCli,
 } from "./toPackageManagerCommands";
 
-export interface WaspCommandProps {
-  /**
-   * The command as you'd run it with the global Wasp CLI and npm, e.g.
-   * `wasp start`.
-   */
-  command: string;
-}
-
-export type WaspCommandBlockProps = Partial<WaspCommandProps> & {
-  /** The command, as an alternative to the `command` prop. */
-  children?: ReactNode;
-};
+/**
+ * The command as you'd run it with the global Wasp CLI and npm, e.g.
+ * `wasp start`, as the `command` prop or as children. Not both.
+ */
+export type WaspCommandProps =
+  | { command: string; children?: never }
+  | { command?: never; children: string };
 
 /** The tab group that remembers how the reader runs Wasp. */
 export const WASP_CLI_TAB_GROUP_ID = "wasp-cli";
@@ -37,10 +32,10 @@ const WASP_CLI_TABS: { waspCli: WaspCli; label: string }[] = [
 ];
 
 /**
- * Shows a Wasp command the way the reader prefers to run Wasp: through their
- * package manager, or with the global Wasp CLI, e.g.
- * `<WaspCommand command="wasp start" />`. A multi-line command reads better as
- * children:
+ * Shows a Wasp command the way the reader runs Wasp, through their package
+ * manager or with the global Wasp CLI, e.g.
+ * `<WaspCommand command="wasp start" />`. A command with several lines reads
+ * better as children.
  *
  * ```mdx
  * <WaspCommand>{`
@@ -52,14 +47,9 @@ const WASP_CLI_TABS: { waspCli: WaspCli; label: string }[] = [
 export default function WaspCommand({
   command: commandProp,
   children,
-}: WaspCommandBlockProps): ReactNode {
-  const commandFromChildren = getCommandFromChildren("WaspCommand", children);
-  if (commandFromChildren !== undefined && commandProp !== undefined) {
-    throw new Error(
-      "WaspCommand got its command both as the `command` prop and as children.",
-    );
-  }
-  const command = commandProp ?? commandFromChildren;
+}: WaspCommandProps): ReactNode {
+  const command =
+    commandProp ?? getCommandFromChildren("WaspCommand", children);
   assertRunsWasp("WaspCommand", command);
 
   return (
@@ -76,20 +66,20 @@ export default function WaspCommand({
 }
 
 /**
- * MDX props aren't type-checked, so a missing command only shows up here. A
- * command without `wasp` doesn't depend on how the reader runs Wasp, so it
- * doesn't belong in this component.
+ * MDX doesn't type-check props, so a missing command only shows up here. A
+ * command without `wasp` is the same however the reader runs Wasp, so it
+ * doesn't belong in these components.
  */
 export function assertRunsWasp(
   componentName: string,
   command: string | undefined,
 ): asserts command is string {
   if (!command) {
-    throw new Error(`${componentName} is missing the \`command\` prop.`);
+    throw new Error(`${componentName} is missing its command.`);
   }
   if (!runsWasp(command)) {
     throw new Error(
-      `${componentName} got a command that doesn't run \`wasp\`: ${JSON.stringify(command)}. Use PackageManagerCommand or a code block instead.`,
+      `${componentName} got a command that doesn't run \`wasp\`, ${JSON.stringify(command)}. Use PackageManagerCommand or a code block instead.`,
     );
   }
 }

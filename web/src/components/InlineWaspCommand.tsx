@@ -9,23 +9,19 @@ import {
   toPackageManagerCommands,
   type WaspCli,
 } from "./toPackageManagerCommands";
-import {
-  assertRunsWasp,
-  WASP_CLI_TAB_GROUP_ID,
-  type WaspCommandProps,
-} from "./WaspCommand";
+import { assertRunsWasp, WASP_CLI_TAB_GROUP_ID } from "./WaspCommand";
 
 /**
  * Shows a Wasp command inside a sentence, in the form the reader picked in a
- * `WaspCommand` block, e.g.
- * `<InlineWaspCommand command="wasp start" />`.
- *
- * The server renders the package manager form, so that's what readers see
- * before they pick a tab, and what the Markdown version of the docs has.
+ * `WaspCommand` block, e.g. `<InlineWaspCommand command="wasp start" />`.
+ * The server defaults to the package manager form.
  */
 export default function InlineWaspCommand({
   command,
-}: WaspCommandProps): ReactNode {
+}: {
+  /** The command as you'd run it with the global Wasp CLI, e.g. `wasp start`. */
+  command: string;
+}): ReactNode {
   assertRunsWasp("InlineWaspCommand", command);
 
   const [waspCliTab] = useStorageSlot(getTabStorageKey(WASP_CLI_TAB_GROUP_ID));

@@ -8,17 +8,21 @@ import {
   PACKAGE_MANAGER_TAB_GROUP_ID,
   PACKAGE_MANAGERS,
   type PackageManagerCommands,
+  type PackageManagerName,
 } from "./packageManagers";
 
-export type PackageManagerCommandProps = Partial<PackageManagerCommands> & {
-  /** The npm command, as an alternative to the `npm` prop. */
-  children?: ReactNode;
-};
+/**
+ * The command for each package manager as props, or the npm command as
+ * children. Not both.
+ */
+export type PackageManagerCommandProps =
+  | (PackageManagerCommands & { children?: never })
+  | (Partial<Record<PackageManagerName, never>> & { children: string });
 
 /**
- * Shows a shell command in the reader's preferred package manager, e.g.
- * `<PackageManagerCommand npm="npm install" />`. A multi-line command reads
- * better as children:
+ * Shows a shell command in the reader's package manager, e.g.
+ * `<PackageManagerCommand npm="npm install" />`. A command with several lines
+ * reads better as children.
  *
  * ```mdx
  * <PackageManagerCommand>{`
@@ -31,18 +35,9 @@ export default function PackageManagerCommand({
   children,
   ...commandProps
 }: PackageManagerCommandProps): ReactNode {
-  const npmCommandFromChildren = getCommandFromChildren(
-    "PackageManagerCommand",
-    children,
-  );
-  if (npmCommandFromChildren !== undefined && commandProps.npm !== undefined) {
-    throw new Error(
-      "PackageManagerCommand got the npm command both as the `npm` prop and as children.",
-    );
-  }
   const commands = {
+    npm: getCommandFromChildren("PackageManagerCommand", children),
     ...commandProps,
-    npm: commandProps.npm ?? npmCommandFromChildren,
   } as PackageManagerCommands;
   assertHasEveryPackageManagerCommand("PackageManagerCommand", commands);
 

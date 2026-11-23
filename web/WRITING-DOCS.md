@@ -178,7 +178,7 @@ Each Wasp project installs Wasp as a dependency, so readers run Wasp either thro
 
 Write the Wasp command the way you'd run it with the global Wasp CLI. The components work out the package manager form, e.g. `npm run dev` for `wasp start` and `npm run wasp -- db migrate-dev` for `wasp db migrate-dev`.
 
-Write a command with several lines as the component's children, in a template literal. Write the package manager lines of a `WaspCommand` for npm:
+Write a command with several lines as the component's children. Package manager lines in a `WaspCommand` must be npm commands:
 
 ```mdx
 <WaspCommand>{`

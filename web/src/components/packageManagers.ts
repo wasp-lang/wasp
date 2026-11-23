@@ -1,10 +1,10 @@
 import { type ReactNode } from "react";
 
 /**
- * The package managers the docs show commands for. Adding one here makes its
- * prop required in `PackageManagerCommand`, so the docs build fails until every
- * command has its form for it. `toPackageManagerCommands` has to learn it too,
- * which is where the commands of `WaspCommand` come from.
+ * The package managers the docs show commands for. Adding one makes its prop
+ * required in `PackageManagerCommand`, so the docs build fails until every
+ * command has a form for it. `toPackageManagerCommands` needs to learn it too,
+ * since it writes the commands of `WaspCommand`.
  */
 export const PACKAGE_MANAGERS = [{ name: "npm", label: "npm" }] as const;
 
@@ -14,11 +14,10 @@ export type PackageManagerName = (typeof PACKAGE_MANAGERS)[number]["name"];
 export type PackageManagerCommands = Record<PackageManagerName, string>;
 
 /**
- * Reads a command written as a component's children, e.g.
+ * Reads a command passed as children, e.g.
  * `<WaspCommand>{`wasp start`}</WaspCommand>`. MDX parses plain text children
- * as Markdown, so the command has to be a template literal. MDX drops the
- * leading spaces of each line, so a command whose lines need indentation has to
- * use the prop.
+ * as Markdown, so only a template literal works. MDX also drops the leading
+ * spaces of each line, so a command with indented lines needs the prop.
  */
 export function getCommandFromChildren(
   componentName: string,
@@ -46,7 +45,7 @@ export function assertHasEveryPackageManagerCommand(
   for (const { name } of PACKAGE_MANAGERS) {
     if (!commands[name]) {
       throw new Error(
-        `${componentName} is missing the ${name} command in: ${JSON.stringify(commands)}`,
+        `${componentName} is missing the ${name} command in ${JSON.stringify(commands)}.`,
       );
     }
   }

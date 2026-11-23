@@ -1,16 +1,16 @@
 import { type PackageManagerCommands } from "./packageManagers";
 
-/** The Wasp that runs a command: the project's own, or the global Wasp CLI. */
+/** The Wasp that runs a command, the project's own or the global Wasp CLI. */
 export type WaspCli = "project" | "global";
 
 /**
  * Writes a command out for each package manager. Authors write it for the
  * global Wasp CLI and npm, e.g. `npm install` and then `wasp start`.
  *
- * The lines that run `wasp` follow `waspCli`: the project's Wasp runs through
- * the package manager, e.g. `npm run dev`, and the global Wasp CLI keeps
- * `wasp start`. The package manager lines follow the package manager for
- * either Wasp CLI, and every other line stays.
+ * The lines that run `wasp` follow `waspCli`. For the project's Wasp they go
+ * through the package manager, e.g. `npm run dev`, and the global Wasp CLI
+ * keeps `wasp start`. The package manager lines follow the package manager,
+ * and every other line stays as it is.
  */
 export function toPackageManagerCommands(
   command: string,
@@ -34,8 +34,8 @@ export function runsWasp(command: string): boolean {
     .some((commandLine) => WASP_COMMAND_LINE.test(commandLine));
 }
 
-// Environment variables set for the command (e.g. `DATABASE_URL=... wasp db
-// studio`), then the arguments of `wasp`.
+// Environment variables set for the command, then the arguments of `wasp`,
+// e.g. `DATABASE_URL=... wasp db studio`.
 const WASP_COMMAND_LINE = /^((?:\w+=\S+ )*)wasp (.+)$/;
 
 function toNpmCommandLine(commandLine: string): string {
@@ -48,8 +48,8 @@ function toNpmCommandLine(commandLine: string): string {
 }
 
 /**
- * Uses the npm scripts that Wasp projects come with: `dev`, `build`, `preview`
- * and `wasp`, which runs every other command.
+ * Uses the npm scripts that Wasp projects come with. `dev`, `build` and
+ * `preview` run their Wasp commands, and `wasp` runs every other one.
  */
 function toNpmCommand(waspArgs: string[]): string {
   const [command, subcommand] = waspArgs;
