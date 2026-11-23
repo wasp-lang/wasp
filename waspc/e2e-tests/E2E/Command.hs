@@ -1,6 +1,7 @@
 -- | Describing the commands that tests run.
 module E2E.Command
   ( Command (..),
+    Executable (..),
     StdinMode (..),
     command,
     waspCli,
@@ -14,10 +15,7 @@ where
 import qualified Data.Text as T
 
 data Command = Command
-  { -- | Like in a shell, a path with a directory is relative to the working
-    -- directory, and other names are looked up in @PATH@. Except for @wasp@,
-    -- which is the Wasp CLI under test.
-    executable :: String,
+  { executable :: Executable,
     arguments :: [String],
     -- | @Just value@ sets the variable, @Nothing@ removes it.
     environmentOverrides :: [(String, Maybe String)],
@@ -28,6 +26,13 @@ data Command = Command
     timeoutSeconds :: Int
   }
 
+data Executable
+  = -- | The Wasp CLI under test. Shown as @wasp@ in logs.
+    WaspCli
+  | -- | Like in a shell, a path with a directory is relative to the working
+    -- directory, and other names are looked up in @PATH@.
+    Program String
+
 data StdinMode
   = -- | The process reads the text and then EOF.
     StdinText T.Text
@@ -35,9 +40,9 @@ data StdinMode
     OpenEmptyStdin
 
 command :: String -> [String] -> Command
-command executable arguments =
+command program arguments =
   Command
-    { executable,
+    { executable = Program program,
       arguments,
       environmentOverrides = [],
       extraPath = [],
@@ -46,7 +51,7 @@ command executable arguments =
     }
 
 waspCli :: [String] -> Command
-waspCli = command "wasp"
+waspCli arguments = (command "wasp" arguments) {executable = WaspCli}
 
 -- | A binary of an npm package installed in the working directory. Like with
 -- @npx@, the other binaries there are on its @PATH@. We don't use @npx@ itself
@@ -64,8 +69,11 @@ withoutEnv keys cmd = cmd {environmentOverrides = cmd.environmentOverrides ++ [(
 
 -- | The command as you would type it in a shell.
 showCommand :: Command -> String
-showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (cmd.executable : cmd.arguments)
+showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (executableName : cmd.arguments)
   where
+    executableName = case cmd.executable of
+      WaspCli -> "wasp"
+      Program program -> program
     envPrefix = [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
     quoteIfNeeded word
       | null word || any (`elem` (" \"'\n" :: String)) word = show word

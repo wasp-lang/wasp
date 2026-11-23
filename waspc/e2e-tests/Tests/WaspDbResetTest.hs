@@ -20,7 +20,7 @@ waspDbResetTest =
           seed AssertTasksEmpty
           seed PopulateTasks
           seed AssertTasksNotEmpty
-          run waspDbResetForce
+          run waspCliDbResetForce
           seed AssertTasksEmpty
     ]
   where

@@ -55,10 +55,13 @@ captureStream output stream = TP.mkPipeStreamSpec $ \_ handle -> do
               atomically $ modifyTVar' output.chunks ((stream, chunk) :)
               writeToLog output.testLog chunk
               loop
+      -- A read error ends the stream like EOF does. The output so far stays,
+      -- and the test's assertions on it report what's missing.
       loop `catchAny` const (return ())
 
     closeStream :: Handle -> IO ()
     closeStream handle = do
+      -- Nothing else uses the handle anymore, so a failing close loses nothing.
       hClose handle `catchAny` const (return ())
       atomically $ modifyTVar' output.openStreams (subtract 1)
 

@@ -22,7 +22,6 @@ import Data.Algorithm.DiffOutput (ppDiff)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
-import Data.Maybe (fromJust)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Paths (getSnapshotsDir)
@@ -212,7 +211,9 @@ normalizePackageJsonFiles snapshotDir =
     >>= mapM_ (normalizePackageJson . (snapshotDir </>)) . filter ((== "package.json") . takeFileName)
   where
     normalizePackageJson file =
-      BS.readFile file >>= BSL.writeFile file . formatJson . fromJust . Aeson.decodeStrict
+      BS.readFile file >>= \content -> case Aeson.eitherDecodeStrict content of
+        Right json -> BSL.writeFile file $ formatJson json
+        Left err -> fail $ "Couldn't parse " ++ file ++ ": " ++ err
 
     formatJson :: Aeson.Value -> BSL.ByteString
     formatJson =

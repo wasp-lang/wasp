@@ -9,15 +9,19 @@ where
 import Control.Exception (IOException, bracket, try)
 import Control.Monad.IO.Class (liftIO)
 import Data.Either (fromRight)
+import E2E.Process (RunningProcess, failIfExited)
 import E2E.TestM (TestM, waitUntil)
 import qualified Network.Socket as Socket
 
--- | Waits until something listens on all of the ports.
-waitUntilListening :: [Int] -> Int -> TestM ()
-waitUntilListening ports seconds =
-  waitUntil ("something listens on ports " ++ show ports) seconds
-    $ liftIO
-    $ and <$> mapM isListening ports
+-- | Waits until something listens on all of the ports. Fails the test right
+-- away if the process that should open them exits first.
+waitUntilListening :: RunningProcess -> [Int] -> Int -> TestM ()
+waitUntilListening runningProcess ports seconds =
+  waitUntil description seconds $ do
+    failIfExited runningProcess description
+    liftIO $ and <$> mapM isListening ports
+  where
+    description = "something listens on ports " ++ show ports
 
 -- | Waits until nothing listens on any of the ports anymore.
 waitUntilNotListening :: [Int] -> Int -> TestM ()
