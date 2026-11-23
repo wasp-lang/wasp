@@ -16,7 +16,10 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 
 1. Install Tailwind and its Vite plugin.
 
-    <PackageManagerCommand npm={"npm install tailwindcss\nnpm install -D @tailwindcss/vite"} />
+    <PackageManagerCommand>{`
+    npm install tailwindcss
+    npm install -D @tailwindcss/vite
+    `}</PackageManagerCommand>
 
 1. Add the Tailwind CSS Vite plugin to your `vite.config.ts` file:
 
@@ -61,7 +64,10 @@ Wasp doesn't require any special configuration to use Tailwind plugins. You can 
 
 For example, to add the [Tailwind Forms](https://github.com/tailwindlabs/tailwindcss-forms) and [Tailwind Typography](https://github.com/tailwindlabs/tailwindcss-typography) plugins, we can check the installation instructions on their respective documentation pages and follow them as usual:
 
-<PackageManagerCommand npm={"npm install -D @tailwindcss/forms\nnpm install -D @tailwindcss/typography"} />
+<PackageManagerCommand>{`
+npm install -D @tailwindcss/forms
+npm install -D @tailwindcss/typography
+`}</PackageManagerCommand>
 
 ```css title="src/Main.css" {3-4}
 @import "tailwindcss";

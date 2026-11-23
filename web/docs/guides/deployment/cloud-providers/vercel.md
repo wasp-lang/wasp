@@ -70,7 +70,13 @@ The first time, the CLI will ask you to accept the Marketplace terms in your bro
 
 Wasp expects the connection string in the `DATABASE_URL` environment variable, so we need to copy it over. Use the value of `POSTGRES_PRISMA_URL`: this is Supabase's transaction-mode pooler, which is the one [recommended for serverless](https://supabase.com/docs/guides/database/connecting-to-postgres#pooler-transaction-mode). You can use the CLI to copy the value from one environment variable to the other:
 
-<PackageManagerCommand npm={"npx vercel env run -- printenv POSTGRES_PRISMA_URL\n# Copy the line that starts with \"postgres://\"\n\nnpx vercel env add --no-sensitive DATABASE_URL production\n# Paste it when prompted"} />
+<PackageManagerCommand>{`
+npx vercel env run -- printenv POSTGRES_PRISMA_URL
+# Copy the line that starts with "postgres://"
+
+npx vercel env add --no-sensitive DATABASE_URL production
+# Paste it when prompted
+`}</PackageManagerCommand>
 
 Prisma migrations can't run through the transaction-mode pooler, so the build command in the next section runs them against `POSTGRES_URL_NON_POOLING` (Supabase's session-mode pooler) instead.
 
@@ -150,7 +156,10 @@ The client is deployed as a static site from the `.wasp/out/web-app/build` direc
 
 1. Finally, deploy the build directory to the client project:
 
-   <PackageManagerCommand npm={"cd .wasp/out/web-app/build\nnpx vercel deploy --prod --yes --project my-wasp-app-client"} />
+   <PackageManagerCommand>{`
+   cd .wasp/out/web-app/build
+   npx vercel deploy --prod --yes --project my-wasp-app-client
+   `}</PackageManagerCommand>
 
 That is it! Your app should be live at `https://my-wasp-app-client.vercel.app`.
 
@@ -171,4 +180,7 @@ When you make updates and need to redeploy:
 
    And then deploy the client with:
 
-   <PackageManagerCommand npm={"cd .wasp/out/web-app/build\nnpx vercel deploy --prod --yes --project my-wasp-app-client"} />
+   <PackageManagerCommand>{`
+   cd .wasp/out/web-app/build
+   npx vercel deploy --prod --yes --project my-wasp-app-client
+   `}</PackageManagerCommand>

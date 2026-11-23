@@ -98,7 +98,10 @@ npm test`} />
 
 Vitest has a [UI](https://vitest.dev/guide/ui) that shows your test results in the browser. Install it and start Vitest with it:
 
-<PackageManagerCommand npm={"npm install -D @vitest/ui\nnpm test -- --ui"} />
+<PackageManagerCommand>{`
+npm install -D @vitest/ui
+npm test -- --ui
+`}</PackageManagerCommand>
 
 ## Writing client tests
 

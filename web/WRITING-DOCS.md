@@ -178,14 +178,16 @@ Each Wasp project installs Wasp as a dependency, so readers run Wasp either thro
 
 Write the Wasp command the way you'd run it with the global Wasp CLI. The components work out the package manager form, e.g. `npm run dev` for `wasp start` and `npm run wasp -- db migrate-dev` for `wasp db migrate-dev`.
 
-A `WaspCommand` can have several lines. Write its package manager lines for npm:
+Write a command with several lines as the component's children, in a template literal. Write the package manager lines of a `WaspCommand` for npm:
 
 ```mdx
-<WaspCommand
-  command={`npm install
-wasp start`}
-/>
+<WaspCommand>{`
+npm install
+wasp start
+`}</WaspCommand>
 ```
+
+MDX drops the leading spaces of each line in the children. For a command whose lines need indentation, like a `\` line continuation, use the prop with `\n` instead.
 
 The lines that run `wasp` follow how the reader runs Wasp. The package manager lines follow the reader's package manager, also for readers who use the global Wasp CLI.
 

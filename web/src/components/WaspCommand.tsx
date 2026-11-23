@@ -2,7 +2,7 @@ import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import { type ReactNode } from "react";
 import PackageManagerCommand from "./PackageManagerCommand";
-import { PACKAGE_MANAGERS } from "./packageManagers";
+import { getCommandFromChildren, PACKAGE_MANAGERS } from "./packageManagers";
 import {
   runsWasp,
   toPackageManagerCommands,
@@ -16,6 +16,11 @@ export interface WaspCommandProps {
    */
   command: string;
 }
+
+export type WaspCommandBlockProps = Partial<WaspCommandProps> & {
+  /** The command, as an alternative to the `command` prop. */
+  children?: ReactNode;
+};
 
 /** The tab group that remembers how the reader runs Wasp. */
 export const WASP_CLI_TAB_GROUP_ID = "wasp-cli";
@@ -34,9 +39,27 @@ const WASP_CLI_TABS: { waspCli: WaspCli; label: string }[] = [
 /**
  * Shows a Wasp command the way the reader prefers to run Wasp: through their
  * package manager, or with the global Wasp CLI, e.g.
- * `<WaspCommand command="wasp start" />`. The command can have several lines.
+ * `<WaspCommand command="wasp start" />`. A multi-line command reads better as
+ * children:
+ *
+ * ```mdx
+ * <WaspCommand>{`
+ * npm install
+ * wasp start
+ * `}</WaspCommand>
+ * ```
  */
-export default function WaspCommand({ command }: WaspCommandProps): ReactNode {
+export default function WaspCommand({
+  command: commandProp,
+  children,
+}: WaspCommandBlockProps): ReactNode {
+  const commandFromChildren = getCommandFromChildren("WaspCommand", children);
+  if (commandFromChildren !== undefined && commandProp !== undefined) {
+    throw new Error(
+      "WaspCommand got its command both as the `command` prop and as children.",
+    );
+  }
+  const command = commandProp ?? commandFromChildren;
   assertRunsWasp("WaspCommand", command);
 
   return (

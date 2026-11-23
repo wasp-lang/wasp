@@ -171,7 +171,11 @@ To run your Wasp app in production, you'll need to switch from SQLite to Postgre
 
 2. Delete the old migrations, because PostgreSQL can't use SQLite migrations, and delete the SQLite database by running [<InlineWaspCommand command="wasp clean" />](../../advanced/cli#project-commands). <InlineWaspCommand command="wasp clean" /> also deletes `node_modules`, so install the dependencies again:
 
-   <WaspCommand command={"rm -r migrations/\nwasp clean\nnpm install"} />
+   <WaspCommand>{`
+   rm -r migrations/
+   wasp clean
+   npm install
+   `}</WaspCommand>
 
 3. Ensure your new database is running (check the [section on connecting to a database](#connecting-to-a-database) to see how). Leave it running, since we need it for the next step.
 

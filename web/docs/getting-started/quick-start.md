@@ -30,7 +30,10 @@ Let's create and run our first Wasp app in 2 short steps:
 
    <Trackable event="CLI Command: Copy" command="wasp_start">
 
-   <WaspCommand command={"cd <my-project-name>\nwasp start"} />
+   <WaspCommand>{`
+   cd <my-project-name>
+   wasp start
+   `}</WaspCommand>
 
    </Trackable>
 
@@ -142,7 +145,7 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 
 ### Installation {#detailed-installation}
 
-Wasp installs as an npm dependency of each project, the `@wasp/wasp` package. Read how to run it in [Running Wasp commands](../advanced/cli.md#running-wasp-commands).
+Wasp installs as an npm dependency of each project, the `@wasp/wasp` package. Read how to run the CLI in [Running Wasp commands](../advanced/cli.md#running-wasp-commands).
 
 #### Installing Wasp globally {#global-cli}
 

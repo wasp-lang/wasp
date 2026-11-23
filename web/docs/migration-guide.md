@@ -540,7 +540,10 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
    Your tests import the Wasp SDK, so generate it first with <InlineWaspCommand command="wasp compile" />, or keep <InlineWaspCommand command="wasp start" /> running in another terminal:
 
-   <WaspCommand command={"wasp compile\nnpm test"} />
+   <WaspCommand>{`
+   wasp compile
+   npm test
+   `}</WaspCommand>
 
 Read more in the [testing docs](./advanced/testing.md).
 
