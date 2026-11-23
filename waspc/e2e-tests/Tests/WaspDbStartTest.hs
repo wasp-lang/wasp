@@ -199,8 +199,9 @@ nginxImage = "nginx:1.31-alpine"
 docker :: [String] -> TestM ProcessResult
 docker = run . command "docker"
 
+-- | Only for the cleanups, so it has their short timeout.
 dockerAllowingFailure :: [String] -> TestM ProcessResult
-dockerAllowingFailure = runAllowingFailure . command "docker"
+dockerAllowingFailure arguments = runAllowingFailure (command "docker" arguments) {timeoutSeconds = cleanupCommandTimeoutSeconds}
 
 -- | The non-empty lines of stdout, without surrounding whitespace.
 stdoutLines :: ProcessResult -> [String]
