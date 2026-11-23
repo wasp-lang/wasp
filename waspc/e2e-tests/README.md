@@ -98,7 +98,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
 - Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
 - Use `skipIfDockerDisabled` in tests that need Docker. Snapshot tests can't skip themselves, so they use `whenDockerEnabled` for their Docker steps.
-- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone.
+- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone. Nothing can cut a hung cleanup short, so give their commands the short `cleanupCommandTimeoutSeconds`.
 - `wasp` commands run without the runner's `DATABASE_URL`, so they can't act on a database outside the test. Tests that need one set it with `withEnv`.
 
 Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we port them (see [#3404](https://github.com/wasp-lang/wasp/issues/3404)).
