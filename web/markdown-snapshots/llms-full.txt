@@ -12619,13 +12619,7 @@ export default defineConfig({
 
 ### Vite DevTools, Wasp Studio, and Prisma Studio {#vite-devtools}
 
-[Vite DevTools](https://devtools.vite.dev/) adds a panel to your app during `wasp start`. New Wasp projects enable it with the `devtools` option, and `waspDevTools()` brands it as Wasp DevTools. To enable it in an existing project, install the `@vitejs/devtools` package:
-
-```bash
-npm install -D @vitejs/devtools
-```
-
-And set the option in your Vite config:
+[Vite DevTools](https://devtools.vite.dev/) add a panel to your app during `wasp start`. New Wasp projects enable them in the Vite config with `waspDevTools()`. If yours doesn't, add it:
 
 ```ts title="vite.config.ts"
 import { wasp, waspDevTools } from "wasp/client/vite";
@@ -12637,23 +12631,12 @@ export default defineConfig({
 });
 ```
 
-Open it from the floating button at the bottom of the page, or at `/__devtools/` on your client URL. The first time, it asks for the code that `wasp start` prints in the terminal. Wasp adds these panels:
+Open them from the floating button at the bottom of the page. The first time, they ask for the pairing code that `wasp start` prints in the terminal. Next to the built-in Vite DevTools panels, Wasp adds:
 
 - **Wasp Studio**: click **Start Wasp Studio** to see your app as a graph of pages, routes, operations, APIs, jobs, and entities, the same as running `wasp studio`.
 - **Prisma Studio**: click **Start Prisma Studio** to browse and edit the data in your database, the same as running `wasp db studio`.
 
-Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
-
-`waspDevTools()` hides the panels for the Vite+ tools (Rolldown, Vite, Vitest, and Oxc), but keeps Vite DevTools' other built-in panels, like Terminals. To show one of them again, install its package and enable it:
-
-```ts title="vite.config.ts"
-export default defineConfig({
-  devtools: waspDevTools({
-    builtinDevTools: { integrations: { rolldown: true } },
-  }),
-  plugins: [wasp()],
-});
-```
+Other Vite plugins might offer their own devtools and panels. You can also use `devtools: true` to get the default Vite panel, without Wasp customizations.
 
 ### Examples
 

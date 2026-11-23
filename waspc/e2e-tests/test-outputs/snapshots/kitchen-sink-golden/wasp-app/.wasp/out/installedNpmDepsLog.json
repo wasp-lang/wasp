@@ -125,10 +125,6 @@
                     "version": "^9.0.8"
                 },
                 {
-                    "name": "@vitejs/devtools",
-                    "version": "^0.8.3"
-                },
-                {
                     "name": "@wasp/spec",
                     "version": "file:.wasp/spec"
                 },
@@ -209,6 +205,10 @@
             {
                 "name": "@vitejs/plugin-react",
                 "version": "^6.0.3"
+            },
+            {
+                "name": "@vitejs/devtools",
+                "version": "^0.8.3"
             },
             {
                 "name": "arctic",

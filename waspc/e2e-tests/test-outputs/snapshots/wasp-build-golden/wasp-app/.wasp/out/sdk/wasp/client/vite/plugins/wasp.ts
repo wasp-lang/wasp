@@ -40,9 +40,6 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       spaFallbackFile: "200.html",
     }),
     waspStudio(),
-    prismaStudio({
-      schemaFile: ".wasp/out/db/schema.prisma",
-      cwd: ".wasp/out/server/",
-    }),
+    prismaStudio(),
   ];
 }
