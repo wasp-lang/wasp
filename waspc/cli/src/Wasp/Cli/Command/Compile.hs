@@ -43,7 +43,6 @@ import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProje
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
-import Wasp.Project.Db.Dev (findDevDatabaseUrl)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
@@ -53,8 +52,7 @@ compileCommand = ProjectLock.acquireExclusive $ do
   (warnings, appSpec) <- compile
   InWaspProject waspProjectDir <- require
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
-  devDatabaseUrl <- liftIO $ findDevDatabaseUrl appSpec
-  dbWarnings <- liftIO $ Wasp.Project.warnIfDbNeedsMigration appSpec devDatabaseUrl outDir
+  dbWarnings <- liftIO $ Wasp.Project.warnIfDbNeedsMigration appSpec outDir
   liftIO $ printWarningsIfAny dbWarnings
   return (warnings, appSpec)
 

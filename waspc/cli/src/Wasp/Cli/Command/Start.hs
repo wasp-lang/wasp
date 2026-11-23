@@ -32,7 +32,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, warnIfDbNeedsMigration)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
-import Wasp.Project.RunConfig (ProjectRunConfig (databaseUrl))
+import Wasp.Project.RunConfig (ProjectRunConfig)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -65,7 +65,7 @@ start = withArguments startArgsParser $ \args ->
     assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig
 
     throwIfDbConnectionNotEstablished projectRunConfig
-    dbWarnings <- liftIO $ warnIfDbNeedsMigration appSpec projectRunConfig.databaseUrl outDir
+    dbWarnings <- liftIO $ warnIfDbNeedsMigration appSpec outDir
     liftIO $ printWarningsIfAny dbWarnings
     let warnings = compileWarnings ++ dbWarnings
 

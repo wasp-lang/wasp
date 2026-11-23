@@ -25,7 +25,6 @@ import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors, warnIfDbNeedsMigration)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
-import Wasp.Project.Db.Dev (findDevDatabaseUrl)
 import Wasp.Project.RunConfig (ProjectRunConfig)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
@@ -176,8 +175,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     addDbMigrationWarnings :: CompileResult -> IO CompileResult
     addDbMigrationWarnings compileResult = case _compileOutcome compileResult of
       Right appSpec -> do
-        devDatabaseUrl <- findDevDatabaseUrl appSpec
-        dbWarnings <- warnIfDbNeedsMigration appSpec devDatabaseUrl outDir
+        dbWarnings <- warnIfDbNeedsMigration appSpec outDir
         return compileResult {_compileWarnings = _compileWarnings compileResult ++ dbWarnings}
       Left _ -> return compileResult
 
