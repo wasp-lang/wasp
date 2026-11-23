@@ -13,13 +13,20 @@ import styles from "./HowItWorksDiagram.module.css";
    - File rows in "your code" all share the same indent — flat hierarchy.
 
    Colours live in HowItWorksDiagram.module.css, with a light and a dark
-   variant each. The only raw hex left here is the React/Node brand colours. */
-const HowItWorksDiagram = ({ className = "" }: { className?: string }) => (
+   variant each. The only raw hex left here is the React/Node brand colours.
+   `alwaysLight` keeps the light colours even when the site theme is dark. */
+const HowItWorksDiagram = ({
+  alwaysLight = false,
+  className = "",
+}: {
+  alwaysLight?: boolean;
+  className?: string;
+}) => (
   <svg
     viewBox="0 0 1000 260"
     preserveAspectRatio="xMidYMid meet"
     aria-label="Wasp compiles your code into an intermediate representation, then generates a full-stack app (frontend, backend, database) ready to deploy anywhere."
-    className={`block w-full font-mono ${className}`}
+    className={`block w-full font-mono ${styles.diagram} ${alwaysLight ? styles.alwaysLight : ""} ${className}`}
   >
     {/* Diagonal striped fill for the WASP CLI frame. */}
     <defs>
