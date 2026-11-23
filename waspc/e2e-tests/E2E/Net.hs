@@ -14,7 +14,7 @@ import Control.Monad.IO.Class (liftIO)
 import E2E.Process (RunningProcess, failIfExited, failWithOutput, signalProcessGroupOf, waitForExit)
 import E2E.Signals (Signal (..))
 import E2E.TestM (TestM, failTest, pollUntil, waitUntil)
-import Foreign.C.Error (Errno (..), eCONNREFUSED, eCONNRESET)
+import Foreign.C.Error (Errno (..), eADDRNOTAVAIL, eAFNOSUPPORT, eCONNREFUSED, eCONNRESET, eNETUNREACH)
 import GHC.IO.Exception (IOException (ioe_errno))
 import qualified Network.Socket as Socket
 import System.Exit (ExitCode)
@@ -73,6 +73,12 @@ interruptProcessGroupAndWaitUntilStopped runningProcess ports = do
 -- or a timeout) say nothing about the port, so they fail the test, since
 -- treating them as "not listening" would let 'waitUntilNotListening' pass
 -- without checking anything.
+--
+-- The exception is an IPv6 address on a machine with IPv6 disabled, where
+-- @localhost@ can still resolve to @::1@ (e.g. from @/etc/hosts@) but nothing
+-- can listen on it: connecting fails with EADDRNOTAVAIL (or ENETUNREACH) on
+-- Linux, and creating the socket can fail with EAFNOSUPPORT. Nothing listens
+-- there, and the IPv4 address is still checked.
 isListening :: Int -> TestM Bool
 isListening port = do
   addresses <- liftIO $ Socket.getAddrInfo (Just hints) (Just "localhost") (Just $ show port)
@@ -91,7 +97,12 @@ isListening port = do
         Right () -> return True
         Left err
           | isRefusedOrReset err -> return False
+          | isIPv6 address && isIPv6Unavailable err -> return False
           | otherwise ->
               failTest $ "Couldn't check whether something listens on " ++ show (Socket.addrAddress address) ++ ": " ++ displayException err
 
-    isRefusedOrReset err = (Errno <$> ioe_errno err) `elem` map Just [eCONNREFUSED, eCONNRESET]
+    isRefusedOrReset = hasErrno [eCONNREFUSED, eCONNRESET]
+    isIPv6Unavailable = hasErrno [eADDRNOTAVAIL, eAFNOSUPPORT, eNETUNREACH]
+    hasErrno errnos err = (Errno <$> ioe_errno err) `elem` map Just errnos
+
+    isIPv6 address = Socket.addrFamily address == Socket.AF_INET6
