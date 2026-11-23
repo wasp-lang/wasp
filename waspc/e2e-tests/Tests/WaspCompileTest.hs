@@ -1,6 +1,5 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import Control.Monad (void)
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
@@ -43,7 +42,7 @@ waspCompileTest =
           writeQuery "[]"
           waspFails ["compile"] >>= assertOutputContains "Property 'id' does not exist on type 'never'."
           writeQuery "[{ id: 1 }]"
-          void $ wasp ["compile"]
+          wasp ["compile"]
     ]
   where
     writeQuery :: T.Text -> TestM ()

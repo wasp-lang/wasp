@@ -1,13 +1,12 @@
 import Control.Concurrent (getNumCapabilities)
-import Control.Monad (mfilter, when)
+import Control.Monad (when)
 import E2E.Heartbeat (heartbeatReporter)
-import E2E.Paths (getWaspcDir)
+import E2E.RunConfig (RunConfig (..), getRunConfig, maxJobsEnvVar, waspCliCmdEnvVar)
 import E2E.Signals (stopOnFirstCtrlC)
-import E2E.Test (toTestTree)
+import E2E.Test (E2ETest, checkOutputDirsAreUnique, toTestTree)
 import SnapshotTest (testTreeFromSnapshotTest)
-import System.Environment (lookupEnv, setEnv)
+import System.Environment (setEnv)
 import System.Exit (ExitCode (..))
-import System.FilePath ((</>))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
 import Test (testTreeFromTest)
@@ -45,7 +44,6 @@ import Tests.WaspStartTest (waspStartTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
-import Text.Read (readMaybe)
 import UnliftIO.Async (pooledMapConcurrentlyN)
 
 main :: IO ()
@@ -54,21 +52,17 @@ main = do
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else do
       stopOnFirstCtrlC
-      setWaspCliCmd
-      warmUpWaspCli
-      maxJobs <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS" :: IO (Maybe Int)
-      tests <- e2eTests
+      runConfig <- getRunConfig
+      -- The tests that still use the shell commands DSL read the Wasp CLI from
+      -- the environment.
+      setEnv waspCliCmdEnvVar runConfig.waspCliPath
+      -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
+      warmUpWaspCli runConfig.waspCliPath
+      checkOutputDirsAreUnique (e2eSnapshotTests ++ e2eTests)
+      tests <- makeTestTree runConfig
       defaultMainWithIngredients
         [listingTests, composeReporters heartbeatReporter consoleTestReporter]
-        (maybe id (localOption . NumThreads) (mfilter (>= 1) maxJobs) tests)
-
--- | The tests run the Wasp CLI from @WASP_CLI_CMD@. When it's not set, we use
--- @tools/wasp-cli-dev@, which runs the current state of the waspc source.
-setWaspCliCmd :: IO ()
-setWaspCliCmd =
-  lookupEnv "WASP_CLI_CMD" >>= \case
-    Just waspCliCmd | not (null waspCliCmd) -> return ()
-    _ -> getWaspcDir >>= setEnv "WASP_CLI_CMD" . (</> "tools" </> "wasp-cli-dev")
+        (maybe id (localOption . NumThreads) runConfig.maxJobs tests)
 
 -- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
 -- concurrently.
@@ -79,19 +73,18 @@ setWaspCliCmd =
 -- and fail with "package.conf.inplace already exists". Doing one serial
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
-warmUpWaspCli :: IO ()
-warmUpWaspCli = do
-  waspCliCmd <- maybe (fail "WASP_CLI_CMD is not set.") return =<< lookupEnv "WASP_CLI_CMD"
-  (exitCode, _, err) <- readProcessWithExitCode waspCliCmd ["version"] ""
-  when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliCmd ++ " version` failed:\n" ++ err
+warmUpWaspCli :: FilePath -> IO ()
+warmUpWaspCli waspCliPath = do
+  (exitCode, _, err) <- readProcessWithExitCode waspCliPath ["version"] ""
+  when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliPath ++ " version` failed:\n" ++ err
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Port the remaining tests from the shell commands DSL to the 'E2E' one.
 --       See: github.com/wasp-lang/wasp/issues/3404
-e2eTests :: IO TestTree
-e2eTests = do
-  maxConcurrentSnapshotBuilds <- getMaxConcurrentSnapshotBuilds
-  putStrLn $ "Preparing snapshot tests with up to " ++ show maxConcurrentSnapshotBuilds ++ " concurrent build(s). Override with WASP_E2E_TEST_MAX_JOBS."
+makeTestTree :: RunConfig -> IO TestTree
+makeTestTree runConfig = do
+  maxConcurrentSnapshotBuilds <- getMaxConcurrentSnapshotBuilds runConfig
+  putStrLn $ "Preparing snapshot tests with up to " ++ show maxConcurrentSnapshotBuilds ++ " concurrent build(s). Override with " ++ maxJobsEnvVar ++ "."
   snapshotTestTrees <-
     pooledMapConcurrentlyN
       maxConcurrentSnapshotBuilds
@@ -140,20 +133,20 @@ e2eTests = do
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" (toTestTree waspNewSnapshotTest : snapshotTestTrees),
+      [ testGroup "Snapshot Tests" (map (toTestTree runConfig) e2eSnapshotTests ++ snapshotTestTrees),
         testGroup "Shell tests" shellTestTrees,
-        testGroup
-          "Tests"
-          ( sdkPackageExportsTestTree
-              : map
-                toTestTree
-                [ waspVersionTest,
-                  waspCompileTest,
-                  waspStartTest,
-                  waspDbStartTest
-                ]
-          )
+        testGroup "Tests" (sdkPackageExportsTestTree : map (toTestTree runConfig) e2eTests)
       ]
+
+-- | The tests written with the 'E2E' module.
+e2eTests, e2eSnapshotTests :: [E2ETest]
+e2eTests =
+  [ waspVersionTest,
+    waspCompileTest,
+    waspStartTest,
+    waspDbStartTest
+  ]
+e2eSnapshotTests = [waspNewSnapshotTest]
 
 -- | How many snapshot tests we prepare concurrently.
 --
@@ -164,10 +157,9 @@ e2eTests = do
 -- The default scales with the number of available cores (a fraction of them,
 -- since each build is itself multi-core). Set @WASP_E2E_TEST_MAX_JOBS@ to a
 -- positive integer to override it (e.g. @1@ for fully serial preparation).
-getMaxConcurrentSnapshotBuilds :: IO Int
-getMaxConcurrentSnapshotBuilds = do
+getMaxConcurrentSnapshotBuilds :: RunConfig -> IO Int
+getMaxConcurrentSnapshotBuilds runConfig = do
   numCores <- getNumCapabilities
-  override <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS"
-  return $ case override of
-    Just n | n >= 1 -> n
-    _ -> max 1 (numCores `div` 4)
+  return $ case runConfig.maxJobs of
+    Just maxJobs -> maxJobs
+    Nothing -> max 1 (numCores `div` 4)

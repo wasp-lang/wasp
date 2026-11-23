@@ -69,6 +69,10 @@ readStdout :: Output -> STM T.Text
 readStdout output = decodeChunks . (\chunks -> [chunk | (Stdout, chunk) <- chunks]) <$> readChunksInOrder output
 
 -- | Stdout and stderr interleaved in the order they arrived, like @2>&1@.
+--
+-- Unlike with @2>&1@, a text that the process writes in more than one write
+-- can have a chunk of the other stream in the middle, if both streams write at
+-- the same moment. That can only make a check miss a text, not find one.
 readCombinedOutput :: Output -> STM T.Text
 readCombinedOutput output = decodeChunks . map snd <$> readChunksInOrder output
 
