@@ -1,14 +1,12 @@
--- | Where the tests run and leave their outputs.
+-- | Where the tests run.
 module E2E.Paths
   ( getWaspcDir,
-    getTestOutputsDir,
   )
 where
 
 import Control.Monad (unless)
-import Data.Functor ((<&>))
 import System.Directory (getCurrentDirectory)
-import System.FilePath (takeFileName, (</>))
+import System.FilePath (takeFileName)
 
 getWaspcDir :: IO FilePath
 getWaspcDir = do
@@ -17,7 +15,3 @@ getWaspcDir = do
   -- A safeguard, since tests delete their output dirs.
   unless (takeFileName cwd == "waspc") (error "Expecting the e2e tests to be run from the waspc dir")
   return cwd
-
--- | Where tests run and leave their outputs, e.g. @<test-group>/<test-name>/@.
-getTestOutputsDir :: IO FilePath
-getTestOutputsDir = getWaspcDir <&> (</> "e2e-tests" </> "test-outputs")

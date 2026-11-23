@@ -5,7 +5,6 @@
 module E2E.TestM
   ( TestM,
     TestEnv (..),
-    RunConfig (..),
     TestLog (..),
     TestFailure (..),
     TestSkipped (..),
@@ -31,7 +30,7 @@ import Control.Concurrent.MVar (MVar, withMVar)
 import Control.Monad (unless, void)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT)
-import Control.Monad.Trans.Resource (InternalState, MonadResource (..), ReleaseKey, allocate, runInternalState)
+import Control.Monad.Trans.Resource (InternalState, MonadResource (..), ReleaseKey, allocate, getInternalState, runInternalState, runResourceT)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -41,12 +40,14 @@ import Data.Unique (hashUnique, newUnique)
 import E2E.RunConfig (RunConfig (..), skipDockerEnvVar)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
-import System.IO (Handle, hFlush)
+import System.IO (Handle, hFlush, hPutStr, stderr)
 import UnliftIO (MonadUnliftIO, throwIO)
-import UnliftIO.Exception (Exception, catchAny, displayException)
+import UnliftIO.Exception (Exception, SomeException, catchAny, displayException)
 
 data TestEnv = TestEnv
   { runConfig :: RunConfig,
+    -- | The test's groups and name, e.g. @wasp-start/fail-outside-project@.
+    testName :: String,
     -- | The absolute directory relative paths are resolved against and
     -- commands run in.
     workingDir :: FilePath,
@@ -124,22 +125,41 @@ resolvePath path = FP.normalise . (</> path) <$> getWorkingDir
 
 -- | Acquires a resource and registers its cleanup, which runs when the test
 -- ends, or earlier with 'Control.Monad.Trans.Resource.release'. The test can't
--- be cancelled in between. A cleanup that fails is logged, and the others
--- still run.
+-- be cancelled in between. A cleanup that fails is reported (see
+-- 'reportCleanupFailure'), and the others still run.
 allocateWithCleanup :: IO a -> (a -> IO ()) -> TestM (ReleaseKey, a)
 allocateWithCleanup acquire cleanup = do
-  testLog <- asks (.testLog)
-  let logFailure err = writeToLog testLog (TE.encodeUtf8 . T.pack $ "Cleanup failed: " ++ displayException err ++ "\n")
-  allocate acquire $ \resource -> cleanup resource `catchAny` logFailure
+  testEnv <- ask
+  allocate acquire $ \resource -> cleanup resource `catchAny` reportCleanupFailure testEnv
 
-registerCleanup :: IO () -> TestM ()
-registerCleanup cleanup = void $ allocateWithCleanup (return ()) (const cleanup)
-
--- | Like 'registerCleanup', but for a test step.
+-- | Registers steps that run when the test ends, no matter how it ends, e.g.
+-- to remove a Docker container the test created. Registered steps run in
+-- reverse order, and in the working directory they were registered in.
+--
+-- The steps run after the test's last step, so they can't fail the test, and
+-- they shouldn't assert anything: a failure is only reported (see
+-- 'reportCleanupFailure'). Use them to remove resources, and make them
+-- tolerate resources that are already gone (e.g. with
+-- 'E2E.Process.runAllowingFailure').
+--
+-- The steps can run commands: they get a cleanup scope of their own, which
+-- stops the processes they started when they finish. The test's scope is
+-- already closed when they run.
 registerCleanupStep :: TestM () -> TestM ()
 registerCleanupStep step = do
   testEnv <- ask
-  registerCleanup $ runTestM testEnv step
+  let runStepInOwnScope = runResourceT $ do
+        stepResources <- getInternalState
+        liftIO $ runTestM testEnv {resources = stepResources} step
+  void $ allocateWithCleanup (return ()) (const runStepInOwnScope)
+
+-- | Writes the failure to the test's log, and to the test runner's stderr,
+-- since the test still passes, and a passing test's output isn't shown with
+-- @--hide-successes@.
+reportCleanupFailure :: TestEnv -> SomeException -> IO ()
+reportCleanupFailure testEnv err = do
+  writeToLog testEnv.testLog (TE.encodeUtf8 . T.pack $ "Cleanup failed: " ++ displayException err ++ "\n")
+  hPutStr stderr $ "Cleanup failed in " ++ testEnv.testName ++ " (log: " ++ testEnv.testLog.logFile ++ "): " ++ displayException err ++ "\n"
 
 -- | The name with a suffix that no other test run uses, for resources outside
 -- the test dir that runs from other checkouts could also create, e.g. Docker

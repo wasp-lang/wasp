@@ -17,10 +17,11 @@ where
 
 #if !defined(mingw32_HOST_OS)
 import Control.Concurrent (myThreadId, throwTo)
-import Control.Exception (AsyncException (UserInterrupt), IOException, catch)
+import Control.Exception (AsyncException (UserInterrupt), catch, throwIO)
 import Control.Monad (void)
 import Data.IORef (atomicModifyIORef', newIORef)
 import System.IO (hPutStrLn, stderr)
+import System.IO.Error (isDoesNotExistError)
 import qualified System.Posix.Signals as Posix
 #endif
 
@@ -50,9 +51,12 @@ signalProcess sig pid = Posix.signalProcess (toPosixSignal sig) (fromIntegral pi
 signalProcessGroup sig pid = Posix.signalProcessGroup (toPosixSignal sig) (fromIntegral pid)
 
 -- | Sending the null signal only checks whether the group has any processes.
+-- It fails with ESRCH (a does-not-exist error) when there are none. Any other
+-- error (e.g. EPERM, when the group belongs to another user) means we can't
+-- tell, so we rethrow it.
 processGroupExists pgid =
   (Posix.signalProcessGroup Posix.nullSignal (fromIntegral pgid) >> return True)
-    `catch` \(_ :: IOException) -> return False
+    `catch` \err -> if isDoesNotExistError err then return False else throwIO err
 
 stopOnFirstCtrlC = do
   mainThread <- myThreadId
