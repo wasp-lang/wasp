@@ -23,9 +23,12 @@ import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
 import qualified Wasp.Message as Msg
+import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Project.WaspNpmPackage (doesVersionMatchDeclaredVersion, getDeclaredVersion, getWaspNpmPackageDeclaration)
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -149,13 +152,26 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compileResult <- compileIO waspProjectDir outDir
-      let (warnings, errors) = compileResultWarningsAndErrors compileResult
+      (warnings, errors, compileOutcome) <-
+        findWaspVersionChangeError >>= \case
+          Just waspVersionChangeError -> return ([], [waspVersionChangeError], FailedCompile)
+          Nothing -> compile compileStartTime changedProjectFiles
 
       printCompilationResult (warnings, errors)
+      cliSendMessage $
+        if null errors
+          then Msg.Success "Recompilation on file change succeeded."
+          else Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found"
+      setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
+      updateOngoingCompilationResultMVar (warnings, errors)
+      onServerEvent $ Compiled compileOutcome
+
+    compile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ([CompileWarning], [CompileError], CompileOutcome)
+    compile compileStartTime changedProjectFiles = do
+      compileResult <- compileIO waspProjectDir outDir
+      let (warnings, errors) = compileResultWarningsAndErrors compileResult
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
-          cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
           projectRunConfig <- makeProjectRunConfig appSpec
           return $
             SuccessfulCompile
@@ -165,12 +181,28 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
                   _changedProjectFiles = changedProjectFiles,
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
-        Left _ -> do
-          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
-          return FailedCompile
-      setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
-      updateOngoingCompilationResultMVar (warnings, errors)
-      onServerEvent $ Compiled compileOutcome
+        Left _ -> return FailedCompile
+      return (warnings, errors, compileOutcome)
+
+    -- This Wasp can't compile for another Wasp version. Compiling would install
+    -- that version, which replaces this Wasp's own files in node_modules while
+    -- it runs.
+    findWaspVersionChangeError :: IO (Maybe CompileError)
+    findWaspVersionChangeError = do
+      runningVersion <- getWaspCliNpmPackageVersion
+      declaredVersion <- either (const Nothing) getDeclaredVersion <$> getWaspNpmPackageDeclaration waspProjectDir
+      return $ case declaredVersion of
+        Just version
+          | not (doesVersionMatchDeclaredVersion version runningVersion) ->
+              Just $
+                "package.json now asks for "
+                  ++ waspNpmPackageName
+                  ++ " "
+                  ++ version
+                  ++ ", but the running Wasp is "
+                  ++ show runningVersion
+                  ++ ". Stop Wasp, run `npm install`, and start it again."
+        _ -> Nothing
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
