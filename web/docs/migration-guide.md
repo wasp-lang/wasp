@@ -649,7 +649,7 @@ If you use Sentry, follow the updated [Sentry guide](./guides/integrations/sentr
 
 **If you don't use `Link`, `NavLink`, or `routes.<name>.build()` with params, you can skip this step.**
 
-Wasp now correctly encodes characters like `0`, `/`, `?`, and `#` in route params. If you were encoding them yourself, they might end up encoded twice. From now on, you should pass the raw values instead:
+Wasp now keeps params that are `0`, and encodes characters like `/`, `?`, and `#` in route params. If you were encoding them yourself, they might end up encoded twice. From now on, you should pass the raw values instead:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
