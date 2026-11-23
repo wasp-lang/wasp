@@ -39,16 +39,17 @@ appendToFile :: FilePath -> T.Text -> TestM ()
 appendToFile path content = do
   absPath <- resolvePath path
   exists <- liftIO $ doesFileExist absPath
-  unless exists $ failTest $ "Expected " ++ path ++ " to exist, to append to it."
+  unless exists $ failTest $ "Expected " ++ absPath ++ " to exist, to append to it."
   liftIO $ BS.appendFile absPath (TE.encodeUtf8 $ content <> "\n")
 
 -- | Replaces all occurrences of the text. Fails if the text isn't in the file.
 replaceInFile :: FilePath -> T.Text -> T.Text -> TestM ()
 replaceInFile path oldText newText = do
   content <- readFromFile path
+  absPath <- resolvePath path
   unless (oldText `T.isInfixOf` content)
     $ failTest
-    $ "Expected " ++ path ++ " to contain " ++ show oldText ++ "."
+    $ "Expected " ++ absPath ++ " to contain " ++ show oldText ++ "."
   writeToFile path (T.replace oldText newText content)
 
 readFromFile :: FilePath -> TestM T.Text
@@ -56,7 +57,7 @@ readFromFile path = do
   absPath <- resolvePath path
   liftIO (TE.decodeUtf8' <$> BS.readFile absPath) >>= \case
     Right content -> return content
-    Left err -> failTest $ "Expected " ++ path ++ " to be UTF-8 text: " ++ show err
+    Left err -> failTest $ "Expected " ++ absPath ++ " to be UTF-8 text: " ++ show err
 
 copyFile :: FilePath -> FilePath -> TestM ()
 copyFile srcPath dstPath = do

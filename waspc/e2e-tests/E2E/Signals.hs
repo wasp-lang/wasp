@@ -21,7 +21,7 @@ import Control.Exception (AsyncException (UserInterrupt), catch, throwIO)
 import Control.Monad (void)
 import Data.IORef (atomicModifyIORef', newIORef)
 import System.IO (hPutStrLn, stderr)
-import System.IO.Error (isDoesNotExistError)
+import System.IO.Error (isDoesNotExistError, isPermissionError)
 import qualified System.Posix.Signals as Posix
 #endif
 
@@ -50,13 +50,21 @@ stopOnFirstCtrlC = return ()
 signalProcess sig pid = Posix.signalProcess (toPosixSignal sig) (fromIntegral pid)
 signalProcessGroup sig pid = Posix.signalProcessGroup (toPosixSignal sig) (fromIntegral pid)
 
--- | Sending the null signal only checks whether the group has any processes.
--- It fails with ESRCH (a does-not-exist error) when there are none. Any other
--- error (e.g. EPERM, when the group belongs to another user) means we can't
--- tell, so we rethrow it.
+-- | Sending the null signal only checks whether the group has processes we
+-- can signal. It fails with ESRCH (a does-not-exist error) when the group has
+-- no processes. On macOS, it also fails with EPERM (a permission error) when
+-- the group only has zombies left, i.e. processes that exited but weren't
+-- reaped yet (Linux counts those as existing until they're reaped). We meet
+-- that often: the process we started exits and is reaped, and its children
+-- exit a moment later.
+--
+-- Both errors mean that nothing in the group can be signalled anymore, and
+-- our groups never have another user's processes, so both mean "gone". That's
+-- safe, since zombies still hold the group ID, so we stop signalling it before
+-- the OS can reuse it, not after. We rethrow any other error.
 processGroupExists pgid =
   (Posix.signalProcessGroup Posix.nullSignal (fromIntegral pgid) >> return True)
-    `catch` \err -> if isDoesNotExistError err then return False else throwIO err
+    `catch` \err -> if isDoesNotExistError err || isPermissionError err then return False else throwIO err
 
 stopOnFirstCtrlC = do
   mainThread <- myThreadId

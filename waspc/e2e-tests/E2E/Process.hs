@@ -70,7 +70,9 @@ data RunningProcess = RunningProcess
     processGroupId :: Maybe Int,
     -- | Set once we saw the process exit and its group empty. From then on,
     -- the OS can give the group ID to a new process group, so we must not
-    -- signal it anymore.
+    -- signal it anymore. This doesn't cover a group that empties while no
+    -- step checks it (e.g. the children of an exited process die later): its
+    -- ID can be reused before we check again. Only pidfds could close that gap.
     processGroupGone :: IORef Bool,
     output :: Output
   }
@@ -221,8 +223,11 @@ waitForExit runningProcess seconds = do
       liftIO . void . waitAtMost outputDrainSeconds $ isFullyRead runningProcess.output >>= check
       logLine $ "\n<== " ++ describeExitCode exitCode
       -- The process is reaped, so if its group is empty now, the OS can
-      -- reuse the group ID, and we must remember not to signal it.
-      liftIO . forM_ runningProcess.processGroupId $ checkProcessGroupExists runningProcess
+      -- reuse the group ID, and we must remember not to signal it. The
+      -- process did nothing wrong if the check fails, so we don't fail the
+      -- test: the group just isn't marked as gone, and later steps check again.
+      liftIO (forM_ runningProcess.processGroupId $ checkProcessGroupExists runningProcess)
+        `catchAny` const (return ())
       return exitCode
 
 -- | Waits for the process to exit, but at most for the given number of
@@ -265,6 +270,7 @@ signalPid sig pid = do
 
 -- | Sends the signal to the process group the process runs in, like
 -- a terminal does for Ctrl+C (SIGINT) or when it's closed (SIGHUP).
+-- Fails the test if the group has no processes left.
 signalProcessGroupOf :: Signal -> RunningProcess -> TestM ()
 signalProcessGroupOf sig runningProcess = do
   processGroupId <- getProcessGroupId runningProcess
@@ -278,8 +284,10 @@ signalProcessGroupOf sig runningProcess = do
 -- | Whether any process is left in the process group the process ran in, e.g.
 -- children that outlive it.
 processGroupOfExists :: RunningProcess -> TestM Bool
-processGroupOfExists runningProcess =
-  getProcessGroupId runningProcess >>= liftIO . checkProcessGroupExists runningProcess
+processGroupOfExists runningProcess = do
+  processGroupId <- getProcessGroupId runningProcess
+  liftIO (checkProcessGroupExists runningProcess processGroupId) `catch` \(err :: IOException) ->
+    failWithOutput runningProcess ("couldn't be checked for processes left in its process group: " ++ displayException err)
 
 -- | Once the group is gone, we remember it and don't check again, since the OS
 -- can give its ID to a new group.
@@ -321,11 +329,16 @@ stopProcess runningProcess = do
   liftIO $ TP.stopProcess runningProcess.process
   where
     -- Only while the group exists, since its ID could belong to a new group
-    -- once it's gone. The signal can still fail when the group's last process
-    -- exits right after the check, which is what we want anyway.
-    signalGroup sig = liftIO . forM_ runningProcess.processGroupId $ \processGroupId -> do
-      exists <- checkProcessGroupExists runningProcess processGroupId
-      when exists $ signalProcessGroup sig processGroupId `catchAny` const (return ())
+    -- once it's gone (but see 'processGroupGone' for when we can't tell).
+    -- Errors are only logged, so that we still stop the process: the signal
+    -- fails e.g. when the group's last process exits right after the check,
+    -- which is what we want anyway.
+    signalGroup sig = forM_ runningProcess.processGroupId $ \processGroupId -> do
+      let signalIfGroupExists = do
+            exists <- checkProcessGroupExists runningProcess processGroupId
+            when exists $ signalProcessGroup sig processGroupId
+      liftIO signalIfGroupExists `catchAny` \err ->
+        logLine $ "\n<== Couldn't send " ++ show sig ++ " to its process group: " ++ displayException err
 
     -- How long a process has to stop on its own when the test ends.
     stopGracePeriodSeconds = 10

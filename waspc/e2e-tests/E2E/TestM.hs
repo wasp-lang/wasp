@@ -17,6 +17,7 @@ module E2E.TestM
     resolvePath,
     allocateWithCleanup,
     registerCleanupStep,
+    cleanupCommandTimeoutSeconds,
     makeUniqueName,
     writeToLog,
     logLine,
@@ -40,7 +41,7 @@ import Data.Unique (hashUnique, newUnique)
 import E2E.RunConfig (RunConfig (..), skipDockerEnvVar)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
-import System.IO (Handle, hFlush, hPutStr, stderr)
+import System.IO (Handle, hFlush, stderr)
 import UnliftIO (MonadUnliftIO, throwIO)
 import UnliftIO.Exception (Exception, SomeException, catchAny, displayException)
 
@@ -144,7 +145,8 @@ allocateWithCleanup acquire cleanup = do
 --
 -- The steps can run commands: they get a cleanup scope of their own, which
 -- stops the processes they started when they finish. The test's scope is
--- already closed when they run.
+-- already closed when they run. Give the commands a short timeout (see
+-- 'cleanupCommandTimeoutSeconds').
 registerCleanupStep :: TestM () -> TestM ()
 registerCleanupStep step = do
   testEnv <- ask
@@ -153,13 +155,22 @@ registerCleanupStep step = do
         liftIO $ runTestM testEnv {resources = stepResources} step
   void $ allocateWithCleanup (return ()) (const runStepInOwnScope)
 
+-- | For commands in cleanup steps, e.g. @docker rm --force@. Much shorter than
+-- the default (see 'E2E.Command.command'), since nothing can cut a hung
+-- cleanup short: cleanups run masked, and we ignore Ctrl+C after the first one.
+cleanupCommandTimeoutSeconds :: Int
+cleanupCommandTimeoutSeconds = 60
+
 -- | Writes the failure to the test's log, and to the test runner's stderr,
 -- since the test still passes, and a passing test's output isn't shown with
 -- @--hide-successes@.
 reportCleanupFailure :: TestEnv -> SomeException -> IO ()
 reportCleanupFailure testEnv err = do
-  writeToLog testEnv.testLog (TE.encodeUtf8 . T.pack $ "Cleanup failed: " ++ displayException err ++ "\n")
-  hPutStr stderr $ "Cleanup failed in " ++ testEnv.testName ++ " (log: " ++ testEnv.testLog.logFile ++ "): " ++ displayException err ++ "\n"
+  writeToLog testEnv.testLog (encode $ "Cleanup failed: " ++ displayException err ++ "\n")
+  -- In one write, so that lines from tests running in parallel don't mix.
+  BS.hPut stderr . encode $ "Cleanup failed in " ++ testEnv.testName ++ " (log: " ++ testEnv.testLog.logFile ++ "): " ++ displayException err ++ "\n"
+  where
+    encode = TE.encodeUtf8 . T.pack
 
 -- | The name with a suffix that no other test run uses, for resources outside
 -- the test dir that runs from other checkouts could also create, e.g. Docker

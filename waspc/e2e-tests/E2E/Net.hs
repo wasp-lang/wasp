@@ -12,7 +12,7 @@ import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import E2E.Process (RunningProcess, failIfExited, failWithOutput, waitForExit)
 import E2E.TestM (TestM, failTest, pollUntil, waitUntil)
-import Foreign.C.Error (Errno (..), eCONNREFUSED)
+import Foreign.C.Error (Errno (..), eCONNREFUSED, eCONNRESET)
 import GHC.IO.Exception (IOException (ioe_errno))
 import qualified Network.Socket as Socket
 import System.Exit (ExitCode)
@@ -52,12 +52,13 @@ waitUntilStopped runningProcess ports = do
 -- We try all addresses of @localhost@, since e.g. Vite listens only on one of
 -- IPv4 and IPv6.
 --
--- Only a refused connection means that nothing listens: the OS refuses
--- connections to a local port nothing listens on right away. Other errors
--- (e.g. EADDRNOTAVAIL when we run out of local ports, or a timeout) say
--- nothing about the port, so they fail the test, since treating them as "not
--- listening" would let 'waitUntilNotListening' pass without checking
--- anything.
+-- Only a refused or reset connection means that nothing listens: the OS
+-- refuses connections to a local port nothing listens on right away, and on
+-- both macOS and Linux, it resets them instead when the listener closes while
+-- we connect. Other errors (e.g. EADDRNOTAVAIL when we run out of local ports,
+-- or a timeout) say nothing about the port, so they fail the test, since
+-- treating them as "not listening" would let 'waitUntilNotListening' pass
+-- without checking anything.
 isListening :: Int -> TestM Bool
 isListening port = do
   addresses <- liftIO $ Socket.getAddrInfo (Just hints) (Just "localhost") (Just $ show port)
@@ -67,16 +68,16 @@ isListening port = do
 
     canConnect address = do
       connectResult <-
-        liftIO $
+        liftIO . try @IOException $
           bracket
             (Socket.socket (Socket.addrFamily address) Socket.Stream Socket.defaultProtocol)
             Socket.close
-            (try @IOException . (`Socket.connect` Socket.addrAddress address))
+            (`Socket.connect` Socket.addrAddress address)
       case connectResult of
         Right () -> return True
         Left err
-          | isConnectionRefused err -> return False
+          | isRefusedOrReset err -> return False
           | otherwise ->
               failTest $ "Couldn't check whether something listens on " ++ show (Socket.addrAddress address) ++ ": " ++ displayException err
 
-    isConnectionRefused err = (Errno <$> ioe_errno err) == Just eCONNREFUSED
+    isRefusedOrReset err = (Errno <$> ioe_errno err) `elem` map Just [eCONNREFUSED, eCONNRESET]
