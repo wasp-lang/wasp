@@ -13,7 +13,9 @@ function getUrlFromRelativePathToCwd(path: string) {
 }
 
 const program = new Command();
-program.requiredOption("-d, --data-file <path>", "Path to data file").requiredOption("-p, --port <port>", "Port to listen on", Number)
+program
+  .requiredOption("-d, --data-file <path>", "Path to data file")
+  .requiredOption("-p, --port <port>", "Port to listen on", Number)
   .parse();
 
 const options = program.opts<{
