@@ -18,8 +18,8 @@ incrementalTypeCheckingTest =
           -- Editing a file makes TypeScript report the initial error.
           appendToFile "src/MainPage.tsx" ""
           -- Compile rejects the type error, but still generates the new types.
-          waspFails ["compile"]
-          runExpectingFailure typeCheckApp >>= assertOutputContains "Property 'id' does not exist on type 'never'."
+          waspFails ["compile"] >>= assertOutputContains operationTypeError
+          runExpectingFailure typeCheckApp >>= assertOutputContains operationTypeError
           writeTasksQuery "[{ id: 1 }]"
           wasp ["compile"]
           run typeCheckApp
@@ -27,3 +27,5 @@ incrementalTypeCheckingTest =
   where
     typeCheckApp :: Command
     typeCheckApp = nodeModulesBin "tsc" ["--build", "tsconfig.src.json"]
+
+    operationTypeError = "Property 'id' does not exist on type 'never'."

@@ -1,11 +1,19 @@
--- | Project files shared by several tests.
+-- | Project files and commands shared by several tests.
+--
+-- Fixtures edit the starter's files instead of rewriting them, so the tests
+-- keep up with the starter. An edit fails loudly when the starter changes.
 module Tests.Fixtures
   ( taskPrismaModel,
+    addTasksQueryToMainWaspTs,
     writeTasksQueryApp,
     writeTasksQuery,
     TaskSeed (..),
-    taskSeedName,
-    writeTaskSeedsApp,
+    allTaskSeeds,
+    setUpProjectWithTaskSeeds,
+    runTaskSeed,
+    addSeedsToMainWaspTs,
+    viteBuild,
+    withApiUrl,
   )
 where
 
@@ -13,6 +21,7 @@ import Control.Monad (forM_)
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
+import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
 
 taskPrismaModel :: T.Text
 taskPrismaModel =
@@ -24,27 +33,19 @@ taskPrismaModel =
     }
   |]
 
+-- | Declares the @getTasks@ query from @src/queries.ts@ in the starter's
+-- @main.wasp.ts@.
+addTasksQueryToMainWaspTs :: TestM ()
+addTasksQueryToMainWaspTs = do
+  replaceInFile "main.wasp.ts" "import { app, page, route } from \"@wasp/spec\";" "import { app, page, query, route } from \"@wasp/spec\";"
+  addMainWaspTsImports ["import { getTasks } from \"./src/queries\" with { type: \"ref\" };"]
+  addMainWaspTsSpecDeclaration "query(getTasks)"
+
 -- | An app whose main page renders the result of the @getTasks@ query.
 -- The query returns @[{ id: 1 }]@ until changed with 'writeTasksQuery'.
 writeTasksQueryApp :: TestM ()
 writeTasksQueryApp = do
-  writeToFile
-    "main.wasp.ts"
-    [trimming|
-      import { app, page, query, route } from "@wasp/spec";
-      import { MainPage } from "./src/MainPage" with { type: "ref" };
-      import { getTasks } from "./src/queries" with { type: "ref" };
-
-      export default app({
-        name: "operationTypes",
-        title: "Operation types",
-        wasp: { version: "$textWaspVersion" },
-        spec: [
-          route("RootRoute", "/", page(MainPage)),
-          query(getTasks),
-        ],
-      });
-    |]
+  addTasksQueryToMainWaspTs
   writeTasksQuery "[{ id: 1 }]"
   writeToFile
     "src/MainPage.tsx"
@@ -78,47 +79,22 @@ writeTasksQuery result =
 -- `prisma db execute` would also work, but it's less readable and not
 -- database agnostic.
 data TaskSeed = PopulateTasks | AssertTasksEmpty | AssertTasksNotEmpty
+  deriving (Bounded, Enum)
 
-taskSeedName :: TaskSeed -> String
-taskSeedName = \case
-  PopulateTasks -> "populateTasks"
-  AssertTasksEmpty -> "assertTasksEmpty"
-  AssertTasksNotEmpty -> "assertTasksNotEmpty"
+allTaskSeeds :: [TaskSeed]
+allTaskSeeds = [minBound .. maxBound]
 
--- | Adds the seeds to the project, and makes them the app's only seeds.
--- Expects the Task model to be in the Prisma schema.
-writeTaskSeedsApp :: [TaskSeed] -> TestM ()
-writeTaskSeedsApp seeds = do
+-- | Adds the Task model to the project and migrates the database, then makes
+-- the seeds the app's only seeds.
+setUpProjectWithTaskSeeds :: [TaskSeed] -> TestM ()
+setUpProjectWithTaskSeeds seeds = do
+  wasp ["compile"]
+  appendToFile "schema.prisma" taskPrismaModel
+  waspDbMigrateDev "foo"
   forM_ seeds $ \seed ->
     writeToFile ("src/db/" ++ taskSeedName seed ++ ".ts") $ seedScript (T.pack $ taskSeedName seed) (seedBody seed)
-  let seedImports =
-        T.unlines
-          [ "import { " <> name <> " } from \"./src/db/" <> name <> "\" with { type: \"ref\" };"
-          | name <- seedNames
-          ]
-      seedList = T.intercalate ", " seedNames
-  writeToFile
-    "main.wasp.ts"
-    [trimming|
-      import { app, page, route } from "@wasp/spec";
-      import { MainPage } from "./src/MainPage" with { type: "ref" };
-      $seedImports
-      export default app({
-        name: "waspDbSeedTest",
-        title: "waspDbSeedTest",
-        wasp: { version: "$textWaspVersion" },
-        head: ["<link rel='icon' href='/favicon.ico' />"],
-        db: {
-          seeds: [$seedList]
-        },
-        spec: [
-          route("RootRoute", "/", page(MainPage)),
-        ]
-      })
-    |]
+  addSeedsToMainWaspTs $ map taskSeedName seeds
   where
-    seedNames = map (T.pack . taskSeedName) seeds
-
     seedBody :: TaskSeed -> T.Text
     seedBody = \case
       PopulateTasks ->
@@ -151,3 +127,53 @@ writeTaskSeedsApp seeds = do
           $body
         }
       |]
+
+-- | Runs the seed with `wasp db seed`. Expects 'setUpProjectWithTaskSeeds' to
+-- have added it.
+runTaskSeed :: TaskSeed -> TestM ProcessResult
+runTaskSeed seed = wasp ["db", "seed", taskSeedName seed]
+
+taskSeedName :: TaskSeed -> String
+taskSeedName = \case
+  PopulateTasks -> "populateTasks"
+  AssertTasksEmpty -> "assertTasksEmpty"
+  AssertTasksNotEmpty -> "assertTasksNotEmpty"
+
+-- | Makes the named functions the app's seeds in the starter's @main.wasp.ts@.
+-- Each one is the export of the same name in @src/db/<name>.ts@.
+addSeedsToMainWaspTs :: [String] -> TestM ()
+addSeedsToMainWaspTs seedNames = do
+  addMainWaspTsImports
+    [ "import { " <> name <> " } from \"./src/db/" <> name <> "\" with { type: \"ref\" };"
+    | name <- seedNameTexts
+    ]
+  addMainWaspTsAppField $ "db: { seeds: [" <> T.intercalate ", " seedNameTexts <> "] }"
+  where
+    seedNameTexts = map T.pack seedNames
+
+-- | `vite build` in the Wasp project, with the extra arguments.
+--
+-- Without the test runner's @REACT_APP_API_URL@, since the client needs it to
+-- build. Use 'withApiUrl' to set it.
+viteBuild :: [String] -> Command
+viteBuild arguments = withoutEnv [serverUrlEnvVarName] $ nodeModulesBin "vite" ("build" : arguments)
+
+-- | Sets the server URL the client is built with.
+withApiUrl :: Command -> Command
+withApiUrl = withEnv [(serverUrlEnvVarName, "http://localhost:3001")]
+
+addMainWaspTsImports :: [T.Text] -> TestM ()
+addMainWaspTsImports imports =
+  replaceInFile "main.wasp.ts" starterLastImport (T.intercalate "\n" $ starterLastImport : imports)
+  where
+    starterLastImport = "import { MainPage } from \"./src/MainPage\" with { type: \"ref\" };"
+
+-- | Adds a field to the object passed to @app()@, before @spec@.
+addMainWaspTsAppField :: T.Text -> TestM ()
+addMainWaspTsAppField field = replaceInFile "main.wasp.ts" "  spec: [" ("  " <> field <> ",\n  spec: [")
+
+addMainWaspTsSpecDeclaration :: T.Text -> TestM ()
+addMainWaspTsSpecDeclaration declaration =
+  replaceInFile "main.wasp.ts" starterRoute (starterRoute <> "\n    " <> declaration <> ",")
+  where
+    starterRoute = "    route(\"RootRoute\", \"/\", page(MainPage)),"

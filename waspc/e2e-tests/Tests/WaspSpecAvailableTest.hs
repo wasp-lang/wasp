@@ -3,7 +3,9 @@ module Tests.WaspSpecAvailableTest (waspSpecAvailableTest) where
 import Control.Monad (forM_, void)
 import qualified Data.Text as T
 import E2E
+import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInstallationPathInProject)
 import Wasp.Util.Terminal (styleCode)
 
 waspSpecAvailableTest :: E2ETest
@@ -61,7 +63,10 @@ waspSpecAvailableTest =
     removeNodeModules = deleteDirectory "node_modules"
 
     corruptWaspSpecVersion :: TestM ()
-    corruptWaspSpecVersion = inDirectory ".wasp/spec" $ void $ run npmPkgSetVersion
+    corruptWaspSpecVersion =
+      inDirectory (SP.fromRelDir $ getPackageInstallationPathInProject WaspSpecPackage)
+        $ void
+        $ run npmPkgSetVersion
 
     assertFailsWithInstallHint :: Command -> TestM ()
     assertFailsWithInstallHint cmd =

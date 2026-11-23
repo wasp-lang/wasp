@@ -10,8 +10,10 @@ import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirRecursive)
+import Tests.Fixtures (viteBuild, withApiUrl)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
+import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
 import Wasp.Project.Env (dotEnvClient)
 
 viteBuildTest :: E2ETest
@@ -19,10 +21,11 @@ viteBuildTest =
   testGroup
     "vite-build"
     [ viteBuildTestCase "fail-on-missing-required-env-vars" $
-        runExpectingFailure viteBuild,
-      viteBuildTestCase "success-with-required-env-vars" $
+        runExpectingFailure (viteBuild [])
+          >>= assertOutputContains (T.pack serverUrlEnvVarName <> " is required"),
+      viteBuildTestCase "succeed-with-required-env-vars" $
         run viteBuildWithApiUrl,
-      viteBuildTestCase "fail-missing-inline-env-var" $ do
+      viteBuildTestCase "succeed-without-inline-env-var" $ do
         run viteBuildWithApiUrl
         assertBuildOutputDoesNotContain inlineEnvVarValue,
       -- Based on https://github.com/wasp-lang/wasp/issues/3741
@@ -39,7 +42,8 @@ viteBuildTest =
         assertBuildOutputContains inlineEnvVarValue,
       viteBuildTestCase "fail-on-user-code-type-error" $ do
         appendToFile "src/MainPage.tsx" typeError
-        runExpectingFailure viteBuildWithApiUrl,
+        runExpectingFailure viteBuildWithApiUrl
+          >>= assertOutputContains "error TS2322: Type 'number' is not assignable to type 'string'.",
       viteBuildTestCase "ignore-wasp-ts-type-errors" $ do
         appendToFile "main.wasp.ts" typeError
         run viteBuildWithApiUrl,
@@ -58,6 +62,7 @@ viteBuildTest =
             });
           |]
         runExpectingFailure viteBuildWithApiUrl
+          >>= assertOutputContains "\"server.port\" is set to 4000"
     ]
   where
     viteBuildTestCase :: String -> TestM a -> E2ETest
@@ -75,11 +80,8 @@ viteBuildTest =
           wasp ["build"]
           steps
 
-    viteBuild :: Command
-    viteBuild = nodeModulesBin "vite" ["build"]
-
     viteBuildWithApiUrl :: Command
-    viteBuildWithApiUrl = withEnv [("REACT_APP_API_URL", "http://localhost:3001")] viteBuild
+    viteBuildWithApiUrl = withApiUrl $ viteBuild []
 
     assertBuildOutputContains :: String -> TestM ()
     assertBuildOutputContains value =

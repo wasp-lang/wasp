@@ -12,6 +12,7 @@ module E2E.Command
   )
 where
 
+import Data.List (intercalate)
 import qualified Data.Text as T
 
 data Command = Command
@@ -61,11 +62,19 @@ nodeModulesBin bin arguments = (command (binDir ++ "/" ++ bin) arguments) {extra
   where
     binDir = "node_modules/.bin"
 
+-- | Sets the variables, replacing what earlier 'withEnv' and 'withoutEnv'
+-- calls did with them.
 withEnv :: [(String, String)] -> Command -> Command
-withEnv variables cmd = cmd {environmentOverrides = cmd.environmentOverrides ++ [(key, Just value) | (key, value) <- variables]}
+withEnv variables = overrideEnv [(key, Just value) | (key, value) <- variables]
 
+-- | Removes the variables, replacing what earlier 'withEnv' and 'withoutEnv'
+-- calls did with them.
 withoutEnv :: [String] -> Command -> Command
-withoutEnv keys cmd = cmd {environmentOverrides = cmd.environmentOverrides ++ [(key, Nothing) | key <- keys]}
+withoutEnv keys = overrideEnv [(key, Nothing) | key <- keys]
+
+overrideEnv :: [(String, Maybe String)] -> Command -> Command
+overrideEnv overrides cmd =
+  cmd {environmentOverrides = filter ((`notElem` map fst overrides) . fst) cmd.environmentOverrides ++ overrides}
 
 -- | The command as you would type it in a shell.
 showCommand :: Command -> String
@@ -74,7 +83,13 @@ showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (executableName : cmd
     executableName = case cmd.executable of
       WaspCli -> "wasp"
       Program program -> program
-    envPrefix = [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
+    envPrefix = unsetPrefix ++ pathPrefix ++ [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
+    pathPrefix = case cmd.extraPath of
+      [] -> []
+      dirs -> ["PATH=" ++ intercalate ":" (map quoteIfNeeded dirs ++ ["$PATH"])]
+    unsetPrefix = case [key | (key, Nothing) <- cmd.environmentOverrides] of
+      [] -> []
+      unsetKeys -> "env" : concatMap (\key -> ["-u", key]) unsetKeys
     quoteIfNeeded word
       | null word || any (`elem` (" \"'\n" :: String)) word = show word
       | otherwise = word

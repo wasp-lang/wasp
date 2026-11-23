@@ -3,7 +3,6 @@ module Tests.WaspShowTest (waspShowTest) where
 import Control.Monad (forM_)
 import qualified Data.Text as T
 import E2E
-import NeatInterpolation (trimming)
 import UnliftIO.Async (mapConcurrently)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -28,7 +27,7 @@ waspShowTest =
       -- its own.
       test "concurrent-spec-analyses-read-their-own-results" $
         withNewWaspProject minimalStarterTemplate $ do
-          writeToFile "main.wasp.ts" routeFromEnvVarMainWaspTs
+          replaceInFile "main.wasp.ts" "route(\"RootRoute\", \"/\"" "route(\"RootRoute\", `/${process.env.E2E_ROUTE}`"
           let routes = ["e2e-route-" ++ show index | index <- [1 .. 8 :: Int]]
           results <-
             mapConcurrently
@@ -37,20 +36,3 @@ waspShowTest =
           forM_ (zip routes results) $ \(route, result) ->
             assertOutputContains (T.pack $ "/" ++ route ++ "\"") result
     ]
-  where
-    routeFromEnvVarMainWaspTs :: T.Text
-    routeFromEnvVarMainWaspTs =
-      [trimming|
-        import { app, page, route } from "@wasp/spec";
-        import { MainPage } from "./src/MainPage" with { type: "ref" }
-
-        export default app({
-          name: "concurrentSpecAnalysesTest",
-          title: "concurrentSpecAnalysesTest",
-          wasp: { version: "$textWaspVersion" },
-          head: ["<link rel='icon' href='/favicon.ico' />"],
-          spec: [
-            route("RootRoute", `/$${process.env.E2E_ROUTE}`, page(MainPage)),
-          ]
-        })
-      |]
