@@ -1,9 +1,8 @@
 import Control.Monad (when)
 import E2E.Heartbeat (heartbeatReporter)
-import E2E.RunConfig (RunConfig (..), getRunConfig, waspCliCmdEnvVar)
+import E2E.RunConfig (RunConfig (..), getRunConfig)
 import E2E.Signals (stopOnFirstCtrlC)
 import E2E.Test (E2ETest, checkOutputDirsAreUnique, toTestTree)
-import System.Environment (setEnv)
 import System.Exit (ExitCode (..))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
@@ -51,9 +50,6 @@ main = do
     else do
       stopOnFirstCtrlC
       runConfig <- getRunConfig
-      -- The tests that still use the shell commands DSL read the Wasp CLI from
-      -- the environment.
-      setEnv waspCliCmdEnvVar runConfig.waspCliPath
       -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
       warmUpWaspCli runConfig.waspCliPath
       checkOutputDirsAreUnique (e2eSnapshotTests ++ e2eTests)

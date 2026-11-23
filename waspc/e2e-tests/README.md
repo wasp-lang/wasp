@@ -47,7 +47,7 @@ Snapshot tests compare the current test outputs (`current` snapshot) against the
 
 Snapshots are compared in two ways:
 
-1. **By existence**: a file must exists in both the `current` and the `golden` snapshot.
+1. **By existence**: a file must exist in both the `current` and the `golden` snapshot.
 2. **By content**: the file contents must be identical in both the `current` and the `golden` snapshot.
 
 For more details, check out the `waspc/e2e-tests/E2E/Snapshot.hs` file.
@@ -99,6 +99,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
   - Except for the Studio tests: Wasp fixes Studio's and Prisma Studio's ports (see `E2E/Ports.hs`), so they fail if anything else is using those ports, e.g. the e2e tests of another checkout.
 - Use `skipIfDockerDisabled` in tests that need Docker. Snapshot tests can't skip themselves, so they use `whenDockerEnabled` for their Docker steps.
+- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them.
 
 ## Running tests
 

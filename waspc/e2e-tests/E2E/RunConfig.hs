@@ -3,9 +3,7 @@
 module E2E.RunConfig
   ( RunConfig (..),
     getRunConfig,
-    waspCliCmdEnvVar,
     skipDockerEnvVar,
-    maxJobsEnvVar,
   )
 where
 
