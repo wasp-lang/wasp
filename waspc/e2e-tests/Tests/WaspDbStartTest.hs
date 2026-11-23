@@ -16,7 +16,8 @@ waspDbStartTest =
     [ test "fail-outside-project" $ waspFails ["db", "start"],
       test "succeed-sqlite-project"
         $ withNewWaspProject minimalStarterTemplate
-        $ wasp ["db", "start"],
+        $ wasp ["db", "start"]
+          >>= assertOutputContains "you are using SQLite which doesn't need to be started",
       -- These tests expect the default PostgreSQL port to be free or take it.
       sequentialTestGroup
         "postgresql"

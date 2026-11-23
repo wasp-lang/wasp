@@ -1,7 +1,9 @@
 module Tests.WaspBuildTest (waspBuildTest) where
 
 import E2E
+import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 waspBuildTest :: E2ETest
 waspBuildTest =
@@ -14,9 +16,10 @@ waspBuildTest =
       test "succeed-postgresql-project" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres
-          wasp ["build"]
-          assertDirectoryExists ".wasp"
-          assertDirectoryExists "node_modules",
+          wasp ["build"] >>= assertOutputContains "Your wasp project has been successfully built!"
+          -- `wasp new` already creates `.wasp` and `node_modules`, so we check
+          -- for what only building creates.
+          assertDirectoryExists $ SP.fromRelDir generatedAppDirInWaspProjectDir,
       test "fail-type-error" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres

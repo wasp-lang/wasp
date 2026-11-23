@@ -15,9 +15,10 @@ waspNewTest :: E2ETest
 waspNewTest =
   testGroup
     "wasp-new"
-    [ test "create-minimal"
-        $ withNewWaspProject minimalStarterTemplate
-        $ assertDirectoryDoesNotExist migrationsDir,
+    [ test "create-minimal" $
+        withNewWaspProject minimalStarterTemplate $ do
+          assertFileExists "main.wasp.ts"
+          assertDirectoryDoesNotExist migrationsDir,
       test "create-minimal-with-piped-answers-fails" $ createWaspProjectWithPipedAnswersFails minimalStarterTemplate,
       test "create-basic" $
         withNewWaspProject basicStarterTemplate $ do

@@ -12,4 +12,5 @@ waspDockerfileTest =
       test "succeed-inside-project"
         $ withNewWaspProject minimalStarterTemplate
         $ wasp ["dockerfile"]
+          >>= assertStdoutContains "FROM node"
     ]
