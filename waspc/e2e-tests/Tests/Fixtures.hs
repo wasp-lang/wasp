@@ -71,9 +71,12 @@ writeTasksQuery result =
 
 -- | Seeds that act on the Task table, or check its state.
 --
+-- FIXME: Find a way without seeds.
 -- Seeds are the only database agnostic way we found to act on the database or
 -- check its state through Wasp, without extra dependencies. They can only
--- report success or failure, but that's enough.
+-- report success or failure, but that's enough. Running SQL with
+-- `prisma db execute` would also work, but it's less readable and not
+-- database agnostic.
 data TaskSeed = PopulateTasks | AssertTasksEmpty | AssertTasksNotEmpty
 
 taskSeedName :: TaskSeed -> String
