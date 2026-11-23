@@ -1,14 +1,18 @@
 {{={= =}=}}
+// This import has to stay first, so it also catches the errors thrown while
+// the rest of the server's code loads.
+import "./uncaughtErrors.js";
+
 import http from 'http'
 
 import app from './app.js'
 import { config } from 'wasp/server'
-import { reportUnexpectedServerError } from "wasp/server/errors";
+import { reportFatalServerError } from "wasp/server/errors";
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
-import { ServerSetupFn } from 'wasp/server'
-import { ServerSetupFnContext } from 'wasp/server/types'
+import type { ServerSetupFn } from 'wasp/server'
+import type { ServerSetupFnContext } from 'wasp/server/types'
 {=/ setupFn.isDefined =}
 
 {=# isPgBossJobExecutorUsed =}
@@ -64,8 +68,8 @@ const startServer = async () => {
   })
 }
 
-startServer().catch((error: unknown) => {
-  reportUnexpectedServerError(error, { source: "startup" });
+startServer().catch(async (error: unknown) => {
+  await reportFatalServerError(error, { source: "startup" });
   process.exit(1);
 });
 

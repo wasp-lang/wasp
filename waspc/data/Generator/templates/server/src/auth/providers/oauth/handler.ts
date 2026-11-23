@@ -19,7 +19,7 @@ import {
   loginPath,
   handleOAuthErrorAndGetRedirectUri,
 } from 'wasp/server/auth'
-import { OAuthData } from 'wasp/server/auth'
+import type { OAuthData } from 'wasp/server/auth'
 import { onBeforeOAuthRedirectHook } from '../../hooks.js'
 
 export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends OAuthData['tokens'] = never>({

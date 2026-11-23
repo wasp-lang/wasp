@@ -25,7 +25,7 @@ Whoever submits the PR must understand the change well enough to explain it and 
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
-- `tasks/` — mise tasks for development (`mise tasks` lists them)
+- `mise-tasks/` — mise tasks for development (`mise tasks` lists them)
 
 ## Build & Development
 

@@ -1,11 +1,6 @@
 import { getRedirects } from "../redirects";
 import { routeHasMarkdownVariant } from "../src/plugins/llm-files/markdown-docs/markdown-routes";
 
-interface CloudflarePagesContext {
-  request: Request;
-  next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
-}
-
 /**
  * Cloudflare middleware entry function which handles markdown content negotiation for docs.
  * When a client asks for a markdown variant of some docs via the `Accept` header,
@@ -17,9 +12,7 @@ interface CloudflarePagesContext {
  * This is not a Node.js runtime, so we must manage external dependencies carefully.
  * @see {@link https://developers.cloudflare.com/pages/functions/middleware/ Cloudflare middleware}
  */
-export const onRequest = async (
-  context: CloudflarePagesContext,
-): Promise<Response> => {
+export const onRequest: PagesFunction = async (context) => {
   const { request, next } = context;
 
   if (!["GET", "HEAD"].includes(request.method)) {
@@ -100,17 +93,14 @@ function acceptsMarkdown(acceptHeader: string | null): boolean {
  * A route missing its markdown variant intentionally results in a
  * 404 response.
  */
-async function fetchMarkdownVariant(
-  context: CloudflarePagesContext,
-): Promise<Response> {
-  const { request, next } = context;
+const fetchMarkdownVariant: PagesFunction = async ({ request, next }) => {
   const url = new URL(request.url);
 
   const markdownPathname = generateMarkdownPathname(url.pathname);
   const markdownUrl = new URL(markdownPathname, url);
   const markdownRequest = new Request(markdownUrl, request);
   return next(markdownRequest);
-}
+};
 
 /**
  * Maps an extensionless route pathname to the pathname of its

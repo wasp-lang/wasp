@@ -49,7 +49,7 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
         user,
       }
     } catch (error: unknown) {
-      reportUnexpectedServerError(error, { source: "webSocket" });
+      void reportUnexpectedServerError(error, { source: "webSocket" });
     }
   }
   next()

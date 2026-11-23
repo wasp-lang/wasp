@@ -1,7 +1,7 @@
 ---
-title: "Client configuration: root component and setupFn"
+title: "Client configuration: root component, setupFn, and onError"
 sidebar_label: Client configuration
-description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, query defaults and a base directory."
+description: "Configure the Wasp client with the client field: a root component for layouts and providers, a setup function, an error function, query defaults, and a base directory."
 ---
 
 import BaseDirEnvNote from './_baseDirEnvNote.md'
@@ -153,7 +153,7 @@ export default app({
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
-For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp/spec/interfaces/Client.md#rootcomponent).
+For the full description of the `rootComponent` field, check the [`Client` API Reference](../../api/@wasp/spec.md#rootcomponent).
 
 ## Setup Function
 
@@ -215,10 +215,10 @@ export default async function mySetupFunction(): Promise<void> {
 ### Overriding Default Behaviour for Queries
 
 :::info
-You can change the options for a **single** Query using the `options` object, as described [here](../../features/data/operations/queries#the-usequery-hook-1).
+You can change the options for a **single** Query using the `options` object, as described in the [`useQuery` API Reference](../../api/wasp/client/operations.md#usequery).
 :::
 
-Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
+Wasp's `useQuery` hook uses `react-query`'s `useQuery` hook under the hood. Since `react-query` comes configured with aggressive but sane default options, you most likely won't have to change those defaults for all Queries. The retry configuration is adjusted so that Queries failing with a client error, like `401` or `404`, aren't retried, except for `408` and `429` (see [Error Handling](../../features/data/operations/queries.md#error-handling)).
 
 If you do need to change the global defaults, you can do so inside the client setup function.
 
@@ -266,7 +266,40 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
-For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec/interfaces/Client.md#setupfn).
+For the full description of the `setupFn` field, check the [`Client` API Reference](../../api/@wasp/spec.md#setupfn).
+
+## Handling Unexpected Errors {#handling-unexpected-errors}
+
+`onError` declares a function that Wasp calls with every unexpected error on the client. Wasp logs the error to the browser console first, so use the function for anything on top of that, like sending the error to an error tracking service.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec";
+import { onClientError } from "./src/clientErrors" with { type: "ref" };
+
+export default app({
+  // ...
+  client: {
+    onError: onClientError,
+  },
+});
+```
+
+The function receives the error and a context whose `source` says where the error surfaced:
+
+```ts title="src/clientErrors.ts" auto-js
+import type { ClientOnErrorFn } from "wasp/client";
+
+export const onClientError: ClientOnErrorFn = (error, context) => {
+  // Let's pretend that `errorTracker` exists.
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+An HTTP error response with a status below 500 is not unexpected, since the server sent it on purpose, so Wasp doesn't call the function for it.
+
+For every `source` and the rules for when Wasp calls the function, check the [`ClientOnErrorFn` API Reference](../../api/wasp/client.md#clientonerrorfn).
+
+For the full description of the `onError` field, check the [`Client` API Reference](../../api/@wasp/spec.md#onerror).
 
 ## Base Directory
 
@@ -293,8 +326,22 @@ router will work correctly, and all the assets will be served from
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp/spec/interfaces/Client"
+  to="../../api/@wasp/spec#client-1"
   kind="api"
   title="Client"
   description="All the options for the client field of the app spec."
+/>
+
+<CardLink
+  to="../../api/wasp/client#clientonerrorfn"
+  kind="api"
+  title="ClientOnErrorFn"
+  description="The type of your onError function."
+/>
+
+<CardLink
+  to="../../api/wasp/client/operations#configurequeryclient"
+  kind="api"
+  title="configureQueryClient"
+  description="Configure the default options of the QueryClient that Wasp's Queries use."
 />

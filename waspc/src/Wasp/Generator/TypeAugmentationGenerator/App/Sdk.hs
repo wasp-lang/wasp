@@ -113,6 +113,7 @@ genSdkTypeAugmentation spec =
           "webSocketFn" .= extImportToImportJson (AS.App.WS.fn <$> AS.App.webSocket app),
           "prismaSetupFn" .= extImportToImportJson (AS.App.db app >>= AS.Db.prismaSetupFn),
           "emailUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.email >>= AS.Auth.userSignupFieldsForEmailAuth),
+          "passwordValidationSchema" .= extImportToImportJson (maybeAuth >>= AS.Auth.getPasswordValidationSchema),
           "usernameAndPasswordUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.usernameAndPassword >>= AS.Auth.userSignupFieldsForUsernameAuth),
           "operations" .= map mkOperationData operations,
           "cruds" .= map mkCrudData cruds

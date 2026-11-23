@@ -4,10 +4,8 @@ sidebar_label: WebSockets
 description: "Add WebSockets to a Wasp app with Socket.IO: enable webSocket in the spec, write an events handler and use the useSocket and useSocketListener hooks."
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
-import { Required } from '@site/src/components/Tag';
 
 # WebSockets
 
@@ -121,8 +119,8 @@ This is how we can define our `webSocketFn` function:
     interface InterServerEvents {}
 
     // Data that is attached to the socket.
-    // NOTE: Wasp automatically injects the JWT into the connection,
-    // and if present/valid, the server adds a user to the socket.
+    // NOTE: Wasp automatically sends the user's session with the connection,
+    // and if it's valid, the server adds the user to the socket.
     interface SocketData extends WaspSocketData {}
     ```
   </TabItem>
@@ -220,6 +218,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
     import {
       useSocket,
       useSocketListener,
+      ClientToServerPayload,
       ServerToClientPayload,
     } from "wasp/client/webSocket"
 
@@ -287,9 +286,22 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 ## API Reference
 
 <CardLink
-  to="../api/@wasp/spec/interfaces/WebSocket"
+  to="../api/@wasp/spec#websocket-1"
   kind="api"
   title="WebSocket"
   description="All the options for the webSocket field of the app spec."
 />
 
+<CardLink
+  to="../api/wasp/server/webSocket#websocketdefinition"
+  kind="api"
+  title="WebSocketDefinition"
+  description="The type of your webSocketFn function, and how to type your events."
+/>
+
+<CardLink
+  to="../api/wasp/client/webSocket"
+  kind="api"
+  title="wasp/client/webSocket"
+  description="The useSocket and useSocketListener hooks, and the payload helper types."
+/>

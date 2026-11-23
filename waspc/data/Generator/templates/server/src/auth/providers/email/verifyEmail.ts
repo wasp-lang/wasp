@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { validateJWT } from 'wasp/server/auth/jwt';
 import {
   createInvalidCredentialsError,
@@ -8,7 +8,7 @@ import {
   getProviderDataWithPassword,
   updateAuthIdentityProviderData,
 } from 'wasp/server/auth/utils';
-import { HttpError } from 'wasp/server';
+import { HttpError } from "wasp/errors";
 import { onAfterEmailVerifiedHook } from '../../hooks.js';
 
 

@@ -4,6 +4,7 @@ module E2E.Assertions
     assertOutputContains,
     assertDirectoryExists,
     assertDirectoryDoesNotExist,
+    assertFileExists,
     assertSymlinkExists,
     assertValidJson,
   )
@@ -16,7 +17,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Process (ProcessResult (..))
 import E2E.TestM (TestM, failTest, resolvePath)
-import System.Directory (doesDirectoryExist, pathIsSymbolicLink)
+import System.Directory (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
 import UnliftIO.Exception (catchAny)
 
 assertTrue :: String -> Bool -> TestM ()
@@ -46,6 +47,9 @@ assertDirectoryExists = assertPath doesDirectoryExist "Expected directory to exi
 
 assertDirectoryDoesNotExist :: FilePath -> TestM ()
 assertDirectoryDoesNotExist = assertPath (fmap not . doesDirectoryExist) "Expected directory not to exist: "
+
+assertFileExists :: FilePath -> TestM ()
+assertFileExists = assertPath doesFileExist "Expected file to exist: "
 
 assertSymlinkExists :: FilePath -> TestM ()
 assertSymlinkExists = assertPath (\path -> pathIsSymbolicLink path `catchAny` const (return False)) "Expected symlink to exist: "

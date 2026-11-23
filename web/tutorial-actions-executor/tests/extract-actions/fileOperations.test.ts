@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   filterValidTutorialFileNames,
   sortFileNamesByNumberedPrefix,
-} from "../../src/extract-actions/fileOperations";
+} from "../../src/extract-actions/fileOperations.ts";
 
 describe("filterValidTutorialFileNames", () => {
   function testFilteringTutorialFileNames(

@@ -203,6 +203,32 @@ export const routes = {
         options?.hash
       ),
   },
+  ErrorsRoute: {
+    to: "/errors",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/errors",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  ClientErrorsRoute: {
+    to: "/errors/client",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/errors/client",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
   CrudListRoute: {
     to: "/crud",
     build: (

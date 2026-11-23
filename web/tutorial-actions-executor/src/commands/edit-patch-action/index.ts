@@ -4,30 +4,30 @@ import { Option } from "@commander-js/extra-typings";
 import { ProcessOutput } from "zx";
 
 import { confirm, select } from "@inquirer/prompts";
-import type { Action, ApplyPatchAction } from "../../actions/actions";
+import type { Action, ApplyPatchAction } from "../../actions/actions.ts";
 import {
   applyPatchForAction,
   askUserToEditAndCreatePatch,
   commitActionChanges,
   createBranchFromActionCommit,
   generatePatchForAction,
-} from "../../actions/git";
-import { getActionsFromTutorialFiles } from "../../extract-actions";
+} from "../../actions/git.ts";
+import { getActionsFromTutorialFiles } from "../../extract-actions/index.ts";
 import {
   mainBranchName,
   moveLastCommitChangesToStaging,
   rebaseBranch,
-} from "../../git";
-import { log } from "../../log";
+} from "../../git.ts";
+import { log } from "../../log.ts";
 import {
   createTutorialApp,
   type AppDirPath,
   type TutorialApp,
-} from "../../tutorialApp";
-import type { WaspCliCommand } from "../../waspCli";
-import { waspCliCommandOption } from "../commonOptions";
-import { generateApp } from "../generate-app";
-import { createTacteCommand } from "../tacteCommand";
+} from "../../tutorialApp.ts";
+import type { WaspCliCommand } from "../../waspCli.ts";
+import { waspCliCommandOption } from "../commonOptions.ts";
+import { generateApp } from "../generate-app/index.ts";
+import { createTacteCommand } from "../tacteCommand.ts";
 
 export const editPatchActionCommand = createTacteCommand("edit-patch-action")
   .description("Edit a patch action in the tutorial app")
