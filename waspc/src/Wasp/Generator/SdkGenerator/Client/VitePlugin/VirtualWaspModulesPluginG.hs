@@ -9,8 +9,11 @@ import Data.Aeson (Value, object, (.=))
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (jsImportToImportJson)
+import Wasp.Generator.JsImport (extImportToRelativeSrcImportFromViteExecution, jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualWaspModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
@@ -58,8 +61,10 @@ genVirtualClientEntryTsx spec =
     tmplData =
       object
         [ "routeObjects" .= routeObjectsImportJson,
+          "onErrorFn" .= jsImportToImportJson (extImportToRelativeSrcImportFromViteExecution <$> maybeOnErrorJsFunction),
           "baseDir" .= makeJsStringLiteral (SP.fromAbsDirP (WebApp.getBaseDir spec))
         ]
+    maybeOnErrorJsFunction = AS.App.Client.onError =<< AS.App.client (getApp spec)
 
 genVirtualSsrEntryTsx :: AppSpec -> Generator FileDraft
 genVirtualSsrEntryTsx spec =

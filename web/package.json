@@ -3,12 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "engines": {
-    "node": ">=24.22.1"
+    "node": ">=26.13.1"
   },
   "scripts": {
     "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
-    "build": "docusaurus build",
+    "build": "pnpm run build:api-packages && docusaurus build",
     "build-dev": "DOCS_INCLUDE_CURRENT_VERSION=true pnpm run build",
+    "build:api-packages": "pnpm --filter 'wasp-sdk-api-docs^...' run build",
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
@@ -18,7 +19,7 @@
     "remark:once": "pnpm run remark --quiet --frail --use remark-validate-links docs/",
     "remove-version": "node ./scripts/remove-version.mjs",
     "serve": "docusaurus serve",
-    "start": "DOCS_INCLUDE_CURRENT_VERSION=true docusaurus start --port 3002",
+    "start": "pnpm run build:api-packages && DOCS_INCLUDE_CURRENT_VERSION=true docusaurus start --port 3002",
     "swizzle": "docusaurus swizzle",
     "write-heading-ids": "docusaurus write-heading-ids",
     "write-translations": "docusaurus write-translations"
@@ -83,13 +84,16 @@
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "remark-validate-links": "^12.1.1",
-    "tsx": "catalog:",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
+    "typedoc-plugin-missing-exports": "^4.1.4",
     "typescript": "catalog:",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
-    "vfile": "^6.0.3"
+    "vfile": "^6.0.3",
+    "wasp-sdk-api-docs": "workspace:*",
+    "wrangler": "^4.161.0",
+    "yaml": "^2.9.1"
   },
   "browserslist": {
     "production": [

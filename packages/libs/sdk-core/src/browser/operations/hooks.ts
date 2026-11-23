@@ -7,7 +7,9 @@ import {
   useQueryClient,
   type UseQueryResult,
 } from "@tanstack/react-query";
+import type { HttpError } from "../../HttpError.js";
 import type { Action, Query } from "../../operations/rpc.js";
+import { reportClientError } from "../errors.js";
 import { makeQueryCacheKey } from "./queries.js";
 export { configureQueryClient } from "./queryClient.js";
 
@@ -15,7 +17,7 @@ export function useQuery<Input, Output>(
   query: Query<Input, Output>,
   queryFnArgs?: Input,
   options?: any,
-): UseQueryResult<Output, Error> {
+): UseQueryResult<Output, HttpError | Error> {
   if (typeof query !== "function") {
     throw new TypeError("useQuery requires queryFn to be a function.");
   }
@@ -294,11 +296,9 @@ function makeRqOptimisticUpdateOptions<ActionInput, CachedData>(
       // Attempt to optimistically update the cache using the new value.
       try {
         queryClient.setQueryData(queryKey, updateQuery);
-      } catch (e) {
-        console.error(
-          "The `updateQuery` function threw an exception, skipping optimistic update:",
-        );
-        console.error(e);
+      } catch (error: unknown) {
+        // We skip the optimistic update when `updateQuery` throws.
+        reportClientError(error, { source: "optimisticUpdate" });
       }
 
       // Remember the snapshotted value to restore in case of an error.

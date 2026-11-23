@@ -1,11 +1,17 @@
+import { useEffect } from "react";
 import { useRouteError } from "react-router";
+
+import { reportClientError } from "../errors.js";
 
 import { FullPageWrapper } from "./FullPageWrapper";
 import { ViteErrorDisplay } from "./ViteErrorDisplay";
 
 export function DefaultRootErrorBoundary() {
   const error = useRouteError();
-  console.error(error);
+  // An effect makes sure we report the error at most once per committed render.
+  useEffect(() => {
+    reportClientError(error, { source: "render" });
+  }, [error]);
   return (
     <FullPageWrapper>
       <div>

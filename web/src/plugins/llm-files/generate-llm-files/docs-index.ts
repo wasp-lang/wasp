@@ -69,7 +69,8 @@ type DocsById = Map<DocMetadata["id"], DocMetadata>;
  * where categories become titles, and docs become content.
  *
  * `API` index section is handled specially.
- * We only include API package's index pages into the index.
+ * We only include API packages' index pages and module pages into the index,
+ * not the pages of individual members (from older versions' docs).
  * Otherwise the output would be too verbose.
  */
 export function buildLlmFilesMarkdownDocsIndex(
@@ -217,7 +218,8 @@ function resolveDocById(
 }
 
 /**
- * For each unique package in API docs, resolve its index page.
+ * For each unique package in API docs, resolve its index page, followed by
+ * its module pages.
  */
 function buildApiSectionItems(
   context: LlmFilesContext,
@@ -228,28 +230,87 @@ function buildApiSectionItems(
     const packageName = extractApiDocsPackageName(doc.id);
     if (packageName) {
       items.push(resolveIndexDoc(context, doc.permalink, packageName));
+      const moduleDocs = docs
+        .filter((moduleDoc) => isApiDocsModulePage(moduleDoc.id, packageName))
+        .sort((a, b) => a.id.localeCompare(b.id));
+      for (const moduleDoc of moduleDocs) {
+        items.push(
+          resolveIndexDoc(context, moduleDoc.permalink, moduleDoc.title),
+        );
+      }
     }
   }
   return items;
 }
 
 /**
+ * The folders where `typedoc-plugin-markdown`'s member router puts the pages
+ * of individual members, e.g. `api/@wasp.sh/spec/functions/app`. The module
+ * router puts them in their module's page instead.
+ */
+const API_DOCS_MEMBER_PAGE_FOLDERS = new Set([
+  "classes",
+  "enumerations",
+  "functions",
+  "interfaces",
+  "namespaces",
+  "type-aliases",
+  "variables",
+]);
+
+/**
+ * Checks whether a document id is the page of one of a package's modules
+ * in API docs.
+ *
+ * Depends on `typedoc` package generated output format.
+ *
+ * @example ("api/wasp/server", "wasp") -> true
+ * @example ("api/wasp/auth/providers", "wasp") -> true
+ * @example ("api/wasp/index", "wasp") -> false
+ * @example ("api/@wasp.sh/spec/functions/app", "@wasp.sh/spec") -> false
+ */
+function isApiDocsModulePage(docId: string, packageName: string): boolean {
+  const packagePrefix = `api/${packageName}/`;
+  if (!docId.startsWith(packagePrefix)) {
+    return false;
+  }
+  const modulePath = docId.slice(packagePrefix.length);
+  return (
+    modulePath !== "index" &&
+    !modulePath
+      .split("/")
+      .some((segment) => API_DOCS_MEMBER_PAGE_FOLDERS.has(segment))
+  );
+}
+
+/**
  * Tries to extract the name of some package in API docs.
- * It does so by matching a document id against the API docs package index page.
+ * It does so by matching a document id against the API docs package page:
+ * `api/<package>/index` for packages with multiple modules (and for every
+ * package in older versions), or `api/<package>` for single-module packages.
  *
  * Depends on `typedoc` package generated output format.
  *
  * @example "api/@wasp/spec/index" -> "@wasp/spec"
+ * @example "api/@wasp/spec" -> "@wasp/spec"
+ * @example "api/wasp/index" -> "wasp"
+ * @example "api/wasp/server" -> null
  */
 function extractApiDocsPackageName(docId: string): string | null {
-  const API_DOCS_PACKAGE_INDEX_PAGE_PATTERN = /^api\/(.+)\/index$/;
-  const match = docId.match(API_DOCS_PACKAGE_INDEX_PAGE_PATTERN);
+  const API_DOCS_PACKAGE_PAGE_PATTERN =
+    /^api\/((?:@[^/]+\/)?[^/]+)(?:\/index)?$/;
+  const match = docId.match(API_DOCS_PACKAGE_PAGE_PATTERN);
 
   if (!match) {
     return null;
   }
 
   const [_fullMatch, apiDocsPackageName] = match;
+
+  // The API docs' own index page, `api/index`.
+  if (apiDocsPackageName === "index") {
+    return null;
+  }
 
   return apiDocsPackageName;
 }

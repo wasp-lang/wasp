@@ -5,6 +5,7 @@ import { useAuth } from "../../auth";
 import { api } from "../../../api";
 import {
   FullPageWrapper,
+  reportClientError,
   initSession,
   MessageError,
   MessageLoading,
@@ -14,17 +15,17 @@ import {
 const oAuthCallbackWrapperClassName = "wasp-oauth-callback-wrapper";
 
 export function OAuthCallbackPage() {
-  const { error, user } = useOAuthCallbackHandler();
+  const { callbackError, user } = useOAuthCallbackHandler();
 
   if (user !== undefined && user !== null) {
     return <Navigate to={{=& onAuthSucceededRedirectTo =}} replace />;
   }
 
 
-  if (error) {
+  if (callbackError) {
     return (
       <FullPageWrapper className={oAuthCallbackWrapperClassName}>
-        <MessageError>{error}</MessageError>
+        <MessageError>{callbackError}</MessageError>
       </FullPageWrapper>
     );
   }
@@ -39,7 +40,7 @@ export function OAuthCallbackPage() {
 function useOAuthCallbackHandler() {
   const { data: user, isLoading: isUserLoading } = useAuth();
   const [isCallbackLoading, setisCallbackLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [callbackError, setCallbackError] = useState<string | null>(null);
   const location = useLocation();
 
   async function handleCallback() {
@@ -51,20 +52,20 @@ function useOAuthCallbackHandler() {
       // and don't continue with the login process.
       const errorFromRedirect = query.get('error');
       if (errorFromRedirect !== null) {
-        setError(errorFromRedirect);
+        setCallbackError(errorFromRedirect);
         return;
       }
 
       const code = location.hash.slice(1);
       const data = await exchangeOAuthCodeForToken({ code });
       if (!isDataWithSessionId(data)) {
-        setError("Unable to login with the OAuth provider.");
+        setCallbackError("Unable to login with the OAuth provider.");
         return;
       }
       await initSession(data.sessionId);
-    } catch (e: unknown) {
-      console.error(e);
-      setError("Unable to login with the OAuth provider.");
+    } catch (error: unknown) {
+      reportClientError(error, { source: "oauthCallback" });
+      setCallbackError("Unable to login with the OAuth provider.");
     } finally {
       setisCallbackLoading(false);
     }
@@ -76,7 +77,7 @@ function useOAuthCallbackHandler() {
 
   return {
     user,
-    error,
+    callbackError,
     isCallbackLoading,
     isUserLoading,
   };

@@ -4,8 +4,12 @@ import { upsertData } from "./utils.js";
 export async function refreshGitHubRepoData(args, context) {
   console.log("github.js refreshGitHubRepoData", args, context);
 
+  // Unauthenticated requests share a limit of 60 per hour per IP.
+  const githubToken = process.env.GITHUB_TOKEN;
   const response = await ky
-    .get("https://api.github.com/repos/wasp-lang/wasp")
+    .get("https://api.github.com/repos/wasp-lang/wasp", {
+      headers: githubToken ? { Authorization: `Bearer ${githubToken}` } : {},
+    })
     .json();
 
   const data = [

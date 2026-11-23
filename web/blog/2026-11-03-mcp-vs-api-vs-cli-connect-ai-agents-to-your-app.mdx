@@ -16,48 +16,19 @@ import { VideoWithCaption } from './components/VideoWithCaption';
 
 You’re building a web app and you need to make it agent-friendly, but you’re not sure how. **Should you build an MCP server, a REST API, a CLI, or all three?** And how do you add them so they bring the most value to agents?
 
-These are the questions I answer in this post by explaining what are the best choices and why, and then showing you how to build them into your apps.
+To put it simply, an **MCP shines in the agent-native world because it tells agents what they should do, on both the server and client** (e.g. Claude Code or the ChatGPT desktop app), and is better suited for human-in-the-loop tasks. Meanwhile, APIs and CLIs tend to focus on what agents can do, with emphasis mainly on the server.
+
+So, in summary, here is the general advice I'd give to builders when deciding which tools they should expose to agents:
 
 {/* truncate */}
 
-In most cases, **I think MCP should be your first choice for agents**, not only due to rapid adoption but because, unlike APIs and CLIs:
+- **Build a high-quality MCP server and REST API at the same time, on one layer of operations**. Put your server logic in plain functions, and let each surface be a thin adapter over them. Once that layer exists, building any additional surface on top is relatively easy.
 
-- it defines behavior for the server *and* client (e.g. harness/agent app)
-- it can be used by any type of agent (CLI, desktop apps, mobile apps)
-- MCP servers can be discovered without leaving the agent
-- it’s the default connector choice for most tools
-- new features like MCP Elicitation, Apps, and Events, make it a compelling choice
+- **Put most of your care into the MCP server**. That's where agents get the best experience. MCP is a standard built specifically for agents, after all, and the spec continues to improve nicely.
 
-On top of that, early issues with MCP like context bloat have been solved, and the spec is constantly evolving (for more detail on these points, and the points listed above, check out [Part 1](#part-1-what-to-build-mcp-vs-api-vs-cli) of this post).
+- **Use the API for code that runs on its own**. APIs are still great for raw data exports, bulk writes, and anything that runs without an agent, like a nightly sync or another company's integration. Agents also prefer an API when they're writing a script they'll rerun, and many clients don't support code mode for MCP yet.
 
-Here's how the three compare at a glance:
-
-|  | MCP server | REST API | CLI |
-|---|---|---|---|
-| **Best for** | Agents in any client, doing tasks for a user | Scripts, bulk jobs, data exports, and integrations that run without an agent | Agents with a shell working with local files |
-| **Works in Claude and ChatGPT desktop and mobile apps** | Yes | No | No |
-| **Login** | OAuth, handled by the client. The model never sees the token | Usually a personal access token the user creates | A personal access token, or a browser login like `gh auth login` |
-| **Confirming destructive actions** | Your server asks the user directly, skipping the model | A flag or confirmation link the agent has to pass along | A `--yes` flag the agent can add itself |
-| **How agents find it** | Connector directories inside Claude and ChatGPT | OpenAPI document, `llms.txt`, and well-known paths | The user installs it, and the agent reads `--help` |
-
-APIs and CLIs are still great for certain use cases, so designing your web app so that each agent-friendly tool can just be a thin wrapper around your operations makes a lot of sense.
-
-Here's a general structure you can use to build yours (the full guide can be found in [Part 2](#part-2-how-to-build-it-a-guide-you-can-hand-to-your-agent)):
-
-1. [**Put your logic in operations**](#the-foundation-operations-underneath-every-surface)
-1. [**Expose them through MCP**](#the-mcp-server)
-1. [**And through a REST API**](#the-rest-api)
-1. [**Put OAuth in front of your MCP server**](#one-oauth-server-in-front-of-both)
-1. [**Make destructive actions wait for the human**](#destructive-actions-wait-for-the-human-for-oauth-connections)
-1. [**Add a CLI**](#a-cli-if-your-users-have-shells) (optional)
-1. [**Help agents find these tools**](#help-agents-find-you-from-your-domain)
-
-For a great MCP server (see [the full checklist](#the-mcp-server)), make sure you:
-
-- use CIMD OAuth for authenticating an agent
-- use good tool descriptions with next steps and what to do in case of errors
-- leave tool search and code mode to the MCP client/harness/agent app
-- provide deeplinks back to your app, and/or send your app UI to the agent via MCP apps
+- **A CLI probably isn't necessary**, unless e.g. agents need to read local files when interacting with your app. But it's easy to expose one if you've got a good API as the foundation.
 
 There’s a lot more to creating great agent-facing tools for your web apps, and the article goes into more detail below.
 

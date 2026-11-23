@@ -1,3 +1,4 @@
+import { isBuiltin } from "node:module";
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
@@ -9,6 +10,11 @@ export default defineConfig({
     vite: "./src/node/vite/index.ts",
   },
   platform: "neutral",
+  deps: {
+    // The "neutral" platform doesn't know about Node.js built-ins, and warns
+    // about them being unresolved. The Node.js entries do use them.
+    neverBundle: (id) => isBuiltin(id),
+  },
   unbundle: true,
   css: {
     // Load component styles automatically when importing components.

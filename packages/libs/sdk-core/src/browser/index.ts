@@ -4,7 +4,13 @@ export { Loader } from "./app/Loader.js";
 export { MessageError, MessageLoading } from "./app/Message.js";
 export { apiEventsEmitter } from "./auth/events.js";
 export { getAuthErrorMessage } from "./auth/forms/authErrorMessage.js";
-export { emailFieldRules, emailInputProps } from "./auth/forms/emailField.js";
+export { emailInputProps } from "./auth/forms/emailField.js";
+export {
+  emailFieldRules,
+  newPasswordFieldRules,
+  passwordFieldRules,
+  usernameFieldRules,
+} from "./auth/forms/fieldRules.js";
 export {
   Form,
   FormError,
@@ -54,6 +60,14 @@ export {
   type UseActionFor,
   type UseQueryFor,
 } from "./crud/operations.js";
+export {
+  listenForUncaughtClientErrors,
+  registerClientOnErrorFn,
+  reportClientError,
+  reportRenderError,
+  type ClientErrorContext,
+  type ClientOnErrorFn,
+} from "./errors.js";
 export { useEffectOnce } from "./hooks.js";
 export { type ActionFor } from "./operations/actions.js";
 export {

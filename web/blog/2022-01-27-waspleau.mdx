@@ -54,7 +54,7 @@ But where do we declare our queue and processing callback functions in Wasp? Uh 
 
 ### `server.setupFn` for queue setup
 
-Thankfully, Waspleau can leverage a powerful and flexible [hook supplied by Wasp](https://wasp.sh/docs/advanced/server-customization/server-config#setupfn-extimport) called `server.setupFn`. This declares a JavaScript function that will be executed on server start. Yahoo! This means we can do things like the following:
+Thankfully, Waspleau can leverage a powerful and flexible [hook supplied by Wasp](https://wasp.sh/docs/advanced/server-customization/server-config#setup-function) called `server.setupFn`. This declares a JavaScript function that will be executed on server start. Yahoo! This means we can do things like the following:
 
 ```wasp title="main.wasp"
 app waspleau {
@@ -125,7 +125,7 @@ const workerFunction = async (opts) => {
 export const githubWorker = { name: 'GitHub API', fn: workerFunction, schedule: '*/10 * * * *' }
 ```
 
-_Note: Please see the [actual serverSetup.js file](https://github.com/wasp-lang/wasp/blob/release/examples/waspleau/src/server/serverSetup.js) for how we use this abstraction in practice._
+_Note: Please see the [actual serverSetup.js file](https://github.com/wasp-lang/wasp/blob/aa85cd5ae4006b0af5c10ff9f5e4bf18c5aab011/examples/waspleau/src/server/serverSetup.js) for how we use this abstraction in practice._
 
 ### Server → client
 

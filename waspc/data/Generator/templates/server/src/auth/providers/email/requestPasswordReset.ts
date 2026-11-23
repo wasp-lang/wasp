@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import {
     createProviderId,
     findAuthIdentity,
@@ -6,14 +6,14 @@ import {
     getProviderDataWithPassword,
 } from 'wasp/server/auth/utils';
 import {
-    GetPasswordResetEmailContentFn,
+    type GetPasswordResetEmailContentFn,
     createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,
 } from "wasp/server/auth";
 import { ensureValidEmail } from 'wasp/auth/validation';
 import type { EmailFromField } from 'wasp/server/email/core/types';
-import { HttpError } from 'wasp/server';
+import { HttpError } from "wasp/errors";
 
 export function getRequestPasswordResetRoute({
    fromField,

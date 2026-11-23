@@ -342,7 +342,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
   </TabItem>
 </Tabs>
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../ui).
+We imported the generated Auth UI components and used them in our pages. Read more about [the Auth UI components](../ui).
 
 ### 5. Set up an Email Sender
 
@@ -479,7 +479,7 @@ The content of the e-mail can be customized, read more about it in the [`EmailFl
 
 - `ensureValidPassword(args)`
 
-  Checks if the password is valid and throws an error if it's not. Read more about the validation rules [here](../overview#default-validations).
+  Checks if the password is valid and throws an error if it's not. Read more about [the validation rules](../overview#default-validations).
 
 ## Using Auth
 

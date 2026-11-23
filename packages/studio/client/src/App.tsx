@@ -1,7 +1,7 @@
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
+import "@xyflow/react/dist/style.css";
 import { lazy, Suspense } from "react";
-import "reactflow/dist/style.css";
 
+import { Loading } from "./Loading";
 import { Logo } from "./Logo";
 import { useSocket } from "./socket";
 
@@ -12,42 +12,38 @@ export default function App() {
 
   return (
     <div className="h-full">
-      <Navbar position="static">
-        <NavbarBrand>
-          <Logo className="h-8 w-8" />
-          <p className="ml-4 font-bold text-inherit">{data?.app.name}</p>
-        </NavbarBrand>
-        <NavbarContent justify="end">
-          <NavbarItem>
-            <div className="w-35 p-2 text-sm">
-              {isConnected ? (
-                <span className="flex items-center">
-                  Connected
-                  <span className="ml-2 inline-block h-2 w-2 rounded-full bg-green-500"></span>
+      <nav className="border-wasp-g3 bg-wasp-bg border-b">
+        <header className="flex h-16 w-full items-center justify-between gap-4 px-6">
+          <div className="flex items-center gap-3">
+            <Logo className="border-wasp-black h-9 w-9 border-2" />
+            <span className="font-mono text-xl font-extrabold tracking-tight">
+              wasp
+            </span>
+            <span className="bg-wasp-yellow px-2 py-0.5 font-mono text-[10px] font-bold tracking-widest uppercase">
+              Studio
+            </span>
+            {data?.app.name && (
+              <>
+                <span className="text-wasp-g4 font-mono">/</span>
+                <span className="font-mono text-sm font-bold">
+                  {data.app.name}
                 </span>
-              ) : (
-                <span className="flex items-center">
-                  Connecting
-                  <span className="ml-2 inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
-                </span>
-              )}
-            </div>
-          </NavbarItem>
-        </NavbarContent>
-      </Navbar>
+              </>
+            )}
+          </div>
+          <div className="text-wasp-g6 flex items-center gap-2 font-mono text-xs font-bold tracking-widest uppercase">
+            <span
+              className={`border-wasp-black inline-block h-2 w-2 border ${isConnected ? "bg-green-500" : "bg-wasp-yellow"}`}
+            />
+            {isConnected ? "Connected" : "Connecting"}
+          </div>
+        </header>
+      </nav>
       <div className="flow-container">
         <Suspense fallback={<Loading />}>
           {data ? <Flow data={data} /> : <Loading />}
         </Suspense>
       </div>
-    </div>
-  );
-}
-
-function Loading() {
-  return (
-    <div className="flex h-full items-center justify-center">
-      <p className="text-2xl text-gray-500">Loading...</p>
     </div>
   );
 }

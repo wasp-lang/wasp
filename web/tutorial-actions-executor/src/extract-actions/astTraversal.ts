@@ -2,7 +2,7 @@ import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
 
-import type { Action, ActionId } from "../actions/actions.js";
+import type { Action, ActionId } from "../actions/actions.ts";
 
 export const TUTORIAL_ACTION_NODE_NAME = "TutorialAction";
 
