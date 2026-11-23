@@ -10,4 +10,6 @@ web/build/
 web/**/*.md
 web/**/*.mdx
 web/static/img/
+# Wrangler generates this file with `wrangler types`, so it overwrites any format changes.
+web/functions/types.d.ts
 waspc/data/packages/studio/public/assets/
