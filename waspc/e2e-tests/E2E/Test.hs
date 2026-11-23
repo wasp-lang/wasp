@@ -5,7 +5,7 @@ module E2E.Test
     testGroup,
     sequentialTestGroup,
     toTestTree,
-    checkOutputDirsAreUnique,
+    checkOutputDirs,
     runTestSteps,
   )
 where
@@ -16,11 +16,10 @@ import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Resource (getInternalState, runResourceT)
 import Data.List (intercalate, isPrefixOf, nub)
-import E2E.Paths (getTestOutputsDir)
-import E2E.RunConfig (RunConfig)
+import E2E.RunConfig (RunConfig (..))
 import E2E.TestM (TestEnv (..), TestFailure (..), TestLog (..), TestM, TestSkipped (..), runTestM)
 import System.Directory (createDirectoryIfMissing, removePathForcibly)
-import System.FilePath (joinPath, splitDirectories, takeDirectory, (</>))
+import System.FilePath (isPathSeparator, joinPath, takeDirectory, (</>))
 import System.IO (IOMode (WriteMode), hPutStrLn, withFile)
 import qualified Test.Tasty as Tasty
 import Test.Tasty.Providers (IsTest (..), Result, singleTest, testFailed, testPassed)
@@ -29,23 +28,32 @@ import UnliftIO.Exception (catch, tryAny)
 -- | Tests that know the names of the e2e groups they are in, which decide
 -- where they run (see 'test').
 data E2ETest = E2ETest
-  { -- | The dirs the tests run in, relative to the test outputs dir. They
-    -- delete these dirs, so no two tests may share one.
-    outputDirs :: [String] -> [FilePath],
+  { -- | The dirs the tests run in, relative to the test outputs dir, as the
+    -- names of the dirs on the way, e.g. @["wasp-start", "stop-on-sigint"]@.
+    -- Tests delete these dirs, so no two tests may share one.
+    outputDirs :: [String] -> [[String]],
     makeTestTree :: RunConfig -> [String] -> Tasty.TestTree
   }
 
 toTestTree :: RunConfig -> E2ETest -> Tasty.TestTree
 toTestTree runConfig e2eTest = e2eTest.makeTestTree runConfig []
 
--- | Fails if two tests would run in the same dir, or one in another's dir.
-checkOutputDirsAreUnique :: [E2ETest] -> IO ()
-checkOutputDirsAreUnique e2eTests =
+-- | Fails if a test or group name isn't a single dir name (e.g. it's empty or
+-- has a slash), so that a test could run in another's dir or outside of the
+-- test outputs dir, or if two tests would run in the same dir, or one in
+-- another's dir.
+checkOutputDirs :: [E2ETest] -> IO ()
+checkOutputDirs e2eTests = do
+  unless (null invalidNames)
+    $ fail
+    $ "Some e2e test or group names aren't a single directory name, e.g. they're empty or have a slash: " ++ intercalate ", " (map show invalidNames)
   unless (null clashingDirs)
     $ fail
     $ "Some e2e tests would run in the same directory, so their names must change: " ++ intercalate ", " clashingDirs
   where
-    dirs = map splitDirectories $ concatMap (`outputDirs` []) e2eTests
+    dirs = concatMap (`outputDirs` []) e2eTests
+    invalidNames = nub [name | dir <- dirs, name <- dir, not (isSingleDirName name)]
+    isSingleDirName name = name `notElem` ["", ".", ".."] && not (any isPathSeparator name)
     clashingDirs =
       nub
         [ joinPath dir
@@ -62,18 +70,16 @@ checkOutputDirsAreUnique e2eTests =
 test :: String -> TestM a -> E2ETest
 test name steps =
   E2ETest
-    { outputDirs = \groupNames -> [testDirInTestOutputsDir groupNames],
+    { outputDirs = \groupNames -> [groupNames ++ [name]],
       makeTestTree = \runConfig groupNames ->
         singleTest name . TestSteps $ do
-          testDir <- (</> testDirInTestOutputsDir groupNames) <$> getTestOutputsDir
+          let testDir = runConfig.testOutputsDir </> joinPath (groupNames ++ [name])
           removePathForcibly testDir
           createDirectoryIfMissing True testDir
           (runTestSteps runConfig (intercalate "/" $ groupNames ++ [name]) testDir (testDir </> "output.log") steps >> return (testPassed ""))
             `catch` (\(TestFailure message) -> return $ testFailed message)
             `catch` (\(TestSkipped message) -> return $ testPassed message)
     }
-  where
-    testDirInTestOutputsDir groupNames = joinPath (groupNames ++ [name])
 
 -- | Tests in the group run in parallel.
 testGroup :: String -> [E2ETest] -> E2ETest
@@ -114,6 +120,7 @@ runTestSteps runConfig testName workingDir logFile steps = do
             runTestM
               TestEnv
                 { runConfig,
+                  testName,
                   workingDir,
                   testLog = TestLog {logFile, logHandle, logLock},
                   resources

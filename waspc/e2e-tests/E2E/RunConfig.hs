@@ -10,7 +10,6 @@ module E2E.RunConfig
 where
 
 import Control.Monad (mfilter)
-import Data.Maybe (isNothing)
 import E2E.Paths (getWaspcDir)
 import System.Directory (makeAbsolute)
 import System.Environment (lookupEnv)
@@ -22,6 +21,8 @@ data RunConfig = RunConfig
     -- in @PATH@.
     waspCliPath :: FilePath,
     gitRootDir :: FilePath,
+    -- | Where tests run and leave their outputs, e.g. @<test-group>/<test-name>/@.
+    testOutputsDir :: FilePath,
     isDockerEnabled :: Bool,
     -- | How many tests run at once. 'Nothing' leaves it to tasty.
     maxJobs :: Maybe Int
@@ -40,10 +41,23 @@ getRunConfig = do
       Just waspCliCmd
         | any isPathSeparator waspCliCmd -> makeAbsolute waspCliCmd
         | otherwise -> return waspCliCmd
-  isDockerEnabled <- isNothing <$> lookupNonEmptyEnv skipDockerEnvVar
+  isDockerEnabled <- lookupNonEmptyEnv skipDockerEnvVar >>= parseIsDockerEnabled
   maxJobs <- lookupNonEmptyEnv maxJobsEnvVar >>= traverse parseMaxJobs
-  return RunConfig {waspCliPath, gitRootDir = takeDirectory waspcDir, isDockerEnabled, maxJobs}
+  return
+    RunConfig
+      { waspCliPath,
+        gitRootDir = takeDirectory waspcDir,
+        testOutputsDir = waspcDir </> "e2e-tests" </> "test-outputs",
+        isDockerEnabled,
+        maxJobs
+      }
   where
+    parseIsDockerEnabled = \case
+      Nothing -> return True
+      Just "0" -> return True
+      Just "1" -> return False
+      Just value -> fail $ skipDockerEnvVar ++ " must be 1 (skip) or 0 (don't skip), but it is " ++ show value ++ "."
+
     parseMaxJobs value = case readMaybe value of
       Just jobs | jobs >= 1 -> return jobs
       _ -> fail $ maxJobsEnvVar ++ " must be a positive integer, but it is " ++ show value ++ "."

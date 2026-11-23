@@ -1,6 +1,6 @@
 -- | Ports of the tests that run Wasp apps.
 module E2E.Ports
-  ( AppPorts (..),
+  ( AppPorts,
     allocateAppPorts,
     appPortList,
     appPortArgs,

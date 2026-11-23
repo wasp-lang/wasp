@@ -1,9 +1,9 @@
-import Control.Monad (when)
+import Control.Monad (unless, when)
 import E2E.Heartbeat (heartbeatReporter)
-import E2E.RunConfig (RunConfig (..), getRunConfig, waspCliCmdEnvVar)
+import E2E.RunConfig (RunConfig (..), getRunConfig, skipDockerEnvVar, waspCliCmdEnvVar)
 import E2E.Signals (stopOnFirstCtrlC)
-import E2E.Test (E2ETest, checkOutputDirsAreUnique, toTestTree)
-import System.Environment (setEnv)
+import E2E.Test (E2ETest, checkOutputDirs, toTestTree)
+import System.Environment (setEnv, unsetEnv)
 import System.Exit (ExitCode (..))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
@@ -51,12 +51,17 @@ main = do
     else do
       stopOnFirstCtrlC
       runConfig <- getRunConfig
-      -- The tests that still use the shell commands DSL read the Wasp CLI from
-      -- the environment.
+      -- The tests that still use the shell commands DSL read the Wasp CLI and
+      -- whether Docker is disabled from the environment.
       setEnv waspCliCmdEnvVar runConfig.waspCliPath
+      if runConfig.isDockerEnabled then unsetEnv skipDockerEnvVar else setEnv skipDockerEnvVar "1"
+      -- With --hide-successes, the skipped tests don't show up as skipped.
+      unless runConfig.isDockerEnabled
+        $ putStrLn
+        $ "Docker is disabled via " ++ skipDockerEnvVar ++ ", so the tests that need it pass without running their Docker steps."
+      checkOutputDirs (e2eSnapshotTests ++ e2eTests)
       -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
       warmUpWaspCli runConfig.waspCliPath
-      checkOutputDirsAreUnique (e2eSnapshotTests ++ e2eTests)
       defaultMainWithIngredients
         [listingTests, composeReporters heartbeatReporter consoleTestReporter]
         (maybe id (localOption . NumThreads) runConfig.maxJobs $ makeTestTree runConfig)
@@ -72,8 +77,8 @@ main = do
 -- invocations only ever run the already-built CLI.
 warmUpWaspCli :: FilePath -> IO ()
 warmUpWaspCli waspCliPath = do
-  (exitCode, _, err) <- readProcessWithExitCode waspCliPath ["version"] ""
-  when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliPath ++ " version` failed:\n" ++ err
+  (exitCode, out, err) <- readProcessWithExitCode waspCliPath ["version"] ""
+  when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliPath ++ " version` failed:\n" ++ out ++ err
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Port the remaining tests from the shell commands DSL to the 'E2E' one.

@@ -36,7 +36,7 @@ waspDbSeedTest =
       test "succeed-seed-from-project-dir-with-server-env" $
         withNewWaspProject minimalStarterTemplate $ do
           appendToFile "schema.prisma" taskPrismaModel
-          appendToFile ".env.server" "SEED_TEST_VAR=fromEnvServer"
+          writeToFile ".env.server" "SEED_TEST_VAR=fromEnvServer"
           writeToFile ("src/db/" ++ serverEnvSeedName ++ ".ts") serverEnvSeedScript
           addSeedsToMainWaspTs [serverEnvSeedName]
           wasp ["compile"]
