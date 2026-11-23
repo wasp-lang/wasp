@@ -1,4 +1,3 @@
-import { generatePath } from "react-router";
 import type { ParamValue, Params, Search } from "./types";
 
 export function interpolatePath(
@@ -7,9 +6,7 @@ export function interpolatePath(
   search?: Search,
   hash?: string,
 ) {
-  const interpolatedPath = params
-    ? generatePath(path, toReactRouterParams(params))
-    : path;
+  const interpolatedPath = params ? interpolatePathParams(path, params) : path;
   const interpolatedSearch = search
     ? `?${new URLSearchParams(search).toString()}`
     : "";
@@ -17,29 +14,43 @@ export function interpolatePath(
   return interpolatedPath + interpolatedSearch + interpolatedHash;
 }
 
-function toReactRouterParams(
-  params: Params,
-): Record<string, string | undefined> {
-  return Object.fromEntries(
-    Object.entries(params).map(([name, value]) => [
-      name,
-      toReactRouterParamValue(name, value),
-    ]),
-  );
-}
-
-function toReactRouterParamValue(
-  name: string,
-  value: ParamValue | undefined,
-): string | undefined {
-  if (value === undefined || value === null) {
-    return undefined;
+function interpolatePathParams(path: string, params: Params) {
+  function mapPathPart(part: string): string {
+    if (part === "*") {
+      return encodeSplatParam(params["*"]);
+    }
+    if (part.startsWith(":")) {
+      const paramName = extractParamNameFromPathPart(part);
+      return encodePathParam(params[paramName]);
+    }
+    return part;
   }
-  return name === "*" ? encodeSplat(String(value)) : String(value);
+
+  const interpolatedPath = path
+    .split("/")
+    .map(mapPathPart)
+    .filter((part) => part !== "")
+    .join("/");
+
+  return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
 }
 
-// `generatePath` encodes named params but not the splat, so a `?` or `#` in
-// the splat would end up in the search or hash.
-function encodeSplat(splat: string): string {
-  return splat.split("/").map(encodeURIComponent).join("/");
+// A missing param encodes to "", so its segment is dropped.
+function encodePathParam(value: ParamValue | undefined): string {
+  return encodeURIComponent(value ?? "");
+}
+
+// A splat can span several segments, so its slashes stay unencoded.
+function encodeSplatParam(value: ParamValue | undefined): string {
+  return String(value ?? "")
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/");
+}
+
+function extractParamNameFromPathPart(paramString: string) {
+  if (paramString.endsWith("?")) {
+    return paramString.slice(1, -1);
+  }
+  return paramString.slice(1);
 }

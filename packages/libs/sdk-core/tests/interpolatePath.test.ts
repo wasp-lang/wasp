@@ -1,3 +1,4 @@
+import { matchRoutes } from "react-router";
 import { describe, expect, it } from "vitest";
 import { interpolatePath } from "../src/router/interpolatePath";
 
@@ -19,6 +20,16 @@ describe("interpolatePath", () => {
     ["/files/*", { "*": "a b/c?d" }, "/files/a%20b/c%3Fd"],
   ])("interpolates %s with %j as %s", (path, params, expected) => {
     expect(interpolatePath(path, params)).toBe(expected);
+  });
+
+  // Wasp names this param `name.xml`, while React Router names it `name`.
+  it("builds a matching path for a param with a literal suffix", () => {
+    const path = interpolatePath("/feed/:name.xml", {
+      "name.xml": "release.xml",
+    });
+
+    expect(path).toBe("/feed/release.xml");
+    expect(matchRoutes([{ path: "/feed/:name.xml" }], path)).not.toBeNull();
   });
 
   it("preserves zero with search parameters and a hash", () => {
