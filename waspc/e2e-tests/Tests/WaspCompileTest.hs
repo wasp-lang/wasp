@@ -1,8 +1,10 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
 import E2E
+import qualified StrongPath as SP
 import Tests.Fixtures (writeTasksQuery, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 waspCompileTest :: E2ETest
 waspCompileTest =
@@ -12,14 +14,12 @@ waspCompileTest =
       test "succeed-uncompiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
-          assertDirectoryExists ".wasp"
-          assertDirectoryExists "node_modules",
+          assertDirectoryExists generatedAppDir,
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
           wasp ["compile"]
-          assertDirectoryExists ".wasp"
-          assertDirectoryExists "node_modules",
+          assertDirectoryExists generatedAppDir,
       -- Regression test for https://github.com/wasp-lang/wasp/issues/2001
       test "fail-missing-side-effect-import" $
         withNewWaspProject minimalStarterTemplate $ do
@@ -41,3 +41,7 @@ waspCompileTest =
           writeTasksQuery "[{ id: 1 }]"
           wasp ["compile"]
     ]
+  where
+    -- `wasp new` already creates `.wasp` and `node_modules`, so we check for
+    -- what only compiling creates.
+    generatedAppDir = SP.fromRelDir generatedAppDirInWaspProjectDir

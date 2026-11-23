@@ -3,8 +3,10 @@ module Tests.WaspProjectLockTest (waspProjectLockTest) where
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
+import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir)
 
 waspProjectLockTest :: E2ETest
 waspProjectLockTest =
@@ -34,7 +36,9 @@ waspProjectLockTest =
           -- Even if that owner was a watcher that had the generated app up to
           -- date, nobody is keeping it up to date anymore.
           writeLockFile ProjectLockData {pid = 999999999, watcherStatus = Just UpToDate}
-          wasp ["clean"],
+          wasp ["clean"]
+          -- `.wasp` holds the lock file we wrote, so it's only gone if `wasp clean` ran.
+          assertDirectoryDoesNotExist $ SP.fromRelDir dotWaspDirInWaspProjectDir,
       -- We can't run a real watcher (e.g. `wasp start`) here, so we fake one:
       -- we hold the lock with a stalled `wasp install` (see the first test),
       -- and then rewrite the lock file on its behalf, to go through the
