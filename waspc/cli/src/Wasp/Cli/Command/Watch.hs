@@ -149,8 +149,8 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compileResult <- compileIO waspProjectDir outDir >>= addDbMigrationWarnings
-      let (warnings, errors) = compileResultWarningsAndErrors compileResult
+      compileResult <- compileIO waspProjectDir outDir
+      (warnings, errors) <- collectWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)
       compileOutcome <- case _compileOutcome compileResult of
@@ -172,12 +172,14 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome
 
-    addDbMigrationWarnings :: CompileResult -> IO CompileResult
-    addDbMigrationWarnings compileResult = case _compileOutcome compileResult of
-      Right appSpec -> do
-        dbWarnings <- warnIfDbNeedsMigration appSpec outDir
-        return compileResult {_compileWarnings = _compileWarnings compileResult ++ dbWarnings}
-      Left _ -> return compileResult
+    collectWarningsAndErrors :: CompileResult -> IO ([CompileWarning], [CompileError])
+    collectWarningsAndErrors compileResult = do
+      dbWarnings <- case _compileOutcome compileResult of
+        Right appSpec -> warnIfDbNeedsMigration appSpec outDir
+        Left _ -> return []
+      return (compileWarnings ++ dbWarnings, errors)
+      where
+        (compileWarnings, errors) = compileResultWarningsAndErrors compileResult
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
