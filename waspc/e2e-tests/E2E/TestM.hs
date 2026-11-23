@@ -18,6 +18,7 @@ module E2E.TestM
     resolvePath,
     allocateWithCleanup,
     registerCleanupStep,
+    makeUniqueName,
     writeToLog,
     logLine,
     waitUntil,
@@ -35,6 +36,8 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Data.Time.Clock (addUTCTime, getCurrentTime)
+import Data.Time.Clock.POSIX (getPOSIXTime)
+import Data.Unique (hashUnique, newUnique)
 import E2E.RunConfig (RunConfig (..), skipDockerEnvVar)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
@@ -137,6 +140,15 @@ registerCleanupStep :: TestM () -> TestM ()
 registerCleanupStep step = do
   testEnv <- ask
   registerCleanup $ runTestM testEnv step
+
+-- | The name with a suffix that no other test run uses, for resources outside
+-- the test dir that runs from other checkouts could also create, e.g. Docker
+-- image tags. Register a cleanup for the resource, since it's never reused.
+makeUniqueName :: String -> TestM String
+makeUniqueName name = liftIO $ do
+  microseconds <- floor . (* 1000000) <$> getPOSIXTime
+  unique <- newUnique
+  return $ name ++ "-" ++ show (microseconds :: Integer) ++ "-" ++ show (hashUnique unique)
 
 writeToLog :: TestLog -> BS.ByteString -> IO ()
 writeToLog testLog content =
