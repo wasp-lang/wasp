@@ -5,8 +5,10 @@ import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
 import {
   getCurrentPlatformTarget,
+  UNDEFINED_LIBC_NAME,
   type CliPackageData,
   type CliSubPackageAPI,
+  type PlatformTarget,
 } from "./package-data.js";
 import { readJsonFromPackageRoot } from "./package-root.js";
 
@@ -38,13 +40,17 @@ async function getSubPackage(
 
   debug("Loaded CLI package data: %j", data);
 
-  const { os, cpu, libc } = getCurrentPlatformTarget();
+  const currentPlatform = getCurrentPlatformTarget();
+  const { os, cpu, libc } = currentPlatform;
 
   debug("Selecting sub-package for %s / %s / %s", os, cpu, libc);
 
   const selectedSubPackage = data.subPackages[os]?.[cpu]?.[libc];
   if (!selectedSubPackage) {
-    throw new CLIError("Wasp is not supported on this platform.");
+    throw new CLIError(
+      `Wasp is not supported on this platform (${formatPlatform(currentPlatform)}). ` +
+        `Supported platforms: ${listSupportedPlatforms(data).join(", ")}.`,
+    );
   }
 
   debug("Selected sub-package: %j", selectedSubPackage);
@@ -73,6 +79,19 @@ async function getSubPackage(
   return importedPackage.default;
 }
 
+function listSupportedPlatforms(data: CliPackageData): string[] {
+  return Object.entries(data.subPackages).flatMap(([os, cpus]) =>
+    Object.entries(cpus).flatMap(([cpu, libcs]) =>
+      Object.keys(libcs).map((libc) => formatPlatform({ os, cpu, libc })),
+    ),
+  );
+}
+
+// E.g. `linux-arm64-musl`, or `darwin-arm64` where libc doesn't apply.
+function formatPlatform({ os, cpu, libc }: PlatformTarget): string {
+  return [os, cpu, ...(libc === UNDEFINED_LIBC_NAME ? [] : [libc])].join("-");
+}
+
 function assertNodeIsSupported(packageJson: PackageJson): void {
   const minVersion = getMinimumNodeVersion(packageJson);
   if (!minVersion) {
@@ -97,7 +116,7 @@ function assertNodeIsSupported(packageJson: PackageJson): void {
 
   if (!nodeVersionIsSupported) {
     throw new CLIError(
-      `Your Node.js version (${currentVersion.join(".")}) is not supported. Please upgrade to Node.js ${minVersion.join(".")} to use Wasp.`,
+      `Your Node.js version (${currentVersion.join(".")}) is not supported. Please upgrade to Node.js ${minVersion.join(".")} or later to use Wasp.`,
     );
   }
 }
