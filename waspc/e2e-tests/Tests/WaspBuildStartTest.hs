@@ -20,7 +20,10 @@ waspBuildStartTest =
       test "fail-unbuilt-project" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres
-          waspFails ["build", "start"] >>= assertOutputContains "You can build the app with the `wasp build` command.",
+          -- If the check regresses, we don't want to wait for the server
+          -- image to be built and run until the default timeout.
+          runExpectingFailure (waspCli ["build", "start"]) {timeoutSeconds = 2 * 60}
+            >>= assertOutputContains "You can build the app with the `wasp build` command.",
       -- `wasp build start` builds and runs the server's Docker image.
       test "succeed-built-project" $ do
         skipIfDockerDisabled
