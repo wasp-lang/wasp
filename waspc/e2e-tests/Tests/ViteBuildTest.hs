@@ -74,7 +74,7 @@ viteBuildTest =
             "src/MainPage.tsx"
             [trimming|
               export function MainPage() {
-                return <h2>{import.meta.env.${testEnvVarKeyText}}</h2>
+                return <h2>${mainPageMarkerText}{import.meta.env.${testEnvVarKeyText}}</h2>
               }
             |]
           wasp ["build"]
@@ -87,8 +87,11 @@ viteBuildTest =
     assertBuildOutputContains value =
       buildOutputContains value >>= assertTrue ("the build output contains " ++ show value)
 
+    -- Also checks that the build output has the main page, without which
+    -- nothing would contain the value.
     assertBuildOutputDoesNotContain :: String -> TestM ()
-    assertBuildOutputDoesNotContain value =
+    assertBuildOutputDoesNotContain value = do
+      assertBuildOutputContains mainPageMarker
       buildOutputContains value >>= assertTrue ("the build output doesn't contain " ++ show value) . not
 
     buildOutputContains :: String -> TestM Bool
@@ -103,6 +106,12 @@ viteBuildTest =
 
     typeError :: T.Text
     typeError = "const shouldBeString: string = 123"
+
+    mainPageMarker :: String
+    mainPageMarker = "ViteBuildTestMainPage"
+
+    mainPageMarkerText :: T.Text
+    mainPageMarkerText = T.pack mainPageMarker
 
     testEnvVarKey :: String
     testEnvVarKey = "REACT_APP_NAME"

@@ -40,8 +40,9 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInst
 -- succeed, everything they leave behind is compared to the @<name>-golden@
 -- snapshot dir.
 --
--- The golden snapshot is created when it doesn't exist, and replaced with the
--- current one when they differ and the tests run with @--accept@.
+-- The golden snapshot is created when it doesn't exist (unless the tests run
+-- with @--no-create@, as on CI), and replaced with the current one when they
+-- differ and the tests run with @--accept@.
 --
 -- The whole snapshot is a single test, since we only know which files it has
 -- after its steps run.

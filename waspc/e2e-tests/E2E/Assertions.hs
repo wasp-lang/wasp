@@ -9,13 +9,14 @@ module E2E.Assertions
     assertDirectoryDoesNotExist,
     assertFileExists,
     assertSymlinkExists,
-    assertValidJson,
+    assertStdoutJsonField,
   )
 where
 
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Process (ProcessResult (..), RunningProcess, failWithOutput, failWithResult, getOutput)
@@ -52,11 +53,18 @@ assertProcessOutputContains expectedText runningProcess = do
   unless (expectedText `T.isInfixOf` output) $
     failWithOutput runningProcess ("didn't print " ++ show expectedText)
 
-assertValidJson :: T.Text -> TestM Aeson.Value
-assertValidJson text =
-  case Aeson.eitherDecodeStrict (TE.encodeUtf8 text) of
-    Left err -> failTest $ "Expected valid JSON, but parsing failed: " ++ err
-    Right value -> return value
+-- | Checks that stdout is a single JSON object, with the field set to the
+-- value.
+assertStdoutJsonField :: Aeson.Key -> Aeson.Value -> ProcessResult -> TestM ()
+assertStdoutJsonField key expectedValue result =
+  case Aeson.eitherDecodeStrict (TE.encodeUtf8 result.stdout) of
+    Left err -> failWithResult result ("printed invalid JSON to stdout: " ++ err)
+    Right (Aeson.Object object)
+      | KeyMap.lookup key object == Just expectedValue -> return ()
+      | otherwise ->
+          failWithResult result $
+            "printed JSON whose " ++ show key ++ " is " ++ maybe "missing" show (KeyMap.lookup key object) ++ ", instead of " ++ show expectedValue
+    Right _ -> failWithResult result "printed JSON to stdout that isn't an object"
 
 assertDirectoryExists :: FilePath -> TestM ()
 assertDirectoryExists = assertPath doesDirectoryExist "Expected directory to exist: "
@@ -75,5 +83,6 @@ assertSymlinkExists =
 
 assertPath :: (FilePath -> IO Bool) -> String -> FilePath -> TestM ()
 assertPath check message path = do
-  holds <- resolvePath path >>= liftIO . check
-  unless holds $ failTest $ message ++ path
+  absPath <- resolvePath path
+  holds <- liftIO $ check absPath
+  unless holds $ failTest $ message ++ absPath

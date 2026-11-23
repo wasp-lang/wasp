@@ -2,7 +2,7 @@ module Tests.WaspCompileTest (waspCompileTest) where
 
 import E2E
 import qualified StrongPath as SP
-import Tests.Fixtures (writeTasksQuery, writeTasksQueryApp)
+import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, tasksQueryTypeError, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
@@ -10,15 +10,15 @@ waspCompileTest :: E2ETest
 waspCompileTest =
   testGroup
     "wasp-compile"
-    [ test "fail-outside-project" $ waspFails ["compile"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["compile"],
       test "succeed-uncompiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
-          wasp ["compile"]
+          waspCompileSucceeds
           assertDirectoryExists generatedAppDir,
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
-          wasp ["compile"]
-          wasp ["compile"]
+          waspCompileSucceeds
+          waspCompileSucceeds
           assertDirectoryExists generatedAppDir,
       -- Regression test for https://github.com/wasp-lang/wasp/issues/2001
       test "fail-missing-side-effect-import" $
@@ -36,12 +36,15 @@ waspCompileTest =
         withNewWaspProject minimalStarterTemplate $ do
           writeTasksQueryApp
           wasp ["compile"]
-          writeTasksQuery "[]"
-          waspFails ["compile"] >>= assertOutputContains "Property 'id' does not exist on type 'never'."
-          writeTasksQuery "[{ id: 1 }]"
+          breakTasksQueryType
+          waspFails ["compile"] >>= assertOutputContains tasksQueryTypeError
+          fixTasksQueryType
           wasp ["compile"]
     ]
   where
+    waspCompileSucceeds :: TestM ()
+    waspCompileSucceeds = wasp ["compile"] >>= assertOutputContains "Your wasp project has successfully compiled."
+
     -- `wasp new` already creates `.wasp` and `node_modules`, so we check for
     -- what only compiling creates.
     generatedAppDir = SP.fromRelDir generatedAppDirInWaspProjectDir

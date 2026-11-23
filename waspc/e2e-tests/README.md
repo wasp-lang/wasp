@@ -96,8 +96,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
 - When a step fails, the test's failure message says which command failed and shows the last lines of its output.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
-- Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
-  - Except for the Studio tests: Wasp fixes Studio's and Prisma Studio's ports (see `E2E/Ports.hs`), so they fail if anything else is using those ports, e.g. the e2e tests of another checkout.
+- Tests that run an app get free ports from `allocateAppPorts` (or `allocatePort`, for a command that takes a single port), so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
 - Use `skipIfDockerDisabled` in tests that need Docker. Snapshot tests can't skip themselves, so they use `whenDockerEnabled` for their Docker steps.
 - Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone.
 - `wasp` commands run without the runner's `DATABASE_URL`, so they can't act on a database outside the test. Tests that need one set it with `withEnv`.
@@ -109,6 +108,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - `mise run test:waspc:e2e:accept-all` runs all of the tests, and replaces the golden snapshots that differ from the current ones. Pass `--accept` to `test:waspc:e2e` to do that only for the tests that match a pattern.
   - It doesn't delete golden snapshots that no test uses anymore (e.g. of a removed test), or files that became ignored in the golden snapshots. Delete those by hand.
 - Missing golden snapshots are always created, also without `--accept`.
+- Missing golden snapshots are created. CI sets `TASTY_NO_CREATE=true` (tasty-golden's `--no-create`), so there they fail the test instead.
 - `WASP_CLI_CMD` sets the Wasp CLI under test. It must be a single executable (a path, or a program in `PATH`), since tests run it without a shell. By default, it's `tools/wasp-cli-dev`, which runs the current waspc source.
 - `WASP_E2E_TEST_MAX_JOBS` (a positive integer) limits how many tests run at once.
 - `WASP_E2E_TESTS_SKIP_DOCKER=1` skips the tests that need Docker (they pass, and the run says so when it starts). Unset, empty, or `0` runs them. Any other value fails the run.

@@ -41,21 +41,26 @@ waspSpecAvailableTest =
           wasp ["build"]
           removeNodeModules
           assertFailsWithInstallHint $ waspCli ["build", "start"],
-      test "commands-not-requiring-wasp-spec-succeed-when-missing"
-        $ withNewWaspProject minimalStarterTemplate
-        $ forM_
-          [ -- Project-scoped commands that don't require wasp-spec to be installed.
-            ["clean"],
-            ["install"],
-            ["show", "build"],
-            -- Project-agnostic commands. They don't read the project, so
-            -- they should be unaffected by wasp-spec presence. Not `wasp
-            -- news`, which fetches the news, so the test would fail offline.
-            ["version"],
-            ["completion"],
-            ["telemetry"]
-          ]
-        $ \args -> removeNodeModules >> wasp args
+      test "commands-not-requiring-wasp-spec-succeed-when-missing" $
+        withNewWaspProject minimalStarterTemplate $ do
+          forM_
+            [ -- Project-scoped commands that don't require wasp-spec to be installed.
+              ["clean"],
+              ["install"],
+              ["show", "build"],
+              -- Project-agnostic commands. They don't read the project, so
+              -- they should be unaffected by wasp-spec presence.
+              ["version"],
+              ["completion"],
+              ["telemetry"]
+            ]
+            $ \args -> removeNodeModules >> wasp args
+          -- `wasp news` fetches the news. We point it at a server that isn't
+          -- there, so the test works offline: then it must fail at fetching,
+          -- after it checked any requirements.
+          removeNodeModules
+          runExpectingFailure (withEnv [("WASP_NEWS_SERVER_URL", "http://localhost:1")] $ waspCli ["news"])
+            >>= assertOutputContains "Getting Wasp news failed"
     ]
   where
     -- Puts the project in a "wasp-spec missing" state without invoking any wasp command.
@@ -68,9 +73,13 @@ waspSpecAvailableTest =
         $ void
         $ run npmPkgSetVersion
 
+    -- The commands should fail on the missing wasp-spec before doing any
+    -- work. If one doesn't, we don't want to wait for it to finish building or
+    -- serving the app.
     assertFailsWithInstallHint :: Command -> TestM ()
     assertFailsWithInstallHint cmd =
-      runExpectingFailure cmd >>= assertOutputContains (T.pack $ "Run " ++ styleCode "wasp install")
+      runExpectingFailure cmd {timeoutSeconds = 2 * 60}
+        >>= assertOutputContains (T.pack $ "Run " ++ styleCode "wasp install")
 
 {- HLINT ignore npmPkgSetVersion "Avoid npm and npx" -}
 npmPkgSetVersion :: Command

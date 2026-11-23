@@ -1,6 +1,5 @@
 module Tests.WaspStudioTest (waspStudioTest) where
 
-import qualified Data.Text as T
 import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -10,12 +9,11 @@ waspStudioTest :: E2ETest
 waspStudioTest =
   testGroup
     "wasp-studio"
-    [ test "fail-outside-project" $ waspFails ["studio"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["studio"],
       test "succeed-uncompiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
-          studio <- startInBackground $ waspCli ["studio"]
-          -- The port is fixed, so we also check the output to know it's our Studio.
-          waitForOutput studio ("Server listening on port " <> T.pack (show waspStudioPort)) (5 * 60)
-          waitUntilListening studio [waspStudioPort] 30
-          interruptProcessGroupAndWaitUntilStopped studio [waspStudioPort]
+          port <- allocatePort
+          studio <- startInBackground $ waspCli ["studio", "--port", show port]
+          waitUntilListening studio [port] (5 * 60)
+          interruptProcessGroupAndWaitUntilStopped studio [port]
     ]

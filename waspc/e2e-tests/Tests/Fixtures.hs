@@ -6,19 +6,22 @@ module Tests.Fixtures
   ( taskPrismaModel,
     addTasksQueryToMainWaspTs,
     writeTasksQueryApp,
-    writeTasksQuery,
+    breakTasksQueryType,
+    fixTasksQueryType,
+    tasksQueryTypeError,
     TaskSeed (..),
     allTaskSeeds,
+    taskSeedName,
     setUpProjectWithTaskSeeds,
     runTaskSeed,
     waspDbSeed,
-    addSeedsToMainWaspTs,
+    addSeeds,
     viteBuild,
     withApiUrl,
   )
 where
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, void)
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
@@ -43,7 +46,7 @@ addTasksQueryToMainWaspTs = do
   addMainWaspTsSpecDeclaration "query(getTasks)"
 
 -- | An app whose main page renders the result of the @getTasks@ query.
--- The query returns @[{ id: 1 }]@ until changed with 'writeTasksQuery'.
+-- The query returns @[{ id: 1 }]@ until changed with 'breakTasksQueryType'.
 writeTasksQueryApp :: TestM ()
 writeTasksQueryApp = do
   addTasksQueryToMainWaspTs
@@ -58,6 +61,19 @@ writeTasksQueryApp = do
         return <div>{tasks?.map((task) => <p key={task.id}>{task.id}</p>)}</div>;
       }
     |]
+
+-- | Makes the @getTasks@ query return @[]@, whose type is @never[]@, so the
+-- main page of 'writeTasksQueryApp' fails to type check with
+-- 'tasksQueryTypeError'.
+breakTasksQueryType :: TestM ()
+breakTasksQueryType = writeTasksQuery "[]"
+
+-- | Undoes 'breakTasksQueryType'.
+fixTasksQueryType :: TestM ()
+fixTasksQueryType = writeTasksQuery "[{ id: 1 }]"
+
+tasksQueryTypeError :: T.Text
+tasksQueryTypeError = "Property 'id' does not exist on type 'never'."
 
 writeTasksQuery :: T.Text -> TestM ()
 writeTasksQuery result =
@@ -92,9 +108,7 @@ setUpProjectWithTaskSeeds seeds = do
   wasp ["compile"]
   appendToFile "schema.prisma" taskPrismaModel
   waspDbMigrateDev "foo"
-  forM_ seeds $ \seed ->
-    writeToFile ("src/db/" ++ taskSeedName seed ++ ".ts") $ seedScript (T.pack $ taskSeedName seed) (seedBody seed)
-  addSeedsToMainWaspTs $ map taskSeedName seeds
+  addSeeds [(taskSeedName seed, seedScript (T.pack $ taskSeedName seed) (seedBody seed)) | seed <- seeds]
   where
     seedBody :: TaskSeed -> T.Text
     seedBody = \case
@@ -132,13 +146,16 @@ setUpProjectWithTaskSeeds seeds = do
 -- | Runs the seed with `wasp db seed`. Expects 'setUpProjectWithTaskSeeds' to
 -- have added it.
 runTaskSeed :: TaskSeed -> TestM ()
-runTaskSeed seed = waspDbSeed [taskSeedName seed]
+runTaskSeed seed = void $ waspDbSeed [taskSeedName seed]
 
 -- | Runs `wasp db seed` with the arguments, and checks that Wasp ran the seed.
 -- The seeds check the database's state by failing, so a seed that didn't run
 -- would pass any check.
-waspDbSeed :: [String] -> TestM ()
-waspDbSeed arguments = wasp ("db" : "seed" : arguments) >>= assertOutputContains "Database seeded successfully!"
+waspDbSeed :: [String] -> TestM ProcessResult
+waspDbSeed arguments = do
+  result <- wasp ("db" : "seed" : arguments)
+  assertOutputContains "Database seeded successfully!" result
+  return result
 
 taskSeedName :: TaskSeed -> String
 taskSeedName = \case
@@ -146,17 +163,19 @@ taskSeedName = \case
   AssertTasksEmpty -> "assertTasksEmpty"
   AssertTasksNotEmpty -> "assertTasksNotEmpty"
 
--- | Makes the named functions the app's seeds in the starter's @main.wasp.ts@.
--- Each one is the export of the same name in @src/db/<name>.ts@.
-addSeedsToMainWaspTs :: [String] -> TestM ()
-addSeedsToMainWaspTs seedNames = do
+-- | Writes each seed's script to @src/db/<name>.ts@, and makes the seeds the
+-- app's only seeds in the starter's @main.wasp.ts@. Each script must export a
+-- function with the seed's name.
+addSeeds :: [(String, T.Text)] -> TestM ()
+addSeeds seeds = do
+  forM_ seeds $ \(name, script) -> writeToFile ("src/db/" ++ name ++ ".ts") script
   addMainWaspTsImports
     [ "import { " <> name <> " } from \"./src/db/" <> name <> "\" with { type: \"ref\" };"
     | name <- seedNameTexts
     ]
   addMainWaspTsAppField $ "db: { seeds: [" <> T.intercalate ", " seedNameTexts <> "] }"
   where
-    seedNameTexts = map T.pack seedNames
+    seedNameTexts = map (T.pack . fst) seeds
 
 -- | `vite build` in the Wasp project, with the extra arguments.
 --
