@@ -3,6 +3,7 @@ module E2E.Wasp
   ( waspAppDirName,
     wasp,
     waspFails,
+    waspFailsOutsideProject,
     assertFailsWithoutInteractiveTerminal,
     waspCliNew,
     createWaspProject,
@@ -22,7 +23,7 @@ import qualified Data.Aeson as Aeson
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
 import E2E.Assertions (assertOutputContains)
-import E2E.Command (Command, waspCli, withEnv, withoutEnv)
+import E2E.Command (Command, waspCli, withEnv)
 import E2E.Files (replaceInFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
 import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
@@ -34,7 +35,6 @@ import Wasp.Cli.ProjectLock.Data (ProjectLockData (..))
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
-import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import Wasp.Version (waspVersion)
 
@@ -50,6 +50,12 @@ wasp = run . waspCli
 waspFails :: [String] -> TestM ProcessResult
 waspFails = runExpectingFailure . waspCli
 
+-- | Runs a Wasp CLI command that needs a Wasp project in a dir that isn't in
+-- one, and checks that it fails for that reason.
+waspFailsOutsideProject :: [String] -> TestM ()
+waspFailsOutsideProject arguments =
+  waspFails arguments >>= assertOutputContains "Couldn't find wasp project root"
+
 -- | Asserts that a command that needs to prompt fails when stdin is not an
 -- interactive terminal, and prints its usage so the user can pass the answers
 -- as arguments instead.
@@ -60,11 +66,8 @@ assertFailsWithoutInteractiveTerminal commandName cmd = do
   assertOutputContains (T.pack $ "Usage: " ++ commandName) result
 
 -- | Creates the Wasp project in 'waspAppDirName'.
---
--- Without the test runner's @DATABASE_URL@, which makes starters with
--- migrations skip them.
 waspCliNew :: StarterTemplate -> Command
-waspCliNew template = withoutEnv [databaseUrlEnvVarName] $ waspCli ["new", waspAppDirName, "-t", show template]
+waspCliNew template = waspCli ["new", waspAppDirName, "-t", show template]
 
 createWaspProject :: StarterTemplate -> TestM ()
 createWaspProject = void . run . waspCliNew
