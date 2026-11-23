@@ -12644,6 +12644,17 @@ Open it from the floating button at the bottom of the page, or at `/__devtools/`
 
 Other Vite plugins can add their own panels through the [Vite DevTools Kit](https://devtools.vite.dev/kit/devtools-plugin). `waspDevTools()` accepts the other [Vite DevTools options](https://devtools.vite.dev/guide/) and merges them over Wasp's. You can also use `devtools: true` to get the default Vite branding.
 
+`waspDevTools()` hides the panels for the Vite+ tools (Rolldown, Vite, Vitest, and Oxc), but keeps Vite DevTools' other built-in panels, like Terminals. To show one of them again, install its package and enable it:
+
+```ts title="vite.config.ts"
+export default defineConfig({
+  devtools: waspDevTools({
+    builtinDevTools: { integrations: { rolldown: true } },
+  }),
+  plugins: [wasp()],
+});
+```
+
 ### Examples
 
 Below are some examples of how you can customize the Vite config.
