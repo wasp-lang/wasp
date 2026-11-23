@@ -1,10 +1,13 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TupleSections #-}
 
--- | Sending signals to processes. The only module with platform specific code.
+-- | Sending and handling signals, in IO. Test steps that send them are in
+-- "E2E.Process".
+--
+-- The only module with code that differs by platform. We don't run the tests
+-- on Windows (see @Main.hs@), so there its functions fail or do nothing.
 module E2E.Signals
   ( Signal (..),
-    signal,
     signalProcess,
     signalProcessGroup,
     processGroupExists,
@@ -12,8 +15,6 @@ module E2E.Signals
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
-import E2E.TestM (TestM, logLine)
 #if !defined(mingw32_HOST_OS)
 import Control.Concurrent (myThreadId, throwTo)
 import Control.Exception (AsyncException (UserInterrupt), IOException, catch)
@@ -25,12 +26,6 @@ import qualified System.Posix.Signals as Posix
 
 data Signal = SIGINT | SIGTERM | SIGHUP | SIGKILL
   deriving (Show)
-
--- | Sends the signal to the process with the PID.
-signal :: Signal -> Int -> TestM ()
-signal sig pid = do
-  logLine $ "\n==> Sending " ++ show sig ++ " to PID " ++ show pid
-  liftIO $ signalProcess sig pid
 
 signalProcess :: Signal -> Int -> IO ()
 

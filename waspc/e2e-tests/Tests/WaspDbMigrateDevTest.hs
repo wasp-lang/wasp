@@ -4,13 +4,9 @@ import Control.Monad (forM_)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isInfixOf)
 import E2E
-import qualified StrongPath as SP
 import System.Directory (listDirectory)
 import Tests.Fixtures (taskPrismaModel)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
-import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
 waspDbMigrateDevTest :: E2ETest
@@ -41,14 +37,8 @@ waspDbMigrateDevTest =
     -- In the project and in the generated app.
     assertMigrationExists :: String -> TestM ()
     assertMigrationExists migrationName =
-      forM_ [SP.fromRelDir dbMigrationsDirInWaspProjectDir, SP.fromRelDir generatedAppMigrationsDir] $ \migrationsDir -> do
+      forM_ dbMigrationsDirs $ \migrationsDir -> do
         migrations <- resolvePath migrationsDir >>= liftIO . listDirectory
         assertTrue
           ("there's a migration named " ++ show migrationName ++ " in " ++ migrationsDir)
           (any (migrationName `isInfixOf`) migrations)
-
-    generatedAppMigrationsDir =
-      dotWaspDirInWaspProjectDir
-        SP.</> generatedAppDirInDotWaspDir
-        SP.</> dbRootDirInGeneratedAppDir
-        SP.</> dbMigrationsDirInDbRootDir

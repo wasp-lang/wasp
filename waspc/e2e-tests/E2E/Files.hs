@@ -3,7 +3,6 @@ module E2E.Files
   ( writeToFile,
     appendToFile,
     replaceInFile,
-    readFromFile,
     copyFile,
     deleteFile,
     deleteDirectory,
@@ -19,8 +18,8 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (command)
-import E2E.Process (ProcessResult (..), run)
-import E2E.TestM (RunConfig (..), TestEnv (..), TestM, failTest, inDirectory, resolvePath, waitUntil)
+import E2E.Process (ProcessResult (..), RunningProcess, failIfExited, failWithOutput, run)
+import E2E.TestM (RunConfig (..), TestEnv (..), TestM, failTest, inDirectory, pollUntil, resolvePath)
 import System.Directory (createDirectoryIfMissing, doesFileExist, removeFile, removePathForcibly)
 import qualified System.Directory as Directory
 import System.FilePath (takeDirectory, (</>))
@@ -51,7 +50,9 @@ replaceInFile path oldText newText = do
 readFromFile :: FilePath -> TestM T.Text
 readFromFile path = do
   absPath <- resolvePath path
-  liftIO $ TE.decodeUtf8 <$> BS.readFile absPath
+  liftIO (TE.decodeUtf8' <$> BS.readFile absPath) >>= \case
+    Right content -> return content
+    Left err -> failTest $ "Expected " ++ path ++ " to be UTF-8 text: " ++ show err
 
 copyFile :: FilePath -> FilePath -> TestM ()
 copyFile srcPath dstPath = do
@@ -82,8 +83,14 @@ copyGitTrackedDir srcDirInGitRoot dstDir = do
       createDirectoryIfMissing True (takeDirectory $ absDstDir </> file)
       Directory.copyFile (srcDir </> file) (absDstDir </> file)
 
--- | Waits until some process creates the file.
-waitForFile :: FilePath -> Int -> TestM ()
-waitForFile path seconds = do
+-- | Waits until the process creates the file. Fails the test with the
+-- process's output if it exits first or doesn't create the file in time.
+waitForFile :: RunningProcess -> FilePath -> Int -> TestM ()
+waitForFile runningProcess path seconds = do
   absPath <- resolvePath path
-  waitUntil (path ++ " exists") seconds $ liftIO $ doesFileExist absPath
+  exists <- pollUntil seconds $ do
+    exists <- liftIO $ doesFileExist absPath
+    unless exists $ failIfExited runningProcess ("creating " ++ path)
+    return exists
+  unless exists $
+    failWithOutput runningProcess ("didn't create " ++ path ++ " within " ++ show seconds ++ "s")

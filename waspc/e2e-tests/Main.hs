@@ -1,11 +1,10 @@
-import Control.Monad (mfilter, when)
+import Control.Monad (when)
 import E2E.Heartbeat (heartbeatReporter)
-import E2E.Paths (getWaspcDir)
+import E2E.RunConfig (RunConfig (..), getRunConfig, waspCliCmdEnvVar)
 import E2E.Signals (stopOnFirstCtrlC)
-import E2E.Test (toTestTree)
-import System.Environment (lookupEnv, setEnv)
+import E2E.Test (E2ETest, checkOutputDirsAreUnique, toTestTree)
+import System.Environment (setEnv)
 import System.Exit (ExitCode (..))
-import System.FilePath ((</>))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
 import Test.Tasty (TestTree, defaultMainWithIngredients, localOption, testGroup)
@@ -44,7 +43,6 @@ import Tests.WaspStudioTest (waspStudioTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
-import Text.Read (readMaybe)
 
 main :: IO ()
 main = do
@@ -52,20 +50,16 @@ main = do
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else do
       stopOnFirstCtrlC
-      setWaspCliCmd
-      warmUpWaspCli
-      maxJobs <- (>>= readMaybe) <$> lookupEnv "WASP_E2E_TEST_MAX_JOBS" :: IO (Maybe Int)
+      runConfig <- getRunConfig
+      -- The tests that still use the shell commands DSL read the Wasp CLI from
+      -- the environment.
+      setEnv waspCliCmdEnvVar runConfig.waspCliPath
+      -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
+      warmUpWaspCli runConfig.waspCliPath
+      checkOutputDirsAreUnique (e2eSnapshotTests ++ e2eTests)
       defaultMainWithIngredients
         [listingTests, composeReporters heartbeatReporter consoleTestReporter]
-        (maybe id (localOption . NumThreads) (mfilter (>= 1) maxJobs) e2eTests)
-
--- | The tests run the Wasp CLI from @WASP_CLI_CMD@. When it's not set, we use
--- @tools/wasp-cli-dev@, which runs the current state of the waspc source.
-setWaspCliCmd :: IO ()
-setWaspCliCmd =
-  lookupEnv "WASP_CLI_CMD" >>= \case
-    Just waspCliCmd | not (null waspCliCmd) -> return ()
-    _ -> getWaspcDir >>= setEnv "WASP_CLI_CMD" . (</> "tools" </> "wasp-cli-dev")
+        (maybe id (localOption . NumThreads) runConfig.maxJobs $ makeTestTree runConfig)
 
 -- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
 -- concurrently.
@@ -76,60 +70,60 @@ setWaspCliCmd =
 -- and fail with "package.conf.inplace already exists". Doing one serial
 -- invocation here forces that build to complete first, so the concurrent
 -- invocations only ever run the already-built CLI.
-warmUpWaspCli :: IO ()
-warmUpWaspCli = do
-  waspCliCmd <- maybe (fail "WASP_CLI_CMD is not set.") return =<< lookupEnv "WASP_CLI_CMD"
-  (exitCode, _, err) <- readProcessWithExitCode waspCliCmd ["version"] ""
-  when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliCmd ++ " version` failed:\n" ++ err
+warmUpWaspCli :: FilePath -> IO ()
+warmUpWaspCli waspCliPath = do
+  (exitCode, _, err) <- readProcessWithExitCode waspCliPath ["version"] ""
+  when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliPath ++ " version` failed:\n" ++ err
 
 -- TODO: Investigate automatically discovering the tests.
-e2eTests :: TestTree
-e2eTests =
+makeTestTree :: RunConfig -> TestTree
+makeTestTree runConfig =
   testGroup
     "E2E tests"
-    [ -- Tasty starts the tests in order, so the slowest ones go first.
-      testGroup "Snapshot Tests" $
-        map
-          toTestTree
-          [ kitchenSinkSnapshotTest,
-            waspBuildSnapshotTest,
-            waspMigrateSnapshotTest,
-            waspCompileSnapshotTest,
-            waspNewSnapshotTest
-          ],
-      testGroup "Tests" $
-        map
-          toTestTree
-          [ -- general Wasp commands
-            waspNewTest,
-            waspTelemetryTest,
-            waspCompletionTest,
-            waspVersionTest,
-            -- Wasp project commands
-            waspCompileTest,
-            waspStartTest,
-            waspBuildTest,
-            waspBuildStartTest,
-            waspTsSpecNodeEnvTest,
-            viteBuildTest,
-            viteConfigTest,
-            vitestTest,
-            waspCleanTest,
-            waspProjectLockTest,
-            waspSpecAvailableTest,
-            waspShowTest,
-            waspInstallTest,
-            waspDepsTest,
-            waspDockerfileTest,
-            waspStudioTest,
-            -- Wasp project db commands
-            waspDbStartTest,
-            waspDbStudioTest,
-            waspDbSeedTest,
-            waspDbResetTest,
-            waspDbMigrateDevTest,
-            waspSpecEntityTypesTest,
-            incrementalTypeCheckingTest,
-            serverTypeCheckingTest
-          ]
+    [ testGroup "Snapshot Tests" (map (toTestTree runConfig) e2eSnapshotTests),
+      testGroup "Tests" (map (toTestTree runConfig) e2eTests)
     ]
+
+-- | The tests written with the 'E2E' module.
+e2eTests, e2eSnapshotTests :: [E2ETest]
+e2eTests =
+  [ -- general Wasp commands
+    waspNewTest,
+    waspTelemetryTest,
+    waspCompletionTest,
+    waspVersionTest,
+    -- Wasp project commands
+    waspCompileTest,
+    waspStartTest,
+    waspBuildTest,
+    waspBuildStartTest,
+    waspTsSpecNodeEnvTest,
+    viteBuildTest,
+    viteConfigTest,
+    vitestTest,
+    waspCleanTest,
+    waspProjectLockTest,
+    waspSpecAvailableTest,
+    waspShowTest,
+    waspInstallTest,
+    waspDepsTest,
+    waspDockerfileTest,
+    waspStudioTest,
+    -- Wasp project db commands
+    waspDbStartTest,
+    waspDbStudioTest,
+    waspDbSeedTest,
+    waspDbResetTest,
+    waspDbMigrateDevTest,
+    waspSpecEntityTypesTest,
+    incrementalTypeCheckingTest,
+    serverTypeCheckingTest
+  ]
+e2eSnapshotTests =
+  [ -- Tasty starts the tests in order, so the slowest ones go first.
+    kitchenSinkSnapshotTest,
+    waspBuildSnapshotTest,
+    waspMigrateSnapshotTest,
+    waspCompileSnapshotTest,
+    waspNewSnapshotTest
+  ]

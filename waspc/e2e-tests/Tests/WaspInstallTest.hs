@@ -7,8 +7,8 @@ waspInstallTest :: E2ETest
 waspInstallTest =
   testGroup
     "wasp-install"
-    [ test "install-fails-outside-project" $ waspFails ["install"],
-      test "install-restores-wasp-spec-after-clean" $
+    [ test "fail-outside-project" $ waspFails ["install"],
+      test "succeed-restore-wasp-spec-after-clean" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["clean"]
           assertDirectoryDoesNotExist "node_modules"

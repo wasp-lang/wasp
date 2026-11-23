@@ -15,10 +15,13 @@ module E2E.Process
     startInBackground,
     waitForOutput,
     failIfExited,
+    failWithOutput,
+    failWithResult,
     getOutput,
     waitForExit,
+    signalPid,
     signalProcessGroupOf,
-    getProcessGroupId,
+    processGroupOfExists,
   )
 where
 
@@ -34,7 +37,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (Command (..), Executable (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
-import E2E.Signals (Signal (..), signalProcessGroup)
+import E2E.Signals (Signal (..), processGroupExists, signalProcess, signalProcessGroup)
 import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
 import System.Environment (getEnvironment, lookupEnv)
 import System.Exit (ExitCode (..))
@@ -44,7 +47,8 @@ import qualified System.Process.Typed as TP
 import UnliftIO.Exception (catchAny)
 
 data ProcessResult = ProcessResult
-  { exitCode :: ExitCode,
+  { processCommand :: Command,
+    exitCode :: ExitCode,
     stdout :: T.Text,
     -- | Stdout and stderr interleaved in the order they arrived, like @2>&1@.
     combinedOutput :: T.Text
@@ -54,7 +58,7 @@ data ProcessResult = ProcessResult
 --
 -- If it's still running when the test ends, it's stopped (see 'stopProcess').
 data RunningProcess = RunningProcess
-  { processCommand :: Command,
+  { runningCommand :: Command,
     process :: TP.Process () () (),
     -- | The process was started in its own group, so its PID is also its
     -- process group ID. 'Nothing' if it exited before we could read its PID.
@@ -68,7 +72,7 @@ run cmd = do
   result <- runAllowingFailure cmd
   case result.exitCode of
     ExitSuccess -> return result
-    ExitFailure code -> failTest $ describeFailure cmd ("exited with code " ++ show code) result.combinedOutput
+    ExitFailure code -> failWithResult result ("exited with code " ++ show code)
 
 -- | Runs the command and fails the test if it succeeds.
 runExpectingFailure :: Command -> TestM ProcessResult
@@ -76,7 +80,7 @@ runExpectingFailure cmd = do
   result <- runAllowingFailure cmd
   case result.exitCode of
     ExitFailure _ -> return result
-    ExitSuccess -> failTest $ describeFailure cmd "succeeded, but it was expected to fail" result.combinedOutput
+    ExitSuccess -> failWithResult result "succeeded, but it was expected to fail"
 
 runAllowingFailure :: Command -> TestM ProcessResult
 runAllowingFailure cmd = do
@@ -88,7 +92,7 @@ runAllowingFailure cmd = do
   liftIO . atomically $ do
     stdout <- readStdout runningProcess.output
     combinedOutput <- readCombinedOutput runningProcess.output
-    return ProcessResult {exitCode, stdout, combinedOutput}
+    return ProcessResult {processCommand = cmd, exitCode, stdout, combinedOutput}
 
 -- | Starts the process in its own process group, so we can stop it together
 -- with its children.
@@ -122,7 +126,7 @@ startInBackgroundWithStopKey cmd = do
       start = do
         process <- TP.startProcess processConfig
         processGroupId <- fmap fromIntegral <$> getPid (TP.unsafeProcessHandle process)
-        return RunningProcess {processCommand = cmd, process, processGroupId, output}
+        return RunningProcess {runningCommand = cmd, process, processGroupId, output}
 
   allocateWithCleanup start (runTestM testEnv . stopProcess)
 
@@ -158,11 +162,10 @@ waitForOutput runningProcess expectedText seconds = do
     liftIO . waitAtMost seconds $
       (outputContainsText >>= check >> return OutputFound)
         `orElse` (processExitedWithAllOutputRead >>= check >> return ProcessExited)
-  output <- getOutput runningProcess
   case maybeOutcome of
     Just OutputFound -> logLine $ "\n==> Found expected output: " ++ show expectedText
-    Just ProcessExited -> failTest $ describeFailure runningProcess.processCommand ("exited before printing " ++ show expectedText) output
-    Nothing -> failTest $ describeFailure runningProcess.processCommand ("didn't print " ++ show expectedText ++ " within " ++ show seconds ++ "s") output
+    Just ProcessExited -> failWithOutput runningProcess ("exited before printing " ++ show expectedText)
+    Nothing -> failWithOutput runningProcess ("didn't print " ++ show expectedText ++ " within " ++ show seconds ++ "s")
   where
     outputContainsText :: STM Bool
     outputContainsText = T.isInfixOf expectedText <$> readCombinedOutput runningProcess.output
@@ -178,9 +181,17 @@ data WaitForOutputOutcome = OutputFound | ProcessExited
 failIfExited :: RunningProcess -> String -> TestM ()
 failIfExited runningProcess expectation = do
   exited <- liftIO $ isJust <$> TP.getExitCode runningProcess.process
-  when exited $ do
-    output <- getOutput runningProcess
-    failTest $ describeFailure runningProcess.processCommand ("exited before " ++ expectation) output
+  when exited $ failWithOutput runningProcess ("exited before " ++ expectation)
+
+-- | Fails the test with the problem and the last lines the process printed so
+-- far, e.g. "didn't open its port".
+failWithOutput :: RunningProcess -> String -> TestM a
+failWithOutput runningProcess problem =
+  getOutput runningProcess >>= failTest . describeFailure runningProcess.runningCommand problem
+
+-- | Like 'failWithOutput', for a process that already exited.
+failWithResult :: ProcessResult -> String -> TestM a
+failWithResult result problem = failTest $ describeFailure result.processCommand problem result.combinedOutput
 
 -- | Stdout and stderr the process printed so far, interleaved.
 getOutput :: RunningProcess -> TestM T.Text
@@ -192,30 +203,43 @@ waitForExit :: RunningProcess -> Int -> TestM ExitCode
 waitForExit runningProcess seconds = do
   maybeExitCode <- liftIO . waitAtMost seconds $ TP.waitExitCodeSTM runningProcess.process
   case maybeExitCode of
-    Nothing -> do
-      output <- getOutput runningProcess
-      failTest $ describeFailure runningProcess.processCommand ("didn't exit within " ++ show seconds ++ "s") output
+    Nothing -> failWithOutput runningProcess ("didn't exit within " ++ show seconds ++ "s")
     Just exitCode -> do
       -- A process can exit before we've read all of its output. We give the
       -- readers a moment to finish. We don't wait longer since children that
       -- outlive the process (e.g. daemons) can keep the pipes open.
-      liftIO . void . waitAtMost 5 $ isFullyRead runningProcess.output >>= check
+      liftIO . void . waitAtMost outputDrainSeconds $ isFullyRead runningProcess.output >>= check
       logLine $ "\n<== " ++ showExitCode exitCode
       return exitCode
+
+-- | How long we wait for a process's output after it exits.
+outputDrainSeconds :: Int
+outputDrainSeconds = 5
+
+-- | Sends the signal to the process with the PID, e.g. one read from the
+-- project lock file.
+signalPid :: Signal -> Int -> TestM ()
+signalPid sig pid = do
+  logLine $ "\n==> Sending " ++ show sig ++ " to PID " ++ show pid
+  liftIO $ signalProcess sig pid
 
 -- | Sends the signal to the process group the process runs in, like
 -- a terminal does for Ctrl+C (SIGINT) or when it's closed (SIGHUP).
 signalProcessGroupOf :: Signal -> RunningProcess -> TestM ()
 signalProcessGroupOf sig runningProcess = do
   processGroupId <- getProcessGroupId runningProcess
-  logLine $ "\n==> Sending " ++ show sig ++ " to the process group of: " ++ showCommand runningProcess.processCommand
+  logLine $ "\n==> Sending " ++ show sig ++ " to the process group of: " ++ showCommand runningProcess.runningCommand
   liftIO $ signalProcessGroup sig processGroupId
 
--- | The ID of the process group the process runs in.
+-- | Whether any process is left in the process group the process ran in, e.g.
+-- children that outlive it.
+processGroupOfExists :: RunningProcess -> TestM Bool
+processGroupOfExists runningProcess = getProcessGroupId runningProcess >>= liftIO . processGroupExists
+
 getProcessGroupId :: RunningProcess -> TestM Int
 getProcessGroupId runningProcess =
   maybe
-    (failTest $ "Command `" ++ showCommand runningProcess.processCommand ++ "` exited before its process group ID could be read.")
+    (failTest $ "Command `" ++ showCommand runningProcess.runningCommand ++ "` exited before its process group ID could be read.")
     return
     runningProcess.processGroupId
 
@@ -226,10 +250,14 @@ stopProcess :: RunningProcess -> TestM ()
 stopProcess runningProcess = do
   isRunning <- liftIO $ isNothing <$> TP.getExitCode runningProcess.process
   when isRunning $ do
-    logLine $ "\n==> Stopping: " ++ showCommand runningProcess.processCommand
+    logLine $ "\n==> Stopping: " ++ showCommand runningProcess.runningCommand
     signalGroup SIGINT
-    maybeExitCode <- liftIO . waitAtMost 10 $ TP.waitExitCodeSTM runningProcess.process
-    logLine $ maybe "\n<== didn't stop within 10s, killing it" (("\n<== " ++) . showExitCode) maybeExitCode
+    maybeExitCode <- liftIO . waitAtMost stopGracePeriodSeconds $ TP.waitExitCodeSTM runningProcess.process
+    logLine $
+      maybe
+        ("\n<== didn't stop within " ++ show stopGracePeriodSeconds ++ "s, killing it")
+        (("\n<== " ++) . showExitCode)
+        maybeExitCode
   signalGroup SIGKILL
   -- Only once the process is killed: this sends it SIGTERM, which it can
   -- ignore, and then waits for it to exit without a time limit.
@@ -238,6 +266,9 @@ stopProcess runningProcess = do
     -- Fails when the group is already gone, which is what we want anyway.
     signalGroup sig = liftIO . forM_ runningProcess.processGroupId $ \processGroupId ->
       signalProcessGroup sig processGroupId `catchAny` const (return ())
+
+    -- How long a process has to stop on its own when the test ends.
+    stopGracePeriodSeconds = 10
 
 -- | Runs the transaction once it succeeds, or returns 'Nothing' if that doesn't
 -- happen within the given number of seconds.
