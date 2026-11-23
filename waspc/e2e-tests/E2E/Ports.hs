@@ -1,11 +1,10 @@
--- | Ports of the tests that run Wasp apps.
+-- | Ports of the tests that run Wasp apps and other servers.
 module E2E.Ports
   ( AppPorts,
     allocateAppPorts,
     appPortList,
     appPortArgs,
-    waspStudioPort,
-    prismaStudioPort,
+    allocatePort,
   )
 where
 
@@ -27,7 +26,7 @@ data AppPorts = AppPorts
 -- other, and with the tests of other checkouts on the same machine.
 allocateAppPorts :: TestM AppPorts
 allocateAppPorts = do
-  ports <- liftIO $ AppPorts <$> allocatePort <*> allocatePort
+  ports <- liftIO $ AppPorts <$> allocateUnusedPort <*> allocateUnusedPort
   logLine $ "\n==> Allocated ports: client " ++ show ports.clientPort ++ ", server " ++ show ports.serverPort
   return ports
 
@@ -42,12 +41,12 @@ allocateAppPorts = do
 -- minutes (e.g. after `npm install`), and the port is in the range the OS
 -- picks outgoing connections' ports from. Then the app fails to start, with an
 -- "address in use" error in the test's log.
-allocatePort :: IO Int
-allocatePort = do
+allocateUnusedPort :: IO Int
+allocateUnusedPort = do
   port <- findFreePort
   isNew <- modifyMVar allocatedPorts $ \ports ->
     return (Set.insert port ports, port `Set.notMember` ports)
-  if isNew then return port else allocatePort
+  if isNew then return port else allocateUnusedPort
 
 -- | Lets the OS pick a free port. The socket is dual-stack, so the port is
 -- free on both IPv4 and IPv6: Vite e.g. listens on only one of them.
@@ -72,7 +71,10 @@ appPortList ports = [ports.clientPort, ports.serverPort]
 appPortArgs :: AppPorts -> [String]
 appPortArgs ports = ["--client-port", show ports.clientPort, "--server-port", show ports.serverPort]
 
--- | Fixed by Wasp. Only one test may use each of them.
-waspStudioPort, prismaStudioPort :: Int
-waspStudioPort = 4000
-prismaStudioPort = 5555
+-- | Like 'allocateAppPorts', for a command that takes a single port, e.g.
+-- `wasp studio --port <port>`.
+allocatePort :: TestM Int
+allocatePort = do
+  port <- liftIO allocateUnusedPort
+  logLine $ "\n==> Allocated port " ++ show port
+  return port

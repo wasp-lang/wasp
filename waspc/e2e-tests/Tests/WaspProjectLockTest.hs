@@ -57,17 +57,17 @@ waspProjectLockTest =
           assertOutputContains (lockHolderMessage lockHolderPid "is working on this project right now.") result
           assertOutputContains waitingForCompilationMessage result
 
-          setLockFileWatcherStatus CompilationFailed
+          setLockFileWatcherStatus lockHolder CompilationFailed
           runExpectingFailure waspDbMigrateDevCommand
             >>= assertOutputContains (lockHolderMessage lockHolderPid "is running for this project, but it failed to compile it.")
 
           -- While the watcher compiles, the db command waits for it, and goes
           -- on without compiling once the watcher is done.
-          setLockFileWatcherStatus Compiling
+          setLockFileWatcherStatus lockHolder Compiling
           dbCommand <- startInBackground waspDbMigrateDevCommand
           waitForOutput dbCommand waitingForCompilationMessage lockHolderDeadlineSeconds
-          setLockFileWatcherStatus UpToDate
-          waitForExit dbCommand lockHolderDeadlineSeconds >>= assertEqual "exit code of the db command" ExitSuccess
+          setLockFileWatcherStatus lockHolder UpToDate
+          assertExitsSuccessfully dbCommand lockHolderDeadlineSeconds
           assertProcessOutputContains "is already watching this project, skipping compilation." dbCommand
 
           releaseLock lockHolder
@@ -103,9 +103,11 @@ startLockHolder = do
     |]
   run addPreinstallHook
   lockHolder <- startInBackground $ waspCli ["install"]
-  waitForFile lockHolder lockAcquiredMarkerFile 120
+  waitForFile lockHolder lockAcquiredMarkerFile lockAcquiredTimeoutSeconds
   return lockHolder
   where
+    -- `wasp install` takes the lock, then `npm install` gets to the hook.
+    lockAcquiredTimeoutSeconds = 120
     lockAcquiredMarkerFileText = T.pack lockAcquiredMarkerFile
     releaseLockSignalFileText = T.pack releaseLockSignalFile
     lockHolderDeadlineMillisecondsText = T.pack . show $ lockHolderDeadlineSeconds * 1000
@@ -119,7 +121,10 @@ lockHolderDeadlineSeconds = 120
 releaseLock :: RunningProcess -> TestM ()
 releaseLock lockHolder = do
   writeToFile releaseLockSignalFile ""
-  waitForExit lockHolder 120 >>= assertEqual "exit code of the lock holder" ExitSuccess
+  assertExitsSuccessfully lockHolder installFinishTimeoutSeconds
+  where
+    -- The rest of `npm install`, after the hook.
+    installFinishTimeoutSeconds = 120
 
 {- HLINT ignore addPreinstallHook "Avoid npm and npx" -}
 addPreinstallHook :: Command
@@ -137,7 +142,12 @@ releaseLockSignalFile :: FilePath
 releaseLockSignalFile = ".wasp-e2e-release-lock"
 
 -- | Rewrites the lock file on behalf of the process holding the lock, keeping its PID.
-setLockFileWatcherStatus :: WatcherStatus -> TestM ()
-setLockFileWatcherStatus watcherStatus = do
+--
+-- Fails if the lock holder already exited (e.g. after
+-- 'lockHolderDeadlineSeconds'), since the steps after this one would then fail
+-- for an unrelated reason.
+setLockFileWatcherStatus :: RunningProcess -> WatcherStatus -> TestM ()
+setLockFileWatcherStatus lockHolder watcherStatus = do
+  failIfExited lockHolder "the test was done with the lock"
   lockData <- readLockFile
   writeLockFile lockData {watcherStatus = Just watcherStatus}

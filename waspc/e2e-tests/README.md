@@ -96,8 +96,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
 - When a step fails, the test's failure message says which command failed and shows the last lines of its output.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
-- Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
-  - Except for the Studio tests: Wasp fixes Studio's and Prisma Studio's ports (see `E2E/Ports.hs`), so they fail if anything else is using those ports, e.g. the e2e tests of another checkout.
+- Tests that run an app get free ports from `allocateAppPorts` (or `allocatePort`, for a command that takes a single port), so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
 - Use `skipIfDockerDisabled` in tests that need Docker. Snapshot tests can't skip themselves, so they use `whenDockerEnabled` for their Docker steps.
 - Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone.
 - `wasp` commands run without the runner's `DATABASE_URL`, so they can't act on a database outside the test. Tests that need one set it with `withEnv`.
