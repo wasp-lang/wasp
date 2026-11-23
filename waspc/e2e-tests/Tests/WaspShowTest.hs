@@ -1,6 +1,7 @@
 module Tests.WaspShowTest (waspShowTest) where
 
 import Control.Monad (forM_)
+import qualified Data.Aeson as Aeson
 import qualified Data.Text as T
 import E2E
 import UnliftIO.Async (mapConcurrently)
@@ -12,15 +13,16 @@ waspShowTest =
     "wasp-show"
     [ test "fail-without-subcommand" $ waspFails ["show"],
       test "fail-outside-project" $ do
-        waspFails ["show", "spec"]
-        waspFails ["show", "build"],
+        waspFailsOutsideProject ["show", "spec"]
+        waspFailsOutsideProject ["show", "build"],
       test "succeed-inside-project" $
         withNewWaspProject minimalStarterTemplate $ do
-          wasp ["show", "spec"]
-          -- With `--json`, stdout alone must be valid JSON.
-          wasp ["show", "spec", "--json"] >>= assertValidJson . (.stdout)
-          wasp ["show", "build"]
-          wasp ["show", "build", "--json"] >>= assertValidJson . (.stdout),
+          wasp ["show", "spec"] >>= assertStdoutContains "RootRoute"
+          -- With `--json`, stdout alone must be the JSON.
+          wasp ["show", "spec", "--json"] >>= assertStdoutJsonField "waspVersion" (Aeson.String textWaspVersion)
+          wasp ["show", "build"] >>= assertStdoutContains "Project dir size"
+          -- The project was never compiled.
+          wasp ["show", "build", "--json"] >>= assertStdoutJsonField "lastCompile" Aeson.Null,
       -- `wasp show spec` doesn't lock the project, so its analysis can overlap
       -- with others (e.g. a `wasp start` recompile). Each analysis here
       -- declares a different route (taken from an env var), and must only see

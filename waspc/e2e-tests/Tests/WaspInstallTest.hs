@@ -7,7 +7,7 @@ waspInstallTest :: E2ETest
 waspInstallTest =
   testGroup
     "wasp-install"
-    [ test "fail-outside-project" $ waspFails ["install"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["install"],
       test "succeed-restore-wasp-spec-after-clean" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["clean"]

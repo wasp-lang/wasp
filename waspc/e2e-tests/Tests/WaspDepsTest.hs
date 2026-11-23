@@ -8,7 +8,7 @@ waspDepsTest :: E2ETest
 waspDepsTest =
   testGroup
     "wasp-deps"
-    [ test "fail-outside-project" $ waspFails ["deps"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["deps"],
       test "succeed-inside-project"
         $ withNewWaspProject minimalStarterTemplate
         $ wasp ["deps"]

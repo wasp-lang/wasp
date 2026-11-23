@@ -9,7 +9,7 @@ waspBuildTest :: E2ETest
 waspBuildTest =
   testGroup
     "wasp-build"
-    [ test "fail-outside-project" $ waspFails ["build"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["build"],
       test "fail-sqlite-project"
         $ withNewWaspProject minimalStarterTemplate
         $ waspFails ["build"] >>= assertOutputContains "SQLite (a default database) is not supported in production",

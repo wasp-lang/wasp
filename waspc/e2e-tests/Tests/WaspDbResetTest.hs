@@ -10,7 +10,7 @@ waspDbResetTest :: E2ETest
 waspDbResetTest =
   testGroup
     "wasp-db-reset"
-    [ test "fail-outside-project" $ waspFails ["db", "reset"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "reset"],
       test "succeed-reset-database" $
         withNewWaspProject minimalStarterTemplate $ do
           setUpProjectWithTaskSeeds allTaskSeeds
