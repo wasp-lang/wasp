@@ -9,8 +9,8 @@ import { config } from 'wasp/server'
 import { reportFatalServerError } from "wasp/server/errors";
 
 import { serverSetup } from "../../../../src/serverSetup"
-import { ServerSetupFn } from 'wasp/server'
-import { ServerSetupFnContext } from 'wasp/server/types'
+import type { ServerSetupFn } from 'wasp/server'
+import type { ServerSetupFnContext } from 'wasp/server/types'
 
 import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
 import './jobs/core/allJobs.js'

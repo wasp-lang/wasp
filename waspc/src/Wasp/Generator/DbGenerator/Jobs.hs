@@ -12,6 +12,7 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
+import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode)
@@ -162,13 +163,13 @@ dbExecuteTest envVars generatedAppDir =
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 
 -- | Runs `prisma studio` - Prisma's db inspector.
-runStudio :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> J.Job ExitCode
-runStudio envVars generatedAppDir =
+runStudio :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> PortNumber -> J.Job ExitCode
+runStudio envVars generatedAppDir port =
   J.fromProc $
     prismaProc
       envVars
       generatedAppDir
-      ["studio", "--schema", SP.fromAbsFile schema]
+      ["studio", "--schema", SP.fromAbsFile schema, "--port", show port]
   where
     schema = generatedAppDir </> dbSchemaFileInGeneratedAppDir
 

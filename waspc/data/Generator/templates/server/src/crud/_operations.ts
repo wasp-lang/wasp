@@ -50,7 +50,7 @@ const entities = {
 // 1. We either use the default implementation of the operation...
 =}
 {=^ overrides.GetAll.isDefined =}
-const _waspGetAllQuery: RegisteredGetAllQuery = ((args, context) => {
+const _waspGetAllQuery: RegisteredGetAllQuery = ((_args, context) => {
   {=^ crud.operations.GetAll.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.GetAll.isPublic =}
@@ -172,13 +172,14 @@ export async function deleteFn(args, context) {
 }
 {=/ crud.operations.Delete =}
 
+{=# isAuthEnabled =}
 function throwIfNotAuthenticated (context) {
-  {=# isAuthEnabled =}
   if (!context.user) {
     throw createInvalidCredentialsError()
   }
-  {=/ isAuthEnabled =}
-  {=^ isAuthEnabled =}
-  // Auth is not enabled
-  {=/ isAuthEnabled =}
 }
+{=/ isAuthEnabled =}
+{=^ isAuthEnabled =}
+// Auth is not enabled
+function throwIfNotAuthenticated (_context) {}
+{=/ isAuthEnabled =}

@@ -5,12 +5,19 @@ import express from "express";
 import morgan from "morgan";
 
 const { values: options } = parseArgs({
-  options: { "data-file": { type: "string" } },
+  options: {
+    "data-file": { type: "string" },
+    port: { type: "string" },
+  },
 });
 const dataFile = options["data-file"];
 if (!dataFile) {
   throw new Error("Missing the --data-file <path> option.");
 }
+if (!options.port) {
+  throw new Error("Missing the --port <port> option.");
+}
+const port = Number(options.port);
 const dataFilePath = resolve(dataFile);
 
 const app = express();
@@ -28,6 +35,6 @@ app.use(morgan("dev"));
 const publicDirPath = new URL("./public", import.meta.url).pathname;
 app.use(express.static(publicDirPath));
 
-app.listen(4000, () => {
-  console.log("Server listening on port 4000");
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });

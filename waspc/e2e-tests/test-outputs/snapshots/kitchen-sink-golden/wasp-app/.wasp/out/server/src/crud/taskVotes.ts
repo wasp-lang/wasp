@@ -10,7 +10,7 @@ const entities = {
 }
 
 // Get All query
-const _waspGetAllQuery: RegisteredGetAllQuery = ((args, context) => {
+const _waspGetAllQuery: RegisteredGetAllQuery = ((_args, context) => {
   throwIfNotAuthenticated(context)
   return context.entities.TaskVote.findMany();
 });

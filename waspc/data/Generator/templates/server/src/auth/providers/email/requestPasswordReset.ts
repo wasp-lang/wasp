@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import {
     createProviderId,
     findAuthIdentity,
@@ -6,7 +6,7 @@ import {
     getProviderDataWithPassword,
 } from 'wasp/server/auth/utils';
 import {
-    GetPasswordResetEmailContentFn,
+    type GetPasswordResetEmailContentFn,
     createPasswordResetLink,
     sendPasswordResetEmail,
     isEmailResendAllowed,

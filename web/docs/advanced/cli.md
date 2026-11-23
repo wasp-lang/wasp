@@ -54,7 +54,9 @@ COMMANDS
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
     show spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
     show build [--json]   Prints information about your app's current build.
-    studio                (experimental) GUI for inspecting your Wasp app.
+    studio [--port <port>]
+                          (experimental) GUI for inspecting your Wasp app.
+                          If the port is not specified, Wasp picks a free port.
     news                  Read the latest Wasp-related news.
 
 EXAMPLES
@@ -158,7 +160,7 @@ Our telemetry is anonymized and very limited in its scope: check https://wasp.sh
 - `wasp deps` lists the dependencies that Wasp uses in your project.
 - `wasp show spec` prints an overview of your app as Wasp sees it: routes, pages, queries, actions, APIs, CRUDs, and jobs. It also supports the `--json` flag.
 - `wasp show build` prints information about your app's current build. It also supports the `--json` flag.
-- `wasp studio` shows you a graphical overview of your application in a graph: pages, queries, actions, data model etc.
+- `wasp studio` shows you a graphical overview of your application in a graph: pages, queries, actions, data model etc. Wasp picks a free port for it, or you can choose one with `--port <port>`.
 
 ### Database Commands
 Wasp provides a suite of commands for managing the database. These commands all begin with `db` and primarily execute Prisma commands behind the scenes.
@@ -166,7 +168,7 @@ Wasp provides a suite of commands for managing the database. These commands all 
 - `wasp db migrate-dev` synchronizes the development database with the current state of the schema (entities). If there are any changes in the schema, it generates a new migration and applies any pending migrations to the database.
 - The `--name foo` option allows you to specify a name for the migration, while the `--create-only` option lets you create an empty migration without applying it.
 
-- `wasp db studio` opens the GUI for inspecting your database.
+- `wasp db studio` opens the GUI for inspecting your database. Wasp picks a free port for it, or you can choose one with `--port <port>`.
 
 :::caution using `prisma` CLI directly
 
