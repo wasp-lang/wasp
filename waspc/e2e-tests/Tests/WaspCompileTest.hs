@@ -1,6 +1,5 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import Control.Monad (void)
 import E2E
 import Tests.Fixtures (writeTasksQuery, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -40,5 +39,5 @@ waspCompileTest =
           writeTasksQuery "[]"
           waspFails ["compile"] >>= assertOutputContains "Property 'id' does not exist on type 'never'."
           writeTasksQuery "[{ id: 1 }]"
-          void $ wasp ["compile"]
+          wasp ["compile"]
     ]

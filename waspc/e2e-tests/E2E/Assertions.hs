@@ -1,7 +1,9 @@
+-- | Steps that fail the test when a check doesn't hold.
 module E2E.Assertions
   ( assertTrue,
     assertEqual,
     assertOutputContains,
+    assertProcessOutputContains,
     assertDirectoryExists,
     assertDirectoryDoesNotExist,
     assertFileExists,
@@ -15,7 +17,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Process (ProcessResult (..))
+import E2E.Process (ProcessResult (..), RunningProcess, failWithOutput, failWithResult, getOutput)
 import E2E.TestM (TestM, failTest, resolvePath)
 import System.Directory (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
 import UnliftIO.Exception (catchAny)
@@ -32,9 +34,15 @@ assertEqual description expected actual =
 -- | Checks both stdout and stderr.
 assertOutputContains :: T.Text -> ProcessResult -> TestM ()
 assertOutputContains expectedText result =
-  unless (expectedText `T.isInfixOf` result.combinedOutput)
-    $ failTest
-    $ "Expected the command output to contain " ++ show expectedText ++ ". See the test log for the full output."
+  unless (expectedText `T.isInfixOf` result.combinedOutput) $
+    failWithResult result ("didn't print " ++ show expectedText)
+
+-- | Like 'assertOutputContains', for what a process printed so far.
+assertProcessOutputContains :: T.Text -> RunningProcess -> TestM ()
+assertProcessOutputContains expectedText runningProcess = do
+  output <- getOutput runningProcess
+  unless (expectedText `T.isInfixOf` output) $
+    failWithOutput runningProcess ("didn't print " ++ show expectedText)
 
 assertValidJson :: T.Text -> TestM Aeson.Value
 assertValidJson text =

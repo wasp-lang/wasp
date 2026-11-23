@@ -1,10 +1,7 @@
 module Tests.WaspStartTest (waspStartTest) where
 
 import Control.Monad (void)
-import Control.Monad.IO.Class (liftIO)
-import qualified Data.Text as T
 import E2E
-import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspStartTest :: E2ETest
@@ -33,20 +30,17 @@ waspStartTest =
         withNewWaspProject minimalStarterTemplate $ do
           -- Like a terminal, 'startInBackground' starts Wasp in its own process group.
           (app, _) <- startWaspInBackground
-          processGroupId <- getProcessGroupId app
           signalProcessGroupOf SIGHUP app
-          waitForExit app 60
+          waitUntilStopped app []
           waitUntil "all processes Wasp started stop" 30 $
-            not <$> liftIO (processGroupExists processGroupId),
+            not <$> processGroupOfExists app,
       test "fail-when-web-app-crashes" $
         withNewWaspProject minimalStarterTemplate $ do
           (app, ports) <- startWaspInBackground
           crashWebApp
-          exitCode <- waitForExit app 60
+          exitCode <- waitUntilStopped app (appPortList ports)
           assertTrue "Wasp exits with an error" (exitCode /= ExitSuccess)
-          output <- getOutput app
-          assertTrue "Wasp reports that the web app failed" ("Web app failed" `T.isInfixOf` output)
-          waitUntilNotListening (appPortList ports) 30
+          assertProcessOutputContains "Web app failed" app
     ]
   where
     -- Kills the Vite dev server of the test's project.
@@ -65,14 +59,13 @@ waspStartTest =
 runWaspStartAndStopIt :: Signal -> TestM ()
 runWaspStartAndStopIt sig = do
   (app, ports) <- startWaspInBackground
-  waspPidFromLockFile >>= signal sig
-  waitForExit app 60
-  waitUntilNotListening (appPortList ports) 30
+  getWaspPidFromLockFile >>= signalPid sig
+  void $ waitUntilStopped app (appPortList ports)
 
 -- | Returns once the app listens on its ports.
 startWaspInBackground :: TestM (RunningProcess, AppPorts)
 startWaspInBackground = do
   ports <- allocateAppPorts
   app <- startInBackground $ waspCli ("start" : appPortArgs ports)
-  waitUntilListening app (appPortList ports) 300
+  waitUntilListening app (appPortList ports) (5 * 60)
   return (app, ports)

@@ -31,6 +31,8 @@ waspDbStartTest =
 
               -- Does `wasp db start` work?
               devDb <- startDevDb
+              devDbDocker <- getDevDbDocker devDb
+              registerCleanupStep $ removeDevDbDocker devDbDocker
               -- Does a Wasp command find the database and connect to it after
               -- `wasp db start` says it's ready?
               waspDbMigrateDev "first_migration"
@@ -40,17 +42,18 @@ waspDbStartTest =
 
               -- Does SIGINT stop the database and delete the container, even
               -- while a client is still connected to it?
-              volumeName <- getReportedVolumeName devDb
-              containerName <- getDevDbContainerName volumeName
-              holdDevDbSessionOpen volumeName
-              stopDevDbWithSignal SIGINT devDb containerName volumeName
+              holdDevDbSessionOpen devDbDocker
+              stopDevDbWithSignal SIGINT devDb devDbDocker
 
               -- Does `wasp db start` work when an earlier one left its
               -- container behind, e.g. when it was stopped while creating it?
               -- Does `wasp db start` find a new port when the default one is taken?
-              leaveStoppedContainerBehind containerName
+              leaveStoppedContainerBehind devDbDocker
               occupyDefaultPostgresPort
               devDbOnOtherPort <- startDevDb
+              -- Does it use the same volume, so the data is still there?
+              getReportedVolumeName devDbOnOtherPort
+                >>= assertEqual "volume reported by the second `wasp db start`" devDbDocker.volumeName
               -- Does a Wasp command find and connect to the database even when
               -- it's running on a non-default port?
               waspDbMigrateDev "no_new_migration"
@@ -58,7 +61,7 @@ waspDbStartTest =
 
               -- Does SIGTERM (e.g. from a process manager) also stop the
               -- database and delete the container?
-              stopDevDbWithSignal SIGTERM devDbOnOtherPort containerName volumeName
+              stopDevDbWithSignal SIGTERM devDbOnOtherPort devDbDocker
 
               -- Does `wasp db start` fail when the database stops before
               -- accepting connections?
@@ -70,7 +73,7 @@ waspDbStartTest =
                 >>= assertOutputContains "Unable to check the database connection"
 
               -- Can the user remove the volume reported by `wasp db start`?
-              docker ["volume", "rm", volumeName]
+              docker ["volume", "rm", devDbDocker.volumeName]
         ]
     ]
 
@@ -78,33 +81,53 @@ waspDbStartTest =
 startDevDb :: TestM RunningProcess
 startDevDb = do
   devDb <- startInBackground $ waspCli ["db", "start"]
-  waitForOutput devDb "PostgreSQL dev database is ready" 180
+  waitForOutput devDb "PostgreSQL dev database is ready" (3 * 60)
   return devDb
+
+-- | The Docker resources of the dev database, which are named after the project.
+data DevDbDocker = DevDbDocker
+  { containerName :: String,
+    volumeName :: String
+  }
+
+-- | Reads the names while the dev database runs.
+getDevDbDocker :: RunningProcess -> TestM DevDbDocker
+getDevDbDocker devDb = do
+  volumeName <- getReportedVolumeName devDb
+  containerName <- firstOutputLine =<< docker ["ps", "--format", "{{.Names}}", "--filter", "volume=" ++ volumeName]
+  return DevDbDocker {containerName, volumeName}
+
+-- | For when the test fails before Wasp removes the container, and the test
+-- the volume. Otherwise they're already gone, which is fine.
+removeDevDbDocker :: DevDbDocker -> TestM ()
+removeDevDbDocker devDbDocker = do
+  runAllowingFailure $ command "docker" ["rm", "-f", devDbDocker.containerName]
+  void . runAllowingFailure $ command "docker" ["volume", "rm", "-f", devDbDocker.volumeName]
 
 -- | Stops `wasp db start` with the signal, and checks that Wasp exits and that
 -- the database container is gone.
 --
 -- We send the signal only to Wasp, and not to its whole process group like
 -- Ctrl+C in a terminal would, so that it's Wasp's job to stop the database.
-stopDevDbWithSignal :: Signal -> RunningProcess -> String -> String -> TestM ()
-stopDevDbWithSignal sig devDb containerName volumeName = do
-  getWaspPid >>= signal sig
-  waitForExit devDb 60
+stopDevDbWithSignal :: Signal -> RunningProcess -> DevDbDocker -> TestM ()
+stopDevDbWithSignal sig devDb devDbDocker = do
+  getWaspPid >>= signalPid sig
+  waitUntilStopped devDb []
   waitUntil ("the dev database container is gone after " ++ show sig) 30 $
-    null . stdoutLines <$> docker ["ps", "-a", "-q", "--filter", "volume=" ++ volumeName]
+    null . stdoutLines <$> docker ["ps", "-a", "-q", "--filter", "volume=" ++ devDbDocker.volumeName]
   where
     -- The process we started might not be Wasp itself (e.g. when the Wasp CLI
     -- runs through a wrapper script), so we look for the parent of the
     -- `docker run` client instead, which is Wasp.
     getWaspPid = do
-      dockerRunPid <- firstOutputLine =<< run (command "pgrep" ["-f", "docker run --name " ++ containerName ++ " "])
+      dockerRunPid <- firstOutputLine =<< run (command "pgrep" ["-f", "docker run --name " ++ devDbDocker.containerName ++ " "])
       waspPid <- firstOutputLine =<< run (command "ps" ["-o", "ppid=", "-p", dockerRunPid])
       maybe (failTest $ "`ps` printed an invalid parent PID: " ++ show waspPid) return (readMaybe waspPid)
 
 -- | Opens a database session that stays open, like the app's server's.
-holdDevDbSessionOpen :: String -> TestM ()
-holdDevDbSessionOpen volumeName = do
-  containerId <- firstOutputLine =<< docker ["ps", "-q", "--filter", "volume=" ++ volumeName]
+holdDevDbSessionOpen :: DevDbDocker -> TestM ()
+holdDevDbSessionOpen devDbDocker = do
+  containerId <- firstOutputLine =<< docker ["ps", "-q", "--filter", "volume=" ++ devDbDocker.volumeName]
   docker ["exec", "-d", containerId, "sh", "-c", psqlCommand "select pg_sleep(600)"]
   waitUntil "the database session opens" 30 $
     fmap (/= "0") . firstOutputLine
@@ -128,14 +151,10 @@ getReportedVolumeName devDb = do
     (_, rest) | not (T.null rest) -> return . T.unpack $ T.takeWhile (not . isSpace) rest
     _ -> failTest "`wasp db start` didn't report its volume name."
 
-getDevDbContainerName :: String -> TestM String
-getDevDbContainerName volumeName =
-  firstOutputLine =<< docker ["ps", "--format", "{{.Names}}", "--filter", "volume=" ++ volumeName]
-
 -- | Creates a stopped container with the name of the dev db container, like
 -- the one that `docker run` leaves behind when it's stopped while creating it.
-leaveStoppedContainerBehind :: String -> TestM ()
-leaveStoppedContainerBehind containerName = void $ docker ["create", "--name", containerName, "alpine"]
+leaveStoppedContainerBehind :: DevDbDocker -> TestM ()
+leaveStoppedContainerBehind devDbDocker = void $ docker ["create", "--name", devDbDocker.containerName, "alpine"]
 
 occupyDefaultPostgresPort :: TestM ()
 occupyDefaultPostgresPort = do

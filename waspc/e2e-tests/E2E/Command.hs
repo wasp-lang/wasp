@@ -74,7 +74,10 @@ showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (executableName : cmd
     executableName = case cmd.executable of
       WaspCli -> "wasp"
       Program program -> program
-    envPrefix = [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
+    envPrefix = unsetPrefix ++ [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
+    unsetPrefix = case [key | (key, Nothing) <- cmd.environmentOverrides] of
+      [] -> []
+      unsetKeys -> "env" : concatMap (\key -> ["-u", key]) unsetKeys
     quoteIfNeeded word
       | null word || any (`elem` (" \"'\n" :: String)) word = show word
       | otherwise = word

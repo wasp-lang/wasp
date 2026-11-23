@@ -13,7 +13,7 @@ module E2E.Snapshot
   )
 where
 
-import Control.Exception (throwIO)
+import Control.Exception (catch, throwIO)
 import Control.Monad (filterM, forM_, unless)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -24,10 +24,11 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Paths (getSnapshotsDir)
+import E2E.Paths (getTestOutputsDir, snapshotsDirInTestOutputsDir)
+import E2E.RunConfig (RunConfig)
 import E2E.Test (E2ETest (..), runTestSteps)
-import E2E.TestM (TestM)
-import System.Directory (createDirectoryIfMissing, doesFileExist, removePathForcibly)
+import E2E.TestM (TestFailure (..), TestM, TestSkipped (..))
+import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (isExtensionOf, makeRelative, splitDirectories, takeDirectory, takeFileName, (</>))
 import System.IO.Error (doesNotExistErrorType, mkIOError)
@@ -43,48 +44,66 @@ import Test.Tasty.Golden.Advanced (goldenTest)
 -- The whole snapshot is a single test, since we only know which files it has
 -- after its steps run.
 snapshotTest :: String -> TestM a -> E2ETest
-snapshotTest name steps = E2ETest $ \_ ->
-  goldenTest
-    name
-    (getSnapshotDir Golden >>= readGoldenSnapshot)
-    (runStepsAndReadCurrentSnapshot name steps)
-    compareSnapshots
-    (\snapshot -> getSnapshotDir Golden >>= writeGoldenSnapshot snapshot)
-  where
-    getSnapshotDir snapshotType = (</> name ++ "-" ++ show snapshotType) <$> getSnapshotsDir
+snapshotTest name steps =
+  E2ETest
+    { outputDirs = const [snapshotDirInTestOutputsDir name Current],
+      makeTestTree = \runConfig _ ->
+        goldenTest
+          name
+          (getSnapshotDir name Golden >>= readGoldenSnapshot)
+          (runStepsAndReadCurrentSnapshot runConfig name steps)
+          compareSnapshots
+          (\snapshot -> getSnapshotDir name Golden >>= writeGoldenSnapshot snapshot)
+    }
 
 data SnapshotType = Golden | Current
 
-instance Show SnapshotType where
-  show Golden = "golden"
-  show Current = "current"
+-- | Snapshot dirs are named after the test, not after its groups.
+getSnapshotDir :: String -> SnapshotType -> IO FilePath
+getSnapshotDir name snapshotType = (</> snapshotDirInTestOutputsDir name snapshotType) <$> getTestOutputsDir
+
+snapshotDirInTestOutputsDir :: String -> SnapshotType -> FilePath
+snapshotDirInTestOutputsDir name snapshotType = snapshotsDirInTestOutputsDir </> name ++ "-" ++ suffix
+  where
+    suffix = case snapshotType of
+      Golden -> "golden"
+      Current -> "current"
 
 -- | The bytes of each content-checked file, keyed by its path relative to the
 -- snapshot dir, sorted by path.
 type Snapshot = [(FilePath, BS.ByteString)]
 
-runStepsAndReadCurrentSnapshot :: String -> TestM a -> IO Snapshot
-runStepsAndReadCurrentSnapshot name steps = do
-  snapshotsDir <- getSnapshotsDir
-  let currentSnapshotDir = snapshotsDir </> name ++ "-" ++ show Current
+runStepsAndReadCurrentSnapshot :: RunConfig -> String -> TestM a -> IO Snapshot
+runStepsAndReadCurrentSnapshot runConfig name steps = do
+  currentSnapshotDir <- getSnapshotDir name Current
   removePathForcibly currentSnapshotDir
   createDirectoryIfMissing True currentSnapshotDir
   -- The log is next to the snapshot dir, so it isn't part of the snapshot.
-  _ <- runTestSteps name currentSnapshotDir (snapshotsDir </> name ++ ".log") steps
+  _ <-
+    runTestSteps runConfig name currentSnapshotDir (takeDirectory currentSnapshotDir </> name ++ ".log") steps
+      `catch` \(TestSkipped _) ->
+        throwIO $ TestFailure "Snapshot tests can't skip themselves, since they must produce a snapshot. Use whenDockerEnabled instead of skipIfDockerDisabled."
   writeManifest currentSnapshotDir
   normalizePackageJsonFiles currentSnapshotDir
   readSnapshot currentSnapshotDir
 
 -- | The manifest file is the marker of the golden snapshot's existence. When
--- it's missing, we tell tasty-golden the golden snapshot doesn't exist, so it
--- creates it.
+-- the golden snapshot dir is missing, we tell tasty-golden the golden snapshot
+-- doesn't exist, so it creates it.
+--
+-- A golden snapshot dir without a manifest (e.g. after a bad merge) fails the
+-- test instead, so that its other files still count. tasty-golden only fails
+-- on an 'IOError' (like the one 'fail' throws): it accepts the current
+-- snapshot on other exceptions.
 readGoldenSnapshot :: FilePath -> IO Snapshot
 readGoldenSnapshot goldenSnapshotDir = do
   let manifestFile = goldenSnapshotDir </> manifestFileName
   manifestExists <- doesFileExist manifestFile
-  unless manifestExists
-    $ throwIO
-    $ mkIOError doesNotExistErrorType "golden snapshot manifest" Nothing (Just manifestFile)
+  goldenSnapshotDirExists <- doesDirectoryExist goldenSnapshotDir
+  unless manifestExists $
+    if goldenSnapshotDirExists
+      then fail $ "The golden snapshot has no " ++ manifestFileName ++ ". Restore it, or delete " ++ goldenSnapshotDir ++ " to create the golden snapshot again."
+      else throwIO $ mkIOError doesNotExistErrorType "golden snapshot" Nothing (Just goldenSnapshotDir)
   readSnapshot goldenSnapshotDir
 
 -- | Reads strictly, since a golden snapshot read may be followed by its update.

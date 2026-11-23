@@ -740,6 +740,7 @@ test-suite waspc-e2e-tests
     E2E.Ports
     E2E.Process
     E2E.Process.Output
+    E2E.RunConfig
     E2E.Signals
     E2E.Snapshot
     E2E.Test

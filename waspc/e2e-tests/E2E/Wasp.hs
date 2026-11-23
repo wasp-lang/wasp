@@ -8,8 +8,9 @@ module E2E.Wasp
     withNewWaspProject,
     waspDbMigrateDev,
     waspCliDbResetForce,
+    dbMigrationsDirs,
     setDbToPostgres,
-    waspPidFromLockFile,
+    getWaspPidFromLockFile,
     textWaspVersion,
   )
 where
@@ -31,7 +32,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..))
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import Wasp.Version (waspVersion)
 
@@ -72,7 +73,7 @@ withNewWaspProject template steps = createWaspProject template >> inDirectory wa
 waspDbMigrateDev :: String -> TestM ()
 waspDbMigrateDev migrationName = do
   void $ wasp ["db", "migrate-dev", "--name", migrationName]
-  mapM resolvePath migrationsDirs >>= mapM_ removeDatePrefix
+  mapM resolvePath dbMigrationsDirs >>= mapM_ removeDatePrefix
   where
     removeDatePrefix migrationsDir = liftIO $ do
       exists <- doesDirectoryExist migrationsDir
@@ -81,15 +82,13 @@ waspDbMigrateDev migrationName = do
       forM_ (filter (("_" ++ migrationName) `isSuffixOf`) entries) $ \migrationDir ->
         renameDirectory (migrationsDir </> migrationDir) (migrationsDir </> ("no-date-" ++ migrationName))
 
-    -- The migrations dir in the project and its copy in the generated app.
-    migrationsDirs =
-      [ SP.fromRelDir dbMigrationsDirInWaspProjectDir,
-        SP.fromRelDir $
-          dotWaspDirInWaspProjectDir
-            SP.</> generatedAppDirInDotWaspDir
-            SP.</> dbRootDirInGeneratedAppDir
-            SP.</> dbMigrationsDirInDbRootDir
-      ]
+-- | The migrations dir in the Wasp project and its copy in the generated app,
+-- relative to the Wasp project dir.
+dbMigrationsDirs :: [FilePath]
+dbMigrationsDirs =
+  [ SP.fromRelDir dbMigrationsDirInWaspProjectDir,
+    SP.fromRelDir $ generatedAppDirInWaspProjectDir SP.</> dbRootDirInGeneratedAppDir SP.</> dbMigrationsDirInDbRootDir
+  ]
 
 -- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g.
 -- when the e2e tests are run from Claude Code), unless the consent env var is
@@ -106,8 +105,8 @@ setDbToPostgres = replaceInFile "schema.prisma" "provider = \"sqlite\"" "provide
 --
 -- We signal this PID instead of the one of the process we started, since the
 -- Wasp CLI might run through a wrapper (e.g. @tools/wasp-cli-dev@).
-waspPidFromLockFile :: TestM Int
-waspPidFromLockFile = do
+getWaspPidFromLockFile :: TestM Int
+getWaspPidFromLockFile = do
   lockFile <- resolvePath $ SP.fromRelFile projectLockFileInWaspProjectDir
   liftIO (Aeson.eitherDecodeFileStrict lockFile) >>= \case
     Right (lockData :: ProjectLockData) -> return $ fromIntegral lockData.pid

@@ -3,7 +3,6 @@ module E2E.Files
   ( writeToFile,
     appendToFile,
     replaceInFile,
-    readFromFile,
     deleteFile,
     deleteDirectory,
   )
@@ -44,7 +43,9 @@ replaceInFile path oldText newText = do
 readFromFile :: FilePath -> TestM T.Text
 readFromFile path = do
   absPath <- resolvePath path
-  liftIO $ TE.decodeUtf8 <$> BS.readFile absPath
+  liftIO (TE.decodeUtf8' <$> BS.readFile absPath) >>= \case
+    Right content -> return content
+    Left err -> failTest $ "Expected " ++ path ++ " to be UTF-8 text: " ++ show err
 
 deleteFile :: FilePath -> TestM ()
 deleteFile path = resolvePath path >>= liftIO . removeFile
