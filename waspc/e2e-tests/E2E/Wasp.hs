@@ -11,6 +11,7 @@ module E2E.Wasp
     waspDbMigrateDev,
     waspCliDbResetForce,
     dbMigrationsDirs,
+    listDbMigrations,
     setDbToPostgres,
     getWaspPidFromLockFile,
     textWaspVersion,
@@ -85,14 +86,13 @@ withNewWaspProject template steps = createWaspProject template >> inDirectory wa
 waspDbMigrateDev :: String -> TestM ()
 waspDbMigrateDev migrationName = do
   wasp ["db", "migrate-dev", "--name", migrationName] >>= assertOutputContains "Database successfully migrated."
-  mapM resolvePath dbMigrationsDirs >>= mapM_ removeDatePrefix
-  where
-    removeDatePrefix migrationsDir = liftIO $ do
-      exists <- doesDirectoryExist migrationsDir
-      -- When there is nothing to migrate, `wasp db migrate-dev` creates no migration.
-      entries <- if exists then listDirectory migrationsDir else return []
-      forM_ (filter (("_" ++ migrationName) `isSuffixOf`) entries) $ \migrationDir ->
-        renameDirectory (migrationsDir </> migrationDir) (migrationsDir </> ("no-date-" ++ migrationName))
+  forM_ dbMigrationsDirs $ \migrationsDir -> do
+    migrations <- listDbMigrations migrationsDir
+    absMigrationsDir <- resolvePath migrationsDir
+    -- When there is nothing to migrate, `wasp db migrate-dev` creates no
+    -- migration, so there's nothing to rename.
+    forM_ (filter (("_" ++ migrationName) `isSuffixOf`) migrations) $ \migration ->
+      liftIO $ renameDirectory (absMigrationsDir </> migration) (absMigrationsDir </> ("no-date-" ++ migrationName))
 
 -- | The migrations dir in the Wasp project and its copy in the generated app,
 -- relative to the Wasp project dir.
@@ -101,6 +101,15 @@ dbMigrationsDirs =
   [ SP.fromRelDir dbMigrationsDirInWaspProjectDir,
     SP.fromRelDir $ generatedAppDirInWaspProjectDir SP.</> dbRootDirInGeneratedAppDir SP.</> dbMigrationsDirInDbRootDir
   ]
+
+-- | The names of the migrations in one of 'dbMigrationsDirs'. A project
+-- without migrations might not have the dir.
+listDbMigrations :: FilePath -> TestM [FilePath]
+listDbMigrations migrationsDir = do
+  absMigrationsDir <- resolvePath migrationsDir
+  liftIO $ do
+    exists <- doesDirectoryExist absMigrationsDir
+    if exists then listDirectory absMigrationsDir else return []
 
 -- | Prisma refuses to run `migrate reset` when it detects an AI agent (e.g.
 -- when the e2e tests are run from Claude Code), unless the consent env var is

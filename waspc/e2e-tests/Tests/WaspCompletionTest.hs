@@ -12,7 +12,11 @@ waspCompletionTest =
       test "complete-partial-word" $ assertCompletion "wasp-cli tele" "telemetry",
       test "complete-full-word" $ assertCompletion "wasp-cli telemetry" "telemetry",
       test "complete-multiple-choice" $ assertCompletion "wasp-cli d" "doctor\ndb\ndeploy\ndeps\ndockerfile",
-      test "complete-unknown-empty" $ assertCompletion "wasp-cli unknown" ""
+      -- A completion that does nothing would also print nothing, so we first
+      -- check that it works.
+      test "complete-unknown-empty" $ do
+        assertCompletion "wasp-cli tele" "telemetry"
+        assertCompletion "wasp-cli unknown" ""
     ]
   where
     assertCompletion :: String -> String -> TestM ()

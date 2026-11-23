@@ -8,7 +8,7 @@ waspDockerfileTest :: E2ETest
 waspDockerfileTest =
   testGroup
     "wasp-dockerfile"
-    [ test "fail-outside-project" $ waspFails ["dockerfile"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["dockerfile"],
       test "succeed-inside-project"
         $ withNewWaspProject minimalStarterTemplate
         $ wasp ["dockerfile"]
