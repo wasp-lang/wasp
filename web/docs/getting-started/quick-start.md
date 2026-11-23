@@ -37,7 +37,7 @@ Let's create and run our first Wasp app in 2 short steps:
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually [http://localhost:3000](http://localhost:3000), unless it's taken) to see it.
 
 :::tip Prefer shorter commands?
-These commands run the Wasp your project installed. To type `wasp start` instead, install the [global Wasp CLI](#global-cli).
+These commands run the local Wasp CLI your project installed. To type `wasp start` instead, install the [global Wasp CLI](#global-cli).
 :::
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
@@ -142,9 +142,7 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 
 ### Installation {#detailed-installation}
 
-Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and runs `npm install`, which installs Wasp along with the rest of the project's dependencies. After you clone a project, run `npm install` yourself.
-
-The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. Read how to run it in [Running Wasp commands](../advanced/cli.md#running-wasp-commands).
+Wasp installs as an npm dependency of each project, the `@wasp/wasp` package. Read how to run it in [Running Wasp commands](../advanced/cli.md#running-wasp-commands).
 
 #### Installing Wasp globally {#global-cli}
 

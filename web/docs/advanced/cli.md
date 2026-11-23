@@ -40,7 +40,7 @@ The `wasp` package on npm is not Wasp. In a project with installed dependencies,
 
 ### Global CLI {#global-cli}
 
-You don't need a global install to use Wasp. If you prefer typing `wasp <command>` directly, and want the Wasp CLI available anywhere, even outside of projects, install it globally:
+You don't need a global install to use Wasp, but if you prefer typing `wasp <command>` directly, and want the Wasp CLI available anywhere, you can install it globally:
 
 <PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
 

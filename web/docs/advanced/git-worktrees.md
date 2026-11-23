@@ -30,7 +30,7 @@ After you create a new worktree for your Wasp app, you must first run:
 
 <PackageManagerCommand npm="npm install" />
 
-It installs the app's dependencies, including Wasp itself through the `@wasp/wasp` package. `wasp new` installs them for you when it creates a project, but in a fresh clone or worktree you need to run it yourself.
+It installs the app's dependencies.
 
 ### Setting up environment variables {#setting-up-environment-variables}
 

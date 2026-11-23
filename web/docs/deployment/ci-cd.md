@@ -21,7 +21,7 @@ manually testing your app after every change.
 
 **To run e2e tests with Wasp in the CI**, you'll need to:
 
-1. Install your project's dependencies, which include Wasp, with `npm ci`.
+1. Install your project's dependencies with `npm ci`.
 2. Run your app (with the database) in the CI environment.
 3. Run the e2e tests against the running app.
 
@@ -69,7 +69,7 @@ Wasp provides helpers for testing your client code with Vitest. The [testing doc
 
 **You'd run the unit tests in the CI** in a similar way as the e2e tests:
 
-1. Install your project's dependencies, which include Wasp, with `npm ci`.
+1. Install your project's dependencies with `npm ci`.
 2. Run `npm run wasp -- compile` to generate the Wasp SDK your code imports.
 3. Run the tests with your testing framework.
 

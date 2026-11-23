@@ -25,7 +25,7 @@ To automate deployment, you need to create a workflow file in your repository th
 The workflow needs to include the following steps:
 
 1. Checkout the code from the repository
-2. Install Node.js and your project's dependencies, which include Wasp
+2. Install Node.js and your project's dependencies
 3. Install any provider-specific dependencies
 4. Deploy the application using `npm run wasp -- deploy <provider> deploy`
 
