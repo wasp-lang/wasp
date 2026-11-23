@@ -1,7 +1,7 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
 import { StrictMode, startTransition, use, useEffect, useSyncExternalStore } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { Outlet, createBrowserRouter, useRouteError } from "react-router";
+import { Outlet, createBrowserRouter, generatePath, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -423,29 +423,20 @@ function formatZodEnvError(error) {
 }
 // node_modules/@wasp/lib-sdk-core/dist/router/interpolatePath.mjs
 function interpolatePath(path, params, search, hash) {
-	const interpolatedPath = params ? interpolatePathParams(path, params) : path;
+	const interpolatedPath = params ? generatePath(path, toReactRouterParams(params)) : path;
 	const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
 	const interpolatedHash = hash ? `#${hash}` : "";
 	return interpolatedPath + interpolatedSearch + interpolatedHash;
 }
-function interpolatePathParams(path, params) {
-	function mapPathPart(part) {
-		if (part === "*") return encodeSplatParam(params["*"]);
-		if (part.startsWith(":")) return encodePathParam(params[extractParamNameFromPathPart(part)]);
-		return part;
-	}
-	const interpolatedPath = path.split("/").map(mapPathPart).filter((part) => part !== "").join("/");
-	return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
+function toReactRouterParams(params) {
+	return Object.fromEntries(Object.entries(params).map(([name, value]) => [name, toReactRouterParamValue(name, value)]));
 }
-function encodePathParam(value) {
-	return encodeURIComponent(value ?? "");
+function toReactRouterParamValue(name, value) {
+	if (value === void 0 || value === null) return;
+	return name === "*" ? encodeSplat(String(value)) : String(value);
 }
-function encodeSplatParam(value) {
-	return String(value ?? "").split("/").map(encodeURIComponent).join("/");
-}
-function extractParamNameFromPathPart(paramString) {
-	if (paramString.endsWith("?")) return paramString.slice(1, -1);
-	return paramString.slice(1);
+function encodeSplat(splat) {
+	return splat.split("/").map(encodeURIComponent).join("/");
 }
 // node_modules/@wasp/lib-sdk-core/dist/utils/url.mjs
 function stripTrailingSlash(url) {
