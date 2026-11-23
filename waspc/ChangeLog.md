@@ -34,6 +34,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
 - The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))
 - `wasp studio` and `wasp db studio` now pick a free port, and accept `--port <port>` to choose it yourself. ([#5438](https://github.com/wasp-lang/wasp/pull/5438))
+- Wasp Studio and Prisma Studio are exposed as panels in the [Vite DevTools](https://devtools.vite.dev/), so you can open them inside your app. See the [docs](https://wasp.sh/docs/advanced/client-customization/custom-vite-config#vite-devtools) to enable them in an existing project. ([#5324](https://github.com/wasp-lang/wasp/pull/5324))
 
 ### 🐞 Bug fixes
 

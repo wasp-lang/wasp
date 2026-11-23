@@ -200,7 +200,8 @@ npmDepsForSdk spec =
             ("react-router", show reactRouterVersionRange),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersionRange),
-            ("@vitejs/plugin-react", "^6.0.3")
+            ("@vitejs/plugin-react", "^6.0.3"),
+            ("@vitejs/devtools", "^0.8.3")
           ]
           ++ depsRequiredByOAuth spec
           ++ ServerAuthG.depsRequiredByAuth spec

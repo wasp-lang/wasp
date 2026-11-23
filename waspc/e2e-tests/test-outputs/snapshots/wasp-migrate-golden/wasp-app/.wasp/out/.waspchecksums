@@ -30,6 +30,13 @@
     [
         [
             "file",
+            "libs/devtools/wasp-lib-devtools-0.27.0.tgz"
+        ],
+        "52fdde767d31b14f5eb592806d0c77ca936324a8f150796bfca0dfaad8315db7"
+    ],
+    [
+        [
+            "file",
             "libs/sdk-core/wasp-lib-sdk-core-0.27.0.tgz"
         ],
         "494751c3b2451ed0da2154c821b8d8d74fc5b6924370a114e59cbcbb8a771e41"
@@ -184,9 +191,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/vite/devtools.ts"
+        ],
+        "53bcd1c3c2d9cd9cea12b20e23164fa4969e653fa3d6e99d80278de2acddfd0d"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/vite/index.ts"
         ],
-        "798863095032767223d0d0e9a08572c4208093fad41f7f50c189929e7d744476"
+        "bc32732bbc416122366173df8bafe5760a80c8a409b9a9d66b96a0f5976d05ee"
     ],
     [
         [
@@ -207,7 +221,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "e4cf4041f7e3f367f45620de80815fa2d9dfff91a0da0feb3254a834fb994fce"
+        "d5f1ec547b766d450ad3d40e9590ea17cd1a995e449ca0970e353b6731915ce5"
     ],
     [
         [
@@ -284,7 +298,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "ccaa83de0aa99e04f4d576e2d107320e647636db555779b3a48dcb9e7c0cad76"
+        "9dd0ea37f872418fb9b5ff18e75603366fc74528b11c231344bd483f62fbb7c9"
     ],
     [
         [
@@ -501,7 +515,7 @@
             "file",
             "server/package.json"
         ],
-        "5eb4c6e8329b955a65241a261f71ee1cbb03cfbb76fad8426ae31ae0b2db9234"
+        "48909e644e9c6d01d1227cb06973cc440a3cb0f5abf1fd3a864fb9838225beb9"
     ],
     [
         [

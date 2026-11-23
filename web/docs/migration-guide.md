@@ -44,6 +44,10 @@ Wasp logs every unexpected error in the same format and says where it happened. 
 
 The new `server.onError` and `client.onError` functions receive those unexpected errors, so you can send them to an error tracking service. Read more in the [server config](./advanced/server-customization/server-config.md#handling-unexpected-errors) and [client config](./advanced/client-customization/client-config.md#handling-unexpected-errors) docs.
 
+### Wasp DevTools
+
+Wasp now adds panels to [Vite DevTools](https://devtools.vite.dev/) during `wasp start`, so you can open Wasp Studio and Prisma Studio right inside your app. Read more in the [Vite DevTools docs](./advanced/client-customization/custom-vite-config.md#vite-devtools).
+
 ## How to migrate?
 
 ### 1. Upgrade Node.js to 26.13.1 or later {#upgrade-nodejs}
@@ -672,6 +676,36 @@ On the client, `client.onError` also receives the errors that an error tracker c
 
 If you use Sentry, follow the updated [Sentry guide](./guides/integrations/sentry.md) for the full setup on both sides.
 
-### 16. Enjoy your updated Wasp app
+### 16. Enable Wasp DevTools
+
+This step is optional. New Wasp projects come with [Wasp DevTools](./advanced/client-customization/custom-vite-config.md#vite-devtools) enabled. To enable them in your project, add `waspDevTools()` to your Vite config:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="vite.config.ts"
+    import { defineConfig } from "vite";
+    import { wasp } from "wasp/client/vite";
+
+    export default defineConfig({
+      plugins: [wasp()],
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="vite.config.ts"
+    import { defineConfig } from "vite";
+    // highlight-next-line
+    import { wasp, waspDevTools } from "wasp/client/vite";
+
+    export default defineConfig({
+      // highlight-next-line
+      devtools: waspDevTools(),
+      plugins: [wasp()],
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+### 17. Enjoy your updated Wasp app
 
 That's it!

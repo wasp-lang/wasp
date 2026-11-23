@@ -1,5 +1,6 @@
 import type { PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { prismaStudio, waspStudio } from "@wasp/lib-devtools/node";
 import {
   detectServerImports,
   envFile,
@@ -38,5 +39,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       ssrPaths: ["/", "/prerender", "/prerender-instances/martin", "/prerender-instances/matija", "/hydration-mismatch"],
       spaFallbackFile: "200.html",
     }),
+    waspStudio(),
+    prismaStudio(),
   ];
 }
