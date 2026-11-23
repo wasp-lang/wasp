@@ -24,15 +24,18 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Paths (getTestOutputsDir, snapshotsDirInTestOutputsDir)
+import E2E.Paths (getTestOutputsDir)
 import E2E.RunConfig (RunConfig)
 import E2E.Test (E2ETest (..), runTestSteps)
 import E2E.TestM (TestFailure (..), TestM, TestSkipped (..))
+import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (isExtensionOf, makeRelative, splitDirectories, takeDirectory, takeFileName, (</>))
 import System.IO.Error (doesNotExistErrorType, mkIOError)
 import Test.Tasty.Golden.Advanced (goldenTest)
+import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInstallationPathInProject)
 
 -- | A test whose steps run in the @<name>-current@ snapshot dir. When they
 -- succeed, everything they leave behind is compared to the @<name>-golden@
@@ -46,24 +49,32 @@ import Test.Tasty.Golden.Advanced (goldenTest)
 snapshotTest :: String -> TestM a -> E2ETest
 snapshotTest name steps =
   E2ETest
-    { outputDirs = const [snapshotDirInTestOutputsDir name Current],
+    { outputDirs = const [snapshotsDirInTestOutputsDir </> snapshotDirName name Current],
       makeTestTree = \runConfig _ ->
         goldenTest
           name
-          (getSnapshotDir name Golden >>= readGoldenSnapshot)
+          (getGoldenSnapshotDir >>= readGoldenSnapshot)
           (runStepsAndReadCurrentSnapshot runConfig name steps)
           compareSnapshots
-          (\snapshot -> getSnapshotDir name Golden >>= writeGoldenSnapshot snapshot)
+          (\snapshot -> getGoldenSnapshotDir >>= writeGoldenSnapshot snapshot)
     }
+  where
+    getGoldenSnapshotDir = (</> snapshotDirName name Golden) <$> getSnapshotsDir
+
+-- | Contains the current and golden snapshot dirs, and the logs of the
+-- snapshot tests.
+getSnapshotsDir :: IO FilePath
+getSnapshotsDir = (</> snapshotsDirInTestOutputsDir) <$> getTestOutputsDir
+
+snapshotsDirInTestOutputsDir :: FilePath
+snapshotsDirInTestOutputsDir = "snapshots"
 
 data SnapshotType = Golden | Current
 
--- | Snapshot dirs are named after the test, not after its groups.
-getSnapshotDir :: String -> SnapshotType -> IO FilePath
-getSnapshotDir name snapshotType = (</> snapshotDirInTestOutputsDir name snapshotType) <$> getTestOutputsDir
-
-snapshotDirInTestOutputsDir :: String -> SnapshotType -> FilePath
-snapshotDirInTestOutputsDir name snapshotType = snapshotsDirInTestOutputsDir </> name ++ "-" ++ suffix
+-- | Snapshot dirs are named after the test, not after its groups, e.g.
+-- @wasp-new-current@ and @wasp-new-golden@.
+snapshotDirName :: String -> SnapshotType -> FilePath
+snapshotDirName name snapshotType = name ++ "-" ++ suffix
   where
     suffix = case snapshotType of
       Golden -> "golden"
@@ -75,26 +86,28 @@ type Snapshot = [(FilePath, BS.ByteString)]
 
 runStepsAndReadCurrentSnapshot :: RunConfig -> String -> TestM a -> IO Snapshot
 runStepsAndReadCurrentSnapshot runConfig name steps = do
-  currentSnapshotDir <- getSnapshotDir name Current
+  snapshotsDir <- getSnapshotsDir
+  let currentSnapshotDir = snapshotsDir </> snapshotDirName name Current
   removePathForcibly currentSnapshotDir
   createDirectoryIfMissing True currentSnapshotDir
   -- The log is next to the snapshot dir, so it isn't part of the snapshot.
   _ <-
-    runTestSteps runConfig name currentSnapshotDir (takeDirectory currentSnapshotDir </> name ++ ".log") steps
+    runTestSteps runConfig name currentSnapshotDir (snapshotsDir </> name ++ ".log") steps
       `catch` \(TestSkipped _) ->
         throwIO $ TestFailure "Snapshot tests can't skip themselves, since they must produce a snapshot. Use whenDockerEnabled instead of skipIfDockerDisabled."
   writeManifest currentSnapshotDir
   normalizePackageJsonFiles currentSnapshotDir
   readSnapshot currentSnapshotDir
 
--- | The manifest file is the marker of the golden snapshot's existence. When
--- the golden snapshot dir is missing, we tell tasty-golden the golden snapshot
+-- | A golden snapshot exists when its dir does, and is valid when it has a
+-- manifest. When the dir is missing, we tell tasty-golden the golden snapshot
 -- doesn't exist, so it creates it.
 --
 -- A golden snapshot dir without a manifest (e.g. after a bad merge) fails the
--- test instead, so that its other files still count. tasty-golden only fails
--- on an 'IOError' (like the one 'fail' throws): it accepts the current
--- snapshot on other exceptions.
+-- test instead, so that its other files still count. tasty-golden creates the
+-- golden snapshot on a does-not-exist 'IOError', fails on other 'IOError's
+-- (like the one 'fail' throws), and accepts the current snapshot on any other
+-- exception.
 readGoldenSnapshot :: FilePath -> IO Snapshot
 readGoldenSnapshot goldenSnapshotDir = do
   let manifestFile = goldenSnapshotDir </> manifestFileName
@@ -195,15 +208,15 @@ isContentCheckIgnored =
 
 alwaysIgnoredPaths :: [FilePath -> Bool]
 alwaysIgnoredPaths =
-  [ -- The @wasp/spec package copied into .wasp/spec is identical to what we
+  [ -- The @wasp/spec package copied into the project is identical to what we
     -- ship in waspc/data/packages/spec (built from packages/spec). It's only
     -- copied so `npm install` can reach it. If there are errors in this
     -- package, they will surface either during package tests or in the project
     -- snapshot.
-    isSubpathOf ".wasp/spec",
+    isSubpathOf . SP.fromRelDir $ getPackageInstallationPathInProject WaspSpecPackage,
     -- The project lock file persists by design and contains the PID of the
     -- last Wasp command, which is not deterministic.
-    isSubpathOf ".wasp/.projectlock",
+    isSubpathOf $ SP.fromRelFile projectLockFileInWaspProjectDir,
     isExtensionOf ".tgz"
   ]
 
@@ -216,11 +229,13 @@ isBasenameOf basename path = basename == takeFileName path
 isSubpathOf :: FilePath -> FilePath -> Bool
 isSubpathOf subPath path = splitDirectories subPath `isInfixOf` splitDirectories path
 
--- | Files (not directories) relative to the snapshot dir, sorted.
+-- | Files (not directories) relative to the snapshot dir, sorted. The ignore
+-- predicate also gets paths relative to the snapshot dir, so that it doesn't
+-- match the dirs the snapshot dir is in.
 getSnapshotFiles :: (FilePath -> Bool) -> FilePath -> IO [FilePath]
 getSnapshotFiles isIgnored snapshotDir =
   sort . map (makeRelative snapshotDir)
-    <$> (getDirFiltered (return . not . isIgnored) snapshotDir >>= filterM doesFileExist)
+    <$> (getDirFiltered (return . not . isIgnored . makeRelative snapshotDir) snapshotDir >>= filterM doesFileExist)
 
 -- | Rewrites @package.json@ files in a deterministic format.
 -- Ref: https://github.com/wasp-lang/wasp/issues/482

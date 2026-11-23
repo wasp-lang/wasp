@@ -224,7 +224,7 @@ processGroupOfExists runningProcess = getProcessGroupId runningProcess >>= liftI
 getProcessGroupId :: RunningProcess -> TestM Int
 getProcessGroupId runningProcess =
   maybe
-    (failTest $ "Command `" ++ showCommand runningProcess.runningCommand ++ "` exited before its process group ID could be read.")
+    (failWithOutput runningProcess "exited before its process group ID could be read")
     return
     runningProcess.processGroupId
 
