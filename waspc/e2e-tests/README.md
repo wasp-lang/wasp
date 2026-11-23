@@ -84,7 +84,7 @@ waspStartTest =
           wasp ["compile"]
           ports <- allocateAppPorts
           app <- startInBackground $ waspCli ("start" : appPortArgs ports)
-          waitUntilListening (appPortList ports) 300
+          waitUntilListening app (appPortList ports) 300
           waspPidFromLockFile >>= signal SIGINT
           waitForExit app 60
     ]
