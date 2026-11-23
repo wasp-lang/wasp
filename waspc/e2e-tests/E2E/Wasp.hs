@@ -12,6 +12,8 @@ module E2E.Wasp
     dbMigrationsDirs,
     setDbToPostgres,
     getWaspPidFromLockFile,
+    readLockFile,
+    writeLockFile,
     textWaspVersion,
   )
 where
@@ -19,11 +21,13 @@ where
 import Control.Monad (forM_, void)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as BSL
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
 import E2E.Assertions (assertOutputContains)
 import E2E.Command (Command, waspCli, withEnv, withoutEnv)
-import E2E.Files (replaceInFile)
+import E2E.Files (replaceInFile, writeToFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
 import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
 import qualified StrongPath as SP
@@ -115,11 +119,24 @@ setDbToPostgres = replaceInFile "schema.prisma" "provider = \"sqlite\"" "provide
 -- We signal this PID instead of the one of the process we started, since the
 -- Wasp CLI might run through a wrapper (e.g. @tools/wasp-cli-dev@).
 getWaspPidFromLockFile :: TestM Int
-getWaspPidFromLockFile = do
-  lockFile <- resolvePath $ SP.fromRelFile projectLockFileInWaspProjectDir
-  liftIO (Aeson.eitherDecodeFileStrict lockFile) >>= \case
-    Right (lockData :: ProjectLockData) -> return $ fromIntegral lockData.pid
-    Left err -> failTest $ "Couldn't read the Wasp PID from " ++ lockFile ++ ": " ++ err
+getWaspPidFromLockFile = (\lockData -> fromIntegral lockData.pid) <$> readLockFile
+
+-- | What the Wasp process that holds the project lock (or held it last) wrote
+-- into the lock file.
+readLockFile :: TestM ProjectLockData
+readLockFile = do
+  absLockFile <- resolvePath lockFile
+  liftIO (Aeson.eitherDecodeFileStrict absLockFile) >>= \case
+    Right lockData -> return lockData
+    Left err -> failTest $ "Couldn't read the project lock file " ++ absLockFile ++ ": " ++ err
+
+-- | Overwrites the lock file in place, instead of replacing it with a new
+-- one, since the OS-level lock is tied to the file itself.
+writeLockFile :: ProjectLockData -> TestM ()
+writeLockFile = writeToFile lockFile . TE.decodeUtf8 . BSL.toStrict . Aeson.encode
+
+lockFile :: FilePath
+lockFile = SP.fromRelFile projectLockFileInWaspProjectDir
 
 -- | For use in @main.wasp.ts@ files.
 textWaspVersion :: T.Text

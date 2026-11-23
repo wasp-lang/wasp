@@ -5,13 +5,15 @@ module E2E.Net
   ( waitUntilListening,
     waitUntilNotListening,
     waitUntilStopped,
+    interruptProcessGroupAndWaitUntilStopped,
   )
 where
 
 import Control.Exception (IOException, bracket, try)
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
-import E2E.Process (RunningProcess, failIfExited, failWithOutput, waitForExit)
+import E2E.Process (RunningProcess, failIfExited, failWithOutput, signalProcessGroupOf, waitForExit)
+import E2E.Signals (Signal (..))
 import E2E.TestM (TestM, pollUntil, waitUntil)
 import qualified Network.Socket as Socket
 import System.Exit (ExitCode)
@@ -45,6 +47,18 @@ waitUntilStopped runningProcess ports = do
     stopTimeoutSeconds = 60
     -- Children that are still stopping can keep the ports open a bit longer.
     portsFreeTimeoutSeconds = 30
+
+-- | Stops the process like Ctrl+C in a terminal does, by interrupting its
+-- whole process group, and waits until it's stopped (see 'waitUntilStopped').
+--
+-- For commands that don't take the project lock, so we can't read Wasp's PID
+-- from it to signal only Wasp, like the tests of `wasp start` do. That only
+-- checks that interrupting everything stops everything, and not that Wasp
+-- stops the processes it started.
+interruptProcessGroupAndWaitUntilStopped :: RunningProcess -> [Int] -> TestM ExitCode
+interruptProcessGroupAndWaitUntilStopped runningProcess ports = do
+  signalProcessGroupOf SIGINT runningProcess
+  waitUntilStopped runningProcess ports
 
 -- | Connects to the port, without sending anything, so that it can't hang on
 -- an app that accepts connections but doesn't respond.
