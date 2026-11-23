@@ -4,7 +4,7 @@ import Control.Monad (forM_)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isInfixOf)
 import E2E
-import System.Directory (listDirectory)
+import System.Directory (doesDirectoryExist, listDirectory)
 import Tests.Fixtures (taskPrismaModel)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -14,9 +14,10 @@ waspDbMigrateDevTest =
   testGroup
     "wasp-db-migrate-dev"
     [ test "fail-outside-project" $ waspFails ["db", "migrate-dev"],
-      test "succeed-migrations-up-to-date"
-        $ withNewWaspProject minimalStarterTemplate
-        $ waspDbMigrateDev "no_migration",
+      test "succeed-migrations-up-to-date" $
+        withNewWaspProject minimalStarterTemplate $ do
+          waspDbMigrateDev "no_migration"
+          assertNoMigrationExists "no_migration",
       test "succeed-create-new-migration" $
         withNewWaspProject minimalStarterTemplate $ do
           appendToFile "schema.prisma" taskPrismaModel
@@ -32,13 +33,31 @@ waspDbMigrateDevTest =
             { stdinMode = OpenEmptyStdin,
               timeoutSeconds = 5 * 60
             }
+          >>= assertOutputContains "Database successfully migrated."
     ]
   where
     -- In the project and in the generated app.
     assertMigrationExists :: String -> TestM ()
     assertMigrationExists migrationName =
       forM_ dbMigrationsDirs $ \migrationsDir -> do
-        migrations <- resolvePath migrationsDir >>= liftIO . listDirectory
+        migrations <- listMigrations migrationsDir
         assertTrue
           ("there's a migration named " ++ show migrationName ++ " in " ++ migrationsDir)
           (any (migrationName `isInfixOf`) migrations)
+
+    -- In the project and in the generated app.
+    assertNoMigrationExists :: String -> TestM ()
+    assertNoMigrationExists migrationName =
+      forM_ dbMigrationsDirs $ \migrationsDir -> do
+        migrations <- listMigrations migrationsDir
+        assertTrue
+          ("there's no migration named " ++ show migrationName ++ " in " ++ migrationsDir)
+          (not $ any (migrationName `isInfixOf`) migrations)
+
+    -- Without migrations, there might be no migrations dir.
+    listMigrations :: FilePath -> TestM [FilePath]
+    listMigrations migrationsDir = do
+      absMigrationsDir <- resolvePath migrationsDir
+      liftIO $ do
+        exists <- doesDirectoryExist absMigrationsDir
+        if exists then listDirectory absMigrationsDir else return []

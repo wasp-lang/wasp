@@ -85,7 +85,7 @@ withNewWaspProject template steps = createWaspProject template >> inDirectory wa
 -- Caveat: a project can't have two migrations with the same name.
 waspDbMigrateDev :: String -> TestM ()
 waspDbMigrateDev migrationName = do
-  void $ wasp ["db", "migrate-dev", "--name", migrationName]
+  wasp ["db", "migrate-dev", "--name", migrationName] >>= assertOutputContains "Database successfully migrated."
   mapM resolvePath dbMigrationsDirs >>= mapM_ removeDatePrefix
   where
     removeDatePrefix migrationsDir = liftIO $ do

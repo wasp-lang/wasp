@@ -11,6 +11,7 @@ module Tests.Fixtures
     allTaskSeeds,
     setUpProjectWithTaskSeeds,
     runTaskSeed,
+    waspDbSeed,
     addSeedsToMainWaspTs,
     viteBuild,
     withApiUrl,
@@ -130,8 +131,14 @@ setUpProjectWithTaskSeeds seeds = do
 
 -- | Runs the seed with `wasp db seed`. Expects 'setUpProjectWithTaskSeeds' to
 -- have added it.
-runTaskSeed :: TaskSeed -> TestM ProcessResult
-runTaskSeed seed = wasp ["db", "seed", taskSeedName seed]
+runTaskSeed :: TaskSeed -> TestM ()
+runTaskSeed seed = waspDbSeed [taskSeedName seed]
+
+-- | Runs `wasp db seed` with the arguments, and checks that Wasp ran the seed.
+-- The seeds check the database's state by failing, so a seed that didn't run
+-- would pass any check.
+waspDbSeed :: [String] -> TestM ()
+waspDbSeed arguments = wasp ("db" : "seed" : arguments) >>= assertOutputContains "Database seeded successfully!"
 
 taskSeedName :: TaskSeed -> String
 taskSeedName = \case
