@@ -35,7 +35,7 @@ Position yourself in this directory (`waspc/`) and make sure that you are on the
 
 ### Tasks
 
-Common commands/workflows for the development of `waspc` are [mise tasks](https://mise.jdx.dev/tasks/) defined in [`tasks/`](../tasks/) (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `mise run build`, `mise run test`, ... .
+Common commands/workflows for the development of `waspc` are [mise tasks](https://mise.jdx.dev/tasks/) defined in [`mise-tasks/`](../mise-tasks/) (similar to the role that `scripts` in `package.json` play in `npm` projects), e.g. `mise run build`, `mise run test`, ... .
 
 They serve both as a convenient way to easily run common development tasks and also as a sort of documentation on how we develop `waspc`. You will see us mentioning them often in the rest of this README.
 

@@ -1,7 +1,7 @@
 ---
-title: "Server config in Wasp: setupFn and middleware"
+title: "Server config in Wasp: setupFn, onError, and middleware"
 sidebar_label: Server config
-description: "Configure the Wasp server in the app spec: a setupFn runs on start, for example to add a custom route, and middlewareConfigFn changes global middleware."
+description: "Configure the Wasp server in the app spec: a setupFn runs on start, for example to add a custom route, onError receives unexpected errors, and middlewareConfigFn changes global middleware."
 ---
 
 import { CardLink } from "@site/src/components/CardLink";
@@ -143,6 +143,42 @@ This effectively turns your module into a singleton whose construction is perfor
 
 For the full description of the `setupFn` field, check the [`Server` API Reference](../../api/@wasp/spec.md#setupfn-1).
 
+## Handling Unexpected Errors {#handling-unexpected-errors}
+
+`onError` declares a function that Wasp calls with every unexpected error on the server. Wasp logs the error first, so use the function for anything on top of that, like sending the error to an error tracking service.
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp/spec";
+import { onServerError } from "./src/serverErrors" with { type: "ref" };
+
+export default app({
+  // ...
+  server: {
+    onError: onServerError,
+  },
+});
+```
+
+The function receives the error and a context whose `source` says where the error happened:
+
+```ts title="src/serverErrors.ts" auto-js
+import type { ServerOnErrorFn } from "wasp/server";
+
+export const onServerError: ServerOnErrorFn = (error, context) => {
+  if (context.source === "job") {
+    console.log(`The ${context.jobName} job failed.`);
+  }
+  // Let's pretend that `errorTracker` exists.
+  errorTracker.capture(error, { source: context.source });
+};
+```
+
+An [`HttpError`](../../features/data/operations/queries.md#error-handling) you throw while handling a request is not unexpected, so Wasp doesn't call the function for it.
+
+For every `source` and the rules for when Wasp calls the function, check the [`ServerOnErrorFn` API Reference](../../api/wasp/server.md#serveronerrorfn).
+
+For the full description of the `onError` field, check the [`Server` API Reference](../../api/@wasp/spec.md#onerror-1).
+
 ## Middleware Config Function
 
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
@@ -183,6 +219,13 @@ Read more in the [deployment section](../../deployment/methods/overview#missing-
   kind="api"
   title="ServerSetupFn"
   description="The type of your setupFn function."
+/>
+
+<CardLink
+  to="../../api/wasp/server#serveronerrorfn"
+  kind="api"
+  title="ServerOnErrorFn"
+  description="The type of your onError function."
 />
 
 <CardLink

@@ -50,7 +50,7 @@ and the dev \@wasp/cli, see @waspc/tools/devCliSubPackage.ts@) sets
 the tarballs, so this does nothing for Wasp users.
 
 `mise run build:dev-packages` packs the packages into `waspc/.dev-packages/`
-(see @tasks/build/dev-packages.ts@) and lists the tarballs in
+(see @mise-tasks/build/dev-packages.ts@) and lists the tarballs in
 'devWaspNpmPackagesManifestFile' there. The repo's apps depend on the
 tarballs. The dev @wasp/wasp still pins the registry versions of the packages
 it brings, so `overrides` point npm at their tarballs too:

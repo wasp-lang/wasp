@@ -13,10 +13,12 @@ function getUrlFromRelativePathToCwd(path: string) {
 }
 
 const program = new Command();
-program.requiredOption("-d, --data-file <path>", "Path to data file").parse();
+program.requiredOption("-d, --data-file <path>", "Path to data file").requiredOption("-p, --port <port>", "Port to listen on", Number)
+  .parse();
 
 const options = program.opts<{
   dataFile: string;
+  port: number;
 }>();
 
 const app = express();
@@ -59,6 +61,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(4000, () => {
-  console.log("Server listening on port 4000");
+server.listen(options.port, () => {
+  console.log(`Server listening on port ${options.port}`);
 });

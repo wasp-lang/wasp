@@ -17,3 +17,4 @@ coverage/
 web/docs/api/
 packages/studio/public/
 web/tutorial-actions-executor/e2e-tests/.result/
+web/functions/types.d.ts

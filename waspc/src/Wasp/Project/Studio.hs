@@ -6,13 +6,16 @@ where
 import StrongPath (Abs, Dir, Path')
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.WaspNpmPackage (WaspNpmPackageScript (WaspStudioScript), runWaspNpmPackageScript)
+import Network.Socket (PortNumber)
 import Wasp.Util (checkExitSuccess)
 
 startStudio ::
   Path' Abs (Dir WaspProjectDir) ->
   -- | Path to the data JSON file.
   FilePath ->
+  -- | Port to run the studio on.
+  PortNumber ->
   IO (Either String ())
-startStudio waspProjectDir pathToDataFile =
+startStudio waspProjectDir pathToDataFile port =
   checkExitSuccess "Studio command"
-    <$> runWaspNpmPackageScript waspProjectDir WaspStudioScript ["--data-file", pathToDataFile]
+    <$> runWaspNpmPackageScript waspProjectDir WaspStudioScript ["--data-file", pathToDataFile, "--port", show port]

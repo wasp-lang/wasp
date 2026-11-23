@@ -1,7 +1,7 @@
 // The format of `data.json`, which lists the platform packages that hold the
 // Wasp binary, the API each platform package exports, and how we pick ours.
 //
-// `scripts/make-cli-npm-packages` and `tasks/build/dev-packages.ts` run this
+// `scripts/make-cli-npm-packages` and `mise-tasks/build/dev-packages.ts` run this
 // file with Node's type stripping, so it can only import types and Node.js
 // built-ins.
 

@@ -11,6 +11,7 @@ import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest)
 import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
+import Tests.ServerTypeCheckingTest (serverTypeCheckingTest)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -128,7 +129,8 @@ e2eTests = do
         waspDbResetTest,
         waspDbMigrateDevTest,
         waspSpecEntityTypesTest,
-        incrementalTypeCheckingTest
+        incrementalTypeCheckingTest,
+        serverTypeCheckingTest
       ]
   sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
 

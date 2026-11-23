@@ -17,7 +17,7 @@ export const GENERATED_WASP_PATHS = [
 
 // TODO(#2262): Drop these once the repo's Wasp apps join the pnpm workspace.
 // The dev Wasp npm packages, which the repo's Wasp apps install from `file:`
-// tarballs (see `tasks/build/dev-packages.ts`).
+// tarballs (see `mise-tasks/build/dev-packages.ts`).
 const DEV_WASP_NPM_PACKAGE_NAMES = WASP_PACKAGE_DIR_NAMES.map(getPackageName);
 
 type PackageLockEntry = { dependencies?: Record<string, string> };

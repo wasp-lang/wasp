@@ -1,13 +1,13 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
-import { StrictMode, startTransition, use, useSyncExternalStore } from "react";
+import { StrictMode, startTransition, use, useEffect, useSyncExternalStore } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ky, { isHTTPError } from "ky";
 import mitt from "mitt";
 import * as z from "zod";
-import ky from "ky";
 import "superjson";
 // \0vite/modulepreload-polyfill.js
 (function polyfill() {
@@ -71,28 +71,6 @@ function emptySubscribe() {
 	const emptyUnsubscribe = () => {};
 	return emptyUnsubscribe;
 }
-// node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
-var wrapperStyles = {
-	display: "flex",
-	minHeight: "80vh",
-	justifyContent: "center",
-	alignItems: "center"
-};
-function FullPageWrapper({ children, className }) {
-	return /* @__PURE__ */ jsx("div", {
-		className: ["wasp-full-page-wrapper", className].filter(Boolean).join(" "),
-		style: wrapperStyles,
-		children
-	});
-}
-// node_modules/@wasp/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
-function DefaultRootErrorBoundary() {
-	const error = useRouteError();
-	console.error(error);
-	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
-}
-// node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
-var apiEventsEmitter = mitt();
 // node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
 /**
 * An error for an HTTP error response, which has a status code in the range
@@ -202,6 +180,98 @@ function toHttpErrorBody(error) {
 		data: error.data
 	};
 }
+var handledErrors = /* @__PURE__ */ new WeakSet();
+/**
+* Reports a client error if it is unexpected, once per error object.
+*
+* An {@link HttpError} or ky's `HTTPError` with a status below 500 is
+* expected, because it comes from an error response that the server sent on
+* purpose.
+*
+* @param error The thrown value.
+* @param context Where the error surfaced.
+*/
+function reportClientError(error, context) {
+	if (isExpectedHttpError(error)) return;
+	if (typeof error === "object" && error !== null) {
+		if (handledErrors.has(error)) return;
+		handledErrors.add(error);
+	}
+	reportUnexpectedClientError(error, context);
+}
+function isExpectedHttpError(error) {
+	if (error instanceof HttpError) return error.status < 500;
+	return isHTTPError(error) && error.response.status < 500;
+}
+/**
+* Passes the errors that reach the window to {@link reportClientError}, e.g.
+* errors thrown in event handlers and rejected promises that nobody awaited.
+*
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event
+*/
+function listenForUncaughtClientErrors() {
+	window.addEventListener("error", (event) => {
+		reportClientError(event.error ?? event.message, {
+			source: "window",
+			event: "error"
+		});
+	});
+	window.addEventListener("unhandledrejection", (event) => {
+		reportClientError(event.reason, {
+			source: "window",
+			event: "unhandledrejection"
+		});
+	});
+}
+/**
+* Reports an error thrown while rendering. It has the shape of React's
+* `onCaughtError` and `onUncaughtError` root options.
+*
+* @see https://react.dev/reference/react-dom/client/hydrateRoot#parameters
+*/
+function reportRenderError(error, { componentStack }) {
+	reportClientError(error, {
+		source: "render",
+		componentStack
+	});
+}
+function reportUnexpectedClientError(error, context) {
+	console.error(`Unexpected error in ${context.source}:`, error);
+	if (context.source === "render" && context.componentStack) console.error(`The error happened in:${context.componentStack}`);
+	callClientOnErrorFn(error, context);
+}
+async function callClientOnErrorFn(error, context) {
+	try {
+		await void 0;
+	} catch (onErrorFnError) {
+		console.error("The `client.onError` function failed:", onErrorFnError);
+	}
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
+var wrapperStyles = {
+	display: "flex",
+	minHeight: "80vh",
+	justifyContent: "center",
+	alignItems: "center"
+};
+function FullPageWrapper({ children, className }) {
+	return /* @__PURE__ */ jsx("div", {
+		className: ["wasp-full-page-wrapper", className].filter(Boolean).join(" "),
+		style: wrapperStyles,
+		children
+	});
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
+function DefaultRootErrorBoundary() {
+	const error = useRouteError();
+	useEffect(() => {
+		reportClientError(error, { source: "render" });
+	}, [error]);
+	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
+}
+// node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
+var apiEventsEmitter = mitt();
 // node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
@@ -564,8 +634,12 @@ var fullAppTree = /* @__PURE__ */ jsx(Layout, {
 	isFallbackPage,
 	children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise })
 });
+listenForUncaughtClientErrors();
 startTransition(() => {
-	hydrateRoot(document, fullAppTree);
+	hydrateRoot(document, fullAppTree, {
+		onUncaughtError: reportRenderError,
+		onCaughtError: reportRenderError
+	});
 });
 async function waitForRouterInitialized(router) {
 	if (router.state.initialized) return;

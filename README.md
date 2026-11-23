@@ -41,7 +41,7 @@ Build your app in a day and deploy it with a single CLI command!
 
 - 🚀 **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
 - 😌 **No boilerplate**: By abstracting away complex full-stack features, there is less boilerplate code. That means less code to maintain and understand! It also means easier upgrades.
-- 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have complete control over the code (and can actually check it out in `.wasp/` directory if you are interested ).
+- 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have complete control over the code (and can actually check it out in the `.wasp/` directory if you are interested).
 - 🤖 **Perfect for AI by design**: Thanks to its high-level spec of the whole app, opinionated approach, built-in full-stack features, and tight integration of all parts of the stack, Wasp gives AI (agents) clear guardrails and structure, less boilerplate to manage, and better context management.
 
 ### Features
@@ -56,7 +56,7 @@ Build your app in a day and deploy it with a single CLI command!
 
 ### Code example
 
-Simple Wasp spec file in which you describe the high-level details of your web app:
+A simple Wasp spec file in which you describe the high-level details of your web app:
 
 ```ts
 // file: main.wasp.ts
@@ -112,23 +112,23 @@ model Task { // Your Prisma data model.
 }
 ```
 
-The rest of the code you write in React / Node.js and reference it from the `*.wasp.ts` files.
+The rest of the code you write in React / Node.js and reference from the `*.wasp.ts` files.
 
-👉 Check out [TodoApp example](/examples/tutorials/TodoApp) for a complete code example. 👈
+👉 Check out the [TodoApp example](/examples/tutorials/TodoApp) for a complete code example. 👈
 
 ### How it works
 
 <img width="800px" src="https://user-images.githubusercontent.com/1536647/231472285-126679e5-ecce-4cbb-8579-eb3cd9ba95bf.png"/>
 
-Given a simple `main.wasp.ts` specification file that describes the high-level details of your web app, and `.ts(x)`/`.css`/..., source files with your unique logic, Wasp compiler generates the whole source of your web app in the target stack: front-end, back-end and deployment.
+Given a simple `main.wasp.ts` specification file that describes the high-level details of your web app, and `.ts(x)`/`.css`/... source files with your unique logic, the Wasp compiler generates the whole source of your web app in the target stack: front-end, back-end and deployment.
 
 This unique approach is what makes Wasp "smart" and gives it its superpowers!
 
-For more information about Wasp, check [**docs**](https://wasp.sh/docs).
+For more information about Wasp, check the [**docs**](https://wasp.sh/docs).
 
 ## Get started
 
-Run to install Wasp on OSX/Linux/WSL(Win):
+Run this to install Wasp on OSX/Linux/WSL(Win):
 
 ```sh
 npm i -g @wasp/cli@latest
@@ -174,19 +174,19 @@ You can also:
 
 ## Careers
 
-Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672) page for a list of currently opened positions!
+Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672) page for a list of currently open positions!
 
 ## Sponsors
 
-<a href="https://github.com/michelwaechter"><img src="https://github.com/michelwaechter.png" width="50px" alt="michelwaechter" /></a> - Our first sponsor ever! Thanks so much, Michel ❤️ , from the whole Wasp Team, for bravely going where nobody has been before :)!
+<a href="https://github.com/michelwaechter"><img src="https://github.com/michelwaechter.png" width="50px" alt="michelwaechter" /></a> - Our first sponsor ever! Thanks so much, Michel ❤️, from the whole Wasp Team, for bravely going where nobody has been before :)!
 
-<a href="https://github.com/shayneczyzewski"><img src="https://github.com/shayneczyzewski.png" width="50px" alt="shayneczyzewski" /></a> - Thanks Shayne, for all the contributions you did so far and for your continuous support!
+<a href="https://github.com/shayneczyzewski"><img src="https://github.com/shayneczyzewski.png" width="50px" alt="shayneczyzewski" /></a> - Thanks, Shayne, for all the contributions you have made so far and for your continuous support!
 
-<a href="https://github.com/velocity-one"><img src="https://github.com/velocity-one.png" width="50px" alt="VelocityOne" /></a> - Thanks VelocityOne for the generous donation!
+<a href="https://github.com/velocity-one"><img src="https://github.com/velocity-one.png" width="50px" alt="VelocityOne" /></a> - Thanks, VelocityOne, for the generous donation!
 
-<a href="https://github.com/ricdex"><img src="https://github.com/ricdex.png" width="50px" alt="ricdex" /></a> - We are thankful for your support Ricardo in this early stage of Wasp :)!
+<a href="https://github.com/ricdex"><img src="https://github.com/ricdex.png" width="50px" alt="ricdex" /></a> - We are thankful for your support, Ricardo, in this early stage of Wasp :)!
 
-<a href="https://github.com/ThomasJonesUK"><img src="https://github.com/ThomasJonesUK.png" width="50px" alt="ThomasJonesUK" /></a> - Thanks Thomas for supporting Wasp :)!
+<a href="https://github.com/ThomasJonesUK"><img src="https://github.com/ThomasJonesUK.png" width="50px" alt="ThomasJonesUK" /></a> - Thanks, Thomas, for supporting Wasp :)!
 
 <a href="https://github.com/Arukaito"><img src="https://github.com/Arukaito.png" width="50px" alt="Arukaito" /></a> - Our awesome sponsor again and again!
 

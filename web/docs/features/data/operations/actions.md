@@ -485,7 +485,7 @@ export default app({
 ```
 
 Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API.
-Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
+Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about [Wasp's smart cache invalidation](#cache-invalidation).
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">

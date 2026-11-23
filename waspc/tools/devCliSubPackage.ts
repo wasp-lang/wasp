@@ -4,14 +4,14 @@
 //
 // The dev stand-in for the platform packages of `@wasp/cli`.
 //
-// `tasks/build/dev-packages.ts` strips the types and puts the result into the
+// `mise-tasks/build/dev-packages.ts` strips the types and puts the result into the
 // dev `@wasp/cli`, so this file can only import types and Node.js built-ins.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import type { CliSubPackageAPI } from "../../packages/cli/src/package-data.ts";
 
-// Keep in sync with `DEV_PACKAGES_MANIFEST_FILE_NAME` in `tasks/build/dev-packages.ts`.
+// Keep in sync with `DEV_PACKAGES_MANIFEST_FILE_NAME` in `mise-tasks/build/dev-packages.ts`.
 const DEV_PACKAGES_MANIFEST_FILE_NAME = "dev-packages.json";
 
 const devPackagesDir = findDevPackagesDir();

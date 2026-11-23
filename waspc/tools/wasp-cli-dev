@@ -15,7 +15,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 WASPC_DIR=$(cd "$SCRIPT_DIR/.." && pwd)
 
 # Tells the CLI where the packed, unreleased Wasp npm packages are (see
-# `tasks/build/dev-packages.ts`), so new projects depend on the Wasp in this repo.
+# `mise-tasks/build/dev-packages.ts`), so new projects depend on the Wasp in this repo.
 # Keeps a dir you set yourself.
 export WASP_DEV_PACKAGES_DIR="${WASP_DEV_PACKAGES_DIR:-$WASPC_DIR/.dev-packages}"
 
