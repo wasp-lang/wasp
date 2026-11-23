@@ -205,7 +205,7 @@ Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your 
   </TabItem>
 </Tabs>
 
-If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, replace it with the [`AGENTS.md` of the latest Wasp release](https://github.com/wasp-lang/wasp/blob/release/waspc/data/Cli/starters/skeleton/AGENTS.md), so coding agents don't follow outdated instructions. Keep any lines you added yourself.
+If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, replace it with the [`AGENTS.md` of the latest Wasp release](https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/Cli/starters/skeleton/AGENTS.md), so coding agents don't follow outdated instructions. Keep any lines you added yourself.
 
 ### 7. Remove the Wasp version from `main.wasp.ts`
 

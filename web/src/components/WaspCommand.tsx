@@ -10,8 +10,8 @@ import {
 } from "./toPackageManagerCommands";
 
 /**
- * The command as you'd run it with the global Wasp CLI and npm, e.g.
- * `wasp start`, as the `command` prop or as children. Not both.
+ * Gets the command either as a prop or as children, written as you'd run it
+ * with the global Wasp CLI and npm, e.g. `wasp start`.
  */
 export type WaspCommandProps =
   | { command: string; children?: never }
@@ -35,7 +35,7 @@ const WASP_CLI_TABS: { waspCli: WaspCli; label: string }[] = [
  * Shows a Wasp command the way the reader runs Wasp, through their package
  * manager or with the global Wasp CLI, e.g.
  * `<WaspCommand command="wasp start" />`. A command with several lines reads
- * better as children.
+ * better as children:
  *
  * ```mdx
  * <WaspCommand>{`

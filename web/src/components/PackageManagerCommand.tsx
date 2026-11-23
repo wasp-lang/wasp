@@ -11,10 +11,7 @@ import {
   type PackageManagerName,
 } from "./packageManagers";
 
-/**
- * The command for each package manager as props, or the npm command as
- * children. Not both.
- */
+/** Gets the command either as props or as children. */
 export type PackageManagerCommandProps =
   | (PackageManagerCommands & { children?: never })
   | (Partial<Record<PackageManagerName, never>> & { children: string });
@@ -22,7 +19,7 @@ export type PackageManagerCommandProps =
 /**
  * Shows a shell command in the reader's package manager, e.g.
  * `<PackageManagerCommand npm="npm install" />`. A command with several lines
- * reads better as children.
+ * reads better as children:
  *
  * ```mdx
  * <PackageManagerCommand>{`
