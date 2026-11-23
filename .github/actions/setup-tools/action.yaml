@@ -19,13 +19,14 @@ runs:
       # Bare container images lack some tools that the steps below need. They
       # must be installed before Mise, because it restores its cache first.
       # - `curl` is needed to download Mise.
-      # - Alpine's default `tar` and `bash` (which are just BusyBox) don't
-      #   support GitHub's caches:
-      #   https://github.com/actions/toolkit/issues/634
+      # - Alpine's default `tar` (which is just BusyBox) doesn't support
+      #   GitHub's caches: https://github.com/actions/toolkit/issues/634
+      # - Alpine doesn't ship `bash`, but no step runs it before Mise, and Mise
+      #   installs it with the rest of the bootstrap packages.
       # - We install `zstd` so caches can use a better, faster compression
       #   method.
       run: |
-        tools="curl tar bash zstd"
+        tools="curl tar zstd"
 
         missing=false
         for package in $tools; do
