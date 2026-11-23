@@ -18,6 +18,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - `HttpError`'s third argument is now an options object, so its data is passed as `new HttpError(403, "Not allowed", { data })`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
 - On the client, failed requests now throw an `HttpError`, whose `data` is the `data` the error was thrown with on the server. Before, they threw an undocumented error whose `data` held the whole response body. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
+- `Link`, `NavLink`, and `routes.<name>.build()` now encode path params, so characters like `/`, `?`, and `#` stay inside the param. Make sure to pass the raw values now, otherwise params might get encoded twice. ([#5451](https://github.com/wasp-lang/wasp/pull/5451))
 
 ### 🎉 New Features
 
@@ -50,7 +51,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Stopping a command that Wasp started no longer interrupts Wasp itself and whatever started it (e.g. an npm script or a CI shell). ([#5035](https://github.com/wasp-lang/wasp/pull/5035))
 - Wasp now shuts down cleanly when it receives SIGTERM or SIGHUP (for example, when you close its terminal), stopping its subprocesses instead of leaving them running. ([#4931](https://github.com/wasp-lang/wasp/pull/4931))
 - Wasp Studio no longer draws nodes on top of each other when their contents are wider than their name (e.g. an API with a long route). ([#5360](https://github.com/wasp-lang/wasp/pull/5360))
-- `Link`, `NavLink`, and `routes.<name>.build()` no longer drop path params that are `0`, and now encode param values so characters like `/`, `?`, and `#` stay inside the param. If you were encoding params yourself, stop doing it, or they will be encoded twice. ([#5451](https://github.com/wasp-lang/wasp/pull/5451))
+- `Link`, `NavLink`, and `routes.<name>.build()` no longer drop path params that are `0`. ([#5451](https://github.com/wasp-lang/wasp/pull/5451))
 
 ### 🔧 Small improvements
 
