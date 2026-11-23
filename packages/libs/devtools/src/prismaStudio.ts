@@ -1,10 +1,10 @@
-import { createServer } from "node:net";
 import { resolve } from "node:path";
 
 import type { DevToolsChildProcessTerminalSession } from "@vitejs/devtools-kit";
 import { createProcessLauncher } from "@vitejs/devtools-kit/node";
 import type { Plugin } from "vite";
 
+import { findFreePort } from "./findFreePort";
 import { waitForServer } from "./waitForServer";
 
 const PRISMA_STUDIO_ID = "wasp-prisma-studio";
@@ -76,22 +76,4 @@ export function prismaStudio({ schemaFile, cwd }: PrismaStudioOptions): Plugin {
       });
     },
   };
-}
-
-function findFreePort(): Promise<number> {
-  return new Promise((resolvePort, reject) => {
-    const server = createServer();
-    server.unref();
-    server.on("error", reject);
-    server.listen(0, () => {
-      const address = server.address();
-      server.close(() => {
-        if (address && typeof address === "object") {
-          resolvePort(address.port);
-        } else {
-          reject(new Error("Couldn't find a free port for Prisma Studio."));
-        }
-      });
-    });
-  });
 }
