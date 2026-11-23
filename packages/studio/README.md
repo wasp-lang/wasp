@@ -18,13 +18,13 @@ pnpm install
 Running the server for some data file:
 
 ```bash
-pnpm run dev -d <path_to_data_file>
+pnpm run dev -d path/to/.wasp-studio-data.json -p 4000
 ```
 
 For example, running the server with the data file from the `examples` directory:
 
 ```bash
-pnpm run dev -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json
+pnpm run dev -d ../../examples/todoApp/.wasp/out/.wasp-studio-data.json -p 4000
 ```
 
 Wasp CLI generates the `.wasp-studio-data.json` file when the `wasp studio` command is run.

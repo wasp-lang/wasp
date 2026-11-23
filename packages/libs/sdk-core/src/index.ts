@@ -20,12 +20,15 @@ export {
 
 export {
   PASSWORD_FIELD,
+  defaultPasswordValidationSchema,
+  definePasswordValidationSchema,
   ensurePasswordIsPresent,
   ensureTokenIsPresent,
   ensureValidEmail,
   ensureValidPassword,
   ensureValidUsername,
   throwValidationError,
+  type PasswordValidationSchema,
 } from "./auth/validation.js";
 export { type ClientConfig } from "./config.js";
 export { defineEnvValidationSchema } from "./env/schema.js";
@@ -38,7 +41,11 @@ export { getErrorMessage } from "./errors.js";
 export { HttpMethod, type Route } from "./http.js";
 export {
   HttpError,
-  type HttpErrorHeaders,
+  isHttpErrorBody,
+  isHttpErrorStatusCode,
+  toHttpErrorBody,
+  type HttpErrorBody,
+  type HttpErrorData,
   type HttpErrorOptions,
 } from "./HttpError.js";
 export { Job, SubmittedJob } from "./jobs.js";
@@ -92,4 +99,3 @@ export {
   isValidAbsoluteURL,
   throwIfNotValidAbsoluteURL,
 } from "./utils/validators.js";
-export { WaspHttpError } from "./WaspHttpError.js";

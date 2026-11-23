@@ -329,7 +329,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 ## API Reference
 
 <CardLink
-  to="../../../api/@wasp/spec/interfaces/SocialAuthConfig"
+  to="../../../api/@wasp/spec#socialauthconfig"
   kind="api"
   title="SocialAuthConfig"
   description="All the options for the slack auth method."

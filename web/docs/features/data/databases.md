@@ -420,10 +420,24 @@ export default app({
 ## API Reference
 
 <CardLink
-  to="../../api/@wasp/spec/interfaces/Db"
+  to="../../api/@wasp/spec#db-1"
   kind="api"
   title="Db"
   description="All the options for the db field of the app spec."
+/>
+
+<CardLink
+  to="../../api/wasp/server#dbseedfn"
+  kind="api"
+  title="DbSeedFn"
+  description="The type of your seed functions."
+/>
+
+<CardLink
+  to="../../api/wasp/server#prisma"
+  kind="api"
+  title="prisma"
+  description="The Prisma Client instance Wasp uses to access the database."
 />
 
 ### CLI Commands for Seeding the Database

@@ -1,12 +1,12 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
-import { StrictMode, startTransition, use, useSyncExternalStore } from "react";
+import { StrictMode, startTransition, use, useEffect, useSyncExternalStore } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { Outlet, createBrowserRouter, useRouteError } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { jsx, jsxs } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ky, { isHTTPError } from "ky";
 import mitt from "mitt";
-import ky from "ky";
 import * as z from "zod";
 import "superjson";
 // \0vite/modulepreload-polyfill.js
@@ -71,6 +71,183 @@ function emptySubscribe() {
 	const emptyUnsubscribe = () => {};
 	return emptyUnsubscribe;
 }
+// node_modules/@wasp/lib-sdk-core/dist/HttpError.mjs
+/**
+* An error for an HTTP error response, which has a status code in the range
+* `[400, 600)`.
+*
+* Its `status`, `message`, and `data` are part of the response, so only put
+* information in them that is safe to show to the user.
+*
+* @typeParam Data The type of the error's `data`. It defaults to
+* {@link HttpErrorData}, an object with any fields.
+*
+* @example
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* export const getTask = async ({ id }, context) => {
+*   if (!context.user) {
+*     throw new HttpError(401, "You must be logged in.");
+*   }
+*   // ...
+* };
+* ```
+*
+* @example
+* Sending extra information and response headers:
+*
+* ```ts
+* import { HttpError } from "wasp/errors";
+*
+* throw new HttpError(429, "Too many requests", {
+*   data: { limitPerMinute: 60 },
+*   headers: { "Retry-After": "60" },
+* });
+* ```
+*
+* @example
+* Reading it on the client:
+*
+* ```ts
+* import { createTask } from "wasp/client/operations";
+* import { HttpError } from "wasp/errors";
+*
+* try {
+*   await createTask({ description: "Buy milk" });
+* } catch (error: unknown) {
+*   if (error instanceof HttpError && error.status === 429) {
+*     const retryAfter = error.response.headers.get("Retry-After");
+*   }
+* }
+* ```
+*
+* @see [Error handling](https://wasp.sh/docs/features/data/operations/queries#error-handling)
+*/
+var HttpError = class extends Error {
+	/**
+	* The HTTP response the error stands for. Read the status code and the
+	* headers from it.
+	*
+	* Don't read its body, since it may already be consumed. Use `message` and
+	* `data` instead.
+	*/
+	response;
+	/**
+	* Extra information about the error, e.g. which form field is invalid.
+	* It is `undefined` if the error was created without it.
+	*/
+	data;
+	/**
+	* The HTTP status code of the response, an integer in the range
+	* `[400, 600)`.
+	*/
+	get status() {
+		return this.response.status;
+	}
+	/**
+	* @deprecated Use {@link HttpError.status | status} instead.
+	*/
+	get statusCode() {
+		return this.status;
+	}
+	constructor(statusOrResponse, message, options = {}) {
+		super(message, options);
+		if (Error.captureStackTrace) Error.captureStackTrace(this, new.target);
+		this.name = "HttpError";
+		const status = typeof statusOrResponse === "number" ? statusOrResponse : statusOrResponse.status;
+		if (!isHttpErrorStatusCode(status)) throw new Error("The status of an HttpError has to be an integer in the range [400, 600).");
+		this.data = options.data;
+		this.response = typeof statusOrResponse === "number" ? Response.json(toHttpErrorBody(this), {
+			status,
+			headers: options.headers
+		}) : statusOrResponse;
+	}
+};
+/**
+* Checks that a value is a status code an {@link HttpError} accepts, which is
+* an integer in the range `[400, 600)`.
+*/
+function isHttpErrorStatusCode(value) {
+	return typeof value === "number" && Number.isInteger(value) && value >= 400 && value < 600;
+}
+/**
+* Builds the JSON body of the response of an {@link HttpError}.
+*/
+function toHttpErrorBody(error) {
+	return {
+		message: error.message,
+		data: error.data
+	};
+}
+var handledErrors = /* @__PURE__ */ new WeakSet();
+/**
+* Reports a client error if it is unexpected, once per error object.
+*
+* An {@link HttpError} or ky's `HTTPError` with a status below 500 is
+* expected, because it comes from an error response that the server sent on
+* purpose.
+*
+* @param error The thrown value.
+* @param context Where the error surfaced.
+*/
+function reportClientError(error, context) {
+	if (isExpectedHttpError(error)) return;
+	if (typeof error === "object" && error !== null) {
+		if (handledErrors.has(error)) return;
+		handledErrors.add(error);
+	}
+	reportUnexpectedClientError(error, context);
+}
+function isExpectedHttpError(error) {
+	if (error instanceof HttpError) return error.status < 500;
+	return isHTTPError(error) && error.response.status < 500;
+}
+/**
+* Passes the errors that reach the window to {@link reportClientError}, e.g.
+* errors thrown in event handlers and rejected promises that nobody awaited.
+*
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/error_event
+* @see https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event
+*/
+function listenForUncaughtClientErrors() {
+	window.addEventListener("error", (event) => {
+		reportClientError(event.error ?? event.message, {
+			source: "window",
+			event: "error"
+		});
+	});
+	window.addEventListener("unhandledrejection", (event) => {
+		reportClientError(event.reason, {
+			source: "window",
+			event: "unhandledrejection"
+		});
+	});
+}
+/**
+* Reports an error thrown while rendering. It has the shape of React's
+* `onCaughtError` and `onUncaughtError` root options.
+*
+* @see https://react.dev/reference/react-dom/client/hydrateRoot#parameters
+*/
+function reportRenderError(error, { componentStack }) {
+	reportClientError(error, {
+		source: "render",
+		componentStack
+	});
+}
+function reportUnexpectedClientError(error, context) {
+	console.error(`Unexpected error in ${context.source}:`, error);
+	if (context.source === "render" && context.componentStack) console.error(`The error happened in:${context.componentStack}`);
+	callClientOnErrorFn(error, context);
+}
+async function callClientOnErrorFn(error, context) {
+	try {
+		await void 0;
+	} catch (onErrorFnError) {
+		console.error("The `client.onError` function failed:", onErrorFnError);
+	}
+}
 // node_modules/@wasp/lib-sdk-core/dist/browser/app/FullPageWrapper.mjs
 var wrapperStyles = {
 	display: "flex",
@@ -88,21 +265,13 @@ function FullPageWrapper({ children, className }) {
 // node_modules/@wasp/lib-sdk-core/dist/browser/app/DefaultRootErrorBoundary.mjs
 function DefaultRootErrorBoundary() {
 	const error = useRouteError();
-	console.error(error);
+	useEffect(() => {
+		reportClientError(error, { source: "render" });
+	}, [error]);
 	return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsxs("div", { children: ["There was an error rendering this page. Check the browser console for more information.", false] }) });
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/events.mjs
 var apiEventsEmitter = mitt();
-// node_modules/@wasp/lib-sdk-core/dist/WaspHttpError.mjs
-var WaspHttpError = class extends Error {
-	statusCode;
-	data;
-	constructor(statusCode, message, data) {
-		super(message);
-		this.statusCode = statusCode;
-		this.data = data;
-	}
-};
 // node_modules/@wasp/lib-sdk-core/dist/browser/storage.mjs
 var storage = (typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore)("wasp");
 function createMemoryDataStore(prefix) {
@@ -179,7 +348,7 @@ function withWaspQueryDefaults(config) {
 }
 function shouldRetryQuery(failureCount, error) {
 	if (failureCount >= MAX_QUERY_RETRIES) return false;
-	return !(error instanceof WaspHttpError && error.statusCode >= 400 && error.statusCode < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.statusCode));
+	return !(error instanceof HttpError && error.status >= 400 && error.status < 500 && !RETRYABLE_CLIENT_ERROR_STATUS_CODES.has(error.status));
 }
 // node_modules/@wasp/lib-sdk-core/dist/browser/auth/session.mjs
 var WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
@@ -416,8 +585,14 @@ var __vitePreload = function preload(baseModule, deps, importerUrl) {
 				if (cspNonce) link.setAttribute("nonce", cspNonce);
 				document.head.appendChild(link);
 				if (isCss) return new Promise((res, rej) => {
-					link.addEventListener("load", res);
-					link.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
+					const handleSettle = (e) => {
+						link.removeEventListener("load", handleSettle);
+						link.removeEventListener("error", handleSettle);
+						if (e.type === "error") rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`));
+						else res(e);
+					};
+					link.addEventListener("load", handleSettle);
+					link.addEventListener("error", handleSettle);
 				});
 			});
 		}).filter((p) => p !== void 0));
@@ -459,8 +634,12 @@ var fullAppTree = /* @__PURE__ */ jsx(Layout, {
 	isFallbackPage,
 	children: /* @__PURE__ */ jsx(WaspApp, { children: routerProviderPromise })
 });
+listenForUncaughtClientErrors();
 startTransition(() => {
-	hydrateRoot(document, fullAppTree);
+	hydrateRoot(document, fullAppTree, {
+		onUncaughtError: reportRenderError,
+		onCaughtError: reportRenderError
+	});
 });
 async function waitForRouterInitialized(router) {
 	if (router.state.initialized) return;

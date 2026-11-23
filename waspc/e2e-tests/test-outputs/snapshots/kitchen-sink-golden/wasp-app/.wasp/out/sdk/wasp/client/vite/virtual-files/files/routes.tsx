@@ -161,6 +161,26 @@ const routesMapping = {
       }
     },
   },
+  ErrorsRoute: {
+    lazy: async () => {
+      const Component = await import("./src/features/errors/pages/ErrorsPage").then(m => m.ErrorsPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
+  ClientErrorsRoute: {
+    lazy: async () => {
+      const Component = await import("./src/features/errors/pages/ClientErrorsPage").then(m => m.ClientErrorsPage);
+
+      return {
+        Component:
+          Component,
+      }
+    },
+  },
   CrudListRoute: {
     lazy: async () => {
       const Component = await import("./src/features/crud/pages/ListPage").then(m => m.ListPage);

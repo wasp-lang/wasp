@@ -60,6 +60,15 @@ waspDbStartTest =
               -- database and delete the container?
               stopDevDbWithSignal SIGTERM devDbOnOtherPort containerName volumeName
 
+              -- Does `wasp db start` fail when the database stops before
+              -- accepting connections?
+              waspFails ["db", "start", "--db-image", "alpine"]
+                >>= assertOutputContains "The database stopped before accepting connections"
+              -- Does `wasp db start` fail when it can't check the connection,
+              -- e.g. when the image isn't a PostgreSQL image?
+              waspFails ["db", "start", "--db-image", "nginx:alpine"]
+                >>= assertOutputContains "Unable to check the database connection"
+
               -- Can the user remove the volume reported by `wasp db start`?
               docker ["volume", "rm", volumeName]
         ]
@@ -69,7 +78,7 @@ waspDbStartTest =
 startDevDb :: TestM RunningProcess
 startDevDb = do
   devDb <- startInBackground $ waspCli ["db", "start"]
-  waitForOutput devDb "listening on IPv4 address" 180
+  waitForOutput devDb "PostgreSQL dev database is ready" 180
   return devDb
 
 -- | Stops `wasp db start` with the signal, and checks that Wasp exits and that

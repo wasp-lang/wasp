@@ -13,6 +13,7 @@ declare module "wasp/types" {
     clientEnvValidationSchema: typeof import("../../../../../src/env").clientEnvValidationSchema
     webSocketFn: typeof import("../../../../../src/features/chat/webSocket").chatWebSocket
     emailUserSignupFields: typeof import("../../../../../src/features/auth/providers/email").emailUserSignupFields
+    passwordValidationSchema: typeof import("../../../../../src/features/auth/password").passwordValidationSchema
     operations: {
       'getTasks': typeof import("../../../../../src/features/operations/queries").getTasks
       'getNumTasks': typeof import("../../../../../src/features/operations/queries").getNumTasks
@@ -20,6 +21,7 @@ declare module "wasp/types" {
       'getOldestTask': typeof import("../../../../../src/features/operations/getOldestTask").default
       'getSerializedObjects': typeof import("../../../../../src/features/operations/queries").getSerializedObjects
       'getTextUppercaseRequests': typeof import("../../../../../src/features/jobs/uppercaseText").getTextUppercaseRequests
+      'getTeapot': typeof import("../../../../../src/features/errors/queries").getTeapot
       'getDate': typeof import("../../../../../src/rpcTests/operations/definitions").getDate
       'getAnythingNoAuth': typeof import("../../../../../src/rpcTests/operations/definitions").getAnythingNoAuth
       'getAnythingAuth': typeof import("../../../../../src/rpcTests/operations/definitions").getAnythingAuth

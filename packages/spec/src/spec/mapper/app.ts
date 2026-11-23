@@ -110,9 +110,11 @@ export function mapUsernameAndPassword(
   usernameAndPassword: WaspSpec.UsernameAndPasswordConfig,
   ctx: AppMapperContext,
 ): AppSpec.UsernameAndPasswordConfig {
-  const { userSignupFields } = usernameAndPassword;
+  const { userSignupFields, passwordValidationSchema } = usernameAndPassword;
   return {
     userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
+    passwordValidationSchema:
+      passwordValidationSchema && ctx.parseRefObject(passwordValidationSchema),
   };
 }
 
@@ -131,10 +133,17 @@ export function mapEmailAuth(
   emailAuth: WaspSpec.EmailAuthConfig,
   ctx: AppMapperContext,
 ): AppSpec.EmailAuthConfig {
-  const { userSignupFields, fromField, emailVerification, passwordReset } =
-    emailAuth;
+  const {
+    userSignupFields,
+    passwordValidationSchema,
+    fromField,
+    emailVerification,
+    passwordReset,
+  } = emailAuth;
   return {
     userSignupFields: userSignupFields && ctx.parseRefObject(userSignupFields),
+    passwordValidationSchema:
+      passwordValidationSchema && ctx.parseRefObject(passwordValidationSchema),
     fromField: mapEmailFromField(fromField),
     emailVerification: mapEmailFlow(emailVerification, ctx),
     passwordReset: mapEmailFlow(passwordReset, ctx),
@@ -157,10 +166,16 @@ export function mapServer(
   server: WaspSpec.Server,
   ctx: AppMapperContext,
 ): AppSpec.Server {
-  const { setupFn, middlewareConfigFn, envValidationSchema, traceDeps } =
-    server;
+  const {
+    setupFn,
+    onError,
+    middlewareConfigFn,
+    envValidationSchema,
+    traceDeps,
+  } = server;
   return {
     setupFn: setupFn && ctx.parseRefObject(setupFn),
+    onError: onError && ctx.parseRefObject(onError),
     middlewareConfigFn:
       middlewareConfigFn && ctx.parseRefObject(middlewareConfigFn),
     envValidationSchema:
@@ -173,10 +188,12 @@ export function mapClient(
   client: WaspSpec.Client,
   ctx: AppMapperContext,
 ): AppSpec.Client {
-  const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
+  const { rootComponent, setupFn, onError, baseDir, envValidationSchema } =
+    client;
   return {
     rootComponent: rootComponent && ctx.parseRefObject(rootComponent),
     setupFn: setupFn && ctx.parseRefObject(setupFn),
+    onError: onError && ctx.parseRefObject(onError),
     baseDir,
     envValidationSchema:
       envValidationSchema && ctx.parseRefObject(envValidationSchema),

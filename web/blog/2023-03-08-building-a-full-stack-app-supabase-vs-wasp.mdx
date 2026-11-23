@@ -180,7 +180,7 @@ I'm using a PostgreSQL database again, and you can see that the field definition
 
 I improved the data schema a bit by defining three tables instead of one. I separated the concept of a `Phrase` from the concepts of `Language` and `Translation`. This will make it easier to add new languages in the future.
 
-I added some phrases to the database using Prisma and a [Wasp action](https://github.com/infomiho/phrase-tutor-wasp/blob/master/src/server/actions.js#L1):
+I added some phrases to the database using Prisma and a [Wasp action](https://github.com/infomiho/phrase-tutor-wasp/blob/de1141d98205b7b244ccf24e5224e99958c6dd8d/src/server/actions.js#L1):
 
 ```tsx
 export async function seedItalianPhrases(args, context) {

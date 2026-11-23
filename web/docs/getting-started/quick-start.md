@@ -115,7 +115,7 @@ You must have Node.js (and NPM) installed on your machine and available in `PATH
   NOTE: Don't change Wasp's lowest supported Node version without updating it in
   all required places. Check /.node-version for the full list.
 -->
-A version of Node.js must be >= 24.22.1.
+A version of Node.js must be >= 26.13.1.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -182,9 +182,9 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
   </TabItem>
 
   <TabItem value="win">
-    With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check it out [here](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
+    With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check out [GitHub issue #48](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
 
-    In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. You can refer to this [article](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl) if you prefer a step by step guide to using Wasp in WSL environment. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
+    In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. If you prefer a step by step guide, read [our guide to using Wasp in WSL](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl). If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
     :::caution
     If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
     If you use VS Code, install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl) and open the project from inside WSL (run `code .` in the project directory). Without it, TypeScript support in VS Code won't work on WSL2.
@@ -194,7 +194,14 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
   <TabItem value="source">
     If the other methods are not working for you or your OS is not supported, you can try building Wasp from the source.
 
-    To install from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [Cabal](https://cabal.readthedocs.io/en/stable/getting-started.html) on your machine and then run `cabal install` from the `waspc/` dir.
+    To build from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [mise](https://mise.jdx.dev/getting-started.html) on your machine and then run these commands from the repo:
+
+    ```shell
+    mise install
+    mise run build
+    ```
+
+    You can then run your build with `mise run wasp-cli`, or run `mise run install` to install it globally as `wasp-cli`.
 
     If you have never built Wasp before, this might take some time due to `cabal` downloading dependencies for the first time.
 

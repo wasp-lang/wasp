@@ -15,7 +15,8 @@ const HowItWorks = () => (
         deploy anywhere.
       </p>
 
-      <HowItWorksDiagram />
+      {/* The landing page is always light. */}
+      <HowItWorksDiagram alwaysLight />
 
       <p className="mt-4 max-w-2xl text-sm leading-relaxed text-wasp-g6">
         * Treat the generated code like any compiler output. You can look at it,

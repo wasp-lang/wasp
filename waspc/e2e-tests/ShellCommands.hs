@@ -43,6 +43,7 @@ module ShellCommands
     waspCliDeploy,
     waspCliInstall,
     assertCommandOutputContains,
+    assertCommandOutputContainsAll,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,

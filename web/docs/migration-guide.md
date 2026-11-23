@@ -6,6 +6,10 @@ sidebar_label: From 0.26 to 0.27
 
 ## What's new in 0.27?
 
+### Node.js 26
+
+Wasp now requires Node.js 26 or later, the [current LTS line](https://github.com/nodejs/release#release-schedule). It enables the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) by default and removes some long-deprecated APIs. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) for the full list of changes.
+
 ### New npm organization
 
 Wasp's npm packages moved from the `@wasp.sh` organization to `@wasp`. The Wasp CLI is now published as `@wasp/cli`, and the Wasp Spec is `@wasp/spec`.
@@ -28,9 +32,60 @@ Wasp finds those files by analyzing the server's imports. Some packages load the
 
 The build steps are also ordered so that a code change reuses the installed dependencies, which makes rebuilding the image after a code change faster.
 
+### Error handling
+
+Wasp now handles errors in one consistent way on the server and the client.
+
+The server answers every failed request itself. It sends an `HttpError` you throw as is, and it turns any other error into a generic response that hides the error's details in production.
+
+The server and the client share a single `HttpError` class, which you import from `wasp/errors`. Failed Operations and auth actions throw it on the client, so you check for it the same way on both sides.
+
+Wasp logs every unexpected error in the same format and says where it happened. On the server, that now includes uncaught exceptions and unhandled promise rejections, and an unhandled promise rejection no longer stops the server.
+
+The new `server.onError` and `client.onError` functions receive those unexpected errors, so you can send them to an error tracking service. Read more in the [server config](./advanced/server-customization/server-config.md#handling-unexpected-errors) and [client config](./advanced/client-customization/client-config.md#handling-unexpected-errors) docs.
+
 ## How to migrate?
 
-### 1. Switch to the new Wasp CLI package
+### 1. Upgrade Node.js to 26.13.1 or later {#upgrade-nodejs}
+
+Wasp 0.27 requires Node.js >= 26.13.1 (previously >= 24.22.1). The new Wasp CLI refuses to run on older versions, so upgrade before continuing:
+
+```shell
+node -v
+# If below 26.13.1, upgrade:
+nvm install 26
+```
+
+If you deploy with the Dockerfile Wasp generates, your server image moves to `node:26.13.1-alpine3.23` when you rebuild it. If you use a custom Dockerfile, a CI workflow, or a platform that picks its own Node.js version, make sure it runs 26.13.1 or newer.
+
+Wasp also requires `@types/node` to match the Node.js major version. Update it in your `package.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "@types/node": "^24.0.0"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "@types/node": "^26.0.0"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Node.js 26 is a new major version with breaking changes. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) to see if any of them affect your app.
+
+### 2. Switch to the new Wasp CLI package
 
 The Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
 
@@ -39,7 +94,7 @@ npm uninstall -g @wasp.sh/wasp-cli
 npm i -g @wasp/cli@0.27
 ```
 
-### 2. Rename `@wasp.sh/spec` to `@wasp/spec`
+### 3. Rename `@wasp.sh/spec` to `@wasp/spec`
 
 Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp Spec dependency in your `package.json`:
 
@@ -83,7 +138,7 @@ Then replace `@wasp.sh/spec` with `@wasp/spec` everywhere else in your project. 
   </TabItem>
 </Tabs>
 
-### 3. Bump the Wasp version
+### 4. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.27.0`.
 
@@ -114,7 +169,7 @@ And run the following command to update the Wasp libraries in your project:
 wasp install
 ```
 
-### 4. Update your Vitest setup
+### 5. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -363,7 +418,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 Read more in the [testing docs](./advanced/testing.md).
 
-### 5. Upgrade to Prisma 6
+### 6. Upgrade to Prisma 6
 
 Update the Prisma packages in your `package.json`:
 
@@ -407,13 +462,13 @@ wasp db migrate-dev
 
 Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
 
-### 6. Check relative paths in your server code
+### 7. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-### 7. Check the packages your server loads at runtime
+### 8. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -432,7 +487,7 @@ export default app({
 })
 ```
 
-### 8. Install the system dependencies your app needs
+### 9. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -442,7 +497,7 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-### 9. Update your custom Dockerfile
+### 10. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
@@ -454,6 +509,142 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 10. Enjoy your updated Wasp app
+### 11. Import `HttpError` from `wasp/errors`
+
+The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/queries.ts"
+    import { HttpError } from "wasp/server"
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/queries.ts"
+    // highlight-next-line
+    import { HttpError } from "wasp/errors"
+    ```
+  </TabItem>
+</Tabs>
+
+### 12. Update how you read errors on the client
+
+On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
+
+- Its `data` is the `data` you passed on the server. Before, `data` held the whole response body, so you had to read `error.data.data`.
+- It is part of the documented public API, so you can rely on checking for it with `instanceof`.
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/SignupPage.tsx"
+    try {
+      await signup({ username, password })
+    } catch (error: any) {
+      if (error.statusCode === 422) {
+        setErrorMessage(error.data.data.message)
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/SignupPage.tsx"
+    // highlight-next-line
+    import { HttpError } from "wasp/errors"
+
+    try {
+      await signup({ username, password })
+    } catch (error: unknown) {
+      // highlight-next-line
+      if (error instanceof HttpError && error.status === 422) {
+        // highlight-next-line
+        setErrorMessage(String(error.data?.message))
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### 13. Pass `HttpError` data in the options
+
+`HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/queries.ts"
+    throw new HttpError(403, "Not allowed", { reason: "NOT_OWNER" })
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/queries.ts"
+    throw new HttpError(403, "Not allowed", {
+      // highlight-next-line
+      data: { reason: "NOT_OWNER" },
+    })
+    ```
+  </TabItem>
+</Tabs>
+
+Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
+
+### 14. Move your error tracking to `onError`
+
+This step is only for apps that send errors to an error tracking service, like Sentry.
+
+Wasp now answers failed requests itself, so an Express error handler you add in `setupFn`, like `Sentry.setupExpressErrorHandler(app)`, no longer receives them. Capture the errors in the new `server.onError` function instead:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```ts title="src/serverSetup.ts"
+    import * as Sentry from "@sentry/node";
+    import type { ServerSetupFn } from "wasp/server";
+
+    Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
+
+    export const setupServer: ServerSetupFn = async ({ app }) => {
+      Sentry.setupExpressErrorHandler(app);
+    };
+    ```
+
+    ```ts title="main.wasp.ts"
+    export default app({
+      // ...
+      server: {
+        setupFn: setupServer,
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```ts title="src/serverSentry.ts"
+    import * as Sentry from "@sentry/node";
+    // highlight-next-line
+    import type { ServerOnErrorFn } from "wasp/server";
+
+    Sentry.init({ dsn: process.env.SENTRY_SERVER_DSN });
+
+    // highlight-start
+    export const onServerError: ServerOnErrorFn = (error, context) => {
+      Sentry.captureException(error, { tags: { source: context.source } });
+    };
+    // highlight-end
+    ```
+
+    ```ts title="main.wasp.ts"
+    export default app({
+      // ...
+      server: {
+        // highlight-next-line
+        onError: onServerError,
+      },
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+On the client, `client.onError` also receives the errors that an error tracker can't see on its own, like an error thrown while rendering a page.
+
+If you use Sentry, follow the updated [Sentry guide](./guides/integrations/sentry.md) for the full setup on both sides.
+
+### 15. Enjoy your updated Wasp app
 
 That's it!

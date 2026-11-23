@@ -4,6 +4,7 @@
     "module": "nodenext",
     "target": "es2022",
     "strict": true,
+    "erasableSyntaxOnly": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["node"],

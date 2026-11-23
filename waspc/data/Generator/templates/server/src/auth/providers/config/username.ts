@@ -4,7 +4,7 @@ import { Router } from "express";
 
 import login from "../username/login.js";
 import { getSignupRoute } from "../username/signup.js";
-import { ProviderConfig } from "wasp/auth/providers/types";
+import type { ProviderConfig } from "wasp/auth/providers/types";
 
 {=# userSignupFields.isDefined =}
 {=& userSignupFields.importStatement =}

@@ -26,3 +26,6 @@ In `package.json`:
   }
 }
 ```
+
+> [!NOTE]
+> The user-facing intro of the package's API reference is in [`docs.md`](./docs.md).
