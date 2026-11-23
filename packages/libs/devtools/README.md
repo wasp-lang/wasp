@@ -1,9 +1,9 @@
 # @wasp/lib-devtools
 
-Wasp's panels for [Vite DevTools](https://devtools.vite.dev/), which the Wasp SDK's `wasp()` Vite plugin adds during `wasp start`. They show up when the project enables Vite DevTools with the `devtools` option in its `vite.config.ts` (`devtools: waspDevTools()` in new projects).
+Wasp's panels for [Vite DevTools](https://devtools.vite.dev/), which the Wasp SDK's `wasp()` Vite plugin adds during `wasp start`. They show up when the project enables Vite DevTools with the `devtools` option in its `vite.config.ts` (which is enabled with `devtools: waspDevTools()`).
 
 - `waspStudio()`: runs `wasp studio` on a free port when the user opens the panel, and embeds it once it's up. It uses the Wasp executable that `wasp start` passes in the `WASP_EXE_PATH` env var, falling back to `wasp` from the `PATH`.
-- `prismaStudio()`: starts `prisma studio` on a free port and embeds it. It runs Prisma from `.wasp/out/server`, like `wasp db studio`, and `wasp start` passes the dev database URL to the Vite process for it.
+- `prismaStudio()`: runs `wasp db studio` on a free port when the user opens the panel, and embeds it once it's up. It finds the Wasp executable the same way as `waspStudio()`.
 
 ## Development
 

@@ -41,9 +41,6 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       spaFallbackFile: "{= spaFallbackFile =}",
     }),
     waspStudio(),
-    prismaStudio({
-      schemaFile: "{= prismaSchemaFilePath =}",
-      cwd: "{= prismaCwd =}",
-    }),
+    prismaStudio(),
   ];
 }

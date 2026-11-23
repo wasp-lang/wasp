@@ -1,7 +1,4 @@
-import type {
-  DevToolsChildProcessTerminalSession,
-  DevToolsDockUserEntry,
-} from "@vitejs/devtools-kit";
+import type { DevToolsChildProcessTerminalSession } from "@vitejs/devtools-kit";
 import { createProcessLauncher } from "@vitejs/devtools-kit/node";
 import type { Plugin } from "vite";
 
@@ -19,44 +16,33 @@ export function waspStudio(): Plugin {
   let studioUrl = "";
   let studioSession: DevToolsChildProcessTerminalSession | undefined;
 
-  const launcher = createProcessLauncher({
-    id: WASP_STUDIO_ID,
-    title: "Wasp Studio",
-    icon: "ph:graph-duotone",
-    description: "See how the parts of your app connect.",
-    buttonStart: "Start Wasp Studio",
-    buttonLoading: "Starting Wasp Studio…",
-    process: async () => {
-      const port = await findFreePort();
-      studioUrl = `http://localhost:${port}/`;
-      return {
-        // `wasp start` passes the path to its own executable, so the panel
-        // uses the same Wasp version as the app.
-        command: process.env["WASP_EXE_PATH"] ?? "wasp",
-        args: ["studio", "--port", String(port)],
-        cwd: projectRoot,
-      };
-    },
-    serve: {
-      onReady: async (session) => {
-        studioSession = session;
-        await waitForServer(studioUrl, () => session.status === "running");
-        return studioUrl;
-      },
-    },
-  });
-
   return {
-    ...launcher,
-    devtools: {
-      ...launcher.devtools!,
-      setup: (ctx) =>
-        launcher.devtools!.setup(
-          // The launcher doesn't take a category, so we add it to the dock
-          // entries it registers. Listed first, with the framework's own tools.
-          withDockCategory(ctx, "framework"),
-        ),
-    },
+    ...createProcessLauncher({
+      id: WASP_STUDIO_ID,
+      title: "Wasp Studio",
+      icon: "ph:graph-duotone",
+      description: "See how the parts of your app connect.",
+      buttonStart: "Start Wasp Studio",
+      buttonLoading: "Starting Wasp Studio…",
+      process: async () => {
+        const port = await findFreePort();
+        studioUrl = `http://localhost:${port}/`;
+        return {
+          // `wasp start` passes the path to its own executable, so the panel
+          // uses the same Wasp version as the app.
+          command: process.env["WASP_EXE_PATH"] ?? "wasp",
+          args: ["studio", "--port", String(port)],
+          cwd: projectRoot,
+        };
+      },
+      serve: {
+        onReady: async (session) => {
+          studioSession = session;
+          await waitForServer(studioUrl, () => session.status === "running");
+          return studioUrl;
+        },
+      },
+    }),
     apply: "serve",
     configResolved(config) {
       projectRoot = config.root;
@@ -70,29 +56,4 @@ export function waspStudio(): Plugin {
       });
     },
   };
-}
-
-function withDockCategory<Context extends { docks: object }>(
-  ctx: Context,
-  category: string,
-): Context {
-  const withCategory = (entry: DevToolsDockUserEntry) => ({
-    ...entry,
-    category,
-  });
-  const docks = new Proxy(ctx.docks, {
-    get(target, property) {
-      const value: unknown = Reflect.get(target, property);
-      if (typeof value !== "function") return value;
-      if (property === "register" || property === "update") {
-        return (entry: DevToolsDockUserEntry, ...rest: unknown[]) =>
-          value.call(target, withCategory(entry), ...rest);
-      }
-      return value.bind(target);
-    },
-  });
-  return new Proxy(ctx, {
-    get: (target, property) =>
-      property === "docks" ? docks : Reflect.get(target, property),
-  });
 }
