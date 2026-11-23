@@ -55,9 +55,7 @@ Run the following command and select all the skills:
 
 <Trackable event="Agent Plugin: Copy" kind="skills_cli">
 
-```bash
-npx skills add wasp-lang/wasp-agent-plugins
-```
+<PackageManagerCommand npm="npx skills add wasp-lang/wasp-agent-plugins" />
 
 </Trackable>
 
