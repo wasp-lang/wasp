@@ -10,9 +10,11 @@ import Data.List (isInfixOf, isSuffixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import E2E
+import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
-import System.FilePath ((</>))
-import qualified System.FilePath as FP
+import System.FilePath (dropTrailingPathSeparator, (</>))
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 kitchenSinkSnapshotTest :: E2ETest
 kitchenSinkSnapshotTest =
@@ -29,7 +31,9 @@ kitchenSinkSnapshotTest =
 -- generated source files.
 assertSdkPackageExportsExist :: TestM ()
 assertSdkPackageExportsExist = do
-  sdkPackageDir <- resolvePath ".wasp/out/sdk/wasp"
+  sdkPackageDir <-
+    resolvePath . SP.fromRelDir $
+      dotWaspDirInWaspProjectDir SP.</> generatedAppDirInDotWaspDir SP.</> sdkRootDirInGeneratedAppDir
   missingExportTargets <- liftIO $ do
     packageExports <- readPackageExports sdkPackageDir
     filterM (fmap not . exportTargetExists sdkPackageDir) packageExports
@@ -82,7 +86,7 @@ generatedSourcePathCandidates target
   | otherwise = [target]
 
 wildcardParentDir :: FilePath -> FilePath
-wildcardParentDir target = FP.dropTrailingPathSeparator $ takeWhile (/= '*') target
+wildcardParentDir target = dropTrailingPathSeparator $ takeWhile (/= '*') target
 
 dropPrefix :: String -> String -> String
 dropPrefix prefix value = fromMaybe value $ stripPrefix prefix value

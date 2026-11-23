@@ -31,10 +31,17 @@ allocateAppPorts = do
   logLine $ "\n==> Allocated ports: client " ++ show ports.clientPort ++ ", server " ++ show ports.serverPort
   return ports
 
--- | A port that nothing listens on, and that no other test got yet.
+-- | A port that nothing listens on, and that no other test of this run got yet.
 --
--- Something else can still take it before the test uses it, but only in the
--- moment in between.
+-- We close the socket before the test's app opens the port, and the OS can
+-- hand a closed port out again, so we remember the ports we gave out to keep
+-- two tests of this run from getting the same one.
+--
+-- Anything else on the machine can still take the port before the test's app
+-- opens it. That window lasts until the app starts listening, which can be
+-- minutes (e.g. after `npm install`), and the port is in the range the OS
+-- picks outgoing connections' ports from. Then the app fails to start, with an
+-- "address in use" error in the test's log.
 allocatePort :: IO Int
 allocatePort = do
   port <- findFreePort
@@ -51,8 +58,9 @@ findFreePort =
     Socket.bind socket (Socket.SockAddrInet6 0 0 (0, 0, 0, 0) 0)
     fromIntegral <$> Socket.socketPort socket
 
--- | Ports allocated to the tests of this run. Global, since the run's tests
--- don't share anything else.
+-- | Ports allocated to the tests of this run. A global (the only one in the
+-- tests), since tests share nothing else, and threading it through every
+-- 'TestM' isn't worth it for one set.
 allocatedPorts :: MVar (Set Int)
 allocatedPorts = unsafePerformIO $ newMVar Set.empty
 {-# NOINLINE allocatedPorts #-}

@@ -84,7 +84,7 @@ waspStartTest =
           wasp ["compile"]
           ports <- allocateAppPorts
           app <- startInBackground $ waspCli ("start" : appPortArgs ports)
-          waitUntilListening (appPortList ports) 300
+          waitUntilListening app (appPortList ports) 300
           waspPidFromLockFile >>= signal SIGINT
           waitForExit app 60
     ]
@@ -96,6 +96,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
 - Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
+  - Except for the Studio tests: Wasp fixes Studio's and Prisma Studio's ports (see `E2E/Ports.hs`), so they fail if anything else is using those ports, e.g. the e2e tests of another checkout.
 - Use `skipIfDockerDisabled` in tests that need Docker.
 
 ## Running tests

@@ -4,8 +4,6 @@ import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import E2E
-import E2E.Ports (AppPorts, allocateAppPorts, appPortArgs, appPortList)
-import E2E.Signals (processGroupExists)
 import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -76,5 +74,5 @@ startWaspInBackground :: TestM (RunningProcess, AppPorts)
 startWaspInBackground = do
   ports <- allocateAppPorts
   app <- startInBackground $ waspCli ("start" : appPortArgs ports)
-  waitUntilListening (appPortList ports) 300
+  waitUntilListening app (appPortList ports) 300
   return (app, ports)
