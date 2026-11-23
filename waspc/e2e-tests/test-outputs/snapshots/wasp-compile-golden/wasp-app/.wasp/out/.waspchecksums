@@ -291,7 +291,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "1fb636269e53cc203232cc44db0e6d6fbc1cd6a71bfcddfffb2919cf4d0fc68c"
+        "9dd0ea37f872418fb9b5ff18e75603366fc74528b11c231344bd483f62fbb7c9"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "server/package.json"
         ],
-        "61441e3d9c6562ef5cffb80fb9fb4cb7971d49bbddceecbe9eae34de2b0af621"
+        "cf12d31914ac11c5dbc6543e334899c18dc829cc043ace8e4c9c5228746849a6"
     ],
     [
         [
