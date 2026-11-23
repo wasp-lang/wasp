@@ -12,6 +12,12 @@ import {
   type CliPackageData,
 } from "../schema/output-data.ts";
 
+/** A platform package and the platform it holds the Wasp binary for. */
+export interface CliSubPackage {
+  packageName: string;
+  target: { os: string; cpu: string; libc?: string };
+}
+
 export function makeCliPackage({
   packageName,
   packageVersion,
@@ -53,15 +59,10 @@ function generatePackageJson(
 ) {
   console.group("Generating package.json...");
 
-  const pkgSourceFilePath = path.join(CLI_PACKAGE_SOURCE_DIR, "package.json");
-  const pkg = fs.readJsonSync(pkgSourceFilePath) as PackageJson;
-  console.log(`Read package.json source: ${pkgSourceFilePath}`);
+  const pkg = readCliPackageJsonForPublishing();
 
   pkg.name = packageName;
   pkg.version = packageVersion;
-  // Only needed to build the package from source.
-  delete pkg.scripts;
-  delete pkg.devDependencies;
 
   pkg.optionalDependencies = {};
   for (const subPkgName of subPackages) {
@@ -77,24 +78,47 @@ function generatePackageJson(
   return pkg;
 }
 
+/** The source `package.json`, without what only building from source needs. */
+export function readCliPackageJsonForPublishing(): PackageJson {
+  const pkgSourceFilePath = path.join(CLI_PACKAGE_SOURCE_DIR, "package.json");
+  const pkg = fs.readJsonSync(pkgSourceFilePath) as PackageJson;
+  console.log(`Read package.json source: ${pkgSourceFilePath}`);
+
+  delete pkg.scripts;
+  delete pkg.devDependencies;
+
+  return pkg;
+}
+
 function writeDataFile(
   subPackages: { packageName: string; data: TarballData }[],
   outputDirPath: string,
 ) {
   console.group("Writing data file for CLI package...");
 
-  const pkgPaths = { subPackages: {} } as CliPackageData;
-  for (const subPackage of subPackages) {
-    const { os, cpu, libc = UNDEFINED_LIBC_NAME } = subPackage.data.target;
-    pkgPaths.subPackages[os] ??= {};
-    pkgPaths.subPackages[os][cpu] ??= {};
-    pkgPaths.subPackages[os][cpu][libc] = {
-      packageName: subPackage.packageName,
-    };
-  }
+  const cliPackageData = makeCliPackageData(
+    subPackages.map(({ packageName, data }) => ({
+      packageName,
+      target: data.target,
+    })),
+  );
 
-  fs.writeJsonSync(path.join(outputDirPath, "data.json"), pkgPaths);
+  fs.writeJsonSync(path.join(outputDirPath, "data.json"), cliPackageData);
   console.log("Wrote data.json");
 
   console.groupEnd();
+}
+
+/** The `data.json` content, which tells the CLI the sub-package of each platform. */
+export function makeCliPackageData(
+  subPackages: CliSubPackage[],
+): CliPackageData {
+  const cliPackageData: CliPackageData = { subPackages: {} };
+  for (const { packageName, target } of subPackages) {
+    const { os, cpu, libc = UNDEFINED_LIBC_NAME } = target;
+    cliPackageData.subPackages[os] ??= {};
+    cliPackageData.subPackages[os][cpu] ??= {};
+    cliPackageData.subPackages[os][cpu][libc] = { packageName };
+  }
+  return cliPackageData;
 }
