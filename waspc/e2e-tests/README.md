@@ -99,6 +99,7 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 - Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
   - Except for the Studio tests: Wasp fixes Studio's and Prisma Studio's ports (see `E2E/Ports.hs`), so they fail if anything else is using those ports, e.g. the e2e tests of another checkout.
 - Use `skipIfDockerDisabled` in tests that need Docker. Snapshot tests can't skip themselves, so they use `whenDockerEnabled` for their Docker steps.
+- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them.
 
 Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we port them (see [#3404](https://github.com/wasp-lang/wasp/issues/3404)).
 
