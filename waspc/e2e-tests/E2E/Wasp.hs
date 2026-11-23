@@ -4,6 +4,7 @@ module E2E.Wasp
     wasp,
     waspFails,
     assertFailsWithoutInteractiveTerminal,
+    waspCliNew,
     createWaspProject,
     withNewWaspProject,
     waspDbMigrateDev,
@@ -21,7 +22,7 @@ import qualified Data.Aeson as Aeson
 import Data.List (isSuffixOf)
 import qualified Data.Text as T
 import E2E.Assertions (assertOutputContains)
-import E2E.Command (Command, waspCli, withEnv)
+import E2E.Command (Command, waspCli, withEnv, withoutEnv)
 import E2E.Files (replaceInFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
 import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
@@ -33,6 +34,7 @@ import Wasp.Cli.ProjectLock.Data (ProjectLockData (..))
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import Wasp.Version (waspVersion)
 
@@ -57,8 +59,15 @@ assertFailsWithoutInteractiveTerminal commandName cmd = do
   assertOutputContains "stdin is not an interactive terminal" result
   assertOutputContains (T.pack $ "Usage: " ++ commandName) result
 
+-- | Creates the Wasp project in 'waspAppDirName'.
+--
+-- Without the test runner's @DATABASE_URL@, which makes starters with
+-- migrations skip them.
+waspCliNew :: StarterTemplate -> Command
+waspCliNew template = withoutEnv [databaseUrlEnvVarName] $ waspCli ["new", waspAppDirName, "-t", show template]
+
 createWaspProject :: StarterTemplate -> TestM ()
-createWaspProject template = void $ wasp ["new", waspAppDirName, "-t", show template]
+createWaspProject = void . run . waspCliNew
 
 -- | Creates a Wasp project and runs the steps inside of it.
 withNewWaspProject :: StarterTemplate -> TestM a -> TestM a

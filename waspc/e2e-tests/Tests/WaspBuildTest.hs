@@ -10,7 +10,7 @@ waspBuildTest =
     [ test "fail-outside-project" $ waspFails ["build"],
       test "fail-sqlite-project"
         $ withNewWaspProject minimalStarterTemplate
-        $ waspFails ["build"],
+        $ waspFails ["build"] >>= assertOutputContains "SQLite (a default database) is not supported in production",
       test "succeed-postgresql-project" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres

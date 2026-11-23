@@ -3,6 +3,7 @@ module E2E.Assertions
   ( assertTrue,
     assertEqual,
     assertOutputContains,
+    assertStdoutContains,
     assertProcessOutputContains,
     assertDirectoryExists,
     assertDirectoryDoesNotExist,
@@ -37,6 +38,13 @@ assertOutputContains expectedText result =
   unless (expectedText `T.isInfixOf` result.combinedOutput) $
     failWithResult result ("didn't print " ++ show expectedText)
 
+-- | Like 'assertOutputContains', for when it matters that the text is on
+-- stdout.
+assertStdoutContains :: T.Text -> ProcessResult -> TestM ()
+assertStdoutContains expectedText result =
+  unless (expectedText `T.isInfixOf` result.stdout) $
+    failWithResult result ("didn't print " ++ show expectedText ++ " to stdout")
+
 -- | Like 'assertOutputContains', for what a process printed so far.
 assertProcessOutputContains :: T.Text -> RunningProcess -> TestM ()
 assertProcessOutputContains expectedText runningProcess = do
@@ -60,7 +68,10 @@ assertFileExists :: FilePath -> TestM ()
 assertFileExists = assertPath doesFileExist "Expected file to exist: "
 
 assertSymlinkExists :: FilePath -> TestM ()
-assertSymlinkExists = assertPath (\path -> pathIsSymbolicLink path `catchAny` const (return False)) "Expected symlink to exist: "
+assertSymlinkExists =
+  -- `pathIsSymbolicLink` throws when the path doesn't exist, which is just
+  -- a failed assertion here.
+  assertPath (\path -> pathIsSymbolicLink path `catchAny` const (return False)) "Expected symlink to exist: "
 
 assertPath :: (FilePath -> IO Bool) -> String -> FilePath -> TestM ()
 assertPath check message path = do

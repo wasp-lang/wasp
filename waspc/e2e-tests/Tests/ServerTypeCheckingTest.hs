@@ -3,7 +3,11 @@ module Tests.ServerTypeCheckingTest (serverTypeCheckingTest) where
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
+import qualified StrongPath as SP
+import Tests.Fixtures (taskPrismaModel)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 -- | Type checks the generated server for app configurations that
 -- kitchen-sink doesn't cover.
@@ -14,22 +18,13 @@ serverTypeCheckingTest =
     [ test "type-checks-server-features-without-auth" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres -- Jobs need PostgreSQL.
-          appendToFile "schema.prisma" ("\n" <> prismaTaskModel)
+          appendToFile "schema.prisma" taskPrismaModel
           writeToFile "src/serverFeatures.ts" serverFeaturesTs
           writeToFile "main.wasp.ts" serverFeaturesWithoutAuthMainWaspTs
           wasp ["compile"]
-          run $ nodeModulesBin "tsc" ["--build", ".wasp/out/server"]
+          run $ nodeModulesBin "tsc" ["--build", SP.fromRelDir $ generatedAppDirInWaspProjectDir SP.</> serverRootDirInGeneratedAppDir]
     ]
   where
-    prismaTaskModel :: T.Text
-    prismaTaskModel =
-      [trimming|
-        model Task {
-          id          Int    @id @default(autoincrement())
-          description String
-        }
-      |]
-
     serverFeaturesTs :: T.Text
     serverFeaturesTs =
       [trimming|
