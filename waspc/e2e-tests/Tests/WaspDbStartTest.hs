@@ -1,6 +1,6 @@
 module Tests.WaspDbStartTest (waspDbStartTest) where
 
-import Control.Monad (void)
+import Control.Monad (unless, void)
 import Data.Char (isSpace)
 import qualified Data.Text as T
 import E2E
@@ -13,7 +13,7 @@ waspDbStartTest :: E2ETest
 waspDbStartTest =
   testGroup
     "wasp-db-start"
-    [ test "fail-outside-project" $ waspFails ["db", "start"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "start"],
       test "succeed-sqlite-project"
         $ withNewWaspProject minimalStarterTemplate
         $ wasp ["db", "start"]
@@ -74,6 +74,8 @@ waspDbStartTest =
                 >>= assertOutputContains "Unable to check the database connection"
 
               -- Can the user remove the volume reported by `wasp db start`?
+              -- `docker volume rm` fails while a container uses the volume, so
+              -- this also checks that no dev database container is left.
               docker ["volume", "rm", devDbDockerNames.volumeName]
         ]
     ]
@@ -103,7 +105,7 @@ getDevDbDockerNames devDb = do
 -- test removes the volume. Otherwise they're already gone, which is fine.
 removeDevDbContainerAndVolume :: DevDbDockerNames -> TestM ()
 removeDevDbContainerAndVolume devDbDockerNames = do
-  void $ dockerAllowingFailure ["rm", "-f", devDbDockerNames.containerName]
+  dockerAllowingFailure ["rm", "-f", devDbDockerNames.containerName]
   void $ dockerAllowingFailure ["volume", "rm", "-f", devDbDockerNames.volumeName]
 
 -- | Stops `wasp db start` with the signal, and checks that Wasp exits and that
@@ -122,7 +124,11 @@ stopDevDbWithSignal sig devDb devDbDockerNames = do
     -- runs through a wrapper script), so we look for the parent of the
     -- `docker run` client instead, which is Wasp.
     getWaspPid = do
-      dockerRunPid <- firstOutputLine =<< run (command "pgrep" ["-f", "docker run --name " ++ devDbDockerNames.containerName ++ " "])
+      -- Matches `docker run ... --name <container> ...`, which only Wasp runs.
+      pgrepResult <- runAllowingFailure $ command "pgrep" ["-f", "docker run .*--name " ++ devDbDockerNames.containerName ++ " "]
+      unless (pgrepResult.exitCode == ExitSuccess) $
+        failWithResult pgrepResult "found no `docker run` process of the dev database"
+      dockerRunPid <- firstOutputLine pgrepResult
       psResult <- run (command "ps" ["-o", "ppid=", "-p", dockerRunPid])
       waspPid <- firstOutputLine psResult
       maybe (failWithResult psResult "printed an invalid parent PID") return (readMaybe waspPid)
@@ -165,7 +171,7 @@ occupyDefaultPostgresPort :: TestM String
 occupyDefaultPostgresPort = do
   containerName <- makeUniqueName "wasp-e2e-tests-db-port-holder"
   registerCleanupStep $ freeDefaultPostgresPort containerName
-  void $ docker ["run", "-d", "--rm", "--name", containerName, "-p", port ++ ":" ++ port, alpineImage, "sleep", show portHoldSeconds]
+  docker ["run", "-d", "--rm", "--name", containerName, "-p", port ++ ":" ++ port, alpineImage, "sleep", show portHoldSeconds]
   return containerName
   where
     port = show defaultPostgresPort

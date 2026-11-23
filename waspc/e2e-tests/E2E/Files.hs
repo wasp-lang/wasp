@@ -14,7 +14,7 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.TestM (TestM, failTest, resolvePath)
-import System.Directory (createDirectoryIfMissing, removeFile, removePathForcibly)
+import System.Directory (createDirectoryIfMissing, doesFileExist, removeFile, removePathForcibly)
 import System.FilePath (takeDirectory)
 
 -- | Creates or overwrites the file, along with any missing parent directories.
@@ -25,10 +25,14 @@ writeToFile path content = do
     createDirectoryIfMissing True (takeDirectory absPath)
     BS.writeFile absPath (TE.encodeUtf8 content)
 
--- | Appends the content and a newline to the file.
+-- | Appends the content and a newline to the file. Fails if the file doesn't
+-- exist, since that usually means the test edits the wrong file. Use
+-- 'writeToFile' to create one.
 appendToFile :: FilePath -> T.Text -> TestM ()
 appendToFile path content = do
   absPath <- resolvePath path
+  exists <- liftIO $ doesFileExist absPath
+  unless exists $ failTest $ "Expected " ++ path ++ " to exist, to append to it."
   liftIO $ BS.appendFile absPath (TE.encodeUtf8 $ content <> "\n")
 
 -- | Replaces all occurrences of the text. Fails if the text isn't in the file.

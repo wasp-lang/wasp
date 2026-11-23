@@ -6,7 +6,6 @@ module E2E.Heartbeat
 where
 
 import Control.Concurrent (threadDelay)
-import Control.Concurrent.Async (race)
 import Control.Concurrent.STM (atomically, check, readTVar, readTVarIO)
 import Control.Monad (unless, (>=>))
 import qualified Data.IntMap as IntMap
@@ -16,6 +15,7 @@ import System.IO (hFlush, stdout)
 import Test.Tasty.Ingredients (Ingredient (..))
 import Test.Tasty.Runners (Status (..), testsNames)
 import Text.Printf (printf)
+import UnliftIO.Async (race)
 
 -- | Meant to be composed with the console reporter (see
 -- 'Test.Tasty.Ingredients.composeReporters').

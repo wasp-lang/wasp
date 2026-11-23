@@ -2,18 +2,20 @@ module Tests.WaspStartTest (waspStartTest) where
 
 import Control.Monad (void)
 import E2E
+import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 waspStartTest :: E2ETest
 waspStartTest =
   testGroup
     "wasp-start"
-    [ test "fail-outside-project" $ waspFails ["start"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["start"],
       test "succeed-uncompiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           runWaspStartAndStopIt SIGINT
-          assertDirectoryExists ".wasp"
-          assertDirectoryExists "node_modules",
+          -- `wasp start` compiled the project.
+          assertDirectoryExists $ SP.fromRelDir generatedAppDirInWaspProjectDir,
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
@@ -38,8 +40,8 @@ waspStartTest =
         withNewWaspProject minimalStarterTemplate $ do
           (app, ports) <- startWaspInBackground
           crashWebApp
-          exitCode <- waitUntilStopped app (appPortList ports)
-          assertTrue "Wasp exits with an error" (exitCode /= ExitSuccess)
+          assertExitsWithFailure app 60
+          waitUntilStopped app (appPortList ports)
           assertProcessOutputContains "Web app failed" app
     ]
   where
