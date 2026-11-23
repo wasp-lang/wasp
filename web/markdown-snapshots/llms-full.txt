@@ -273,7 +273,7 @@ Let's create and run our first Wasp app in 2 short steps:
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually <http://localhost:3000>, unless it's taken) to see it.
 
 :::tip[Prefer shorter commands?]
-These commands run the Wasp your project installed. To type `wasp start` instead, install the [global Wasp CLI](#global-cli).
+These commands run the local Wasp CLI your project installed. To type `wasp start` instead, install the [global Wasp CLI](#global-cli).
 :::
 
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
@@ -357,21 +357,17 @@ Check NVM repo for more details: <https://github.com/nvm-sh/nvm>.
 
 #### Installation {#detailed-installation}
 
-Wasp installs as an npm dependency of each project. `wasp new` adds `@wasp/wasp` to the new project's `package.json` and runs `npm install`, which installs Wasp along with the rest of the project's dependencies. After you clone a project, run `npm install` yourself.
-
-The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project uses the same Wasp. See [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands) for how to run it.
+Wasp installs as an npm dependency of each project, the `@wasp/wasp` package. Read how to run the CLI in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
 
 ##### Installing Wasp globally {#global-cli}
 
-You don't need a global install to use Wasp. If you prefer shorter commands, and want the Wasp CLI available anywhere, even outside of projects, install it globally:
+You don't need a global install to use Wasp. If you prefer shorter commands, like `wasp start` instead of `npm run dev`, install the Wasp CLI globally:
 
 ```shell
 npm i -g @wasp/cli@latest
 ```
 
-Inside a project, the global CLI hands each command over to the project's own Wasp, the `@wasp/wasp` version from its `package.json`.
-
-Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. You can update the global CLI at any time to run these commands with the latest Wasp.
+Inside a project, it runs the project's own Wasp version. Read more in [Global CLI](https://wasp.sh/docs/advanced/cli#global-cli).
 
 :::note[Looking for the old installer script?]
 Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/installer)** for instructions on how to migrate to npm-based installation.
@@ -11352,7 +11348,7 @@ After you create a new worktree for your Wasp app, you must first run:
 npm install
 ```
 
-It installs the app's dependencies, including Wasp itself through the `@wasp/wasp` package. `wasp new` installs them for you when it creates a project, but in a fresh clone or worktree you need to run it yourself.
+It installs the app's dependencies.
 
 #### Setting up environment variables
 
@@ -13181,30 +13177,7 @@ This guide provides an overview of the Wasp CLI commands, arguments, and options
 
 ### Running Wasp commands
 
-Each Wasp project installs Wasp as its `@wasp/wasp` dependency, and the version in `package.json` is the project's Wasp version. You run that Wasp through npm, or through the global Wasp CLI.
-
-**npm.** Wasp projects come with npm scripts that run the project's Wasp:
-
-| Script                      | Runs                                      |
-| --------------------------- | ----------------------------------------- |
-| `npm run dev`               | `wasp start`                              |
-| `npm run build`             | `wasp build`                              |
-| `npm run preview`           | `wasp build start`, after `npm run build` |
-| `npm run wasp -- <command>` | any other Wasp command                    |
-
-npm reads the flags after `npm run <script>` as its own, so pass Wasp's arguments after `--`, e.g. `npm run wasp -- db migrate-dev --name init`.
-
-**Global CLI.** If you'd rather type `wasp <command>` directly, install the Wasp CLI globally:
-
-```shell
-npm i -g @wasp/cli@latest
-```
-
-Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the version from your `package.json`. Outside of a project, it runs commands with its own version, so `wasp new` creates projects on the global CLI's version. Read more in [Installing Wasp globally](https://wasp.sh/docs/quick-start#global-cli).
-
-To create a project without a global install, run `npx @wasp/cli@latest new`.
-
-The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
+Once you've [set up Wasp](https://wasp.sh/docs/quick-start), you can run Wasp commands through your project's [npm scripts](#npm-scripts), or through the [global Wasp CLI](#global-cli). The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
 
 **npm**
 
@@ -13218,8 +13191,49 @@ npm run wasp -- db migrate-dev --name init
 wasp db migrate-dev --name init
 ```
 
+#### npm scripts
+
+Each Wasp project has `@wasp/wasp` as a dependency, which brings the Wasp CLI. The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project runs the same Wasp. `npm install` installs it with the rest of the project's dependencies, so run it first in a fresh clone.
+
+Each project also comes with npm scripts that run its Wasp:
+
+| Script                      | Runs                                           |
+| --------------------------- | ---------------------------------------------- |
+| `npm run dev`               | `wasp start`                                   |
+| `npm run build`             | `wasp build`                                   |
+| `npm run preview`           | `wasp build start` (run `npm run build` first) |
+| `npm run wasp -- <command>` | any other Wasp command                         |
+
+:::info
+npm reads the arguments after the script name as its own. Use `--` to pass the rest to Wasp:
+
+`npm run wasp -- db migrate-dev --name init`
+:::
+
 :::caution[Don't run npx wasp]
 The `wasp` package on npm is not Wasp. In a project with installed dependencies, `npx wasp` happens to run the project's Wasp, but in a fresh clone npx downloads that unrelated package instead. Use `npm run wasp --` instead.
+:::
+
+#### Global CLI
+
+You don't need a global install to use Wasp, but if you prefer typing `wasp <command>` directly, and want the Wasp CLI available anywhere, you can install it globally:
+
+```shell
+npm i -g @wasp/cli@latest
+```
+
+Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the `@wasp/wasp` version from your `package.json`.
+
+Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. Update the global CLI at any time to run these commands with the latest Wasp.
+
+To run a command outside of a project without installing the global CLI, run it through npx with the latest version. This is how you create a project without a global install:
+
+```shell
+npx @wasp/cli@latest new
+```
+
+:::note[Looking for the old installer script?]
+Check out the **[Legacy installer guide](https://wasp.sh/docs/guides/legacy/installer)** for instructions on how to migrate to npm-based installation.
 :::
 
 ### Overview
@@ -15048,7 +15062,7 @@ To automate deployment, you need to create a workflow file in your repository th
 The workflow needs to include the following steps:
 
 1. Checkout the code from the repository
-2. Install Node.js and your project's dependencies, which include Wasp
+2. Install Node.js and your project's dependencies
 3. Install any provider-specific dependencies
 4. Deploy the application using `npm run wasp -- deploy <provider> deploy`
 
@@ -15376,7 +15390,7 @@ End to end (e2e) tests simulate real user using your app and you can test differ
 
 **To run e2e tests with Wasp in the CI**, you'll need to:
 
-1. Install your project's dependencies, which include Wasp, with `npm ci`.
+1. Install your project's dependencies with `npm ci`.
 2. Run your app (with the database) in the CI environment.
 3. Run the e2e tests against the running app.
 
@@ -15422,7 +15436,7 @@ Wasp provides helpers for testing your client code with Vitest. The [testing doc
 
 **You'd run the unit tests in the CI** in a similar way as the e2e tests:
 
-1. Install your project's dependencies, which include Wasp, with `npm ci`.
+1. Install your project's dependencies with `npm ci`.
 2. Run `npm run wasp -- compile` to generate the Wasp SDK your code imports.
 3. Run the tests with your testing framework.
 
@@ -15578,7 +15592,11 @@ Each of these pieces is production-ready on its own, and Wasp just makes it easy
 
 #### Wasp as a project dependency
 
-Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec. The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too. The global `wasp` command keeps working. Inside a project, it hands each command over to the project's own Wasp.
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec.
+
+The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too.
+
+The global `wasp` command keeps working. Inside a project, it hands each command over to the project's own Wasp.
 
 #### Node.js 26
 
@@ -15734,7 +15752,7 @@ Read more in [Overriding Wasp's dependencies](https://wasp.sh/docs/advanced/depe
 
 **If your project has no `.npmrc` file, you can skip this step.**
 
-The packages that come with `@wasp/wasp` are its peer dependencies, so npm has to install peer dependencies. If your `.npmrc` sets `legacy-peer-deps=true` or `omit=peer`, remove that setting. With it, npm skips these packages and your app fails with missing modules.
+If your `.npmrc` sets `legacy-peer-deps=true` or `omit=peer`, remove that setting. `@wasp/wasp` brings React, Prisma and the other packages your app needs as peer dependencies, and npm skips peer dependencies with either setting.
 
 If your `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
 
@@ -15759,24 +15777,7 @@ import { app, page, route } from "@wasp.sh/spec";
 import { app, page, route } from "@wasp/spec";
 ```
 
-If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, update or remove the lines that mention the old package, the Wasp version in `main.wasp.ts`, or `wasp install`, so coding agents don't follow outdated instructions:
-
-**Before**
-
-```md title="AGENTS.md"
-- Pick the docs map matching the Wasp version in `main.wasp.ts`.
-- `main.wasp.ts` contains the Wasp version and the Wasp app specification.
-- `@wasp.sh/spec` is generated by Wasp, don't install it from npm.
-- Run `wasp install` before other Wasp commands in a fresh clone or worktree.
-```
-
-**After**
-
-```md title="AGENTS.md"
-- Pick the docs map matching the version of the `@wasp/wasp` dependency in `package.json`.
-- `main.wasp.ts` contains the Wasp app specification.
-- Run `npm install` before other Wasp commands in a fresh clone or worktree.
-```
+If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, replace it with the [`AGENTS.md` of the latest Wasp release](https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/Cli/starters/skeleton/AGENTS.md), so coding agents don't follow outdated instructions. Keep any lines you added yourself.
 
 #### 7. Remove the Wasp version from `main.wasp.ts`
 
@@ -20731,16 +20732,16 @@ By default, Wasp tells the client and the server that they live on `localhost`, 
 
 ```shell
 npm run dev -- \
-  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
-  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+--client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+--server-port 3001 --server-url http://192.168.1.39.nip.io:3001
 ```
 
 **Global CLI**
 
 ```shell
 wasp start \
-  --client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
-  --server-port 3001 --server-url http://192.168.1.39.nip.io:3001
+--client-port 3000 --client-url http://192.168.1.39.nip.io:3000 \
+--server-port 3001 --server-url http://192.168.1.39.nip.io:3001
 ```
 
 Replace `192.168.1.39` with your actual IP address from Step 2. The URLs don't change the ports Wasp runs on, so we pin the ports to match them.
@@ -22997,16 +22998,16 @@ Spotify rejects `localhost`, so start Wasp with URLs that point at `127.0.0.1` i
 
 ```shell
 npm run dev -- \
-  --client-port 3000 --client-url http://127.0.0.1:3000 \
-  --server-port 3001 --server-url http://127.0.0.1:3001
+--client-port 3000 --client-url http://127.0.0.1:3000 \
+--server-port 3001 --server-url http://127.0.0.1:3001
 ```
 
 **Global CLI**
 
 ```shell
 wasp start \
-  --client-port 3000 --client-url http://127.0.0.1:3000 \
-  --server-port 3001 --server-url http://127.0.0.1:3001
+--client-port 3000 --client-url http://127.0.0.1:3000 \
+--server-port 3001 --server-url http://127.0.0.1:3001
 ```
 
 :::note
@@ -24084,59 +24085,31 @@ For more information about Socket.IO namespaces, see the [Socket.IO documentatio
 ## Legacy / Wasp Installer
 
 :::note
-Last checked with Wasp 0.21.
+Last checked with Wasp 0.27.
 
 This guide depends on external libraries or services, so it may become outdated over time. We do our best to keep it up to date, but make sure to check their documentation for any changes.
 :::
 
-Since Wasp 0.21, you install Wasp [through npm](https://wasp.sh/docs/quick-start#detailed-installation). The installer script is legacy, and we don't support it anymore. We'll keep it around for the foreseeable future to give you time to switch, but it can't install Wasp 0.21 or newer.
+Since Wasp 0.21, you install Wasp through npm, and since Wasp 0.27, each project installs its own Wasp as an npm dependency. The installer script is legacy, and we don't support it anymore. We'll keep it around for the foreseeable future to give you time to switch, but it can't install Wasp 0.21 or newer.
 
 ### How to migrate off the legacy installer {#migrate}
 
-To switch away from the installer script, run our migration tool:
+1. Remove the installer's Wasp with our migration tool:
 
-```shell
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
-```
+   ```shell
+   curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
+   ```
 
-After that, you can run Wasp through each project, through a global Wasp CLI, or both.
-
-#### Run Wasp through your project
-
-Since Wasp 0.27, each project installs Wasp as an npm dependency, so you don't need to install anything globally. The `@wasp/wasp` version in the project's `package.json` sets its Wasp version, `npm install` installs it, and you run it through the project's npm scripts, like `npm run dev`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
-
-To create a new project, run:
-
-```shell
-npx @wasp/cli@latest new
-```
-
-#### Install the Wasp CLI globally
-
-If you prefer the shorter commands you used with the installer script, and want Wasp available outside of projects too, install the Wasp CLI globally:
-
-```shell
-npm i -g @wasp/cli@latest
-```
-
-Inside a project, the global CLI hands each command over to the project's own Wasp, so you don't need to match its version to your projects. Read more in [Installing Wasp globally](https://wasp.sh/docs/quick-start#global-cli).
-
-#### Upgrade a project on an older Wasp version
-
-Projects on Wasp 0.26 or older don't depend on `@wasp/wasp`, so they run on the version of your global Wasp CLI. To bring such a project to the latest Wasp:
-
-1. Install the global Wasp CLI of your project's version. npm has Wasp 0.20.2 and newer:
+2. Install the Wasp CLI globally from npm, on your project's Wasp version. npm has Wasp 0.20.2 and newer:
 
    ```shell
    # Set x.y.z to your project's Wasp version.
    npm i -g @wasp.sh/wasp-cli@x.y.z
    ```
 
-2. Follow the migration guides one version at a time, starting with the one from your project's version, for example [Migration from 0.20 to 0.21](https://wasp.sh/docs/0.21/migration-guide).
+   For a project older than Wasp 0.20.2, see [I need to use versions older than Wasp 0.20.2](#older-versions).
 
-3. The last one, [Migration from 0.26 to 0.27](https://wasp.sh/docs/migration-guide), makes your project depend on `@wasp/wasp`. From then on, the project brings its own Wasp.
-
-For a project older than Wasp 0.20.2, see [I need to use versions older than Wasp 0.20.2](#older-versions).
+3. Upgrade the project to the latest Wasp. Follow the migration guides one version at a time, starting with the one from your project's version, for example [Migration from 0.20 to 0.21](https://wasp.sh/docs/0.21/migration-guide). The last one, [Migration from 0.26 to 0.27](https://wasp.sh/docs/migration-guide), makes the project install its own Wasp, which you then run through its npm scripts, and switches your global CLI to `@wasp/cli`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
 
 ### Keep using the legacy installer {#keep-using}
 
