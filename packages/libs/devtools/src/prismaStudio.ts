@@ -1,5 +1,4 @@
 import { createServer } from "node:net";
-import { resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
 import type { DevToolsChildProcessTerminalSession } from "@vitejs/devtools-kit";
@@ -11,23 +10,12 @@ const PRISMA_STUDIO_ID = "wasp-prisma-studio";
 // Generous, since Prisma Studio's first start can take a while.
 const SERVER_TIMEOUT_MS = 60_000;
 
-export interface PrismaStudioOptions {
-  /**
-   * The Prisma schema file. A relative path resolves from the project root.
-   */
-  schemaFile: string;
-  /**
-   * The directory Prisma runs from, so it reads the `.env` file there. A
-   * relative path resolves from the project root.
-   */
-  cwd: string;
-}
-
 /**
- * Adds Prisma Studio as a panel to Vite DevTools. The panel starts Prisma
- * Studio on a free port when the user opens it, and embeds it once it's up.
+ * Adds Prisma Studio as a panel to Vite DevTools. The panel runs
+ * `wasp db studio` on a free port when the user opens it, and embeds it once
+ * it's up.
  */
-export function prismaStudio({ schemaFile, cwd }: PrismaStudioOptions): Plugin {
+export function prismaStudio(): Plugin {
   let projectRoot = process.cwd();
   let studioUrl = "";
   let studioSession: DevToolsChildProcessTerminalSession | undefined;
@@ -44,17 +32,13 @@ export function prismaStudio({ schemaFile, cwd }: PrismaStudioOptions): Plugin {
         const port = await findFreePort();
         studioUrl = `http://localhost:${port}/`;
         return {
-          command: "prisma",
-          args: [
-            "studio",
-            "--schema",
-            resolve(projectRoot, schemaFile),
-            "--port",
-            String(port),
-            "--browser",
-            "none",
-          ],
-          cwd: resolve(projectRoot, cwd),
+          // `wasp start` passes the path to its own executable, so the panel
+          // uses the same Wasp version as the app.
+          command: process.env["WASP_EXE_PATH"] ?? "wasp",
+          args: ["db", "studio", "--port", String(port)],
+          cwd: projectRoot,
+          // Prisma Studio would otherwise open its own browser tab.
+          env: { BROWSER: "none" },
         };
       },
       serve: {
@@ -71,8 +55,8 @@ export function prismaStudio({ schemaFile, cwd }: PrismaStudioOptions): Plugin {
     },
     configureServer(server) {
       // Vite DevTools leaves the process running when the dev server stops.
-      // `terminate` also stops the process's children, e.g. on Windows, where
-      // `prisma` runs through a shell.
+      // `terminate` also stops the process's children, like the Prisma Studio
+      // that `wasp db studio` starts.
       server.httpServer?.once("close", () => {
         void studioSession?.terminate();
       });

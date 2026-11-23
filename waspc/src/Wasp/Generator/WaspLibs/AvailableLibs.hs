@@ -1,6 +1,8 @@
 module Wasp.Generator.WaspLibs.AvailableLibs
   ( waspLibs,
+    sharedWaspLibs,
     serverWaspLibs,
+    webAppWaspLibs,
   )
 where
 
@@ -12,16 +14,24 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 
 -- | All the libs. The SDK depends on all of them.
 waspLibs :: [WaspLib.WaspLib]
-waspLibs =
-  serverWaspLibs
-    ++ [WaspLib.makeWaspLib "@wasp/lib-devtools" [reldir|devtools|]]
+waspLibs = sharedWaspLibs ++ serverWaspLibs ++ webAppWaspLibs
 
--- | The libs the server depends on. That's all but the DevTools lib, which
--- only the Vite dev server uses.
-serverWaspLibs :: [WaspLib.WaspLib]
-serverWaspLibs =
+-- | The libs that both the server and the web app use.
+sharedWaspLibs :: [WaspLib.WaspLib]
+sharedWaspLibs =
   [ WaspLib.makeWaspLib "@wasp/lib-auth" [reldir|auth|],
     WaspLib.makeWaspLib "@wasp/lib-sdk-core" [reldir|sdk-core|],
     WaspLib.makeWaspLib "@wasp/lib-test-utils" [reldir|test-utils|],
     WaspLib.makeWaspLib "@wasp/lib-vite-ssr" [reldir|vite-ssr|]
+  ]
+
+-- | The libs that only the server uses.
+serverWaspLibs :: [WaspLib.WaspLib]
+serverWaspLibs = []
+
+-- | The libs that only the web app uses. The DevTools lib only runs in the
+-- Vite dev server.
+webAppWaspLibs :: [WaspLib.WaspLib]
+webAppWaspLibs =
+  [ WaspLib.makeWaspLib "@wasp/lib-devtools" [reldir|devtools|]
   ]
