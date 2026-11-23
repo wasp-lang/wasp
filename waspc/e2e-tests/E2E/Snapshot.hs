@@ -24,8 +24,7 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Paths (getTestOutputsDir)
-import E2E.RunConfig (RunConfig)
+import E2E.RunConfig (RunConfig (..))
 import E2E.Test (E2ETest (..), runTestSteps)
 import E2E.TestM (TestFailure (..), TestM, TestSkipped (..))
 import qualified StrongPath as SP
@@ -49,22 +48,21 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInst
 snapshotTest :: String -> TestM a -> E2ETest
 snapshotTest name steps =
   E2ETest
-    { outputDirs = const [snapshotsDirInTestOutputsDir </> snapshotDirName name Current],
+    { outputDirs = const [[snapshotsDirInTestOutputsDir, snapshotDirName name Current]],
       makeTestTree = \runConfig _ ->
-        goldenTest
-          name
-          (getGoldenSnapshotDir >>= readGoldenSnapshot)
-          (runStepsAndReadCurrentSnapshot runConfig name steps)
-          compareSnapshots
-          (\snapshot -> getGoldenSnapshotDir >>= writeGoldenSnapshot snapshot)
+        let goldenSnapshotDir = getSnapshotsDir runConfig </> snapshotDirName name Golden
+         in goldenTest
+              name
+              (readGoldenSnapshot goldenSnapshotDir)
+              (runStepsAndReadCurrentSnapshot runConfig name steps)
+              compareSnapshots
+              (`writeGoldenSnapshot` goldenSnapshotDir)
     }
-  where
-    getGoldenSnapshotDir = (</> snapshotDirName name Golden) <$> getSnapshotsDir
 
 -- | Contains the current and golden snapshot dirs, and the logs of the
 -- snapshot tests.
-getSnapshotsDir :: IO FilePath
-getSnapshotsDir = (</> snapshotsDirInTestOutputsDir) <$> getTestOutputsDir
+getSnapshotsDir :: RunConfig -> FilePath
+getSnapshotsDir runConfig = runConfig.testOutputsDir </> snapshotsDirInTestOutputsDir
 
 snapshotsDirInTestOutputsDir :: FilePath
 snapshotsDirInTestOutputsDir = "snapshots"
@@ -86,8 +84,8 @@ type Snapshot = [(FilePath, BS.ByteString)]
 
 runStepsAndReadCurrentSnapshot :: RunConfig -> String -> TestM a -> IO Snapshot
 runStepsAndReadCurrentSnapshot runConfig name steps = do
-  snapshotsDir <- getSnapshotsDir
-  let currentSnapshotDir = snapshotsDir </> snapshotDirName name Current
+  let snapshotsDir = getSnapshotsDir runConfig
+      currentSnapshotDir = snapshotsDir </> snapshotDirName name Current
   removePathForcibly currentSnapshotDir
   createDirectoryIfMissing True currentSnapshotDir
   -- The log is next to the snapshot dir, so it isn't part of the snapshot.

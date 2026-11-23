@@ -95,3 +95,15 @@ jobs:
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
           mise run ${EXTRA_TOOLS:+--tool "$EXTRA_TOOLS"} test:waspc:e2e
+
+      - # Failure messages only show the last lines of the failing command's
+        # output, so we keep the full logs of every test.
+        name: Upload `waspc` e2e test logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: waspc-e2e-test-logs-${{ matrix.os }}-${{ matrix.extra-tools || 'default' }}
+          path: |
+            waspc/e2e-tests/test-outputs/**/*.log
+            !waspc/e2e-tests/test-outputs/**/node_modules/**
+          if-no-files-found: ignore

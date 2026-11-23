@@ -3,6 +3,7 @@ module E2E.Wasp
   ( waspAppDirName,
     wasp,
     waspFails,
+    waspFailsOutsideProject,
     createWaspProject,
     withNewWaspProject,
     waspDbMigrateDev,
@@ -45,6 +46,12 @@ wasp = run . waspCli
 -- | Runs a Wasp CLI command and fails the test if it succeeds.
 waspFails :: [String] -> TestM ProcessResult
 waspFails = runExpectingFailure . waspCli
+
+-- | Runs a Wasp CLI command that needs a Wasp project in a dir that isn't in
+-- one, and checks that it fails for that reason.
+waspFailsOutsideProject :: [String] -> TestM ()
+waspFailsOutsideProject arguments =
+  waspFails arguments >>= assertOutputContains "Couldn't find wasp project root"
 
 createWaspProject :: StarterTemplate -> TestM ()
 createWaspProject template = void $ wasp ["new", waspAppDirName, "-t", show template]

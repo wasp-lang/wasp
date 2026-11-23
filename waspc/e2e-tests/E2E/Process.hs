@@ -19,6 +19,8 @@ module E2E.Process
     failWithResult,
     getOutput,
     waitForExit,
+    assertExitsSuccessfully,
+    assertExitsWithFailure,
     signalPid,
     signalProcessGroupOf,
     processGroupOfExists,
@@ -26,23 +28,26 @@ module E2E.Process
 where
 
 import Control.Concurrent.STM (STM, atomically, check, orElse, readTVar, registerDelay)
-import Control.Monad (forM_, void, when)
+import Control.Exception (IOException)
+import Control.Monad (forM_, unless, void, when)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask, asks)
 import Control.Monad.Trans.Resource (ReleaseKey, release)
 import qualified Data.ByteString.Lazy as BSL
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.Maybe (isJust, isNothing)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (Command (..), Executable (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
+import E2E.RunConfig (RunConfig (..))
 import E2E.Signals (Signal (..), processGroupExists, signalProcess, signalProcessGroup)
-import E2E.TestM (RunConfig (..), TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, runTestM)
+import E2E.TestM (TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, runTestM)
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
 import System.Process (getPid)
 import qualified System.Process.Typed as TP
-import UnliftIO.Exception (catchAny)
+import UnliftIO.Exception (catch, catchAny, displayException)
 
 data ProcessResult = ProcessResult
   { processCommand :: Command,
@@ -61,6 +66,10 @@ data RunningProcess = RunningProcess
     -- | The process was started in its own group, so its PID is also its
     -- process group ID. 'Nothing' if it exited before we could read its PID.
     processGroupId :: Maybe Int,
+    -- | Set once we saw the process exit and its group empty. From then on,
+    -- the OS can give the group ID to a new process group, so we must not
+    -- signal it anymore.
+    processGroupGone :: IORef Bool,
     output :: Output
   }
 
@@ -68,17 +77,16 @@ data RunningProcess = RunningProcess
 run :: Command -> TestM ProcessResult
 run cmd = do
   result <- runAllowingFailure cmd
-  case result.exitCode of
-    ExitSuccess -> return result
-    ExitFailure code -> failWithResult result ("exited with code " ++ show code)
+  mapM_ (failWithResult result) $ unexpectedExitProblem ExpectSuccess result.exitCode
+  return result
 
--- | Runs the command and fails the test if it succeeds.
+-- | Runs the command and fails the test if it doesn't exit with an error,
+-- i.e. if it succeeds or is stopped by a signal (e.g. when it crashes).
 runExpectingFailure :: Command -> TestM ProcessResult
 runExpectingFailure cmd = do
   result <- runAllowingFailure cmd
-  case result.exitCode of
-    ExitFailure _ -> return result
-    ExitSuccess -> failWithResult result "succeeded, but it was expected to fail"
+  mapM_ (failWithResult result) $ unexpectedExitProblem ExpectFailure result.exitCode
+  return result
 
 runAllowingFailure :: Command -> TestM ProcessResult
 runAllowingFailure cmd = do
@@ -120,7 +128,8 @@ startInBackgroundWithStopKey cmd = do
       start = do
         process <- TP.startProcess processConfig
         processGroupId <- fmap fromIntegral <$> getPid (TP.unsafeProcessHandle process)
-        return RunningProcess {runningCommand = cmd, process, processGroupId, output}
+        processGroupGone <- newIORef False
+        return RunningProcess {runningCommand = cmd, process, processGroupId, processGroupGone, output}
 
   allocateWithCleanup start (runTestM testEnv . stopProcess)
 
@@ -139,7 +148,8 @@ buildEnvironment overrides = Just . applyOverrides <$> getEnvironment
     applyOverride environment (key, maybeValue) =
       filter ((/= key) . fst) environment ++ maybe [] (\value -> [(key, value)]) maybeValue
 
--- | Waits until the process prints the text (to stdout or stderr).
+-- | Waits until the process prints the text (to stdout or stderr), or returns
+-- right away if it already did, also before this step.
 -- Fails the test if that doesn't happen in time or if the process exits first.
 waitForOutput :: RunningProcess -> T.Text -> Int -> TestM ()
 waitForOutput runningProcess expectedText seconds = do
@@ -194,8 +204,37 @@ waitForExit runningProcess seconds = do
       -- readers a moment to finish. We don't wait longer since children that
       -- outlive the process (e.g. daemons) can keep the pipes open.
       liftIO . void . waitAtMost outputDrainSeconds $ isFullyRead runningProcess.output >>= check
-      logLine $ "\n<== " ++ showExitCode exitCode
+      logLine $ "\n<== " ++ describeExitCode exitCode
+      -- The process is reaped, so if its group is empty now, the OS can
+      -- reuse the group ID, and we must remember not to signal it.
+      liftIO . forM_ runningProcess.processGroupId $ checkProcessGroupExists runningProcess
       return exitCode
+
+-- | Waits for the process to exit, but at most for the given number of
+-- seconds, and fails the test with its output if it doesn't exit in time or
+-- doesn't succeed.
+assertExitsSuccessfully :: RunningProcess -> Int -> TestM ()
+assertExitsSuccessfully runningProcess seconds =
+  waitForExit runningProcess seconds
+    >>= mapM_ (failWithOutput runningProcess) . unexpectedExitProblem ExpectSuccess
+
+-- | Like 'assertExitsSuccessfully', but the process must exit with an error,
+-- and not be stopped by a signal (e.g. when it crashes).
+assertExitsWithFailure :: RunningProcess -> Int -> TestM ()
+assertExitsWithFailure runningProcess seconds =
+  waitForExit runningProcess seconds
+    >>= mapM_ (failWithOutput runningProcess) . unexpectedExitProblem ExpectFailure
+
+data ExpectedExit = ExpectSuccess | ExpectFailure
+
+-- | What's wrong with the exit code, if anything, for a failure message.
+unexpectedExitProblem :: ExpectedExit -> ExitCode -> Maybe String
+unexpectedExitProblem ExpectSuccess ExitSuccess = Nothing
+unexpectedExitProblem ExpectSuccess exitCode = Just $ describeExitCode exitCode
+unexpectedExitProblem ExpectFailure ExitSuccess = Just "succeeded, but it was expected to fail"
+unexpectedExitProblem ExpectFailure exitCode@(ExitFailure code)
+  | isStoppedBySignal code = Just $ describeExitCode exitCode ++ ", but it was expected to exit with an error"
+  | otherwise = Nothing
 
 -- | How long we wait for a process's output after it exits.
 outputDrainSeconds :: Int
@@ -206,20 +245,38 @@ outputDrainSeconds = 5
 signalPid :: Signal -> Int -> TestM ()
 signalPid sig pid = do
   logLine $ "\n==> Sending " ++ show sig ++ " to PID " ++ show pid
-  liftIO $ signalProcess sig pid
+  liftIO (signalProcess sig pid) `catch` \(err :: IOException) ->
+    failTest $ "Couldn't send " ++ show sig ++ " to PID " ++ show pid ++ ": " ++ displayException err
 
 -- | Sends the signal to the process group the process runs in, like
 -- a terminal does for Ctrl+C (SIGINT) or when it's closed (SIGHUP).
 signalProcessGroupOf :: Signal -> RunningProcess -> TestM ()
 signalProcessGroupOf sig runningProcess = do
   processGroupId <- getProcessGroupId runningProcess
+  isGroupGone <- liftIO $ readIORef runningProcess.processGroupGone
+  when isGroupGone $
+    failWithOutput runningProcess ("has no processes left in its process group to send " ++ show sig ++ " to")
   logLine $ "\n==> Sending " ++ show sig ++ " to the process group of: " ++ showCommand runningProcess.runningCommand
-  liftIO $ signalProcessGroup sig processGroupId
+  liftIO (signalProcessGroup sig processGroupId) `catch` \(err :: IOException) ->
+    failWithOutput runningProcess ("couldn't be sent " ++ show sig ++ " to its process group: " ++ displayException err)
 
 -- | Whether any process is left in the process group the process ran in, e.g.
 -- children that outlive it.
 processGroupOfExists :: RunningProcess -> TestM Bool
-processGroupOfExists runningProcess = getProcessGroupId runningProcess >>= liftIO . processGroupExists
+processGroupOfExists runningProcess =
+  getProcessGroupId runningProcess >>= liftIO . checkProcessGroupExists runningProcess
+
+-- | Once the group is gone, we remember it and don't check again, since the OS
+-- can give its ID to a new group.
+checkProcessGroupExists :: RunningProcess -> Int -> IO Bool
+checkProcessGroupExists runningProcess processGroupId = do
+  isGroupGone <- readIORef runningProcess.processGroupGone
+  if isGroupGone
+    then return False
+    else do
+      exists <- processGroupExists processGroupId
+      unless exists $ writeIORef runningProcess.processGroupGone True
+      return exists
 
 getProcessGroupId :: RunningProcess -> TestM Int
 getProcessGroupId runningProcess =
@@ -241,16 +298,19 @@ stopProcess runningProcess = do
     logLine $
       maybe
         ("\n<== didn't stop within " ++ show stopGracePeriodSeconds ++ "s, killing it")
-        (("\n<== " ++) . showExitCode)
+        (("\n<== " ++) . describeExitCode)
         maybeExitCode
   signalGroup SIGKILL
   -- Only once the process is killed: this sends it SIGTERM, which it can
   -- ignore, and then waits for it to exit without a time limit.
   liftIO $ TP.stopProcess runningProcess.process
   where
-    -- Fails when the group is already gone, which is what we want anyway.
-    signalGroup sig = liftIO . forM_ runningProcess.processGroupId $ \processGroupId ->
-      signalProcessGroup sig processGroupId `catchAny` const (return ())
+    -- Only while the group exists, since its ID could belong to a new group
+    -- once it's gone. The signal can still fail when the group's last process
+    -- exits right after the check, which is what we want anyway.
+    signalGroup sig = liftIO . forM_ runningProcess.processGroupId $ \processGroupId -> do
+      exists <- checkProcessGroupExists runningProcess processGroupId
+      when exists $ signalProcessGroup sig processGroupId `catchAny` const (return ())
 
     -- How long a process has to stop on its own when the test ends.
     stopGracePeriodSeconds = 10
@@ -270,9 +330,13 @@ describeFailure cmd problem output =
   where
     lastLines count = reverse . take count . reverse . T.lines
 
-showExitCode :: ExitCode -> String
-showExitCode ExitSuccess = "exit code 0"
-showExitCode (ExitFailure code)
-  -- That's how 'waitForProcess' reports processes stopped by a signal.
-  | code < 0 = "stopped by signal " ++ show (negate code)
-  | otherwise = "exit code " ++ show code
+-- | E.g. "exited with code 1", for logs and failure messages.
+describeExitCode :: ExitCode -> String
+describeExitCode ExitSuccess = "exited with code 0"
+describeExitCode (ExitFailure code)
+  | isStoppedBySignal code = "was stopped by signal " ++ show (negate code)
+  | otherwise = "exited with code " ++ show code
+
+-- | That's how 'waitForProcess' reports processes stopped by a signal.
+isStoppedBySignal :: Int -> Bool
+isStoppedBySignal code = code < 0

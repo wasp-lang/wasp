@@ -12,6 +12,7 @@ module E2E.Command
 where
 
 import qualified Data.Text as T
+import Wasp.Project.Db (databaseUrlEnvVarName)
 
 data Command = Command
   { executable :: Executable,
@@ -45,8 +46,11 @@ command program arguments =
       timeoutSeconds = 15 * 60
     }
 
+-- | Runs without the test runner's @DATABASE_URL@. With it, Wasp would use
+-- that database instead of the project's dev database, so e.g. a test's
+-- `wasp db reset` would wipe it. Tests that need it set it with 'withEnv'.
 waspCli :: [String] -> Command
-waspCli arguments = (command "wasp" arguments) {executable = WaspCli}
+waspCli arguments = withoutEnv [databaseUrlEnvVarName] $ (command "wasp" arguments) {executable = WaspCli}
 
 withEnv :: [(String, String)] -> Command -> Command
 withEnv variables cmd = cmd {environmentOverrides = cmd.environmentOverrides ++ [(key, Just value) | (key, value) <- variables]}

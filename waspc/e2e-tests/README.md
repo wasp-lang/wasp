@@ -78,7 +78,7 @@ waspStartTest :: E2ETest
 waspStartTest =
   testGroup
     "wasp-start"
-    [ test "fail-outside-project" $ waspFails ["start"],
+    [ test "fail-outside-project" $ waspFailsOutsideProject ["start"],
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
@@ -93,12 +93,13 @@ waspNewSnapshotTest :: E2ETest
 waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarterTemplate
 ```
 
-- Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory.
+- Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
 - When a step fails, the test's failure message says which command failed and shows the last lines of its output.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
 - Tests that run an app get free ports from `allocateAppPorts`, so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
 - Use `skipIfDockerDisabled` in tests that need Docker. Snapshot tests can't skip themselves, so they use `whenDockerEnabled` for their Docker steps.
-- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them.
+- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone.
+- `wasp` commands run without the runner's `DATABASE_URL`, so they can't act on a database outside the test. Tests that need one set it with `withEnv`.
 
 Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we port them (see [#3404](https://github.com/wasp-lang/wasp/issues/3404)).
 
@@ -109,4 +110,4 @@ Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we 
 - `mise run test:waspc:e2e:accept-all` regenerates all golden snapshots.
 - `WASP_CLI_CMD` sets the Wasp CLI under test. It must be a single executable (a path, or a program in `PATH`), since tests run it without a shell. By default, it's `tools/wasp-cli-dev`, which runs the current waspc source.
 - `WASP_E2E_TEST_MAX_JOBS` (a positive integer) limits how many tests run at once.
-- `WASP_E2E_TESTS_SKIP_DOCKER=1` skips the tests that need Docker.
+- `WASP_E2E_TESTS_SKIP_DOCKER=1` skips the tests that need Docker (they pass, and the run says so when it starts). Unset, empty, or `0` runs them. Any other value fails the run.
