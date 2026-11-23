@@ -161,7 +161,7 @@ showContentDiff :: BS.ByteString -> BS.ByteString -> String
 showContentDiff goldenContent currentContent =
   case (TE.decodeUtf8' goldenContent, TE.decodeUtf8' currentContent) of
     (Right goldenText, Right currentText) ->
-      truncateDiff $ ppDiff $ getGroupedDiff (textLines goldenText) (textLines currentText)
+      truncateDiff $ "(< golden, > current)\n" ++ ppDiff (getGroupedDiff (textLines goldenText) (textLines currentText))
     _ -> "(binary files differ)"
   where
     textLines = map T.unpack . T.lines
