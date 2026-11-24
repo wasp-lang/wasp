@@ -5,10 +5,10 @@ set -euxo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 packages_dir="$repo_root/packages"
 
-# The packages this script packs: `@wasp/wasp` and the `@wasp` packages it
-# depends on or lists as optional peers, by their dir in `packages/`. `cli`
-# isn't here, because `packages/cli/scripts/make-cli-npm-packages` packs it
-# with its platform sub-packages.
+# The packages this script packs, by their dir in `packages/`.
+# It packs all the `@wasp/*` packages published at the Wasp version, except
+# `@wasp/cli`, which `packages/cli/scripts/make-cli-npm-packages` packs.
+# Keep in sync with `waspc/tools/packages/utils.ts`.
 publish_packages=()
 while IFS= read -r package; do publish_packages+=("$package"); done < <(
   jq -r '
