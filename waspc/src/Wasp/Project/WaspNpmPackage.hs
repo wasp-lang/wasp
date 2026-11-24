@@ -35,7 +35,7 @@ import Wasp.Util (trim)
 
 data InstalledWaspNpmPackageError
   = WaspNpmPackageNotInstalled
-  | -- | Its package.json is unreadable or has an invalid field, with this reason.
+  | -- | Its package.json is unreadable or has an invalid field, for this reason.
     BrokenWaspNpmPackage String
 
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError SV.Version)
@@ -46,9 +46,8 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
       "undefined" -> Left $ BrokenWaspNpmPackage "Its package.json has no `version` field."
       version -> first (BrokenWaspNpmPackage . show) $ SV.parseVersion version
 
--- | The packages the generated code needs in every app, e.g. React or Express.
--- They are the peer dependencies of \@wasp/wasp, and its package.json is the
--- only place that lists them.
+-- | The packages Wasp needs in every app, e.g. React or Express. Only the
+-- package.json of \@wasp/wasp lists them.
 tryGettingInstalledWaspNpmPackagePeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
 tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
   (>>= parsePeerDeps) <$> evaluateOnInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
@@ -60,10 +59,9 @@ tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
         . Aeson.eitherDecode
         . BLU.fromString
 
--- | Evaluates, in Node, the JS expression that the function builds from the JS
--- expression of the installed \@wasp/wasp's package.json, and returns its
--- printed value. Asks Node, so the CLI finds the same \@wasp/wasp that Node and
--- \@wasp/cli do.
+-- | Reads the project's installed \@wasp/wasp's package.json through Node, so
+-- the CLI sees the same \@wasp/wasp as the project's code. Keep in sync with
+-- `findProjectWaspCli` in @packages/cli/src/project-wasp-cli.ts@.
 evaluateOnInstalledWaspNpmPackageJson :: Path' Abs (Dir WaspProjectDir) -> (String -> String) -> IO (Either InstalledWaspNpmPackageError String)
 evaluateOnInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
   (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode evaluateProcess ""
@@ -79,7 +77,7 @@ evaluateOnInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
         }
     packageJsonJsExpression = "require(" ++ show (waspNpmPackageName ++ "/package.json") ++ ")"
 
--- | Matches like npm. A prerelease only matches a range that names a prerelease
+-- | Matches versions the way npm does. A prerelease only matches a range that names a prerelease
 -- of the same version: `^0.27.0-rc.1` matches 0.27.0-rc.2, `^0.27.0` doesn't.
 -- A declared version that isn't a range, e.g. a `file:` tarball, matches anything.
 doesVersionMatchDeclaredVersion :: String -> SV.Version -> Bool
@@ -126,9 +124,8 @@ waspNpmPackageScriptExportName = \case
   WaspDeployScript -> "internal/run-deploy"
   WaspStudioScript -> "internal/run-studio"
 
--- | Run from the project dir, Node resolves the script through \@wasp/wasp's
--- `exports`. Requires the scripts to handle `--eval` arguments, which have no
--- script path in `process.argv`.
+-- | Runs the project's \@wasp/wasp script. The scripts must handle `--eval`
+-- arguments, which have no script path in `process.argv`.
 waspNpmPackageScriptCommand :: WaspNpmPackageScript -> [String] -> NodeCommand WaspProjectDir
 waspNpmPackageScriptCommand script args =
   NodeCommand "node" $ ["--input-type=module", "--eval", "import " ++ show scriptImport ++ ";", "--"] ++ args
@@ -141,8 +138,8 @@ runWaspNpmPackageScript waspProjectDir script args =
   where
     NodeCommand executable executableArgs = waspNpmPackageScriptCommand script args
 
-    -- Attached to this terminal, so Ctrl+C reaches the script and it shuts
-    -- down properly (see `delegate_ctlc` in
+    -- Attached to this terminal, so Ctrl+C reaches the script, and Wasp waits
+    -- for it to exit (see `delegate_ctlc` in
     -- https://hackage.haskell.org/package/process-1.6.17.0/docs/System-Process.html#g:4).
     scriptProcess =
       (P.proc executable executableArgs)

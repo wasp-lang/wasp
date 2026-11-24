@@ -11,7 +11,7 @@ import qualified Wasp.SemanticVersion as SV
 
 data InspectableAppSpec = InspectableAppSpec
   { getAppSpec :: AS.AppSpec,
-    -- | The version of the Wasp that analyzed the app spec.
+    -- | The Wasp version that analyzed the app spec.
     getWaspVersion :: SV.Version
   }
 

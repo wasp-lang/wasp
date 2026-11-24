@@ -23,7 +23,7 @@ getWaspCliNpmPackageVersion :: IO SV.Version
 getWaspCliNpmPackageVersion = fromMaybe waspVersion <$> lookupWaspCliNpmPackageVersion
 
 -- | A binary run directly, e.g. one built from source, can't hand over to the
--- project's Wasp, so errors advise it differently.
+-- project's Wasp, so its errors tell the user to run `npm run wasp` instead.
 isRunByWaspCliNpmPackage :: IO Bool
 isRunByWaspCliNpmPackage = isJust <$> lookupWaspCliNpmPackageVersion
 

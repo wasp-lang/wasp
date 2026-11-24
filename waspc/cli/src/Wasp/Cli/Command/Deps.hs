@@ -10,7 +10,7 @@ import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
+import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable), brokenInstallError, notInstalledError)
 import Wasp.Cli.Terminal (title)
 import Wasp.Docs (versionedWaspDocsUrl)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -38,12 +38,10 @@ deps = do
   waspNpmPackagePeerDeps <-
     liftIO (tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir) >>= \case
       Right peerDeps -> return peerDeps
-      Left WaspNpmPackageNotInstalled -> throwError $ peerDepsError "It is not installed."
-      Left (BrokenWaspNpmPackage reason) -> throwError $ peerDepsError reason
+      Left WaspNpmPackageNotInstalled -> throwError notInstalledError
+      Left (BrokenWaspNpmPackage reason) -> throwError $ brokenInstallError reason
 
   liftIO $ putStrLn $ depsMessage appSpec waspNpmPackagePeerDeps
-  where
-    peerDepsError = CommandError $ "Couldn't read the peer dependencies of " ++ waspNpmPackageName
 
 depsMessage :: AppSpec -> [Npm.Dependency.Dependency] -> String
 depsMessage appSpec waspNpmPackagePeerDeps =

@@ -61,7 +61,8 @@ replaceTemplatePlaceholdersInPackageJsonFile waspNpmPackageVersion appName proje
         ]
         absPackageJsonFile
 
--- | If no package.json file was found in the project, do nothing.
+-- | Points the project at the dev Wasp npm package tarballs. Does nothing when
+-- the project has no package.json.
 addDevWaspNpmPackageOverridesToProject :: Path' Abs (Dir WaspProjectDir) -> DevWaspNpmPackageTarballs -> IO ()
 addDevWaspNpmPackageOverridesToProject projectDir devTarballs =
   findUserPackageJsonFile projectDir

@@ -29,7 +29,7 @@ import System.FilePath (isAbsolute)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.WaspLibs.Common (LibsRootDir, libsRootDirInGeneratedAppDir)
-import Wasp.NpmPackageNames (waspCliNpmPackageName, waspNpmPackageName, waspNpmScope)
+import Wasp.NpmPackageNames (waspNpmPackageName, waspNpmScope)
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (copyFile)
 import qualified Wasp.Util.IO as IOUtil
@@ -52,7 +52,7 @@ the tarballs, so this does nothing for Wasp users.
 `mise run build:dev-packages` packs the packages into `waspc/.dev-packages/`
 (see @mise-tasks/build/dev-packages.ts@) and lists the tarballs in
 'devWaspNpmPackagesManifestFile' there. The repo's apps depend on the
-tarballs. The dev @wasp/wasp still pins the registry versions of the packages
+tarballs. The dev \@wasp/wasp still pins the registry versions of the packages
 it brings, so `overrides` point npm at their tarballs too:
 
 > "dependencies": {
@@ -90,9 +90,8 @@ checkDirectlyRunWaspCanCreateProjects = do
       else
         Left $
           unlines
-            [ "This Wasp binary was run directly, not through the `" ++ waspCliNpmPackageName ++ "` npm package, so the projects it creates must depend on the dev Wasp npm packages.",
-              "If you're developing Wasp, run `mise run wasp-cli new`, or set " ++ devWaspNpmPackagesDirEnvVarName ++ " (`mise run install` prints its value).",
-              "Otherwise, install Wasp with `" ++ getGlobalInstallationCommand Nothing ++ "`."
+            [ "Install Wasp with `" ++ getGlobalInstallationCommand Nothing ++ "`.",
+              "If you're developing Wasp, run `mise run wasp-cli new` instead."
             ]
 
 -- | Written by `mise run build:dev-packages` into the dev packages dir. Names

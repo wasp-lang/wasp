@@ -76,7 +76,7 @@ waspNpmPackageAvailableTest =
               inTestWaspProjectDir
                 [ setDeclaredWaspNpmPackageVersion nonexistentWaspVersion,
                   setInstalledWaspNpmPackageVersion nonexistentWaspVersion,
-                  assertCommandFailsWith "so it can't switch to this project's Wasp" waspCliCompile
+                  assertCommandFailsWith "but you ran the Wasp binary" waspCliCompile
                 ]
             ]
         ),

@@ -1,5 +1,7 @@
 module Wasp.Cli.Command.Require.WaspNpmPackageAvailable
   ( WaspNpmPackageAvailable (WaspNpmPackageAvailable),
+    notInstalledError,
+    brokenInstallError,
   )
 where
 
@@ -7,7 +9,7 @@ import Control.Monad (unless, when)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
-import StrongPath (Abs, Dir, Path', fromAbsDir)
+import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -25,7 +27,7 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util.Terminal (styleCode)
 import Wasp.Version (getWaspCliNpmPackageVersion, isRunByWaspCliNpmPackage)
 
--- | Require that the project's \@wasp/wasp npm package is installed in
+-- | Requires that the project's \@wasp/wasp npm package is installed in
 -- node_modules, that it satisfies the version the project asks for, and that
 -- this CLI has the same version. Warns when it's a dev dependency.
 data WaspNpmPackageAvailable = WaspNpmPackageAvailable deriving (Typeable)
@@ -64,7 +66,7 @@ getInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> Command S
 getInstalledWaspNpmPackageVersion waspProjectDir =
   liftIO (tryGettingInstalledWaspNpmPackageVersion waspProjectDir) >>= \case
     Right version -> return version
-    Left WaspNpmPackageNotInstalled -> throwError $ notInstalledError waspProjectDir
+    Left WaspNpmPackageNotInstalled -> throwError notInstalledError
     Left (BrokenWaspNpmPackage reason) -> throwError $ brokenInstallError reason
 
 notADependencyError :: SV.Version -> CommandError
@@ -87,28 +89,20 @@ inDevDependenciesWarningTitle = "Wasp is a dev dependency of this project"
 
 inDevDependenciesWarning :: String
 inDevDependenciesWarning =
-  "The "
+  "Move "
     ++ styleCode waspNpmPackageName
-    ++ " npm package brings your app's runtime dependencies, so installs that skip dev dependencies, like "
-    ++ styleCode "npm ci --omit=dev"
-    ++ ", leave them out. Move it from "
+    ++ " from "
     ++ styleCode "devDependencies"
     ++ " to "
     ++ styleCode "dependencies"
     ++ " in your "
     ++ styleCode "package.json"
-    ++ "."
+    ++ ". It brings your app's runtime dependencies."
 
-notInstalledError :: Path' Abs (Dir WaspProjectDir) -> CommandError
-notInstalledError waspProjectDir =
+notInstalledError :: CommandError
+notInstalledError =
   CommandError "Wasp is not installed" $
-    "Couldn't find "
-      ++ styleCode waspNpmPackageName
-      ++ " in the node_modules of "
-      ++ fromAbsDir waspProjectDir
-      ++ " or its parent dirs. Run "
-      ++ styleCode "npm install"
-      ++ " to install it."
+    "Run " ++ styleCode "npm install" ++ " to install it."
 
 brokenInstallError :: String -> CommandError
 brokenInstallError reason =
@@ -127,7 +121,7 @@ staleInstallError declaredVersion installedVersion =
       ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
       ++ "."
 
--- | E.g. after a partial install.
+-- | When \@wasp/wasp and \@wasp/cli don't match, e.g. after a partial install.
 partialInstallError :: SV.Version -> SV.Version -> CommandError
 partialInstallError installedVersion cliVersion =
   outOfDateError $
@@ -146,10 +140,10 @@ outOfDateError reason =
 directRunError :: SV.Version -> SV.Version -> CommandError
 directRunError cliVersion installedVersion =
   CommandError "Wasp version mismatch" $
-    "You ran the Wasp binary "
-      ++ show cliVersion
-      ++ " directly, e.g. one built from source, so it can't switch to this project's Wasp "
+    "This project uses Wasp "
       ++ show installedVersion
-      ++ ". Run the project's Wasp with "
+      ++ ", but you ran the Wasp binary "
+      ++ show cliVersion
+      ++ " directly. Run "
       ++ styleCode "npm run wasp -- <command>"
-      ++ "."
+      ++ " instead."
