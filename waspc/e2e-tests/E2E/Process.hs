@@ -18,7 +18,11 @@ module E2E.Process
     failWithOutput,
     failWithResult,
     getOutput,
+    stdoutLines,
+    firstStdoutLine,
     waitForExit,
+    waitUntilExited,
+    stopTimeoutSeconds,
     assertExitsSuccessfully,
     assertExitsWithFailure,
     signalPid,
@@ -44,7 +48,7 @@ import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newO
 import E2E.RunConfig (RunConfig (..))
 import E2E.Signals (Signal (..), processGroupExists, signalProcess, signalProcessGroup)
 import E2E.TestM (TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
-import System.Environment (getEnvironment, lookupEnv)
+import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import System.Process (getPid)
@@ -79,17 +83,17 @@ data RunningProcess = RunningProcess
 
 -- | Runs the command and fails the test if it doesn't succeed.
 run :: Command -> TestM ProcessResult
-run cmd = do
-  result <- runAllowingFailure cmd
-  mapM_ (failWithResult result) $ unexpectedExitProblem ExpectSuccess result.exitCode
-  return result
+run = runExpecting ExpectSuccess
 
 -- | Runs the command and fails the test if it doesn't exit with an error,
 -- i.e. if it succeeds or is stopped by a signal (e.g. when it crashes).
 runExpectingFailure :: Command -> TestM ProcessResult
-runExpectingFailure cmd = do
+runExpectingFailure = runExpecting ExpectFailure
+
+runExpecting :: ExpectedExit -> Command -> TestM ProcessResult
+runExpecting expectedExit cmd = do
   result <- runAllowingFailure cmd
-  mapM_ (failWithResult result) $ unexpectedExitProblem ExpectFailure result.exitCode
+  mapM_ (failWithResult result) $ unexpectedExitProblem expectedExit result.exitCode
   return result
 
 runAllowingFailure :: Command -> TestM ProcessResult
@@ -99,10 +103,15 @@ runAllowingFailure cmd = do
   -- Stops what the command left running right away, instead of when the test
   -- ends. By then, its process group ID could belong to another group.
   release stopKey
+  readResult runningProcess exitCode
+
+-- | The result of a process that exited with the exit code.
+readResult :: RunningProcess -> ExitCode -> TestM ProcessResult
+readResult runningProcess exitCode =
   liftIO . atomically $ do
     stdout <- readStdout runningProcess.output
     combinedOutput <- readCombinedOutput runningProcess.output
-    return ProcessResult {processCommand = cmd, exitCode, stdout, combinedOutput}
+    return ProcessResult {processCommand = runningProcess.runningCommand, exitCode, stdout, combinedOutput}
 
 -- | Starts the process in its own process group, so we can stop it together
 -- with its children.
@@ -114,13 +123,7 @@ startInBackgroundWithStopKey :: Command -> TestM (ReleaseKey, RunningProcess)
 startInBackgroundWithStopKey cmd = do
   executable <- resolveExecutable cmd.executable
   workingDir <- getWorkingDir
-  pathOverride <- case cmd.extraPath of
-    [] -> return []
-    dirs -> do
-      absoluteDirs <- mapM resolvePath dirs
-      inheritedPath <- liftIO $ lookupEnv "PATH"
-      return [("PATH", Just . intercalate [FP.searchPathSeparator] $ absoluteDirs ++ maybeToList inheritedPath)]
-  environment <- liftIO $ buildEnvironment (pathOverride ++ cmd.environmentOverrides)
+  environment <- buildEnvironment cmd
   testEnv <- ask
   output <- liftIO $ newOutput testEnv.testLog
   logLine $ "\n==> " ++ showCommand cmd ++ "\n    in " ++ workingDir
@@ -157,13 +160,28 @@ stdinSpec = \case
   StdinText text -> TP.byteStringInput (BSL.fromStrict $ TE.encodeUtf8 text)
   OpenEmptyStdin -> void TP.createPipe
 
-buildEnvironment :: [(String, Maybe String)] -> IO (Maybe [(String, String)])
-buildEnvironment [] = return Nothing -- Inherit the test runner's environment.
-buildEnvironment overrides = Just . applyOverrides <$> getEnvironment
+-- | 'Nothing' inherits the test runner's environment.
+--
+-- The command's extra path dirs go before the @PATH@ that its environment
+-- overrides leave, so a @PATH@ set with 'E2E.Command.withEnv' doesn't drop
+-- them.
+buildEnvironment :: Command -> TestM (Maybe [(String, String)])
+buildEnvironment cmd = case (cmd.extraPath, cmd.environmentOverrides) of
+  ([], []) -> return Nothing
+  (extraPathDirs, overrides) -> do
+    absoluteExtraPathDirs <- mapM resolvePath extraPathDirs
+    environment <- liftIO getEnvironment
+    return . Just . prependToPath absoluteExtraPathDirs $ foldl applyOverride environment overrides
   where
-    applyOverrides environment = foldl applyOverride environment overrides
     applyOverride environment (key, maybeValue) =
-      filter ((/= key) . fst) environment ++ maybe [] (\value -> [(key, value)]) maybeValue
+      withoutKey key environment ++ maybe [] (\value -> [(key, value)]) maybeValue
+
+    prependToPath [] environment = environment
+    prependToPath dirs environment =
+      withoutKey "PATH" environment
+        ++ [("PATH", intercalate [FP.searchPathSeparator] $ dirs ++ maybeToList (lookup "PATH" environment))]
+
+    withoutKey key = filter ((/= key) . fst)
 
 -- | Waits until the process prints the text (to stdout or stderr), or returns
 -- right away if it already did, also before this step.
@@ -193,7 +211,10 @@ data WaitForOutputOutcome = OutputFound | ProcessExited
 failIfExited :: RunningProcess -> String -> TestM ()
 failIfExited runningProcess expectation = do
   exited <- liftIO $ isJust <$> TP.getExitCode runningProcess.process
-  when exited $ failWithOutput runningProcess ("exited before " ++ expectation)
+  when exited $ do
+    -- So that the failure shows the last lines it printed, e.g. why it crashed.
+    waitForOutputDrain runningProcess
+    failWithOutput runningProcess ("exited before " ++ expectation)
 
 -- | Fails the test with the problem and the last lines the process printed so
 -- far, e.g. "didn't open its port".
@@ -209,6 +230,16 @@ failWithResult result problem = failTest $ describeFailure result.processCommand
 getOutput :: RunningProcess -> TestM T.Text
 getOutput runningProcess = liftIO . atomically $ readCombinedOutput runningProcess.output
 
+-- | The non-empty lines of stdout, without surrounding whitespace.
+stdoutLines :: ProcessResult -> [String]
+stdoutLines = filter (not . null) . map (T.unpack . T.strip) . T.lines . (.stdout)
+
+-- | The first of 'stdoutLines'. Fails the test if there is none.
+firstStdoutLine :: ProcessResult -> TestM String
+firstStdoutLine result = case stdoutLines result of
+  firstLine : _ -> return firstLine
+  [] -> failWithResult result "printed nothing to stdout"
+
 -- | Waits for the process to exit, but at most for the given number of seconds.
 -- If it doesn't exit in time, the test fails (and the process is stopped).
 waitForExit :: RunningProcess -> Int -> TestM ExitCode
@@ -217,33 +248,43 @@ waitForExit runningProcess seconds = do
   case maybeExitCode of
     Nothing -> failWithOutput runningProcess ("didn't exit within " ++ show seconds ++ "s")
     Just exitCode -> do
-      -- A process can exit before we've read all of its output. We give the
-      -- readers a moment to finish. We don't wait longer since children that
-      -- outlive the process (e.g. daemons) can keep the pipes open.
-      liftIO . void . waitAtMost outputDrainSeconds $ isFullyRead runningProcess.output >>= check
-      logLine $ "\n<== " ++ describeExitCode exitCode
       -- The process is reaped, so if its group is empty now, the OS can
-      -- reuse the group ID, and we must remember not to signal it. The
-      -- process did nothing wrong if the check fails, so we don't fail the
+      -- reuse the group ID, and we must remember not to signal it. We check
+      -- before waiting for the output, so that the window for that is short.
+      -- The process did nothing wrong if the check fails, so we don't fail the
       -- test: the group just isn't marked as gone, and later steps check again.
       liftIO (forM_ runningProcess.processGroupId $ checkProcessGroupExists runningProcess)
         `catchAny` const (return ())
+      waitForOutputDrain runningProcess
+      logLine $ "\n<== " ++ describeExitCode exitCode
       return exitCode
+
+-- | Waits for a process we told to stop (e.g. with a signal) to exit, within
+-- 'stopTimeoutSeconds'.
+waitUntilExited :: RunningProcess -> TestM ()
+waitUntilExited runningProcess = void $ waitForExit runningProcess stopTimeoutSeconds
+
+-- | How long a process has to exit after we told it to stop, or after
+-- something it depends on crashed.
+stopTimeoutSeconds :: Int
+stopTimeoutSeconds = 60
 
 -- | Waits for the process to exit, but at most for the given number of
 -- seconds, and fails the test with its output if it doesn't exit in time or
 -- doesn't succeed.
-assertExitsSuccessfully :: RunningProcess -> Int -> TestM ()
-assertExitsSuccessfully runningProcess seconds =
-  waitForExit runningProcess seconds
-    >>= mapM_ (failWithOutput runningProcess) . unexpectedExitProblem ExpectSuccess
+assertExitsSuccessfully :: RunningProcess -> Int -> TestM ProcessResult
+assertExitsSuccessfully = assertExits ExpectSuccess
 
 -- | Like 'assertExitsSuccessfully', but the process must exit with an error,
 -- and not be stopped by a signal (e.g. when it crashes).
-assertExitsWithFailure :: RunningProcess -> Int -> TestM ()
-assertExitsWithFailure runningProcess seconds =
-  waitForExit runningProcess seconds
-    >>= mapM_ (failWithOutput runningProcess) . unexpectedExitProblem ExpectFailure
+assertExitsWithFailure :: RunningProcess -> Int -> TestM ProcessResult
+assertExitsWithFailure = assertExits ExpectFailure
+
+assertExits :: ExpectedExit -> RunningProcess -> Int -> TestM ProcessResult
+assertExits expectedExit runningProcess seconds = do
+  result <- waitForExit runningProcess seconds >>= readResult runningProcess
+  mapM_ (failWithResult result) $ unexpectedExitProblem expectedExit result.exitCode
+  return result
 
 data ExpectedExit = ExpectSuccess | ExpectFailure
 
@@ -255,6 +296,13 @@ unexpectedExitProblem ExpectFailure ExitSuccess = Just "succeeded, but it was ex
 unexpectedExitProblem ExpectFailure exitCode@(ExitFailure code)
   | isStoppedBySignal code = Just $ describeExitCode exitCode ++ ", but it was expected to exit with an error"
   | otherwise = Nothing
+
+-- | A process can exit before we've read all of its output. We give the
+-- readers a moment to finish, but not longer, since children that outlive the
+-- process (e.g. daemons) can keep the pipes open.
+waitForOutputDrain :: RunningProcess -> TestM ()
+waitForOutputDrain runningProcess =
+  liftIO . void . waitAtMost outputDrainSeconds $ isFullyRead runningProcess.output >>= check
 
 -- | How long we wait for a process's output after it exits.
 outputDrainSeconds :: Int
@@ -327,6 +375,9 @@ stopProcess runningProcess = do
   -- Only once the process is killed: this sends it SIGTERM, which it can
   -- ignore, and then waits for it to exit without a time limit.
   liftIO $ TP.stopProcess runningProcess.process
+  -- The test's log is closed once the test ends, so we let the readers write
+  -- the process's last output to it first.
+  waitForOutputDrain runningProcess
   where
     -- Only while the group exists, since its ID could belong to a new group
     -- once it's gone (but see 'processGroupGone' for when we can't tell).
@@ -340,8 +391,9 @@ stopProcess runningProcess = do
       liftIO signalIfGroupExists `catchAny` \err ->
         logLine $ "\n<== Couldn't send " ++ show sig ++ " to its process group: " ++ displayException err
 
-    -- How long a process has to stop on its own when the test ends.
-    stopGracePeriodSeconds = 10
+-- | How long a process has to stop on its own when the test ends.
+stopGracePeriodSeconds :: Int
+stopGracePeriodSeconds = 10
 
 -- | Runs the transaction once it succeeds, or returns 'Nothing' if that doesn't
 -- happen within the given number of seconds.
@@ -354,9 +406,14 @@ describeFailure :: Command -> String -> T.Text -> String
 describeFailure cmd problem output =
   unlines $
     ["Command `" ++ showCommand cmd ++ "` " ++ problem ++ ".", "Last lines of its output:"]
-      ++ map (("  " ++) . T.unpack) (lastLines 30 output)
+      ++ map (("  " ++) . T.unpack) (lastLines failureOutputLineCount output)
   where
     lastLines count = reverse . take count . reverse . T.lines
+
+-- | How many lines of a command's output a failure message shows. The rest is
+-- in the test's log.
+failureOutputLineCount :: Int
+failureOutputLineCount = 30
 
 -- | E.g. "exited with code 1", for logs and failure messages.
 describeExitCode :: ExitCode -> String

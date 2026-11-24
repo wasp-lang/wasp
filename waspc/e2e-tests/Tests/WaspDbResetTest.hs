@@ -1,7 +1,7 @@
 module Tests.WaspDbResetTest (waspDbResetTest) where
 
 import E2E
-import Tests.Fixtures (TaskSeed (..), allTaskSeeds, runTaskSeed, setUpProjectWithTaskSeeds)
+import Tests.Fixtures (allTaskSeeds, assertTasksEmptySeed, assertTasksNotEmptySeed, populateTasksSeed, runSeed, setUpProjectWithTaskSeeds)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | We include seeds in the test, because Wasp skips the seeding during the
@@ -14,9 +14,9 @@ waspDbResetTest =
       test "succeed-reset-database" $
         withNewWaspProject minimalStarterTemplate $ do
           setUpProjectWithTaskSeeds allTaskSeeds
-          runTaskSeed AssertTasksEmpty
-          runTaskSeed PopulateTasks
-          runTaskSeed AssertTasksNotEmpty
+          runSeed assertTasksEmptySeed
+          runSeed populateTasksSeed
+          runSeed assertTasksNotEmptySeed
           run waspCliDbResetForce
-          runTaskSeed AssertTasksEmpty
+          runSeed assertTasksEmptySeed
     ]

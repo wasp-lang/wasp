@@ -13,9 +13,9 @@ waspSpecEntityTypesTest =
         withNewWaspProject minimalStarterTemplate $ do
           appendToFile "schema.prisma" prismaUserModel
           writeToFile "main.wasp.ts" $ mainWaspTs validEntityName
-          run compileWaspMainTsFiles
+          run compileWaspMainTsFilesCommand
           wasp ["compile"] -- Necessary to generate the spec's Entity types.
-          run compileWaspMainTsFiles,
+          run compileWaspMainTsFilesCommand,
       -- NOTE: Currently impossible to check that an invalid entity name is
       -- rejected before compiling. See: https://github.com/wasp-lang/wasp/issues/4186
       test "rejects-invalid-entity-after-compile" $
@@ -24,12 +24,12 @@ waspSpecEntityTypesTest =
           writeToFile "main.wasp.ts" $ mainWaspTs validEntityName
           wasp ["compile"] -- Necessary to generate the spec's Entity types.
           writeToFile "main.wasp.ts" $ mainWaspTs invalidEntityName
-          runExpectingFailure compileWaspMainTsFiles
+          runExpectingFailure compileWaspMainTsFilesCommand
             >>= assertOutputContains ("Type '\"" <> invalidEntityName <> "\"' is not assignable to type '\"" <> validEntityName <> "\"'.")
     ]
   where
-    compileWaspMainTsFiles :: Command
-    compileWaspMainTsFiles = nodeModulesBin "tsc" ["--noEmit", "-p", "tsconfig.wasp.json"]
+    compileWaspMainTsFilesCommand :: Command
+    compileWaspMainTsFilesCommand = nodeModulesBin "tsc" ["--noEmit", "-p", "tsconfig.wasp.json"]
 
     prismaUserModel :: T.Text
     prismaUserModel =

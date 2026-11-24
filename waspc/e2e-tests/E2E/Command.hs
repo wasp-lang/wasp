@@ -9,11 +9,15 @@ module E2E.Command
     withEnv,
     withoutEnv,
     showCommand,
+    defaultTimeoutSeconds,
+    failFastTimeoutSeconds,
+    cleanupCommandTimeoutSeconds,
   )
 where
 
 import Data.List (intercalate)
 import qualified Data.Text as T
+import qualified System.FilePath as FP
 import Wasp.Project.Db (databaseUrlEnvVarName)
 
 data Command = Command
@@ -49,8 +53,25 @@ command program arguments =
       environmentOverrides = [],
       extraPath = [],
       stdinMode = StdinText "",
-      timeoutSeconds = 15 * 60
+      timeoutSeconds = defaultTimeoutSeconds
     }
+
+-- | Long enough for the slowest commands we run, e.g. `npm install` of a big
+-- project on a loaded CI runner, so a timeout only stops a command that hangs.
+defaultTimeoutSeconds :: Int
+defaultTimeoutSeconds = 15 * 60
+
+-- | For commands that must fail before doing real work, e.g. before building
+-- or serving an app. If the check regresses, we don't want to wait for the
+-- default timeout.
+failFastTimeoutSeconds :: Int
+failFastTimeoutSeconds = 2 * 60
+
+-- | For commands in cleanup steps, e.g. @docker rm --force@. Much shorter than
+-- the default, since nothing can cut a hung cleanup short: cleanups run
+-- masked, and we ignore Ctrl+C after the first one.
+cleanupCommandTimeoutSeconds :: Int
+cleanupCommandTimeoutSeconds = 60
 
 -- | Runs without the test runner's @DATABASE_URL@. With it, Wasp would use
 -- that database instead of the project's dev database, so e.g. a test's
@@ -87,10 +108,11 @@ showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (executableName : cmd
     executableName = case cmd.executable of
       WaspCli -> "wasp"
       Program program -> program
-    envPrefix = unsetPrefix ++ pathPrefix ++ [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
+    envPrefix = unsetPrefix ++ [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides] ++ pathPrefix
+    -- Last, since the extra path dirs go before the @PATH@ the overrides leave.
     pathPrefix = case cmd.extraPath of
       [] -> []
-      dirs -> ["PATH=" ++ intercalate ":" (map quoteIfNeeded dirs ++ ["$PATH"])]
+      dirs -> ["PATH=" ++ intercalate [FP.searchPathSeparator] (map quoteIfNeeded dirs ++ ["$PATH"])]
     unsetPrefix = case [key | (key, Nothing) <- cmd.environmentOverrides] of
       [] -> []
       unsetKeys -> "env" : concatMap (\key -> ["-u", key]) unsetKeys

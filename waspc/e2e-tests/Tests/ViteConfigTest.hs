@@ -2,7 +2,6 @@ module Tests.ViteConfigTest (viteConfigTest) where
 
 import E2E
 import NeatInterpolation (trimming)
-import Tests.Fixtures (viteBuild, withApiUrl)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 viteConfigTest :: E2ETest
@@ -41,6 +40,6 @@ viteConfigTest =
               });
             |]
           wasp ["compile"]
-          runExpectingFailure (withApiUrl $ viteBuild [])
+          runExpectingFailure (withApiUrl $ viteBuildCommand [])
             >>= assertOutputContains "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config."
     ]

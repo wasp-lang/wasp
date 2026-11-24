@@ -4,7 +4,6 @@ module E2E.Assertions
     assertEqual,
     assertOutputContains,
     assertStdoutContains,
-    assertProcessOutputContains,
     assertDirectoryExists,
     assertDirectoryDoesNotExist,
     assertFileExists,
@@ -19,7 +18,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Process (ProcessResult (..), RunningProcess, failWithOutput, failWithResult, getOutput)
+import E2E.Process (ProcessResult (..), failWithResult)
 import E2E.TestM (TestM, failTest, resolvePath)
 import System.Directory (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
 import UnliftIO.Exception (catchAny)
@@ -45,13 +44,6 @@ assertStdoutContains :: T.Text -> ProcessResult -> TestM ()
 assertStdoutContains expectedText result =
   unless (expectedText `T.isInfixOf` result.stdout) $
     failWithResult result ("didn't print " ++ show expectedText ++ " to stdout")
-
--- | Like 'assertOutputContains', for what a process printed so far.
-assertProcessOutputContains :: T.Text -> RunningProcess -> TestM ()
-assertProcessOutputContains expectedText runningProcess = do
-  output <- getOutput runningProcess
-  unless (expectedText `T.isInfixOf` output) $
-    failWithOutput runningProcess ("didn't print " ++ show expectedText)
 
 -- | Checks that stdout is a single JSON object, with the field set to the
 -- value.

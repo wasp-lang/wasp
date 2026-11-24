@@ -29,25 +29,26 @@ waspDbMigrateDevTest =
         $ run
           (waspCli ["db", "migrate-dev", "--name", "no_migration"])
             { stdinMode = OpenEmptyStdin,
-              timeoutSeconds = 5 * 60
+              timeoutSeconds = hangTimeoutSeconds
             }
-          >>= assertOutputContains "Database successfully migrated."
+          >>= assertOutputContains dbMigratedMessage
     ]
   where
-    -- In the project and in the generated app.
-    assertMigrationExists :: String -> TestM ()
-    assertMigrationExists migrationName =
-      forM_ dbMigrationsDirs $ \migrationsDir -> do
-        migrations <- listDbMigrations migrationsDir
-        assertTrue
-          ("there's a migration named " ++ show migrationName ++ " in " ++ migrationsDir)
-          (any (migrationName `isInfixOf`) migrations)
+    -- The regression hangs, so we don't wait for the default timeout.
+    -- Migrating a new project takes much less.
+    hangTimeoutSeconds :: Int
+    hangTimeoutSeconds = 5 * 60
+
+    assertMigrationExists, assertNoMigrationExists :: String -> TestM ()
+    assertMigrationExists = assertMigrationPresence True
+    assertNoMigrationExists = assertMigrationPresence False
 
     -- In the project and in the generated app.
-    assertNoMigrationExists :: String -> TestM ()
-    assertNoMigrationExists migrationName =
+    assertMigrationPresence :: Bool -> String -> TestM ()
+    assertMigrationPresence shouldExist migrationName =
       forM_ dbMigrationsDirs $ \migrationsDir -> do
         migrations <- listDbMigrations migrationsDir
+        let quantifier = if shouldExist then "a" else "no"
         assertTrue
-          ("there's no migration named " ++ show migrationName ++ " in " ++ migrationsDir)
-          (not $ any (migrationName `isInfixOf`) migrations)
+          ("there's " ++ quantifier ++ " migration named " ++ show migrationName ++ " in " ++ migrationsDir ++ ", which has: " ++ show migrations)
+          (any (migrationName `isInfixOf`) migrations == shouldExist)
