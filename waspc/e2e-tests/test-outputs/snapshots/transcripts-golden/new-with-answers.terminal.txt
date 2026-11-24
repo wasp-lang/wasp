@@ -1,0 +1,24 @@
+[terminal]
+<ESC>[1mEnter the project name (e.g. my-project)<ESC>[0m<ESC>[33m ▸ <ESC>[0mwasp-app
+<ESC>[1mChoose a starter template<ESC>[0m
+<ESC>[33m[1]<ESC>[0m <ESC>[1mbasic<ESC>[0m<ESC>[33m (default)<ESC>[0m
+    A basic starter template designed to help you get up and running quickly. It features examples covering the most common use cases.
+<ESC>[33m[2]<ESC>[0m <ESC>[1mminimal<ESC>[0m
+    A minimal starter template that features just a single page.
+<ESC>[33m[3]<ESC>[0m <ESC>[1msaas<ESC>[0m
+    Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
+<ESC>[33m ▸ <ESC>[0mminimal
+<ESC>[33m
+🐝 --- Creating your project from the "minimal" template... -----------------------
+<ESC>[0m
+
+<ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
+<ESC>[33m
+✅ --- Created a new Wasp app in `./wasp-app`. ------------------------------------
+<ESC>[0m
+To run your new app, do:
+<ESC>[1m    cd wasp-app<ESC>[22m
+<ESC>[1m    wasp start<ESC>[22m
+
+[exit code]
+0

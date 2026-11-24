@@ -1,0 +1,56 @@
+[terminal]
+<ESC>[1mUSAGE<ESC>[0m
+  wasp <command> [command-args]
+
+<ESC>[1mCOMMANDS<ESC>[0m
+<ESC>[1m  GENERAL<ESC>[0m
+    <ESC>[1m<ESC>[33mnew<ESC>[0m [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.
+      OPTIONS:
+        -t|--template <template-name>
+           Available starter templates are: basic, minimal, saas.
+
+    <ESC>[1m<ESC>[33mhelp<ESC>[0m                  Prints this help message.
+    <ESC>[1m<ESC>[33mversion<ESC>[0m               Prints current version of CLI.
+    <ESC>[1m<ESC>[33mdoctor<ESC>[0m                Checks your machine for Wasp requirements (Node.js, Docker, ...).
+    <ESC>[1m<ESC>[33mcompletion<ESC>[0m            Prints help on bash completion.
+    <ESC>[1m<ESC>[33muninstall<ESC>[0m [--force]   Removes Wasp from your system.
+<ESC>[1m  IN PROJECT<ESC>[0m
+    <ESC>[1m<ESC>[33mstart<ESC>[0m [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]
+                          Runs Wasp app in development mode, watching for file changes.
+                          Optionally specify the ports the client and the server run on.
+                          If not specified, Wasp picks the first free port when the default one is taken.
+                          Optionally specify the URLs the client and the server are reachable at,
+                          if they differ from http://localhost:<port> (e.g. a LAN hostname or an HTTPS tunnel).
+    <ESC>[1m<ESC>[33mstart<ESC>[0m db [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]
+                          Starts managed development database for you.
+                          Optionally specify a custom port, Docker image, or Docker volume mount path.
+                          If the port is not specified, Wasp picks the first free port when the default one is taken.
+    <ESC>[1m<ESC>[33mdb<ESC>[0m <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.
+    <ESC>[1m<ESC>[33minstall<ESC>[0m               Sets up all internal Wasp npm dependencies and runs npm install.
+    <ESC>[1m<ESC>[33mclean<ESC>[0m                 Deletes the generated app, all cached artifacts, and the node_modules dir.
+                          Wasp equivalent of 'have you tried closing and opening it again?'.
+    <ESC>[1m<ESC>[33mcompile<ESC>[0m               Compiles your Wasp project and reports any errors, without running it.
+    <ESC>[1m<ESC>[33mbuild<ESC>[0m                 Generates the full web app, ready for deployment.
+    <ESC>[1m<ESC>[33mbuild<ESC>[0m start [args]    Previews the built production app locally.
+    <ESC>[1m<ESC>[33mdeploy<ESC>[0m                Deploys your Wasp app to cloud hosting providers.
+    <ESC>[1m<ESC>[33mtelemetry<ESC>[0m             Prints telemetry status.
+    <ESC>[1m<ESC>[33mdeps<ESC>[0m                  Prints the dependencies that Wasp uses in your project.
+    <ESC>[1m<ESC>[33mdockerfile<ESC>[0m            Prints the contents of the Wasp generated Dockerfile.
+    <ESC>[1m<ESC>[33mshow<ESC>[0m spec [--json]    Prints an overview of your app: routes, pages, queries, actions, and more.
+    <ESC>[1m<ESC>[33mshow<ESC>[0m build [--json]   Prints information about your app's current build.
+    <ESC>[1m<ESC>[33mstudio<ESC>[0m [--port <port>]
+                          (experimental) GUI for inspecting your Wasp app.
+                          If the port is not specified, Wasp picks a free port.
+    <ESC>[1m<ESC>[33mnews<ESC>[0m                  Read the latest Wasp-related news.
+
+<ESC>[1mEXAMPLES<ESC>[0m
+  wasp new MyApp
+  wasp start
+  wasp db migrate-dev
+
+<ESC>[32mDocs:<ESC>[0m https://wasp.sh/docs
+<ESC>[35mDiscord (chat):<ESC>[0m https://discord.gg/rzdnErX
+<ESC>[36mNewsletter:<ESC>[0m https://wasp.sh/#signup
+
+[exit code]
+1

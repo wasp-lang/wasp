@@ -1,0 +1,11 @@
+[terminal]
+<ESC>[33m
+🐝 --- Removing Wasp data... ------------------------------------------------------
+<ESC>[0m
+We will remove the following files and directories:
+  <scenario-dir>/home/.cache/wasp/
+
+<ESC>[1mAre you sure you want to continue? [y/N]<ESC>[0m<ESC>[33m ▸ <ESC>[0mn
+Aborted.
+[exit code]
+1

@@ -1,0 +1,19 @@
+[stdout]
+<ESC>[31m
+
+❌ --- [Error] Interactive terminal required: -------------------------------------
+
+Wasp needs to ask you something, but stdin is not an interactive terminal.
+Either run this command from a terminal, or pass everything it needs as arguments:
+
+Usage: wasp new [PROJECT_NAME] [-t|--template TEMPLATE_NAME]
+
+Available options:
+  PROJECT_NAME             Name of the new project. Required when running
+                           non-interactively
+  -t,--template TEMPLATE_NAME
+                           Template to use for the new project
+  -h,--help                Show this help text<ESC>[0m
+[stderr]
+[exit code]
+1

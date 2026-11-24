@@ -1,0 +1,27 @@
+[terminal]
+
+<ESC>[1mBelow are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.<ESC>[0m
+
+<ESC>[1mServer dependencies:<ESC>[0m
+<ESC>[36mcookie-parser<ESC>[0m@<ESC>[33m~1.4.6<ESC>[0m
+<ESC>[36mcors<ESC>[0m@<ESC>[33m^2.8.5<ESC>[0m
+<ESC>[36mexpress<ESC>[0m@<ESC>[33m~5.1.0<ESC>[0m
+<ESC>[36mmorgan<ESC>[0m@<ESC>[33m~1.12.1<ESC>[0m
+<ESC>[36mdotenv<ESC>[0m@<ESC>[33m^16.6.1<ESC>[0m
+<ESC>[36mhelmet<ESC>[0m@<ESC>[33m^6.0.0<ESC>[0m
+<ESC>[36msuperjson<ESC>[0m@<ESC>[33m^2.2.1<ESC>[0m
+
+<ESC>[1mServer devDependencies:<ESC>[0m
+<ESC>[36mtypescript<ESC>[0m@<ESC>[33m6.0.3<ESC>[0m
+<ESC>[36m@types/express<ESC>[0m@<ESC>[33m^5.0.0<ESC>[0m
+<ESC>[36m@types/express-serve-static-core<ESC>[0m@<ESC>[33m^5.0.0<ESC>[0m
+<ESC>[36m@types/node<ESC>[0m@<ESC>[33m^26.0.0<ESC>[0m
+<ESC>[36m@tsconfig/node26<ESC>[0m@<ESC>[33mlatest<ESC>[0m
+<ESC>[36m@types/cors<ESC>[0m@<ESC>[33m^2.8.5<ESC>[0m
+<ESC>[36mrollup<ESC>[0m@<ESC>[33m^4.9.6<ESC>[0m
+<ESC>[36mrollup-plugin-esbuild<ESC>[0m@<ESC>[33m^6.1.1<ESC>[0m
+<ESC>[36m@rollup/plugin-node-resolve<ESC>[0m@<ESC>[33m^16.0.0<ESC>[0m
+<ESC>[36mnf3<ESC>[0m@<ESC>[33m0.4.2<ESC>[0m
+
+[exit code]
+0

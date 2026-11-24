@@ -1,0 +1,4 @@
+[terminal]
+<ESC>[1mEnter the project name (e.g. my-project)<ESC>[0m<ESC>[33m ▸ <ESC>[0mAborted.
+[exit code]
+1

@@ -1,0 +1,9 @@
+[stdout]
+<ESC>[31m
+
+❌ --- [Error] Wasp command failed: -----------------------------------------------
+
+Couldn't find wasp project root - make sure you are running this command from a Wasp project.<ESC>[0m
+[stderr]
+[exit code]
+1

@@ -16,6 +16,7 @@ import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
+import Tests.TranscriptTests (transcriptTests)
 import Tests.ViteBuildTest (viteBuildTest)
 import Tests.ViteConfigTest (viteConfigTest)
 import Tests.VitestTest (vitestTest)
@@ -40,6 +41,7 @@ import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
 import Text.Read (readMaybe)
+import TranscriptTest (testTreeFromTranscriptTests)
 import UnliftIO.Async (pooledMapConcurrentlyN)
 
 main :: IO ()
@@ -130,13 +132,15 @@ e2eTests = do
         serverTypeCheckingTest
       ]
   sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
+  transcriptTestTree <- testTreeFromTranscriptTests transcriptTests
 
   return $
     testGroup
       "E2E tests"
       [ testGroup "Snapshot Tests" snapshotTestTrees,
         testGroup "Shell tests" shellTestTrees,
-        testGroup "Tests" [sdkPackageExportsTestTree]
+        testGroup "Tests" [sdkPackageExportsTestTree],
+        transcriptTestTree
       ]
 
 -- | How many snapshot tests we prepare concurrently.

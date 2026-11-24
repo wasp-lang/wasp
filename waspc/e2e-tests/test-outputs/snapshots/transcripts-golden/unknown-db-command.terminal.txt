@@ -1,0 +1,33 @@
+[terminal]
+<ESC>[1mUSAGE<ESC>[0m
+  wasp db <command> [command-args]
+
+<ESC>[1mCOMMANDS<ESC>[0m
+  <ESC>[1m<ESC>[33mstart<ESC>[0m [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]
+                               Alias for `wasp start db`.
+                               Starts managed development database for you.
+                               Optionally specify a custom port, Docker image, or Docker volume mount path.
+                               If the port is not specified, Wasp picks the first free port when the default one is taken.
+  <ESC>[1m<ESC>[33mreset<ESC>[0m [args]                 Drops all data and tables from development database and re-applies all migrations.
+  <ESC>[1m<ESC>[33mseed<ESC>[0m [name]                  Executes a db seed function (specified via app.db.seeds).
+                               If there are multiple seeds, you can specify a seed to execute by providing its name,
+                               or if not then you will be asked to provide the name interactively.
+  <ESC>[1m<ESC>[33mmigrate-dev<ESC>[0m                  Ensures dev database corresponds to the current state of schema(entities):
+                                 - Generates a new migration if there are changes in the schema.
+                                 - Applies any pending migrations to the database either using the
+                                   supplied migration name or asking for one.
+    OPTIONS:
+      --name [migration-name]
+      --create-only
+  <ESC>[1m<ESC>[33mstudio<ESC>[0m [--port <port>]       GUI for inspecting your database.
+                               If the port is not specified, Wasp picks a free port.
+
+<ESC>[1mEXAMPLES<ESC>[0m
+  wasp db migrate-dev
+  wasp db migrate-dev --name "Added User entity"
+  wasp db migrate-dev --create-only
+  wasp db studio
+  wasp db start --db-port 8080
+
+[exit code]
+1

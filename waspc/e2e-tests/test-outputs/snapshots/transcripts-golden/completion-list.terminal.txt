@@ -1,0 +1,21 @@
+[terminal]
+new
+help
+version
+doctor
+completion
+uninstall
+start
+db
+clean
+compile
+build
+deploy
+telemetry
+deps
+dockerfile
+show
+studio
+
+[exit code]
+0

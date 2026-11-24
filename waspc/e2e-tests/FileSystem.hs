@@ -3,6 +3,7 @@ module FileSystem
     WaspcDir,
     getWaspcDirPath,
     waspCliDevToolInWaspcDir,
+    waspcDataDirInWaspcDir,
     SeedsDir,
     seedsDirInWaspProjectDir,
     seedsFileInSeedsDir,
@@ -24,6 +25,9 @@ module FileSystem
     snapshotLogFileInSnapshotsDir,
     gitRootFromSnapshotDir,
     snapshotFileListManifestFileInSnapshotDir,
+    TranscriptFile,
+    transcriptsDirInSnapshotsDir,
+    transcriptFileInTranscriptsDir,
   )
 where
 
@@ -50,6 +54,11 @@ getWaspcDirPath = do
 
 waspCliDevToolInWaspcDir :: Path' (Rel WaspcDir) File'
 waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev|]
+
+data WaspcDataDir
+
+waspcDataDirInWaspcDir :: Path' (Rel WaspcDir) (Dir WaspcDataDir)
+waspcDataDirInWaspcDir = [reldir|data|]
 
 waspcDirInGitRootDir :: Path' (Rel GitRootDir) (Dir WaspcDir)
 waspcDirInGitRootDir = [reldir|waspc|]
@@ -146,3 +155,17 @@ snapshotDirInGitRootDir snapshotTestName snapshotType =
 -- NOTE: If you change this function, change the other one too.
 gitRootFromSnapshotDir :: Path' (Rel SnapshotDir) (Dir GitRootDir)
 gitRootFromSnapshotDir = [reldir|../../../../../|]
+
+-- 'TranscriptTest' tests file system
+
+-- | A file that holds everything a command printed in one recording mode.
+data TranscriptFile
+
+-- | All transcripts live in a single 'SnapshotDir', so they are accepted and
+-- ignored by git the same way as the other snapshots.
+transcriptsDirInSnapshotsDir :: SnapshotType -> Path' (Rel SnapshotsDir) (Dir SnapshotDir)
+transcriptsDirInSnapshotsDir = snapshotDirInSnapshotsDir "transcripts"
+
+transcriptFileInTranscriptsDir :: String -> String -> Path' (Rel SnapshotDir) (File TranscriptFile)
+transcriptFileInTranscriptsDir transcriptTestName recordingModeName =
+  fromJust . parseRelFile $ transcriptTestName ++ "." ++ recordingModeName ++ ".txt"

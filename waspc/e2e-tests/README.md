@@ -15,10 +15,11 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 ## Test variants
 
-`waspc e2e-tests` consist of two different tests variants:
+`waspc e2e-tests` consist of three different tests variants:
 
 1. **Tests**: tests whose output we don't need to save
 2. **Snapshot Tests**: tests whose output we want to save
+3. **Transcript Tests**: tests that save what the commands print
 
 ### Tests
 
@@ -69,4 +70,37 @@ e2e-tests/
             ├── wasp-app/ # contains the Wasp app for that snapshot test
             ├── ...
             └── snapshot-file-list.manifest # lists the files that should exist in the snapshot directory
+```
+
+### Transcript tests
+
+We test what the Wasp CLI commands print using transcript tests.
+A transcript holds everything a command printed and its exit code.
+Transcript tests compare the `current` transcripts against the `golden` transcripts, the same way snapshot tests do.
+
+Each command is recorded twice:
+
+1. **In a terminal** (through `script`): the way a user sees it. Skipped where `script` isn't available.
+2. **Through a pipe**: stdout and stderr are recorded separately.
+
+Only what Wasp itself prints is compared exactly.
+The output of the tools Wasp runs (e.g. `npm install`) changes between runs, so each run of lines with the same job prefix is replaced by a placeholder line.
+The output of the running app is left out.
+
+For more details, check out the `waspc/e2e-tests/TranscriptTest.hs` file.
+
+Transcripts live in the `waspc/e2e-tests/test-outputs/snapshots/` directory, and the commands run in the `waspc/e2e-tests/test-outputs/` directory:
+
+```
+# Where:
+#   `<name>`          = the transcript test's name.
+#   `<mode>`          = `terminal` or `pipe`.
+#   `<snapshot-type>` = `current` or `golden`.
+
+e2e-tests/
+└── test-outputs/
+    ├── transcript-<name>/<mode>/  # the directory the test's commands run in
+    └── snapshots/
+        └── transcripts-<snapshot-type>/
+            └── <name>.<mode>.txt  # transcript file, e.g. `compile.terminal.txt`
 ```
