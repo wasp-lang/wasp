@@ -10,7 +10,7 @@ import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirRecursive)
-import Tests.Fixtures (viteBuild, withApiUrl)
+import Tests.Fixtures (userCodeTypeError, userCodeTypeErrorMessage)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
@@ -21,32 +21,31 @@ viteBuildTest =
   testGroup
     "vite-build"
     [ viteBuildTestCase "fail-on-missing-required-env-vars" $
-        runExpectingFailure (viteBuild [])
+        runExpectingFailure (viteBuildCommand [])
           >>= assertOutputContains (T.pack serverUrlEnvVarName <> " is required"),
       viteBuildTestCase "succeed-with-required-env-vars" $
-        run viteBuildWithApiUrl,
+        run viteBuildWithApiUrlCommand,
       viteBuildTestCase "succeed-without-inline-env-var" $ do
-        run viteBuildWithApiUrl
-        assertBuildOutputDoesNotContain inlineEnvVarValue,
+        run viteBuildWithApiUrlCommand
+        assertBuildDirDoesNotContain inlineEnvVarValue,
       -- Based on https://github.com/wasp-lang/wasp/issues/3741
       viteBuildTestCase "succeed-inline-env-var" $ do
-        run $ withEnv [(testEnvVarKey, inlineEnvVarValue)] viteBuildWithApiUrl
-        assertBuildOutputContains inlineEnvVarValue,
+        run $ withEnv [(testEnvVarKey, inlineEnvVarValue)] viteBuildWithApiUrlCommand
+        assertBuildDirContains inlineEnvVarValue,
       viteBuildTestCase "ignore-dotenv-client-file-in-build" $ do
         writeDotEnvClientFile
-        run viteBuildWithApiUrl
-        assertBuildOutputDoesNotContain dotEnvFileValue,
+        run viteBuildWithApiUrlCommand
+        assertBuildDirDoesNotContain dotEnvFileValue,
       viteBuildTestCase "inline-env-vars-work-with-env-file-present" $ do
         writeDotEnvClientFile
-        run $ withEnv [(testEnvVarKey, inlineEnvVarValue)] viteBuildWithApiUrl
-        assertBuildOutputContains inlineEnvVarValue,
+        run $ withEnv [(testEnvVarKey, inlineEnvVarValue)] viteBuildWithApiUrlCommand
+        assertBuildDirContains inlineEnvVarValue,
       viteBuildTestCase "fail-on-user-code-type-error" $ do
-        appendToFile "src/MainPage.tsx" typeError
-        runExpectingFailure viteBuildWithApiUrl
-          >>= assertOutputContains "error TS2322: Type 'number' is not assignable to type 'string'.",
+        appendToFile "src/MainPage.tsx" userCodeTypeError
+        runExpectingFailure viteBuildWithApiUrlCommand >>= assertOutputContains userCodeTypeErrorMessage,
       viteBuildTestCase "ignore-wasp-ts-type-errors" $ do
-        appendToFile "main.wasp.ts" typeError
-        run viteBuildWithApiUrl,
+        appendToFile "main.wasp.ts" userCodeTypeError
+        run viteBuildWithApiUrlCommand,
       viteBuildTestCase "fail-on-user-defined-client-port" $ do
         writeToFile
           "vite.config.ts"
@@ -61,7 +60,7 @@ viteBuildTest =
               },
             });
           |]
-        runExpectingFailure viteBuildWithApiUrl
+        runExpectingFailure viteBuildWithApiUrlCommand
           >>= assertOutputContains "\"server.port\" is set to 4000"
     ]
   where
@@ -80,22 +79,22 @@ viteBuildTest =
           wasp ["build"]
           steps
 
-    viteBuildWithApiUrl :: Command
-    viteBuildWithApiUrl = withApiUrl $ viteBuild []
+    viteBuildWithApiUrlCommand :: Command
+    viteBuildWithApiUrlCommand = withApiUrl $ viteBuildCommand []
 
-    assertBuildOutputContains :: String -> TestM ()
-    assertBuildOutputContains value =
-      buildOutputContains value >>= assertTrue ("the build output contains " ++ show value)
+    assertBuildDirContains :: String -> TestM ()
+    assertBuildDirContains value =
+      buildDirContains value >>= assertTrue ("the build dir contains " ++ show value)
 
-    -- Also checks that the build output has the main page, without which
+    -- Also checks that the build dir has the main page, without which
     -- nothing would contain the value.
-    assertBuildOutputDoesNotContain :: String -> TestM ()
-    assertBuildOutputDoesNotContain value = do
-      assertBuildOutputContains mainPageMarker
-      buildOutputContains value >>= assertTrue ("the build output doesn't contain " ++ show value) . not
+    assertBuildDirDoesNotContain :: String -> TestM ()
+    assertBuildDirDoesNotContain value = do
+      assertBuildDirContains mainPageMarker
+      buildDirContains value >>= assertTrue ("the build dir doesn't contain " ++ show value) . not
 
-    buildOutputContains :: String -> TestM Bool
-    buildOutputContains value = do
+    buildDirContains :: String -> TestM Bool
+    buildDirContains value = do
       buildDir <- resolvePath $ SP.fromRelDir viteBuildDirPath
       liftIO $ do
         files <- getDirRecursive buildDir >>= filterM doesFileExist
@@ -103,9 +102,6 @@ viteBuildTest =
 
     writeDotEnvClientFile :: TestM ()
     writeDotEnvClientFile = writeToFile (SP.fromRelFile dotEnvClient) $ T.pack $ testEnvVarKey ++ "=" ++ dotEnvFileValue
-
-    typeError :: T.Text
-    typeError = "const shouldBeString: string = 123"
 
     mainPageMarker :: String
     mainPageMarker = "ViteBuildTestMainPage"

@@ -8,8 +8,13 @@ module E2E.Wasp
     waspCliNew,
     createWaspProject,
     withNewWaspProject,
+    getProjectDirAndAppName,
     waspDbMigrateDev,
+    dbMigratedMessage,
     waspCliDbResetForce,
+    waspDbSeed,
+    viteBuildCommand,
+    withApiUrl,
     dbMigrationsDirs,
     listDbMigrations,
     setDbToPostgres,
@@ -28,18 +33,20 @@ import Data.List (isSuffixOf)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Assertions (assertOutputContains)
-import E2E.Command (Command, waspCli, withEnv)
+import E2E.Command (Command, nodeModulesBin, waspCli, withEnv, withoutEnv)
 import E2E.Files (replaceInFile, writeToFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
-import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
+import E2E.TestM (TestM, failTest, getWorkingDir, inDirectory, resolvePath)
 import qualified StrongPath as SP
-import System.Directory (doesDirectoryExist, listDirectory, renameDirectory)
+import System.Directory (canonicalizePath, doesDirectoryExist, listDirectory, renameDirectory)
 import System.FilePath ((</>))
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (parseWaspProjectNameIntoAppName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..))
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
+import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import Wasp.Version (waspVersion)
 
@@ -81,6 +88,22 @@ createWaspProject = void . run . waspCliNew
 withNewWaspProject :: StarterTemplate -> TestM a -> TestM a
 withNewWaspProject template steps = createWaspProject template >> inDirectory waspAppDirName steps
 
+-- | The project dir and app name Wasp derives the names of the project's
+-- resources from (e.g. Docker containers), so that a test can derive them the
+-- same way, before anything creates them. For the project
+-- 'withNewWaspProject' created, run in its dir.
+getProjectDirAndAppName :: TestM (SP.Path' SP.Abs (SP.Dir WaspProjectDir), String)
+getProjectDirAndAppName = do
+  workingDir <- getWorkingDir
+  -- Wasp finds the project dir through the OS's current dir, which has no
+  -- symlinks.
+  projectDir <- liftIO $ canonicalizePath workingDir >>= SP.parseAbsDir
+  -- `wasp new` names the app after the project's dir.
+  appName <- case parseWaspProjectNameIntoAppName waspAppDirName of
+    Left err -> failTest $ "Couldn't get the app name of the project: " ++ err
+    Right name -> return $ show name
+  return (projectDir, appName)
+
 -- | Runs `wasp db migrate-dev` in the Wasp project.
 --
 -- We make the migration name deterministic by renaming its directory to
@@ -89,7 +112,7 @@ withNewWaspProject template steps = createWaspProject template >> inDirectory wa
 -- Caveat: a project can't have two migrations with the same name.
 waspDbMigrateDev :: String -> TestM ()
 waspDbMigrateDev migrationName = do
-  wasp ["db", "migrate-dev", "--name", migrationName] >>= assertOutputContains "Database successfully migrated."
+  wasp ["db", "migrate-dev", "--name", migrationName] >>= assertOutputContains dbMigratedMessage
   forM_ dbMigrationsDirs $ \migrationsDir -> do
     migrations <- listDbMigrations migrationsDir
     absMigrationsDir <- resolvePath migrationsDir
@@ -97,6 +120,11 @@ waspDbMigrateDev migrationName = do
     -- migration, so there's nothing to rename.
     forM_ (filter (("_" ++ migrationName) `isSuffixOf`) migrations) $ \migration ->
       liftIO $ renameDirectory (absMigrationsDir </> migration) (absMigrationsDir </> ("no-date-" ++ migrationName))
+
+-- | What `wasp db migrate-dev` prints when it succeeds, also when there was
+-- nothing to migrate.
+dbMigratedMessage :: T.Text
+dbMigratedMessage = "Database successfully migrated."
 
 -- | The migrations dir in the Wasp project and its copy in the generated app,
 -- relative to the Wasp project dir.
@@ -122,6 +150,28 @@ waspCliDbResetForce :: Command
 waspCliDbResetForce =
   withEnv [("PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION", "Resetting the throwaway e2e test database")] $
     waspCli ["db", "reset", "--force"]
+
+-- | Runs `wasp db seed` with the arguments, and checks that Wasp ran the seed.
+-- Tests check the database's state with seeds that fail, so a seed that didn't
+-- run would pass any check.
+waspDbSeed :: [String] -> TestM ProcessResult
+waspDbSeed arguments = do
+  result <- wasp ("db" : "seed" : arguments)
+  assertOutputContains "Database seeded successfully!" result
+  return result
+
+-- | `vite build` in the Wasp project, with the extra arguments.
+--
+-- Without the test runner's @REACT_APP_API_URL@, so that each test decides
+-- whether the client gets it, which it needs to build. Use 'withApiUrl' to
+-- set it.
+viteBuildCommand :: [String] -> Command
+viteBuildCommand arguments = withoutEnv [serverUrlEnvVarName] $ nodeModulesBin "vite" ("build" : arguments)
+
+-- | Sets the server URL the client is built with. The URL is only baked into
+-- the build: nothing contacts it.
+withApiUrl :: Command -> Command
+withApiUrl = withEnv [(serverUrlEnvVarName, "http://localhost:3001")]
 
 setDbToPostgres :: TestM ()
 setDbToPostgres = replaceInFile "schema.prisma" "provider = \"sqlite\"" "provider = \"postgresql\""

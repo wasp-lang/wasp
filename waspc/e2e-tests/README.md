@@ -84,7 +84,7 @@ waspStartTest =
           wasp ["compile"]
           ports <- allocateAppPorts
           app <- startInBackground $ waspCli ("start" : appPortArgs ports)
-          waitUntilListening app (appPortList ports) (5 * 60)
+          waitUntilListening app (appPortList ports) appStartTimeoutSeconds
           getWaspPidFromLockFile >>= signalPid SIGINT
           waitUntilStopped app (appPortList ports)
     ]
@@ -95,11 +95,27 @@ waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarter
 
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
 - When a step fails, the test's failure message says which command failed and shows the last lines of its output.
+- Long tests label their phases with `step "<what it checks>" $ do ...`. The label is logged as a header, and a failure in the phase starts with it.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
 - Tests that run an app get free ports from `allocateAppPorts` (or `allocatePort`, for a command that takes a single port), so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
-- Use `skipIfDockerDisabled` in tests that need Docker. Snapshot tests can't skip themselves, so they use `whenDockerEnabled` for their Docker steps.
-- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone. Nothing can cut a hung cleanup short, so give their commands the short `cleanupCommandTimeoutSeconds`.
+- Tests that need Docker are made with `dockerTest` instead of `test`, and pass without running when Docker is disabled. Snapshot tests must produce a snapshot, so they use `whenDockerEnabled` for their Docker steps.
+- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them, registered before the step that creates them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone. Nothing can cut a hung cleanup short, so give their commands the short `cleanupCommandTimeoutSeconds` (`dockerCleanup` does).
+- Timeouts and other tuning numbers are named constants (e.g. `failFastTimeoutSeconds`, `settleTimeoutSeconds`), defined once in `E2E/` when more than one module uses them for the same reason.
 - `wasp` commands run without the runner's `DATABASE_URL`, so they can't act on a database outside the test. Tests that need one set it with `withEnv`.
+
+### Where helpers go
+
+A helper that isn't specific to one test goes in `E2E/`, in the module for what it's about:
+
+- `E2E/TestM.hs`: the test monad and what every step can do: fail, label a phase (`step`), log, run in a directory, register cleanups, make unique names, and poll.
+- `E2E/Command.hs`: describing commands, and the timeouts commands run with (e.g. `cleanupCommandTimeoutSeconds`). Timeouts of waits sit next to the wait they're for.
+- `E2E/Process.hs`: running commands and everything about a process's life (output, exit, signals).
+- `E2E/Ports.hs`, `E2E/Net.hs`: allocating ports, and waiting for a process to listen on them or to stop listening (`waitUntilStopped`).
+- `E2E/Docker.hs`: Docker commands, and tests and steps that need Docker.
+- `E2E/Wasp.hs`: wrappers around Wasp CLI commands and the tools a Wasp project runs (e.g. `viteBuildCommand`), and facts about Wasp projects (e.g. their migrations dirs).
+- `E2E/Assertions.hs`, `E2E/Files.hs`: generic checks and file system steps.
+
+A helper with a single caller stays in that test's module. Steps that write app content (models, TS files) shared by several tests go in `Tests/Fixtures.hs`.
 
 Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we port them (see [#3404](https://github.com/wasp-lang/wasp/issues/3404)).
 

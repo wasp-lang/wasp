@@ -13,19 +13,19 @@ incrementalTypeCheckingTest =
         withNewWaspProject minimalStarterTemplate $ do
           writeTasksQueryApp
           wasp ["compile"]
-          run typeCheckApp
+          run typeCheckAppCommand
           breakTasksQueryType
-          -- Touches MainPage.tsx without changing it (appends nothing), like
-          -- saving it in an editor. Editing a file is what made TypeScript
-          -- report the initial error.
+          -- Touches MainPage.tsx by appending an empty line, like saving it in
+          -- an editor. Editing a file is what made TypeScript report the
+          -- initial error.
           appendToFile "src/MainPage.tsx" ""
           -- Compile rejects the type error, but still generates the new types.
           waspFails ["compile"] >>= assertOutputContains tasksQueryTypeError
-          runExpectingFailure typeCheckApp >>= assertOutputContains tasksQueryTypeError
+          runExpectingFailure typeCheckAppCommand >>= assertOutputContains tasksQueryTypeError
           fixTasksQueryType
           wasp ["compile"]
-          run typeCheckApp
+          run typeCheckAppCommand
     ]
   where
-    typeCheckApp :: Command
-    typeCheckApp = nodeModulesBin "tsc" ["--build", "tsconfig.src.json"]
+    typeCheckAppCommand :: Command
+    typeCheckAppCommand = nodeModulesBin "tsc" ["--build", "tsconfig.src.json"]
