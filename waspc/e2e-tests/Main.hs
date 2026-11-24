@@ -53,7 +53,7 @@ main = do
       -- With --hide-successes, the skipped tests don't show up as skipped.
       unless runConfig.isDockerEnabled
         $ putStrLn
-        $ "Docker is disabled via " ++ skipDockerEnvVar ++ ", so the tests that need it pass without running their Docker steps."
+        $ "Docker is disabled via " ++ skipDockerEnvVar ++ ", so the tests that need it pass without running, and snapshot tests skip their Docker steps."
       checkOutputDirs (e2eSnapshotTests ++ e2eTests)
       -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
       warmUpWaspCli runConfig.waspCliPath
