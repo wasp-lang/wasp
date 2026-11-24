@@ -13,7 +13,7 @@ import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStart
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
-import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Message (cliSendMessageC, runTaskC)
 import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (GeneratedAppIsProduction))
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -49,15 +49,13 @@ buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
 buildAndStartServerAndClient appSpec config = do
   writeRawOutput <- (.writeRawOutput) <$> getConsole
 
-  cliSendMessageC $ Msg.Start "Building client..."
-  Job.run writeRawOutput (Job.prefixWith Job.WebApp $ buildClient config)
-    >>= throwOnExitFailure "Building client failed." "Building the client"
-  cliSendMessageC $ Msg.Success "Client built."
+  runTaskC "Building client..." "Client built." $
+    Job.run writeRawOutput (Job.prefixWith Job.WebApp $ buildClient config)
+      >>= throwOnExitFailure "Building client failed." "Building the client"
 
-  cliSendMessageC $ Msg.Start "Building server..."
-  Job.run writeRawOutput (Job.prefixWith Job.Server $ buildServer config)
-    >>= throwOnExitFailure "Building server failed." "Building the server"
-  cliSendMessageC $ Msg.Success "Server built."
+  runTaskC "Building server..." "Server built." $
+    Job.run writeRawOutput (Job.prefixWith Job.Server $ buildServer config)
+      >>= throwOnExitFailure "Building server failed." "Building the server"
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
   cliSendMessageC

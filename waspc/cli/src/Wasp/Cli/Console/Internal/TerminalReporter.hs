@@ -5,13 +5,30 @@ module Wasp.Cli.Console.Internal.TerminalReporter
   )
 where
 
+import Control.Monad (unless)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.TextStyle as TextStyle
 
 makeTerminalReporter :: Reporter
-makeTerminalReporter = Reporter {send = Terminal.writeLine . renderMessage}
+makeTerminalReporter =
+  Reporter
+    { send = sendMessage,
+      runTaskWithStatusReport = runTaskBySendingMessages sendMessage
+    }
+  where
+    sendMessage = Terminal.writeLine . renderMessage
+
+-- | Reports a task with a start message and a success message. An empty
+-- running text means that there is no start message.
+runTaskBySendingMessages :: (MonadIO m) => (Msg.Message -> IO ()) -> String -> String -> m a -> m a
+runTaskBySendingMessages sendMessage runningText successText task = do
+  unless (null runningText) $ liftIO $ sendMessage $ Msg.Start runningText
+  result <- task
+  liftIO $ sendMessage $ Msg.Success successText
+  return result
 
 renderMessage :: Msg.Message -> String
 renderMessage (Msg.Info msg) =

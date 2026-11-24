@@ -1,6 +1,7 @@
 module Wasp.Cli.Command.Message
   ( cliSendMessageC,
     cliWriteRawOutputC,
+    runTaskC,
   )
 where
 
@@ -21,3 +22,9 @@ cliWriteRawOutputC :: OutputStream -> String -> Command ()
 cliWriteRawOutputC outputStream text = do
   console <- getConsole
   liftIO $ console.writeRawOutput outputStream $ T.pack text
+
+-- | See 'runTaskWithStatusReport'.
+runTaskC :: String -> String -> Command a -> Command a
+runTaskC runningText successText task = do
+  console <- getConsole
+  runTaskWithStatusReport console.reporter runningText successText task

@@ -389,6 +389,7 @@ library
     Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
+    Wasp.TaskRunner
     Wasp.Util
     Wasp.Util.Aeson
     Wasp.Util.Control.Monad

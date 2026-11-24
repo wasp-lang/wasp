@@ -24,7 +24,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, commandError, compilationWarningsTitle, compileCommandError, failCommandWithoutError, formatErrorOrWarningMessages, getConsole, reportCompileWarnings, require)
-import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Message (runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -40,6 +40,7 @@ import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProje
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.TaskRunner (TaskRunner (..))
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
@@ -78,36 +79,38 @@ compileWithOptions options = do
 
   outDirExists <- liftIO $ doesDirectoryExist outDir
 
-  when (outDirExists && not generatedAppIsCompatible) $ do
-    cliSendMessageC
-      $ Msg.Start
-      $ "Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
-    liftIO $ removeDirectory outDir
-    cliSendMessageC
-      $ Msg.Success
-      $ "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  when (outDirExists && not generatedAppIsCompatible)
+    $ runTaskC
+      ("Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory...")
+      ("Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory.")
+    $ liftIO
+    $ removeDirectory outDir
 
-  cliSendMessageC $ Msg.Start "Compiling wasp project..."
-  compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
-  let (warnings, _errors) = compileResultWarningsAndErrors compileResult
-  case _compileOutcome compileResult of
-    Right appSpec -> do
-      console <- getConsole
-      liftIO $ reportSuccessfulCompile console.reporter warnings
-      return (warnings, appSpec)
-    Left compileErrors ->
-      throwError $
-        compileCommandError
-          "Compilation of wasp project failed"
-          (show (length compileErrors) ++ " errors found")
-          compileErrors
-          warnings
+  (warnings, appSpec) <-
+    runTaskC "Compiling wasp project..." successfulCompileText $ do
+      compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
+      let (warnings, _errors) = compileResultWarningsAndErrors compileResult
+      case _compileOutcome compileResult of
+        Right appSpec -> return (warnings, appSpec)
+        Left compileErrors ->
+          throwError $
+            compileCommandError
+              "Compilation of wasp project failed"
+              (show (length compileErrors) ++ " errors found")
+              compileErrors
+              warnings
+  console <- getConsole
+  liftIO $ reportCompileWarnings console.reporter warnings
+  return (warnings, appSpec)
 
 -- | Reports that the compilation went well, followed by any warnings it had.
 reportSuccessfulCompile :: Reporter -> [CompileWarning] -> IO ()
 reportSuccessfulCompile reporter warnings = do
-  reporter.send $ Msg.Success "Your wasp project has successfully compiled."
+  reporter.send $ Msg.Success successfulCompileText
   reportCompileWarnings reporter warnings
+
+successfulCompileText :: String
+successfulCompileText = "Your wasp project has successfully compiled."
 
 analysisErrorsTitle :: [CompileError] -> String
 analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length errors) <> " errors found"
@@ -135,7 +138,7 @@ defaultCompileOptions console waspProjectDir =
   CompileOptions
     { waspProjectDir,
       buildType = BuildType.Development,
-      sendMessage = console.reporter.send,
+      taskRunner = TaskRunner (runTaskWithStatusReport console.reporter),
       writeJobOutput = console.writeRawOutput,
       setupGoals = allSetupGoals
     }

@@ -31,13 +31,12 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Install (installIO)
-import Wasp.Cli.Command.Message (cliSendMessageC, cliWriteRawOutputC)
+import Wasp.Cli.Command.Message (cliWriteRawOutputC, runTaskC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
-import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Util (indent)
@@ -53,15 +52,22 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   let absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
       needsMigration = newProjectDescription._template.metadata._migratesDbOnCreation
 
-  createProjectOnDisk newProjectDescription
-  -- TODO consider removing if we start doing `wasp install` automatically
   console <- getConsole
-  areDepsInstalled <- liftIO $ installDepsForNewProject console absWaspProjectDir
+  (areDepsInstalled, isDbMigrated) <-
+    runTaskC
+      ("Creating your project from the \"" ++ show newProjectDescription._template ++ "\" template...")
+      ("Created a new Wasp app in `./" ++ getProjectDirName newProjectDescription ++ "`.")
+      $ do
+        createProjectOnDisk newProjectDescription
+        -- TODO consider removing if we start doing `wasp install` automatically
+        areDepsInstalled <- liftIO $ installDepsForNewProject console absWaspProjectDir
 
-  isDbMigrated <-
-    if needsMigration && areDepsInstalled
-      then migrateDbForNewProject absWaspProjectDir
-      else return False
+        isDbMigrated <-
+          if needsMigration && areDepsInstalled
+            then migrateDbForNewProject absWaspProjectDir
+            else return False
+
+        return (areDepsInstalled, isDbMigrated)
 
   liftIO $ printGettingStartedInstructionsForProject console newProjectDescription
 
@@ -72,8 +78,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
-  newProjectDescription@(NewProjectDescription {_template = template}) = do
-    cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
+  newProjectDescription@(NewProjectDescription {_template = template}) =
     case template of
       GhRepoReleaseArchiveTemplate {repo = ghRepoRef, archiveName = archiveName', archivePath = archivePath'} ->
         createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef archiveName' archivePath'
@@ -133,12 +138,13 @@ migrateDbForNewProject absWaspProjectDir =
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
-printGettingStartedInstructionsForProject :: Console -> NewProjectDescription -> IO ()
-printGettingStartedInstructionsForProject console projectDescription = do
-  let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
-  let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
-  console.reporter.send $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
-  console.writeRawOutput Stdout . T.pack $ instructions ++ "\n"
+printGettingStartedInstructionsForProject :: WriteOutput -> NewProjectDescription -> IO ()
+printGettingStartedInstructionsForProject writeRawOutput projectDescription = do
+  let instructions = getTemplateStartingInstructions (getProjectDirName projectDescription) $ _template projectDescription
+  writeRawOutput Stdout . T.pack $ instructions ++ "\n"
+
+getProjectDirName :: NewProjectDescription -> String
+getProjectDirName = init . SP.toFilePath . SP.basename . _absTemplateOutputDir
 
 printExtraInstructionsForProject :: WriteOutput -> [String] -> IO ()
 printExtraInstructionsForProject _ [] = return ()

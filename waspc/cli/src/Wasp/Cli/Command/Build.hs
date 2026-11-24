@@ -15,7 +15,7 @@ import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, commandError, compileCommandError, getConsole, require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, reportSuccessfulCompile)
-import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Message (runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -25,7 +25,6 @@ import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (allSetupGoals)
-import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import Wasp.Project (compileResultWarningsAndErrors)
 import qualified Wasp.Project.BuildType as BuildType
@@ -40,6 +39,7 @@ import Wasp.Project.Common
     tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
+import Wasp.TaskRunner (TaskRunner (..))
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
 
@@ -59,35 +59,31 @@ build = ProjectLock.acquireExclusive $ do
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
-  when doesBuildDirExist $ do
-    cliSendMessageC
-      $ Msg.Start
-      $ "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
-    liftIO $ removeDirectory buildDir
-    cliSendMessageC
-      $ Msg.Success
-      $ "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+  when doesBuildDirExist
+    $ runTaskC
+      ("Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory...")
+      ("Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory.")
+    $ liftIO
+    $ removeDirectory buildDir
 
-  cliSendMessageC $ Msg.Start "Building wasp project..."
+  runTaskC
+    "Building wasp project..."
+    ("Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory.")
+    $ do
+      console <- getConsole
+      (warnings, errors) <- liftIO $ buildIO console waspProjectDir buildDir
+      unless (null errors)
+        $ throwError
+        $ compileCommandError
+          "Building of wasp project failed"
+          (show (length errors) ++ " errors found.")
+          errors
+          warnings
+      liftIO $ reportSuccessfulCompile console.reporter warnings
 
-  console <- getConsole
-  (warnings, errors) <- liftIO $ buildIO console waspProjectDir buildDir
-  unless (null errors)
-    $ throwError
-    $ compileCommandError
-      "Building of wasp project failed"
-      (show (length errors) ++ " errors found.")
-      errors
-      warnings
-  liftIO $ reportSuccessfulCompile console.reporter warnings
-
-  liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
-    Left err -> throwError $ commandError "Failed to prepare files necessary for docker build" err
-    Right () -> return ()
-
-  cliSendMessageC
-    $ Msg.Success
-    $ "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
+      liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
+        Left err -> throwError $ commandError "Failed to prepare files necessary for docker build" err
+        Right () -> return ()
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       let srcTsConfigPath = srcTsConfig tsConfigPaths
@@ -162,7 +158,7 @@ buildIO console waspProjectDir buildDir = compileResultWarningsAndErrors <$> com
       CompileOptions
         { waspProjectDir,
           buildType = BuildType.Production,
-          sendMessage = console.reporter.send,
+          taskRunner = TaskRunner (runTaskWithStatusReport console.reporter),
           writeJobOutput = console.writeRawOutput,
           setupGoals = allSetupGoals
         }

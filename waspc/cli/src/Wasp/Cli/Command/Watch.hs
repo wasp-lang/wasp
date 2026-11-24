@@ -8,6 +8,8 @@ import Control.Concurrent (MVar, threadDelay)
 import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan, writeChan)
 import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
+import Control.Monad.Except (runExceptT, throwError)
+import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf, isSuffixOf)
 import Data.Maybe (mapMaybe)
 import Data.Time.Clock (UTCTime, getCurrentTime)
@@ -17,7 +19,7 @@ import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (compileCommandError, reportCommandError, reportCompileErrors, reportCompileWarnings)
+import Wasp.Cli.Command (CommandError (..), compileCommandError, reportCommandError, reportCompileErrors, reportCompileWarnings)
 import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, reportSuccessfulCompile)
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Reporter (Reporter (..))
@@ -25,7 +27,6 @@ import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
-import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
@@ -153,32 +154,38 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
 
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
-      console.reporter.send $ Msg.Start "Recompiling on file change..."
-      compileResult <- compileIO console waspProjectDir outDir
-      let (warnings, errors) = compileResultWarningsAndErrors compileResult
+      recompileResult <-
+        runExceptT $
+          runTaskWithStatusReport console.reporter "Recompiling on file change..." "Recompilation on file change succeeded." $
+            do
+              compileResult <- liftIO $ compileIO console waspProjectDir outDir
+              let (warnings, errors) = compileResultWarningsAndErrors compileResult
+              case _compileOutcome compileResult of
+                Right appSpec -> do
+                  liftIO $ reportSuccessfulCompile console.reporter warnings
+                  return (compileResult, appSpec)
+                Left _ ->
+                  throwError $
+                    compileCommandError
+                      "Recompilation on file change failed."
+                      (show (length errors) ++ " errors found")
+                      errors
+                      warnings
 
-      compileOutcome <- case _compileOutcome compileResult of
-        Right appSpec -> do
-          reportSuccessfulCompile console.reporter warnings
-          console.reporter.send $ Msg.Success "Recompilation on file change succeeded."
+      (compileOutcome, warnings, errors) <- case recompileResult of
+        Right (compileResult, appSpec) -> do
           projectRunConfig <- makeProjectRunConfig appSpec
-          return $
-            SuccessfulCompile
-              projectRunConfig
-              CompileChanges
-                { _compileStartTime = compileStartTime,
-                  _changedProjectFiles = changedProjectFiles,
-                  _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
-                }
-        Left _ -> do
+          let compileChanges =
+                CompileChanges
+                  { _compileStartTime = compileStartTime,
+                    _changedProjectFiles = changedProjectFiles,
+                    _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
+                  }
+          return (SuccessfulCompile projectRunConfig compileChanges, _compileWarnings compileResult, [])
+        Left recompileError -> do
           -- The command carries on, so the error is reported here and not thrown.
-          reportCommandError console.reporter $
-            compileCommandError
-              "Recompilation on file change failed."
-              (show (length errors) ++ " errors found")
-              errors
-              warnings
-          return FailedCompile
+          reportCommandError console.reporter recompileError
+          return (FailedCompile, _warnings recompileError, _errors recompileError)
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome

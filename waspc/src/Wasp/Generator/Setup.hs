@@ -29,8 +29,8 @@ import qualified Wasp.Generator.NodeCommands as NodeCommands
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
-import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
+import Wasp.TaskRunner (TaskRunner (..))
 import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Something a command needs from the generated app, after code generation.
@@ -77,10 +77,10 @@ type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
 -- | Runs the setup steps the goals need, each after its prerequisites.
 -- Stops at the first step that fails.
-setUpGeneratedApp :: [SetupGoal] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
-setUpGeneratedApp goals spec generatedAppDir sendMessage writeOutput =
+setUpGeneratedApp :: [SetupGoal] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
+setUpGeneratedApp goals spec generatedAppDir taskRunner writeOutput =
   forM_ (resolveSetupSteps goals) $ \step ->
-    runSetupStep step spec generatedAppDir sendMessage writeOutput
+    runSetupStep step spec generatedAppDir taskRunner writeOutput
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
 runSetup setupAction = do
@@ -104,25 +104,26 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
   where
     prerequisitesThenStep step = concatMap prerequisitesThenStep (prerequisites step) ++ [step]
 
-runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
-runSetupStep step spec generatedAppDir sendMessage writeOutput = case step of
-  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage writeOutput
+runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
+runSetupStep step spec generatedAppDir taskRunner writeOutput = case step of
+  InstallNpmDeps -> installDependencies spec generatedAppDir taskRunner writeOutput
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
   WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir writeOutput
-  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage writeOutput
+  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir taskRunner writeOutput
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
-  BuildSdk -> buildSdk generatedAppDir sendMessage writeOutput
-  TypeCheckUserCode -> typeCheckUserCode spec sendMessage writeOutput
+  BuildSdk -> buildSdk generatedAppDir taskRunner writeOutput
+  TypeCheckUserCode -> typeCheckUserCode spec taskRunner writeOutput
 
-installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
-installDependencies spec generatedAppDir sendMessage writeOutput = do
-  result <- liftIO $ installNpmDependenciesWithInstallRecord writeOutput spec generatedAppDir
-  case result of
-    Left npmInstallError -> throwError [npmInstallError]
-    Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
+installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
+installDependencies spec generatedAppDir taskRunner writeOutput =
+  -- The install announces its own start through its job's output, so this
+  -- step has nothing to show while it runs.
+  runTask taskRunner "" "Successfully completed npm install." $ do
+    result <- liftIO $ installNpmDependenciesWithInstallRecord writeOutput spec generatedAppDir
+    either (throwError . pure) return result
 
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> WriteOutput -> Setup ()
 warnIfDbNeedsMigration spec generatedAppDir writeOutput = do
@@ -138,33 +139,26 @@ formatPrismaSchema generatedAppDir = do
     Just generatorError -> throwError [generatorError]
     Nothing -> return ()
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
-generatePrismaClient spec generatedAppDir sendMessage writeOutput = do
-  result <- liftIO $ do
-    sendMessage $ Msg.Start "Generating Prisma client..."
-    DbGenerator.generatePrismaClient writeOutput spec generatedAppDir
-  case result of
-    Just generatorError -> throwError [generatorError]
-    Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."
+generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
+generatePrismaClient spec generatedAppDir taskRunner writeOutput =
+  runTask taskRunner "Generating Prisma client..." "Prisma client is up to date." $ do
+    maybeGeneratorError <- liftIO $ DbGenerator.generatePrismaClient writeOutput spec generatedAppDir
+    forM_ maybeGeneratorError $ throwError . pure
 
-buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
-buildSdk generatedAppDir sendMessage writeOutput = do
-  result <- liftIO $ do
-    sendMessage $ Msg.Start "Building SDK..."
-    SdkGenerator.buildSdk writeOutput generatedAppDir
-  case result of
-    Left errorMessage -> throwError [GenericGeneratorError errorMessage]
-    Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
+buildSdk generatedAppDir taskRunner writeOutput =
+  runTask taskRunner "Building SDK..." "SDK built successfully." $ do
+    result <- liftIO $ SdkGenerator.buildSdk writeOutput generatedAppDir
+    either (throwError . pure . GenericGeneratorError) return result
 
-typeCheckUserCode :: AppSpec -> Msg.SendMessage -> WriteOutput -> Setup ()
-typeCheckUserCode spec sendMessage writeOutput = do
-  exitCode <- liftIO $ do
-    sendMessage $ Msg.Start "Type-checking user code..."
-    J.run writeOutput $ J.prefixWith J.Wasp typeCheck
-  case exitCode of
-    ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
-    ExitFailure code ->
-      throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
+typeCheckUserCode :: AppSpec -> TaskRunner -> WriteOutput -> Setup ()
+typeCheckUserCode spec taskRunner writeOutput =
+  runTask taskRunner "Type-checking user code..." "User code type-checked successfully." $ do
+    exitCode <- liftIO $ J.run writeOutput $ J.prefixWith J.Wasp typeCheck
+    case exitCode of
+      ExitSuccess -> return ()
+      ExitFailure code ->
+        throwError [GenericGeneratorError $ "User code type-check failed with exit code: " ++ show code]
   where
     typeCheck :: J.Job ExitCode
     typeCheck =

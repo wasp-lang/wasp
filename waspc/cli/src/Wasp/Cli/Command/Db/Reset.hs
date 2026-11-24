@@ -11,7 +11,7 @@ import qualified Options.Applicative as Opt
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Db (makeDbCommand)
-import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Message (runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
@@ -20,7 +20,6 @@ import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady))
-import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 reset :: ResetArgs -> Command ()
@@ -33,10 +32,9 @@ reset resetArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig ->
           </> generatedAppDirInDotWaspDir
 
   console <- getConsole
-  cliSendMessageC $ Msg.Start "Resetting the database..."
-  liftIO (dbReset console.writeRawOutput (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir resetArgs) >>= \case
-    Left errorMsg -> throwError $ commandError "Database reset failed" errorMsg
-    Right () -> cliSendMessageC $ Msg.Success "Database reset successfully!"
+  runTaskC "Resetting the database..." "Database reset successfully!" $
+    liftIO (dbReset console.writeRawOutput (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir resetArgs)
+      >>= either (throwError . commandError "Database reset failed") return
 
 resetArgsParser :: ArgsParser ResetArgs
 resetArgsParser =
