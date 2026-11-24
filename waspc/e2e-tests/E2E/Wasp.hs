@@ -6,6 +6,7 @@ module E2E.Wasp
     waspFailsOutsideProject,
     createWaspProject,
     withNewWaspProject,
+    getProjectDirAndAppName,
     waspDbMigrateDev,
     dbMigrationsDirs,
     setDbToPostgres,
@@ -23,15 +24,16 @@ import E2E.Assertions (assertOutputContains)
 import E2E.Command (waspCli)
 import E2E.Files (replaceInFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
-import E2E.TestM (TestM, failTest, inDirectory, resolvePath)
+import E2E.TestM (TestM, failTest, getWorkingDir, inDirectory, resolvePath)
 import qualified StrongPath as SP
-import System.Directory (doesDirectoryExist, listDirectory, renameDirectory)
+import System.Directory (canonicalizePath, doesDirectoryExist, listDirectory, renameDirectory)
 import System.FilePath ((</>))
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (parseWaspProjectNameIntoAppName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..))
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
-import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import Wasp.Version (waspVersion)
 
@@ -59,6 +61,22 @@ createWaspProject template = void $ wasp ["new", waspAppDirName, "-t", show temp
 -- | Creates a Wasp project and runs the steps inside of it.
 withNewWaspProject :: StarterTemplate -> TestM a -> TestM a
 withNewWaspProject template steps = createWaspProject template >> inDirectory waspAppDirName steps
+
+-- | The project dir and app name Wasp derives the names of the project's
+-- resources from (e.g. Docker containers), so that a test can derive them the
+-- same way, before anything creates them. For the project
+-- 'withNewWaspProject' created, run in its dir.
+getProjectDirAndAppName :: TestM (SP.Path' SP.Abs (SP.Dir WaspProjectDir), String)
+getProjectDirAndAppName = do
+  workingDir <- getWorkingDir
+  -- Wasp finds the project dir through the OS's current dir, which has no
+  -- symlinks.
+  projectDir <- liftIO $ canonicalizePath workingDir >>= SP.parseAbsDir
+  -- `wasp new` names the app after the project's dir.
+  appName <- case parseWaspProjectNameIntoAppName waspAppDirName of
+    Left err -> failTest $ "Couldn't get the app name of the project: " ++ err
+    Right name -> return $ show name
+  return (projectDir, appName)
 
 -- | Runs `wasp db migrate-dev` in the Wasp project.
 --
