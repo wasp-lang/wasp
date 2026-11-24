@@ -52,7 +52,9 @@ waspProjectLockTest =
           lockHolder <- startLockHolder
           lockHolderPid <- getWaspPidFromLockFile
 
-          step "the db command waits for a lock holder that isn't a watcher (`wasp install`), and gives up after a while" $ do
+          -- `wasp install` holds the lock but isn't a watcher. The db command
+          -- waits for it a while before it gives up.
+          step "the db command gives up waiting for a non-watcher lock holder" $ do
             result <- runExpectingFailure waspDbMigrateDevCommand
             assertOutputContains (lockHolderMessage lockHolderPid "is working on this project right now.") result
             assertOutputContains waitingForCompilationMessage result

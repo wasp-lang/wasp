@@ -41,7 +41,7 @@ import System.FilePath ((</>))
 import qualified System.FilePath as FP
 import System.IO (Handle, hFlush, stderr)
 import UnliftIO (MonadUnliftIO, throwIO)
-import UnliftIO.Exception (Exception, SomeException, catch, catchAny, displayException)
+import UnliftIO.Exception (Exception, SomeException, catchAny, displayException)
 
 data TestEnv = TestEnv
   { runConfig :: RunConfig,
@@ -91,7 +91,10 @@ failTest = throwIO . TestFailure
 step :: String -> TestM a -> TestM a
 step label steps = do
   logLine $ "\n### " ++ label
-  steps `catch` \(TestFailure message) -> failTest $ "In step " ++ show label ++ ": " ++ message
+  -- Any exception, not only a 'TestFailure', so that e.g. an IO error in the
+  -- step says which step it's in too. 'catchAny' lets asynchronous exceptions
+  -- (e.g. a timeout or Ctrl+C) through untouched.
+  steps `catchAny` \err -> failTest $ "In step " ++ show label ++ ": " ++ displayException err
 
 -- | Runs the steps with the working directory set to a path relative to the
 -- current one.
