@@ -1,6 +1,6 @@
 module Tests.WaspDbStartTest (waspDbStartTest) where
 
-import Control.Monad (unless, void)
+import Control.Monad (unless, void, when)
 import Data.Char (isSpace)
 import qualified Data.Text as T
 import E2E
@@ -49,13 +49,16 @@ waspDbStartTest =
                 holdDevDbSessionOpen devDbDockerNames
                 stopDevDbWithSignal SIGINT devDb devDbDockerNames
 
-              -- One start checks both, since each start takes a while.
+              -- One start checks both, since each start takes a while. The
+              -- leftover container is e.g. from a start that was stopped while
+              -- creating it.
               devDbOnOtherPort <-
-                step "`wasp db start` works when an earlier one left its container behind, and finds a new port when the default one is taken" $ do
-                  -- E.g. when the earlier one was stopped while creating it.
+                step "starts despite a leftover container and a taken default port" $ do
                   leaveStoppedContainerBehind devDbDockerNames
                   occupyDefaultPostgresPort
-                  startDevDb
+                  devDbOnOtherPort <- startDevDb
+                  assertNotOnDefaultPostgresPort devDbDockerNames
+                  return devDbOnOtherPort
               step "the new database uses the same volume, so the data is still there" $
                 getReportedVolumeName devDbOnOtherPort
                   >>= assertEqual "volume reported by the second `wasp db start`" devDbDockerNames.volumeName
@@ -186,7 +189,9 @@ leaveStoppedContainerBehind devDbDockerNames = void $ docker ["create", "--name"
 -- it.
 --
 -- If something else already listens on the port (e.g. a local PostgreSQL, or
--- this test of another checkout), the port is already taken, as we want.
+-- this test of another checkout), the port is already taken, as we want. That
+-- holder can go away before the database starts, which is why the test checks
+-- the database's port afterwards ('assertNotOnDefaultPostgresPort').
 occupyDefaultPostgresPort :: TestM ()
 occupyDefaultPostgresPort = do
   isPortTaken <- isListening defaultPostgresPortNumber
@@ -199,6 +204,16 @@ occupyDefaultPostgresPort = do
   where
     defaultPostgresPortNumber = fromIntegral defaultPostgresPort
     port = show defaultPostgresPortNumber
+
+-- | Checks the host port the dev database container publishes, so that the
+-- steps that expect a non-default port can't pass on the default one.
+assertNotOnDefaultPostgresPort :: DevDbDockerNames -> TestM ()
+assertNotOnDefaultPostgresPort devDbDockerNames = do
+  -- Prints one @<address>:<port>@ line per address, e.g. for IPv4 and IPv6.
+  portResult <- docker ["port", devDbDockerNames.containerName, show defaultPostgresPort ++ "/tcp"]
+  let publishedPorts = map (reverse . takeWhile (/= ':') . reverse) $ stdoutLines portResult
+  when (null publishedPorts || show defaultPostgresPort `elem` publishedPorts) $
+    failWithResult portResult "doesn't show the dev database on a port other than the default one"
 
 -- | For containers that only need to exist, or to run a command. As the dev
 -- database image, it exits right away, since it has no server to run. Any
