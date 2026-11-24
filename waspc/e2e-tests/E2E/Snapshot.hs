@@ -13,7 +13,7 @@ module E2E.Snapshot
   )
 where
 
-import Control.Exception (catch, throwIO)
+import Control.Exception (IOException, catch, throwIO)
 import Control.Monad (filterM, forM_, unless)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -25,8 +25,8 @@ import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.RunConfig (RunConfig (..))
-import E2E.Test (E2ETest (..), runTestSteps)
-import E2E.TestM (TestFailure (..), TestM, TestSkipped (..))
+import E2E.Test (E2ETest (..), TestPaths (..), runTestSteps)
+import E2E.TestM (TestM)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
@@ -87,13 +87,9 @@ runStepsAndReadCurrentSnapshot :: RunConfig -> String -> TestM a -> IO Snapshot
 runStepsAndReadCurrentSnapshot runConfig name steps = do
   let snapshotsDir = getSnapshotsDir runConfig
       currentSnapshotDir = snapshotsDir </> snapshotDirName name Current
-  removePathForcibly currentSnapshotDir
-  createDirectoryIfMissing True currentSnapshotDir
-  -- The log is next to the snapshot dir, so it isn't part of the snapshot.
-  _ <-
-    runTestSteps runConfig name currentSnapshotDir (snapshotsDir </> name ++ ".log") steps
-      `catch` \(TestSkipped _) ->
-        throwIO $ TestFailure "Snapshot tests can't skip themselves, since they must produce a snapshot. Use whenDockerEnabled instead of skipIfDockerDisabled."
+      -- The log is next to the snapshot dir, so it isn't part of the snapshot.
+      testPaths = TestPaths {workingDir = currentSnapshotDir, logFile = snapshotsDir </> name ++ ".log"}
+  _ <- runTestSteps runConfig name testPaths steps
   writeManifest currentSnapshotDir
   normalizePackageJsonFiles currentSnapshotDir
   readSnapshot currentSnapshotDir
@@ -107,6 +103,11 @@ runStepsAndReadCurrentSnapshot runConfig name steps = do
 -- golden snapshot on a does-not-exist 'IOError', fails on other 'IOError's
 -- (like the one 'fail' throws), and accepts the current snapshot on any other
 -- exception.
+--
+-- Reading the files of an existing golden snapshot can fail with a
+-- does-not-exist error too, e.g. when one is deleted while we read them. We
+-- turn those into other errors, so that tasty-golden doesn't take them for a
+-- missing golden snapshot, and overwrite it.
 readGoldenSnapshot :: FilePath -> IO Snapshot
 readGoldenSnapshot goldenSnapshotDir = do
   let manifestFile = goldenSnapshotDir </> manifestFileName
@@ -116,7 +117,8 @@ readGoldenSnapshot goldenSnapshotDir = do
     if goldenSnapshotDirExists
       then fail $ "The golden snapshot has no " ++ manifestFileName ++ ". Restore it, or delete " ++ goldenSnapshotDir ++ " to create the golden snapshot again."
       else throwIO $ mkIOError doesNotExistErrorType "golden snapshot" Nothing (Just goldenSnapshotDir)
-  readSnapshot goldenSnapshotDir
+  readSnapshot goldenSnapshotDir `catch` \(err :: IOException) ->
+    fail $ "Couldn't read the golden snapshot " ++ goldenSnapshotDir ++ ": " ++ show err
 
 -- | Reads strictly, since a golden snapshot read may be followed by its update.
 readSnapshot :: FilePath -> IO Snapshot
@@ -168,7 +170,11 @@ showContentDiff goldenContent currentContent =
     truncateDiff diff
       | length diff <= maxDiffLength = diff
       | otherwise = take maxDiffLength diff ++ "\n... (diff truncated)\n"
-    maxDiffLength = 10000
+
+-- | How many characters of a file's diff a failure message shows, so that one
+-- big diff doesn't bury the others. The files are in the snapshot dirs.
+maxDiffLength :: Int
+maxDiffLength = 10000
 
 -- | Lists the files whose existence we check, so we notice when files appear
 -- or disappear. That includes files whose content we don't compare.

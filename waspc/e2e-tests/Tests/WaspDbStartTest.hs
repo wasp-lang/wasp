@@ -25,58 +25,56 @@ waspDbStartTest =
             withNewWaspProject minimalStarterTemplate $ do
               setDbToPostgres
               waspFails ["db", "migrate-dev"] >>= assertOutputContains "The database needs to be running",
-          test "succeed-postgresql-project" $ do
-            skipIfDockerDisabled
+          dockerTest "succeed-postgresql-project" $
             withNewWaspProject minimalStarterTemplate $ do
               setDbToPostgres
-
-              -- Does `wasp db start` work?
-              devDb <- startDevDb
-              devDbDockerNames <- getDevDbDockerNames devDb
+              -- Before the first start, so that a start that fails halfway
+              -- is cleaned up too.
+              devDbDockerNames <- getDevDbDockerNames
               registerCleanupStep $ removeDevDbContainerAndVolume devDbDockerNames
-              -- Does a Wasp command find the database and connect to it after
-              -- `wasp db start` says it's ready?
-              waspDbMigrateDev "first_migration"
-              -- Does the second `wasp db start` detect and report an already
-              -- running dev database?
-              devDbStartFails [] >>= assertOutputContains "already running on port"
 
-              -- Does SIGINT stop the database and delete the container, even
-              -- while a client is still connected to it?
-              holdDevDbSessionOpen devDbDockerNames
-              stopDevDbWithSignal SIGINT devDb devDbDockerNames
+              devDb <- step "`wasp db start` starts the database" $ do
+                devDb <- startDevDb
+                -- Also proves that we derived the names right, since the
+                -- cleanup can't tell a wrong name from a container or volume
+                -- that's already gone.
+                getReportedVolumeName devDb
+                  >>= assertEqual "volume reported by `wasp db start`" devDbDockerNames.volumeName
+                return devDb
+              step "a Wasp command finds the database and connects to it once `wasp db start` says it's ready" $
+                waspDbMigrateDev "first_migration"
+              step "a second `wasp db start` detects and reports the running database" $
+                devDbStartFails [] >>= assertOutputContains "already running on port"
+              step "SIGINT stops the database and deletes the container, even while a client is connected" $ do
+                holdDevDbSessionOpen devDbDockerNames
+                stopDevDbWithSignal SIGINT devDb devDbDockerNames
 
-              -- Does `wasp db start` work when an earlier one left its
-              -- container behind, e.g. when it was stopped while creating it?
-              -- Does `wasp db start` find a new port when the default one is taken?
-              leaveStoppedContainerBehind devDbDockerNames
-              portHolderContainerName <- occupyDefaultPostgresPort
-              devDbOnOtherPort <- startDevDb
-              -- Does it use the same volume, so the data is still there?
-              getReportedVolumeName devDbOnOtherPort
-                >>= assertEqual "volume reported by the second `wasp db start`" devDbDockerNames.volumeName
-              -- Does a Wasp command find and connect to the database even when
-              -- it's running on a non-default port?
-              waspDbMigrateDev "no_new_migration"
-              freeDefaultPostgresPort portHolderContainerName
+              -- One start checks both, since each start takes a while.
+              devDbOnOtherPort <-
+                step "`wasp db start` works when an earlier one left its container behind, and finds a new port when the default one is taken" $ do
+                  -- E.g. when the earlier one was stopped while creating it.
+                  leaveStoppedContainerBehind devDbDockerNames
+                  occupyDefaultPostgresPort
+                  startDevDb
+              step "the new database uses the same volume, so the data is still there" $
+                getReportedVolumeName devDbOnOtherPort
+                  >>= assertEqual "volume reported by the second `wasp db start`" devDbDockerNames.volumeName
+              step "a Wasp command finds the database and connects to it on a non-default port" $
+                waspDbMigrateDev "no_new_migration"
+              step "SIGTERM (e.g. from a process manager) also stops the database and deletes the container" $
+                stopDevDbWithSignal SIGTERM devDbOnOtherPort devDbDockerNames
 
-              -- Does SIGTERM (e.g. from a process manager) also stop the
-              -- database and delete the container?
-              stopDevDbWithSignal SIGTERM devDbOnOtherPort devDbDockerNames
+              step "`wasp db start` fails when the database stops before accepting connections" $
+                devDbStartFails ["--db-image", alpineImage]
+                  >>= assertOutputContains "The database stopped before accepting connections"
+              step "`wasp db start` fails when it can't check the connection, e.g. when the image isn't a PostgreSQL image" $
+                devDbStartFails ["--db-image", nginxImage]
+                  >>= assertOutputContains "Unable to check the database connection"
 
-              -- Does `wasp db start` fail when the database stops before
-              -- accepting connections?
-              devDbStartFails ["--db-image", alpineImage]
-                >>= assertOutputContains "The database stopped before accepting connections"
-              -- Does `wasp db start` fail when it can't check the connection,
-              -- e.g. when the image isn't a PostgreSQL image?
-              devDbStartFails ["--db-image", nginxImage]
-                >>= assertOutputContains "Unable to check the database connection"
-
-              -- Can the user remove the volume reported by `wasp db start`?
               -- `docker volume rm` fails while a container uses the volume, so
               -- this also checks that no dev database container is left.
-              docker ["volume", "rm", devDbDockerNames.volumeName]
+              step "the user can remove the volume reported by `wasp db start`" $
+                docker ["volume", "rm", devDbDockerNames.volumeName]
         ]
     ]
 
@@ -84,15 +82,18 @@ waspDbStartTest =
 startDevDb :: TestM RunningProcess
 startDevDb = do
   devDb <- startInBackground $ waspCli ["db", "start"]
-  waitForOutput devDb "PostgreSQL dev database is ready" (3 * 60)
+  waitForOutput devDb "PostgreSQL dev database is ready" devDbReadyTimeoutSeconds
   return devDb
 
+-- | Pulling the image, creating the volume, and PostgreSQL's first start.
+devDbReadyTimeoutSeconds :: Int
+devDbReadyTimeoutSeconds = 3 * 60
+
 -- | Runs @wasp db start@ with extra arguments, expecting it to fail before the
--- database is up. If it doesn't, we don't want to wait for the database to run
--- until the default timeout.
+-- database is up.
 devDbStartFails :: [String] -> TestM ProcessResult
 devDbStartFails arguments =
-  runExpectingFailure (waspCli (["db", "start"] ++ arguments)) {timeoutSeconds = 2 * 60}
+  runExpectingFailure (waspCli (["db", "start"] ++ arguments)) {timeoutSeconds = failFastTimeoutSeconds}
 
 -- | The names of the dev database's Docker container and volume, which Wasp
 -- derives from the project.
@@ -101,19 +102,21 @@ data DevDbDockerNames = DevDbDockerNames
     volumeName :: String
   }
 
--- | Reads the names while the dev database runs.
-getDevDbDockerNames :: RunningProcess -> TestM DevDbDockerNames
-getDevDbDockerNames devDb = do
-  volumeName <- getReportedVolumeName devDb
-  containerName <- firstOutputLine =<< docker ["ps", "--format", "{{.Names}}", "--filter", "volume=" ++ volumeName]
-  return DevDbDockerNames {containerName, volumeName}
+-- | Derives the names like Wasp does, so that the test can register their
+-- cleanup before anything creates them.
+getDevDbDockerNames :: TestM DevDbDockerNames
+getDevDbDockerNames = do
+  (projectDir, appName) <- getProjectDirAndAppName
+  -- The names don't depend on the port.
+  let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec projectDir appName defaultPostgresPort
+  return DevDbDockerNames {containerName = devDbSpec.dockerContainerName, volumeName = devDbSpec.dockerVolumeName}
 
 -- | For when the test fails before Wasp removes the container or before the
 -- test removes the volume. Otherwise they're already gone, which is fine.
 removeDevDbContainerAndVolume :: DevDbDockerNames -> TestM ()
 removeDevDbContainerAndVolume devDbDockerNames = do
-  dockerAllowingFailure ["rm", "-f", devDbDockerNames.containerName]
-  void $ dockerAllowingFailure ["volume", "rm", "-f", devDbDockerNames.volumeName]
+  dockerCleanup ["rm", "--force", devDbDockerNames.containerName]
+  dockerCleanup ["volume", "rm", "--force", devDbDockerNames.volumeName]
 
 -- | Stops `wasp db start` with the signal, and checks that Wasp exits and that
 -- the database container is gone.
@@ -123,9 +126,9 @@ removeDevDbContainerAndVolume devDbDockerNames = do
 stopDevDbWithSignal :: Signal -> RunningProcess -> DevDbDockerNames -> TestM ()
 stopDevDbWithSignal sig devDb devDbDockerNames = do
   getWaspPid >>= signalPid sig
-  waitUntilStopped devDb []
-  waitUntil ("the dev database container is gone after " ++ show sig) 30 $
-    null . stdoutLines <$> docker ["ps", "-a", "-q", "--filter", "volume=" ++ devDbDockerNames.volumeName]
+  waitUntilExited devDb
+  waitUntil ("the dev database container is gone after " ++ show sig) settleTimeoutSeconds $
+    null . stdoutLines <$> dockerWithinWait ["ps", "--all", "--quiet", "--filter", "volume=" ++ devDbDockerNames.volumeName]
   where
     -- The process we started might not be Wasp itself (e.g. when the Wasp CLI
     -- runs through a wrapper script), so we look for the parent of the
@@ -135,18 +138,18 @@ stopDevDbWithSignal sig devDb devDbDockerNames = do
       pgrepResult <- runAllowingFailure $ command "pgrep" ["-f", "docker run .*--name " ++ devDbDockerNames.containerName ++ " "]
       unless (pgrepResult.exitCode == ExitSuccess) $
         failWithResult pgrepResult "found no `docker run` process of the dev database"
-      dockerRunPid <- firstOutputLine pgrepResult
+      dockerRunPid <- firstStdoutLine pgrepResult
       psResult <- run (command "ps" ["-o", "ppid=", "-p", dockerRunPid])
-      waspPid <- firstOutputLine psResult
+      waspPid <- firstStdoutLine psResult
       maybe (failWithResult psResult "printed an invalid parent PID") return (readMaybe waspPid)
 
 -- | Opens a database session that stays open, like the app's server's.
 holdDevDbSessionOpen :: DevDbDockerNames -> TestM ()
 holdDevDbSessionOpen devDbDockerNames = do
-  docker ["exec", "-d", devDbDockerNames.containerName, "sh", "-c", psqlCommand "select pg_sleep(600)"]
-  waitUntil "the database session opens" 30 $
-    fmap (/= "0") . firstOutputLine
-      =<< docker
+  docker ["exec", "--detach", devDbDockerNames.containerName, "sh", "-c", psqlCommand $ "select pg_sleep(" ++ show sessionHoldSeconds ++ ")"]
+  waitUntil "the database session opens" settleTimeoutSeconds $
+    fmap (/= "0") . firstStdoutLine
+      =<< dockerWithinWait
         [ "exec",
           devDbDockerNames.containerName,
           "sh",
@@ -156,6 +159,13 @@ holdDevDbSessionOpen devDbDockerNames = do
   where
     -- Runs in the container's shell, which knows the database's credentials.
     psqlCommand sql = "psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -tAc \"" ++ sql ++ "\""
+    -- Longer than the test needs the session. Stopping the database ends it.
+    sessionHoldSeconds = 10 * 60 :: Int
+
+-- | For the conditions of 'waitUntil', which only checks its deadline between
+-- checks: a hung `docker` command mustn't outlast the wait.
+dockerWithinWait :: [String] -> TestM ProcessResult
+dockerWithinWait arguments = run (dockerCommand arguments) {timeoutSeconds = settleTimeoutSeconds}
 
 -- | The volume name `wasp db start` reported, since that's where users learn it from.
 getReportedVolumeName :: RunningProcess -> TestM String
@@ -171,25 +181,24 @@ getReportedVolumeName devDb = do
 leaveStoppedContainerBehind :: DevDbDockerNames -> TestM ()
 leaveStoppedContainerBehind devDbDockerNames = void $ docker ["create", "--name", devDbDockerNames.containerName, alpineImage]
 
--- | Runs a container that publishes the default PostgreSQL port, and returns
--- its name, which is unique, so that the tests of other checkouts can't
--- remove it.
-occupyDefaultPostgresPort :: TestM String
+-- | Runs a container that publishes the default PostgreSQL port until the test
+-- ends. Its name is unique, so that the tests of other checkouts can't remove
+-- it.
+--
+-- If something else already listens on the port (e.g. a local PostgreSQL, or
+-- this test of another checkout), the port is already taken, as we want.
+occupyDefaultPostgresPort :: TestM ()
 occupyDefaultPostgresPort = do
-  containerName <- makeUniqueName "wasp-e2e-tests-db-port-holder"
-  registerCleanupStep $ freeDefaultPostgresPort containerName
-  docker ["run", "-d", "--rm", "--name", containerName, "-p", port ++ ":" ++ port, alpineImage, "sleep", show portHoldSeconds]
-  return containerName
+  isPortTaken <- isListening defaultPostgresPortNumber
+  if isPortTaken
+    then logLine $ "\n==> Port " ++ port ++ " is already taken, so we don't start a container to take it."
+    else do
+      containerName <- makeUniqueName "wasp-e2e-tests-db-port-holder"
+      registerCleanupStep $ dockerCleanup ["rm", "--force", containerName]
+      void $ docker ["run", "--detach", "--rm", "--name", containerName, "--publish", port ++ ":" ++ port, alpineImage, "sleep", "infinity"]
   where
-    port = show defaultPostgresPort
-    -- Longer than the steps that need the port taken, which start the dev
-    -- database (see 'startDevDb'), so the container doesn't stop before them.
-    portHoldSeconds = 5 * 60 :: Int
-
--- | Doesn't fail when the container is already gone, since it's also the
--- cleanup, which runs after the test already freed the port.
-freeDefaultPostgresPort :: String -> TestM ()
-freeDefaultPostgresPort portHolderContainerName = void $ dockerAllowingFailure ["rm", "-f", portHolderContainerName]
+    defaultPostgresPortNumber = fromIntegral defaultPostgresPort
+    port = show defaultPostgresPortNumber
 
 -- | For containers that only need to exist, or to run a command. As the dev
 -- database image, it exits right away, since it has no server to run. Any
@@ -202,20 +211,3 @@ alpineImage = "alpine:3.23"
 -- 'alpineImage'.
 nginxImage :: String
 nginxImage = "nginx:1.31-alpine"
-
-docker :: [String] -> TestM ProcessResult
-docker = run . command "docker"
-
--- | Only for the cleanups, so it has their short timeout.
-dockerAllowingFailure :: [String] -> TestM ProcessResult
-dockerAllowingFailure arguments = runAllowingFailure (command "docker" arguments) {timeoutSeconds = cleanupCommandTimeoutSeconds}
-
--- | The non-empty lines of stdout, without surrounding whitespace.
-stdoutLines :: ProcessResult -> [String]
-stdoutLines = filter (not . null) . map (T.unpack . T.strip) . T.lines . (.stdout)
-
--- | Fails the test if the command printed nothing.
-firstOutputLine :: ProcessResult -> TestM String
-firstOutputLine result = case stdoutLines result of
-  firstLine : _ -> return firstLine
-  [] -> failWithResult result "printed nothing to stdout"

@@ -729,10 +729,10 @@ test-suite waspc-e2e-tests
     E2E
     E2E.Assertions
     E2E.Command
+    E2E.Docker
     E2E.Files
     E2E.Heartbeat
     E2E.Net
-    E2E.Paths
     E2E.Ports
     E2E.Process
     E2E.Process.Output
@@ -746,7 +746,6 @@ test-suite waspc-e2e-tests
     Tests.IncrementalTypeCheckingTest
     Tests.ServerTypeCheckingTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
-    Tests.SnapshotTests.SdkPackageExports
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
     Tests.SnapshotTests.WaspMigrateSnapshotTest

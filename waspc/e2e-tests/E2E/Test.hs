@@ -6,7 +6,9 @@ module E2E.Test
     sequentialTestGroup,
     toTestTree,
     checkOutputDirs,
+    TestPaths (..),
     runTestSteps,
+    TestSteps (..),
   )
 where
 
@@ -17,7 +19,7 @@ import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Resource (getInternalState, runResourceT)
 import Data.List (intercalate, isPrefixOf, nub)
 import E2E.RunConfig (RunConfig (..))
-import E2E.TestM (TestEnv (..), TestFailure (..), TestLog (..), TestM, TestSkipped (..), runTestM)
+import E2E.TestM (TestEnv (..), TestFailure (..), TestLog (..), TestM, runTestM)
 import System.Directory (createDirectoryIfMissing, removePathForcibly)
 import System.FilePath (isPathSeparator, joinPath, takeDirectory, (</>))
 import System.IO (IOMode (WriteMode), hPutStrLn, withFile)
@@ -73,13 +75,15 @@ test name steps =
     { outputDirs = \groupNames -> [groupNames ++ [name]],
       makeTestTree = \runConfig groupNames ->
         singleTest name . TestSteps $ do
-          let testDir = runConfig.testOutputsDir </> joinPath (groupNames ++ [name])
-          removePathForcibly testDir
-          createDirectoryIfMissing True testDir
-          (runTestSteps runConfig (intercalate "/" $ groupNames ++ [name]) testDir (testDir </> "output.log") steps >> return (testPassed ""))
+          let testPath = groupNames ++ [name]
+              testDir = runConfig.testOutputsDir </> joinPath testPath
+              testPaths = TestPaths {workingDir = testDir, logFile = testDir </> testLogFileName}
+          (runTestSteps runConfig (intercalate "/" testPath) testPaths steps >> return (testPassed ""))
             `catch` (\(TestFailure message) -> return $ testFailed message)
-            `catch` (\(TestSkipped message) -> return $ testPassed message)
     }
+
+testLogFileName :: FilePath
+testLogFileName = "output.log"
 
 -- | Tests in the group run in parallel.
 testGroup :: String -> [E2ETest] -> E2ETest
@@ -98,18 +102,28 @@ makeGroup makeTastyGroup name tests =
         makeTastyGroup name [e2eTest.makeTestTree runConfig (groupNames ++ [name]) | e2eTest <- tests]
     }
 
+-- | A tasty test that runs the IO action to get its result.
 newtype TestSteps = TestSteps (IO Result)
 
 instance IsTest TestSteps where
   run _ (TestSteps steps) _ = steps
   testOptions = pure []
 
--- | Runs the steps in the dir, with a new log file and cleanups.
+-- | Where a test's steps run, and where they log to. A record, so that the
+-- two paths can't be swapped: the working dir is deleted.
+data TestPaths = TestPaths
+  { -- | Deleted and created again, empty, before the steps run.
+    workingDir :: FilePath,
+    logFile :: FilePath
+  }
+
+-- | Runs the steps in a fresh working dir, with a new log file and cleanups.
 --
--- Throws 'TestFailure' if a step fails (with a pointer to the log), and
--- 'TestSkipped' if the test skipped itself.
-runTestSteps :: RunConfig -> String -> FilePath -> FilePath -> TestM a -> IO a
-runTestSteps runConfig testName workingDir logFile steps = do
+-- Throws 'TestFailure' if a step fails (with a pointer to the log).
+runTestSteps :: RunConfig -> String -> TestPaths -> TestM a -> IO a
+runTestSteps runConfig testName TestPaths {workingDir, logFile} steps = do
+  removePathForcibly workingDir
+  createDirectoryIfMissing True workingDir
   createDirectoryIfMissing True (takeDirectory logFile)
   withFile logFile WriteMode $ \logHandle -> do
     hPutStrLn logHandle $ "=== " ++ testName ++ " ==="
@@ -130,7 +144,6 @@ runTestSteps runConfig testName workingDir logFile steps = do
     tryAny runStepsAndCleanups >>= \case
       Right result -> return result
       Left err
-        | Just skipped@(TestSkipped _) <- fromException err -> throwIO skipped
         | Just (TestFailure message) <- fromException err -> throwIO . TestFailure $ withLogPointer message
         | otherwise -> throwIO . TestFailure . withLogPointer $ displayException err
   where

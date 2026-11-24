@@ -8,14 +8,14 @@ module E2E.Ports
   )
 where
 
-import Control.Concurrent.MVar (MVar, modifyMVar, newMVar)
+import Control.Concurrent.MVar (modifyMVar)
 import Control.Exception (bracket)
 import Control.Monad.IO.Class (liftIO)
-import Data.Set (Set)
+import Control.Monad.Reader (asks)
 import qualified Data.Set as Set
-import E2E.TestM (TestM, logLine)
+import E2E.RunConfig (RunConfig (..))
+import E2E.TestM (TestEnv (..), TestM, logLine)
 import qualified Network.Socket as Socket
-import System.IO.Unsafe (unsafePerformIO)
 
 data AppPorts = AppPorts
   { clientPort :: Int,
@@ -26,11 +26,12 @@ data AppPorts = AppPorts
 -- other, and with the tests of other checkouts on the same machine.
 allocateAppPorts :: TestM AppPorts
 allocateAppPorts = do
-  ports <- liftIO $ AppPorts <$> allocateUnusedPort <*> allocateUnusedPort
+  ports <- AppPorts <$> allocateUnusedPort <*> allocateUnusedPort
   logLine $ "\n==> Allocated ports: client " ++ show ports.clientPort ++ ", server " ++ show ports.serverPort
   return ports
 
--- | A port that nothing listens on, and that no other test of this run got yet.
+-- | A port that nothing listens on, and that no other test of this run got
+-- yet (see 'E2E.RunConfig.allocatedPorts').
 --
 -- We close the socket before the test's app opens the port, and the OS can
 -- hand a closed port out again, so we remember the ports we gave out to keep
@@ -41,10 +42,11 @@ allocateAppPorts = do
 -- minutes (e.g. after `npm install`), and the port is in the range the OS
 -- picks outgoing connections' ports from. Then the app fails to start, with an
 -- "address in use" error in the test's log.
-allocateUnusedPort :: IO Int
+allocateUnusedPort :: TestM Int
 allocateUnusedPort = do
-  port <- findFreePort
-  isNew <- modifyMVar allocatedPorts $ \ports ->
+  allocatedPorts <- asks (.runConfig.allocatedPorts)
+  port <- liftIO findFreePort
+  isNew <- liftIO . modifyMVar allocatedPorts $ \ports ->
     return (Set.insert port ports, port `Set.notMember` ports)
   if isNew then return port else allocateUnusedPort
 
@@ -57,13 +59,6 @@ findFreePort =
     Socket.bind socket (Socket.SockAddrInet6 0 0 (0, 0, 0, 0) 0)
     fromIntegral <$> Socket.socketPort socket
 
--- | Ports allocated to the tests of this run. A global (the only one in the
--- tests), since tests share nothing else, and threading it through every
--- 'TestM' isn't worth it for one set.
-allocatedPorts :: MVar (Set Int)
-allocatedPorts = unsafePerformIO $ newMVar Set.empty
-{-# NOINLINE allocatedPorts #-}
-
 appPortList :: AppPorts -> [Int]
 appPortList ports = [ports.clientPort, ports.serverPort]
 
@@ -75,6 +70,6 @@ appPortArgs ports = ["--client-port", show ports.clientPort, "--server-port", sh
 -- `wasp studio --port <port>`.
 allocatePort :: TestM Int
 allocatePort = do
-  port <- liftIO allocateUnusedPort
+  port <- allocateUnusedPort
   logLine $ "\n==> Allocated port " ++ show port
   return port

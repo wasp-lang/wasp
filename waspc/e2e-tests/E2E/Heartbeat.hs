@@ -33,7 +33,7 @@ heartbeatReporter = TestReporter [] $ \options testTree -> Just $ \statusMap -> 
           printf "[%dm] Still running: %s\n" (round (diffUTCTime now startTime / 60) :: Int) (intercalate ", " runningTests)
           hFlush stdout
       loop =
-        race (threadDelay $ 60 * 1000000) waitForAllTestsToFinish >>= \case
+        race (threadDelay $ reportIntervalSeconds * 1000000) waitForAllTestsToFinish >>= \case
           Left () -> reportRunningTests >> loop
           Right () -> return ()
   loop
@@ -41,3 +41,6 @@ heartbeatReporter = TestReporter [] $ \options testTree -> Just $ \statusMap -> 
   where
     isDone (Done _) = True
     isDone _ = False
+
+    -- Often enough to show progress, rarely enough not to flood CI logs.
+    reportIntervalSeconds = 60

@@ -14,6 +14,6 @@ waspDbStudioTest =
           port <- allocatePort
           -- Prisma Studio doesn't open a browser tab with this.
           dbStudio <- startInBackground . withEnv [("BROWSER", "none")] $ waspCli ["db", "studio", "--port", show port]
-          waitUntilListening dbStudio [port] (5 * 60)
+          waitUntilListening dbStudio [port] appStartTimeoutSeconds
           interruptProcessGroupAndWaitUntilStopped dbStudio [port]
     ]

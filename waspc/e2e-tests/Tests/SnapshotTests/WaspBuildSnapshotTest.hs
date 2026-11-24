@@ -4,7 +4,6 @@ import Control.Monad (void)
 import E2E
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
-import Tests.Fixtures (viteBuild, withApiUrl)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
@@ -16,7 +15,7 @@ waspBuildSnapshotTest =
       wasp ["build"]
       buildAndRemoveDockerImage
       writeDeterministicViteConfig
-      run . withApiUrl $ viteBuild ["--config", wrapperViteConfigFile]
+      run . withApiUrl $ viteBuildCommand ["--config", wrapperViteConfigFile]
 
 -- | Builds the Docker image of the generated app, to check that its
 -- Dockerfile works.
@@ -25,9 +24,8 @@ buildAndRemoveDockerImage =
   whenDockerEnabled $
     inDirectory (SP.fromRelDir generatedAppDirInWaspProjectDir) $ do
       imageTag <- makeUniqueName "waspc-e2e-tests-wasp-build"
-      registerCleanupStep . void . runAllowingFailure $
-        (command "docker" ["image", "rm", "--force", imageTag]) {timeoutSeconds = cleanupCommandTimeoutSeconds}
-      void . run $ command "docker" ["build", "--build-arg", "BUILDKIT_DOCKERFILE_CHECK=error=true", "-t", imageTag, "."]
+      registerCleanupStep $ dockerCleanup ["image", "rm", "--force", imageTag]
+      void $ docker ["build", "--build-arg", "BUILDKIT_DOCKERFILE_CHECK=error=true", "--tag", imageTag, "."]
 
 -- | Wraps the generated vite.config.ts with a config that adds
 -- deterministic build options (no minification, no hashes, externalized deps),

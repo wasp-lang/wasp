@@ -7,11 +7,13 @@ module E2E.RunConfig
   )
 where
 
-import Control.Monad (mfilter)
-import E2E.Paths (getWaspcDir)
-import System.Directory (makeAbsolute)
+import Control.Concurrent.MVar (MVar, newMVar)
+import Control.Monad (mfilter, unless)
+import Data.Set (Set)
+import qualified Data.Set as Set
+import System.Directory (getCurrentDirectory, makeAbsolute)
 import System.Environment (lookupEnv)
-import System.FilePath (isPathSeparator, takeDirectory, (</>))
+import System.FilePath (isPathSeparator, takeDirectory, takeFileName, (</>))
 import Text.Read (readMaybe)
 
 data RunConfig = RunConfig
@@ -23,7 +25,9 @@ data RunConfig = RunConfig
     testOutputsDir :: FilePath,
     isDockerEnabled :: Bool,
     -- | How many tests run at once. 'Nothing' leaves it to tasty.
-    maxJobs :: Maybe Int
+    maxJobs :: Maybe Int,
+    -- | The ports 'E2E.Ports' gave out to the tests of this run.
+    allocatedPorts :: MVar (Set Int)
   }
 
 -- | Must be run from the waspc dir (see 'getWaspcDir').
@@ -41,13 +45,15 @@ getRunConfig = do
         | otherwise -> return waspCliCmd
   isDockerEnabled <- lookupNonEmptyEnv skipDockerEnvVar >>= parseIsDockerEnabled
   maxJobs <- lookupNonEmptyEnv maxJobsEnvVar >>= traverse parseMaxJobs
+  allocatedPorts <- newMVar Set.empty
   return
     RunConfig
       { waspCliPath,
         gitRootDir = takeDirectory waspcDir,
         testOutputsDir = waspcDir </> "e2e-tests" </> "test-outputs",
         isDockerEnabled,
-        maxJobs
+        maxJobs,
+        allocatedPorts
       }
   where
     parseIsDockerEnabled = \case
@@ -59,6 +65,14 @@ getRunConfig = do
     parseMaxJobs value = case readMaybe value of
       Just jobs | jobs >= 1 -> return jobs
       _ -> fail $ maxJobsEnvVar ++ " must be a positive integer, but it is " ++ show value ++ "."
+
+getWaspcDir :: IO FilePath
+getWaspcDir = do
+  -- NOTE: Cabal runs test suites from the package root, which is the waspc dir.
+  cwd <- getCurrentDirectory
+  -- A safeguard, since tests delete their output dirs.
+  unless (takeFileName cwd == "waspc") (error "Expecting the e2e tests to be run from the waspc dir")
+  return cwd
 
 -- | Empty variables count as unset.
 lookupNonEmptyEnv :: String -> IO (Maybe String)

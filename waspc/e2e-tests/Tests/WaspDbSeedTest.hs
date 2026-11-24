@@ -5,9 +5,20 @@ import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
-import System.Directory (createDirectoryIfMissing, renameDirectory)
+import System.Directory (createDirectoryIfMissing, doesDirectoryExist, renameDirectory)
 import System.FilePath (takeDirectory, (</>))
-import Tests.Fixtures (TaskSeed (..), addSeeds, allTaskSeeds, runTaskSeed, setUpProjectWithTaskSeeds, taskPrismaModel, taskSeedName, waspDbSeed)
+import Tests.Fixtures
+  ( Seed (..),
+    addSeeds,
+    allTaskSeeds,
+    assertTasksEmptySeed,
+    assertTasksNotEmptySeed,
+    makeSeed,
+    populateTasksSeed,
+    runSeed,
+    setUpProjectWithTaskSeeds,
+    taskPrismaModel,
+  )
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
@@ -20,13 +31,13 @@ waspDbSeedTest =
       test "succeed-seed-name-given-multiple-seeds" $
         withNewWaspProject minimalStarterTemplate $ do
           setUpProjectWithTaskSeeds allTaskSeeds
-          runTaskSeed AssertTasksEmpty
-          runTaskSeed PopulateTasks
-          runTaskSeed AssertTasksNotEmpty,
+          runSeed assertTasksEmptySeed
+          runSeed populateTasksSeed
+          runSeed assertTasksNotEmptySeed,
       test "succeed-no-seed-name-single-seed" $
         withNewWaspProject minimalStarterTemplate $ do
-          setUpProjectWithTaskSeeds [PopulateTasks]
-          waspDbSeed [] >>= assertOutputContains (T.pack $ "Running database seed " ++ taskSeedName PopulateTasks ++ "..."),
+          setUpProjectWithTaskSeeds [populateTasksSeed]
+          waspDbSeed [] >>= assertOutputContains (T.pack $ "Running database seed " ++ populateTasksSeed.name ++ "..."),
       -- With more than one seed and no name, `wasp db seed` has to ask which
       -- one to run. Without an interactive terminal it must fail instead.
       test "fail-no-seed-name-multiple-seeds-non-interactive" $
@@ -35,13 +46,20 @@ waspDbSeedTest =
           assertFailsWithoutInteractiveTerminal "wasp db seed" $ waspCli ["db", "seed"],
       test "succeed-seed-from-project-dir-with-server-env" $
         withNewWaspProject minimalStarterTemplate $ do
+          -- The seed doesn't use the Task model, but without a model, the
+          -- seed runner Wasp generates doesn't type check (`prisma` can be
+          -- null).
           appendToFile "schema.prisma" taskPrismaModel
           writeToFile ".env.server" "SEED_TEST_VAR=fromEnvServer"
-          addSeeds [(serverEnvSeedName, serverEnvSeedScript)]
+          addSeeds [serverEnvSeed]
+          -- `wasp db seed` compiles too, but we need the server's dependencies
+          -- (with `dotenv`) installed before we replace it. The seed doesn't
+          -- need a migrated database, but we seed one like a real project
+          -- would.
           wasp ["compile"]
-          waspDbMigrateDev "foo"
+          waspDbMigrateDev "add_task_model"
           replaceRootDotenvWithDecoy
-          waspDbSeed [serverEnvSeedName]
+          waspDbSeed [serverEnvSeed.name]
     ]
   where
     -- npm usually hoists `dotenv` to the project root's `node_modules`. We move it
@@ -50,8 +68,12 @@ waspDbSeedTest =
     -- still provides `parse`, which the Prisma CLI uses to check the db connection.
     replaceRootDotenvWithDecoy :: TestM ()
     replaceRootDotenvWithDecoy = do
-      deleteDirectory serverDotenvDir
       rootDotenvAbsDir <- resolvePath rootDotenvDir
+      -- Before deleting the server's copy, so that the test fails on why it
+      -- can't continue.
+      liftIO (doesDirectoryExist rootDotenvAbsDir)
+        >>= assertTrue ("npm hoisted dotenv to " ++ rootDotenvDir ++ ", which the test moves into the server's node_modules")
+      deleteDirectory serverDotenvDir
       serverDotenvAbsDir <- resolvePath serverDotenvDir
       liftIO $ do
         createDirectoryIfMissing True (takeDirectory serverDotenvAbsDir)
@@ -65,26 +87,21 @@ waspDbSeedTest =
         |]
       writeToFile (rootDotenvDir </> "config.js") "throw new Error(\"Loaded the decoy dotenv\");"
 
+    -- Two levels deep: the decoy's `require("../../...")` relies on it.
     rootDotenvDir = "node_modules/dotenv"
     serverDotenvDir = SP.fromRelDir (generatedAppDirInWaspProjectDir SP.</> serverRootDirInGeneratedAppDir) </> "node_modules/dotenv"
     serverDotenvDirText = T.pack serverDotenvDir
 
-    serverEnvSeedName :: String
-    serverEnvSeedName = "assertServerEnv"
-
-    serverEnvSeedScript :: T.Text
-    serverEnvSeedScript =
-      [trimming|
-        import fs from 'node:fs'
-
-        export async function $serverEnvSeedNameText() {
+    serverEnvSeed :: Seed
+    serverEnvSeed =
+      makeSeed
+        "assertServerEnv"
+        "import fs from 'node:fs'"
+        [trimming|
           if (!fs.existsSync('main.wasp.ts')) {
             throw new Error(`Expected to run from the Wasp project dir, but ran from $${process.cwd()}`)
           }
           if (process.env.SEED_TEST_VAR !== 'fromEnvServer') {
             throw new Error(`Expected SEED_TEST_VAR from .env.server, but got $${process.env.SEED_TEST_VAR}`)
           }
-        }
-      |]
-      where
-        serverEnvSeedNameText = T.pack serverEnvSeedName
+        |]
