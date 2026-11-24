@@ -517,6 +517,7 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Compile
     Wasp.Cli.Console
+    Wasp.Cli.Console.Capabilities
     Wasp.Cli.Console.Internal.Terminal
     Wasp.Cli.Console.Internal.TerminalPrompter
     Wasp.Cli.Console.Internal.TerminalReporter
@@ -689,6 +690,7 @@ test-suite wasp-cli-tests
     Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
+    Wasp.Cli.Console.CapabilitiesTest
     Wasp.Cli.PortTest
     Wasp.Cli.Util.EnvVarArgumentTest
     Wasp.Cli.Util.HttpUrlArgumentTest

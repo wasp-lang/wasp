@@ -7,10 +7,22 @@ module Wasp.Util.TextStyle
     ansiResetAllCode,
     styleText,
     styleTitle,
+    styleSuccess,
+    styleError,
+    styleWarning,
+    styleNotice,
+    styleInfo,
+    styleHighlight,
+    styleSubtle,
+    styleMessage,
+    styleAccent,
+    styleCommand,
+    styleDate,
+    stripStyles,
   )
 where
 
-import Data.List (foldl')
+import Data.List (foldl', stripPrefix)
 
 -- | Applies the Wasp CLI standardized code styling to a string.
 styleCode :: String -> String
@@ -25,6 +37,55 @@ styleText = id
 
 styleTitle :: String -> String
 styleTitle = applyStyles [Bold]
+
+styleSuccess :: String -> String
+styleSuccess = applyStyles [Green]
+
+styleError :: String -> String
+styleError = applyStyles [Red]
+
+styleWarning :: String -> String
+styleWarning = applyStyles [Yellow]
+
+-- | For something the user should notice, but that isn't a problem yet.
+styleNotice :: String -> String
+styleNotice = applyStyles [Magenta]
+
+styleInfo :: String -> String
+styleInfo = applyStyles [Blue]
+
+styleHighlight :: String -> String
+styleHighlight = applyStyles [Cyan]
+
+-- | For text that matters less than the text around it.
+styleSubtle :: String -> String
+styleSubtle = applyStyles [Grey]
+
+-- | For what Wasp itself says about its work.
+styleMessage :: String -> String
+styleMessage = applyStyles [Yellow]
+
+-- | For a small part that should stand out from the plain text around it.
+styleAccent :: String -> String
+styleAccent = applyStyles [Yellow]
+
+-- | For the name of a command in a list of commands.
+styleCommand :: String -> String
+styleCommand = applyStyles [Yellow, Bold]
+
+styleDate :: String -> String
+styleDate = applyStyles [Bold, Yellow]
+
+-- | Removes everything that the functions in this module add, so that only
+-- the text is left. For output that isn't shown in a terminal.
+stripStyles :: String -> String
+stripStyles "" = ""
+stripStyles text@(character : afterCharacter) = case stripPrefix ansiControlSequenceIntroducer text of
+  Just afterIntroducer -> stripStyles $ drop 1 $ dropWhile (not . isFinalCharacter) afterIntroducer
+  Nothing -> character : stripStyles afterCharacter
+  where
+    ansiControlSequenceIntroducer = ansiEscapeCode ++ "["
+    isFinalCharacter c = c >= '@' && c <= '~'
 
 data Style
   = Black

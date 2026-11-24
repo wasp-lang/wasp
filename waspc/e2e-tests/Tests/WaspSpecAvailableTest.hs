@@ -31,7 +31,6 @@ import ShellCommands
 import StrongPath (fromAbsDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Util.TextStyle (styleCode)
 
 waspSpecAvailableTest :: Test
 waspSpecAvailableTest =
@@ -118,5 +117,7 @@ waspSpecAvailableTest =
     assertCommandFailsWithInstallHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->
       ShellCommandBuilder WaspProjectContext ShellCommand
-    assertCommandFailsWithInstallHint =
-      assertCommandFailsWith ("Run " ++ styleCode "wasp install")
+    assertCommandFailsWithInstallHint commandBuilder =
+      -- Negate the wrapped command so the assertion holds when it fails (exit non-zero)
+      -- AND the output contains the "Run `wasp install`" hint.
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) "Run wasp install"

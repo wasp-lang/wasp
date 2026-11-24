@@ -12,7 +12,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - Running `npx prisma db seed` manually was unsupported and no longer works. Use `wasp db seed` instead. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
 - The Wasp server's Docker image now contains only the files the server needs at runtime, which makes it about half the size. Packages that need more files can be listed in `app.server.traceDeps`. ([#5115](https://github.com/wasp-lang/wasp/pull/5115))
-- Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
+- Piping answers into Wasp's prompts (e.g. `echo my-app | wasp new`) no longer works. When stdin isn't an interactive terminal, `wasp new`, `wasp db seed` and `wasp uninstall` now fail with their `--help` text instead of prompting. Pass the answers as arguments instead. The same happens when Wasp's output isn't shown in a terminal (e.g. it goes to a file), and on CI. `wasp deploy` is not affected. ([#5005](https://github.com/wasp-lang/wasp/pull/5005))
 - Removed the `wasp test` command and moved the Vitest setup into your project. You now install Vitest and the testing libraries yourself and configure them in your `vite.config.ts` with the new `waspTestConfig` helper, where Wasp used to set them up behind the scenes. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay and work the same. ([#5060](https://github.com/wasp-lang/wasp/pull/5060))
 - The server now runs with the project root as its working directory, both in development and in production, so relative paths in server code resolve from the project root instead of `.wasp/out/server`. ([#5145](https://github.com/wasp-lang/wasp/pull/5145))
 - `HttpError` moved from `wasp/server` to `wasp/errors`. ([#5379](https://github.com/wasp-lang/wasp/pull/5379))
@@ -57,6 +57,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 ### 🔧 Small improvements
 
+- The Wasp CLI no longer prints colors when its output isn't shown in a terminal (e.g. it goes to a file or a pipe), on CI, when `NO_COLOR` is set, or when `TERM` is `dumb`.
 - When the Wasp CLI hits an unexpected error, it now says that it's a bug in Wasp and asks you to report it. Before, it did that only for some of them, and printed the raw error for the rest.
 - The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#5129](https://github.com/wasp-lang/wasp/pull/5129))

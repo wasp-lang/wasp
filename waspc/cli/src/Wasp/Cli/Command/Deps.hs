@@ -60,6 +60,6 @@ printDeps dependenciesTitle dependencies =
 
 printDep :: Npm.Dependency.Dependency -> String
 printDep dep =
-  TextStyle.applyStyles [TextStyle.Cyan] (Npm.Dependency.name dep)
+  TextStyle.styleHighlight (Npm.Dependency.name dep)
     ++ "@"
-    ++ TextStyle.applyStyles [TextStyle.Yellow] (Npm.Dependency.version dep)
+    ++ TextStyle.styleAccent (Npm.Dependency.version dep)

@@ -91,7 +91,7 @@ installDepsForNewProject console absWaspProjectDir =
     Right () -> return True
     Left _err -> do
       console.writeRawOutput Stdout . T.pack $
-        TextStyle.applyStyles [TextStyle.Yellow] "Warning: The project was created, but dependency installation failed.\n" ++ "\n"
+        TextStyle.styleWarning "Warning: The project was created, but dependency installation failed.\n" ++ "\n"
       return False
 
 -- | Creates and applies the project's initial migration, so users can run the
@@ -128,7 +128,7 @@ migrateDbForNewProject absWaspProjectDir =
     warnAboutFailedMigration migrationError = do
       cliWriteRawOutputC Stdout
         $ (++ "\n")
-        $ TextStyle.applyStyles [TextStyle.Yellow]
+        $ TextStyle.styleWarning
         $ "Warning: The project was created, but its database wasn't migrated.\n"
           ++ _headline migrationError
           ++ ": "
@@ -151,6 +151,6 @@ printExtraInstructionsForProject writeRawOutput steps =
   writeRawOutput Stdout
     . T.pack
     $ (++ "\n")
-    $ TextStyle.applyStyles [TextStyle.Yellow]
+    $ TextStyle.styleWarning
     $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
       ++ concatMap (\step -> indent 4 (styleCode step) ++ "\n") steps

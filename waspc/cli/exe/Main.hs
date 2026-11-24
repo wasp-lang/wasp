@@ -27,7 +27,7 @@ import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Doctor (doctor)
 import Wasp.Cli.Command.Install (install)
-import Wasp.Cli.Command.Message (cliWriteRawOutputC)
+import Wasp.Cli.Command.Message (cliWriteDataC, cliWriteRawOutputC)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
@@ -185,15 +185,15 @@ printUsage =
               "  wasp start",
               "  wasp db migrate-dev",
               "",
-        TextStyle.applyStyles [TextStyle.Green]   "Docs:" ++ " https://wasp.sh/docs",
-        TextStyle.applyStyles [TextStyle.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
-        TextStyle.applyStyles [TextStyle.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
+        TextStyle.styleSuccess   "Docs:" ++ " https://wasp.sh/docs",
+        TextStyle.styleNotice    "Discord (chat):" ++ " https://discord.gg/rzdnErX",
+        TextStyle.styleHighlight "Newsletter:" ++ " https://wasp.sh/#signup"
       ]
 {- ORMOLU_ENABLE -}
 
 printVersion :: Command ()
 printVersion = do
-  cliWriteRawOutputC Stdout $ show waspVersion ++ "\n"
+  cliWriteDataC $ show waspVersion ++ "\n"
   cliWriteRawOutputC Stderr . (++ "\n") $
     unlines
       [ "",
@@ -264,7 +264,7 @@ printDbUsage =
 {- ORMOLU_ENABLE -}
 
 cmd :: String -> String
-cmd = mapFirstWord (TextStyle.applyStyles [TextStyle.Yellow, TextStyle.Bold])
+cmd = mapFirstWord TextStyle.styleCommand
 
 mapFirstWord :: (String -> String) -> String -> String
 mapFirstWord f s = beforeFirstWord ++ f firstWord ++ afterFirstWord

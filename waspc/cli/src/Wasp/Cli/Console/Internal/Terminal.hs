@@ -8,6 +8,7 @@
 -- 'putStrLn'). See https://github.com/wasp-lang/wasp/issues/5493 for details.
 module Wasp.Cli.Console.Internal.Terminal
   ( writeLine,
+    writeToStdout,
     writeRawOutput,
     isInputTerminal,
     isOutputTerminal,
@@ -26,6 +27,9 @@ import Wasp.Util.IO.Process (OutputStream (..))
 
 writeLine :: String -> IO ()
 writeLine = putStrLn
+
+writeToStdout :: String -> IO ()
+writeToStdout = putStr
 
 writeRawOutput :: OutputStream -> T.Text -> IO ()
 writeRawOutput outputStream output = T.IO.hPutStr outputHandle output >> hFlush outputHandle

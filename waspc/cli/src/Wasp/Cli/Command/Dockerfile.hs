@@ -8,11 +8,10 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
-import Wasp.Cli.Command.Message (cliWriteRawOutputC)
+import Wasp.Cli.Command.Message (cliWriteDataC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Project (compileAndRenderDockerfile)
-import Wasp.Util.IO.Process (OutputStream (..))
 
 printDockerfile :: Command ()
 printDockerfile = do
@@ -22,5 +21,5 @@ printDockerfile = do
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfile waspProjectDir (defaultCompileOptions console waspProjectDir)
   either
     (throwError . commandError "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)
-    (cliWriteRawOutputC Stdout . (++ "\n") . T.unpack)
+    (cliWriteDataC . (++ "\n") . T.unpack)
     dockerfileContentOrCompileErrors
