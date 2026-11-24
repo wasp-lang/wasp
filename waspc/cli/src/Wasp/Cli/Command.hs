@@ -48,9 +48,9 @@ import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
 import Data.List (intercalate)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (isJust, mapMaybe)
 import qualified Data.Text as T
-import System.Exit (exitFailure)
+import System.Exit (ExitCode, exitFailure)
 import Wasp.Cli.Console (Console (..), isPromptInputEOF)
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
@@ -77,9 +77,16 @@ runCommand console cmd =
     Aborted stream -> do
       console.writeRawOutput stream "Aborted.\n"
       exitFailure
-    HitInternalError internalError -> do
-      console.writeRawOutput Stdout . T.pack $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show internalError) ++ "\n"
+    HitBug unexpectedException -> do
+      console.writeRawOutput Stdout . T.pack $
+        "\nThis is a bug in Wasp. Please report it at "
+          ++ newIssueUrl
+          ++ " and include the following error:\n"
+          ++ indent 2 (E.displayException unexpectedException)
+          ++ "\n"
       exitFailure
+  where
+    newIssueUrl = "https://github.com/wasp-lang/wasp/issues/new"
 
 -- | Runs the command for its effects only: it never prints an error and never
 -- ends the program, whatever happens in the command.
@@ -92,18 +99,30 @@ data CommandOutcome a
   | FailedWithoutError
   | -- | The user stopped the command. Holds the stream that gets told about it.
     Aborted OutputStream
-  | HitInternalError E.ErrorCall
+  | -- | The command threw an exception that nothing in Wasp expects.
+    HitBug E.SomeException
 
 tryRunningCommand :: Console -> Command a -> IO (CommandOutcome a)
 tryRunningCommand console cmd =
   (either Failed Succeeded <$> runExceptT (flip evalStateT [] $ flip runReaderT console $ _runCommand cmd))
-    `E.catches` [ E.Handler $ \(stop :: CommandStop) -> return $ case stop of
-                    AbortedByUser -> Aborted Stderr
-                    StoppedWithoutError -> FailedWithoutError,
-                  -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
-                  E.Handler $ \(e :: IOError) -> if isPromptInputEOF e then return (Aborted Stdout) else E.throwIO e,
-                  E.Handler $ return . HitInternalError
-                ]
+    `E.catch` \(exception :: E.SomeException) ->
+      maybe (E.throwIO exception) return (getOutcomeOfException exception)
+
+-- | Returns 'Nothing' for the exceptions that are not a command's outcome and
+-- have to pass through: the ones that end the program with an exit code, and
+-- the ones that stop a thread from the outside, like Ctrl+C.
+getOutcomeOfException :: E.SomeException -> Maybe (CommandOutcome a)
+getOutcomeOfException exception
+  | Just AbortedByUser <- E.fromException exception = Just $ Aborted Stderr
+  | Just StoppedWithoutError <- E.fromException exception = Just FailedWithoutError
+  | hasUserEndedPromptInput = Just $ Aborted Stdout
+  | isExit || isAsyncException = Nothing
+  | otherwise = Just $ HitBug exception
+  where
+    -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
+    hasUserEndedPromptInput = maybe False isPromptInputEOF (E.fromException exception)
+    isExit = isJust (E.fromException exception :: Maybe ExitCode)
+    isAsyncException = isJust (E.fromException exception :: Maybe E.SomeAsyncException)
 
 -- | Stops a command from anywhere in its code, without it being an error that
 -- 'runCommand' prints.

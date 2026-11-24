@@ -1,5 +1,7 @@
 [stdout]
+
+This is a bug in Wasp. Please report it at https://github.com/wasp-lang/wasp/issues/new and include the following error:
+  COMP_LINE: getEnv: does not exist (no environment variable)
 [stderr]
-wasp-cli: COMP_LINE: getEnv: does not exist (no environment variable)
 [exit code]
 1
