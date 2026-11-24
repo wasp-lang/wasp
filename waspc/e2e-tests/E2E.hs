@@ -17,7 +17,7 @@ module E2E
 where
 
 import E2E.Assertions
-import E2E.Command (Command (stdinMode, timeoutSeconds), StdinMode (..), cleanupCommandTimeoutSeconds, command, nodeModulesBin, defaultTimeoutSeconds, failFastTimeoutSeconds, waspCli, withEnv, withoutEnv)
+import E2E.Command (Command (stdinMode, timeoutSeconds), StdinMode (..), cleanupCommandTimeoutSeconds, command, defaultTimeoutSeconds, failFastTimeoutSeconds, nodeModulesBin, waspCli, withEnv, withoutEnv)
 import E2E.Docker
 import E2E.Files
 import E2E.Net

@@ -54,10 +54,12 @@ waspSpecAvailableTest =
               ["completion"],
               ["telemetry"]
             ]
-            $ \args -> removeNodeModules >> wasp args
-          -- `wasp news` fetches the news. We point it at a server that isn't
-          -- there, so the test works offline: then it must fail at fetching,
-          -- after it checked any requirements.
+            $ \args -> removeNodeModules >> wasp args,
+      -- `wasp news` fetches the news. We point it at a server that isn't
+      -- there, so the test works offline: then it must fail at fetching,
+      -- after it checked any requirements.
+      test "news-gets-past-requirements-when-wasp-spec-missing" $
+        withNewWaspProject minimalStarterTemplate $ do
           removeNodeModules
           runExpectingFailure (withEnv [("WASP_NEWS_SERVER_URL", "http://localhost:1")] $ waspCli ["news"])
             >>= assertOutputContains "Getting Wasp news failed"
@@ -71,16 +73,15 @@ waspSpecAvailableTest =
     corruptWaspSpecVersion =
       inDirectory (SP.fromRelDir $ getPackageInstallationPathInProject WaspSpecPackage)
         $ void
-        $ run npmPkgSetVersion
+        $ run npmPkgSetVersionCommand
 
     -- The commands should fail on the missing wasp-spec before doing any
-    -- work. If one doesn't, we don't want to wait for it to finish building or
-    -- serving the app.
+    -- work (building, serving the app).
     assertFailsWithInstallHint :: Command -> TestM ()
     assertFailsWithInstallHint cmd =
-      runExpectingFailure cmd {timeoutSeconds = 2 * 60}
+      runExpectingFailure cmd {timeoutSeconds = failFastTimeoutSeconds}
         >>= assertOutputContains (T.pack $ "Run " ++ styleCode "wasp install")
 
-{- HLINT ignore npmPkgSetVersion "Avoid npm and npx" -}
-npmPkgSetVersion :: Command
-npmPkgSetVersion = command "npm" ["pkg", "set", "version=9.9.9"]
+{- HLINT ignore npmPkgSetVersionCommand "Avoid npm and npx" -}
+npmPkgSetVersionCommand :: Command
+npmPkgSetVersionCommand = command "npm" ["pkg", "set", "version=9.9.9"]

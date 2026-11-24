@@ -112,7 +112,7 @@ A helper that isn't specific to one test goes in `E2E/`, in the module for what 
 - `E2E/Process.hs`: running commands and everything about a process's life (output, exit, signals).
 - `E2E/Ports.hs`, `E2E/Net.hs`: allocating ports, and waiting for a process to listen on them or to stop listening (`waitUntilStopped`).
 - `E2E/Docker.hs`: Docker commands, and tests and steps that need Docker.
-- `E2E/Wasp.hs`: wrappers around Wasp CLI commands, and facts about Wasp projects (e.g. their migrations dirs).
+- `E2E/Wasp.hs`: wrappers around Wasp CLI commands and the tools a Wasp project runs (e.g. `viteBuildCommand`), and facts about Wasp projects (e.g. their migrations dirs).
 - `E2E/Assertions.hs`, `E2E/Files.hs`: generic checks and file system steps.
 
 A helper with a single caller stays in that test's module. Steps that write app content (models, TS files) shared by several tests go in `Tests/Fixtures.hs`.

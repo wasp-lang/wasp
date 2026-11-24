@@ -20,7 +20,7 @@ vitestTest =
           writeToFile "vite.config.ts" viteConfigTs
           -- The SDK must compile without the testing libraries.
           wasp ["compile"]
-          run installTestingLibraries
+          run installTestingLibrariesCommand
           -- Wasp type-checks the tests too, so we add them once their
           -- dependencies are installed.
           writeToFile "src/TaskList.test.tsx" taskListTestTsx
@@ -99,9 +99,9 @@ vitestTest =
         });
       |]
 
-{- HLINT ignore installTestingLibraries "Avoid npm and npx" -}
+{- HLINT ignore installTestingLibrariesCommand "Avoid npm and npx" -}
 
 -- | Like the testing docs, we install the latest versions, so that we notice
 -- when a new release of these libraries breaks the `wasp/client/test` helpers.
-installTestingLibraries :: Command
-installTestingLibraries = command "npm" ["install", "-D", "vitest", "jsdom", "@testing-library/react", "msw"]
+installTestingLibrariesCommand :: Command
+installTestingLibrariesCommand = command "npm" ["install", "-D", "vitest", "jsdom", "@testing-library/react", "msw"]

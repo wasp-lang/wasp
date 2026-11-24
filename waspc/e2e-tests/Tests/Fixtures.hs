@@ -1,23 +1,26 @@
--- | Project files and commands shared by several tests.
+-- | Project files, and the steps that write them, shared by several tests.
 --
 -- Fixtures edit the starter's files instead of rewriting them, so the tests
 -- keep up with the starter. An edit fails loudly when the starter changes.
 module Tests.Fixtures
   ( taskPrismaModel,
+    userCodeTypeError,
+    userCodeTypeErrorMessage,
+    setRootRoutePath,
     addTasksQueryToMainWaspTs,
     writeTasksQueryApp,
     breakTasksQueryType,
     fixTasksQueryType,
     tasksQueryTypeError,
-    TaskSeed (..),
+    Seed (..),
+    makeSeed,
+    populateTasksSeed,
+    assertTasksEmptySeed,
+    assertTasksNotEmptySeed,
     allTaskSeeds,
-    taskSeedName,
     setUpProjectWithTaskSeeds,
-    runTaskSeed,
-    waspDbSeed,
+    runSeed,
     addSeeds,
-    viteBuild,
-    withApiUrl,
   )
 where
 
@@ -25,7 +28,6 @@ import Control.Monad (forM_, void)
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
-import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
 
 taskPrismaModel :: T.Text
 taskPrismaModel =
@@ -37,12 +39,30 @@ taskPrismaModel =
     }
   |]
 
+-- | A TypeScript statement that doesn't type check, for any of the project's
+-- TS files. @tsc@ reports it with 'userCodeTypeErrorMessage'.
+userCodeTypeError :: T.Text
+userCodeTypeError = "export const shouldBeNumber: number = 'wrong'"
+
+-- | How @tsc@ reports 'userCodeTypeError', without the location.
+userCodeTypeErrorMessage :: T.Text
+userCodeTypeErrorMessage = "error TS2322: Type 'string' is not assignable to type 'number'."
+
+-- | Replaces the path of the starter's root route with the TypeScript
+-- expression.
+setRootRoutePath :: T.Text -> TestM ()
+setRootRoutePath pathExpression =
+  replaceInFile "main.wasp.ts" starterRootRoute ("    route(\"RootRoute\", " <> pathExpression <> ", page(MainPage)),")
+
 -- | Declares the @getTasks@ query from @src/queries.ts@ in the starter's
 -- @main.wasp.ts@.
 addTasksQueryToMainWaspTs :: TestM ()
 addTasksQueryToMainWaspTs = do
-  replaceInFile "main.wasp.ts" "import { app, page, route } from \"@wasp/spec\";" "import { app, page, query, route } from \"@wasp/spec\";"
-  addMainWaspTsImports ["import { getTasks } from \"./src/queries\" with { type: \"ref\" };"]
+  -- A separate import, so that we don't depend on what the starter imports.
+  addMainWaspTsImports
+    [ "import { query } from \"@wasp/spec\";",
+      "import { getTasks } from \"./src/queries\" with { type: \"ref\" };"
+    ]
   addMainWaspTsSpecDeclaration "query(getTasks)"
 
 -- | An app whose main page renders the result of the @getTasks@ query.
@@ -87,6 +107,27 @@ writeTasksQuery result =
       }) satisfies GetTasks<void>;
     |]
 
+-- | A seed: a function in @src/db/<name>.ts@ with the seed's name, listed in
+-- the app's seeds.
+data Seed = Seed {name :: String, script :: T.Text}
+
+-- | A seed whose script has the imports, and whose function runs the body.
+makeSeed :: String -> T.Text -> T.Text -> Seed
+makeSeed seedName imports body =
+  Seed
+    { name = seedName,
+      script =
+        [trimming|
+          $imports
+
+          export async function $seedNameText() {
+            $body
+          }
+        |]
+    }
+  where
+    seedNameText = T.pack seedName
+
 -- | Seeds that act on the Task table, or check its state.
 --
 -- FIXME: Find a way without seeds.
@@ -95,99 +136,65 @@ writeTasksQuery result =
 -- report success or failure, but that's enough. Running SQL with
 -- `prisma db execute` would also work, but it's less readable and not
 -- database agnostic.
-data TaskSeed = PopulateTasks | AssertTasksEmpty | AssertTasksNotEmpty
-  deriving (Bounded, Enum)
+populateTasksSeed, assertTasksEmptySeed, assertTasksNotEmptySeed :: Seed
+populateTasksSeed =
+  makeTaskSeed
+    "populateTasks"
+    [trimming|
+      await prisma.task.create({
+        data: { description: 'Test task', isDone: false }
+      })
+    |]
+assertTasksEmptySeed =
+  makeTaskSeed
+    "assertTasksEmpty"
+    [trimming|
+      const taskCount = await prisma.task.count()
+      if (taskCount !== 0) {
+        throw new Error(`Expected tasks table to be empty, but found $${taskCount} tasks`)
+      }
+    |]
+assertTasksNotEmptySeed =
+  makeTaskSeed
+    "assertTasksNotEmpty"
+    [trimming|
+      const taskCount = await prisma.task.count()
+      if (taskCount === 0) {
+        throw new Error('Expected tasks table to have data, but it was empty')
+      }
+    |]
 
-allTaskSeeds :: [TaskSeed]
-allTaskSeeds = [minBound .. maxBound]
+allTaskSeeds :: [Seed]
+allTaskSeeds = [populateTasksSeed, assertTasksEmptySeed, assertTasksNotEmptySeed]
+
+makeTaskSeed :: String -> T.Text -> Seed
+makeTaskSeed seedName = makeSeed seedName "import { prisma } from 'wasp/server'"
 
 -- | Adds the Task model to the project and migrates the database, then makes
 -- the seeds the app's only seeds.
-setUpProjectWithTaskSeeds :: [TaskSeed] -> TestM ()
+setUpProjectWithTaskSeeds :: [Seed] -> TestM ()
 setUpProjectWithTaskSeeds seeds = do
   wasp ["compile"]
   appendToFile "schema.prisma" taskPrismaModel
-  waspDbMigrateDev "foo"
-  addSeeds [(taskSeedName seed, seedScript (T.pack $ taskSeedName seed) (seedBody seed)) | seed <- seeds]
-  where
-    seedBody :: TaskSeed -> T.Text
-    seedBody = \case
-      PopulateTasks ->
-        [trimming|
-          await prisma.task.create({
-            data: { description: 'Test task', isDone: false }
-          })
-        |]
-      AssertTasksEmpty ->
-        [trimming|
-          const taskCount = await prisma.task.count()
-          if (taskCount !== 0) {
-            throw new Error(`Expected tasks table to be empty, but found $${taskCount} tasks`)
-          }
-        |]
-      AssertTasksNotEmpty ->
-        [trimming|
-          const taskCount = await prisma.task.count()
-          if (taskCount === 0) {
-            throw new Error('Expected tasks table to have data, but it was empty')
-          }
-        |]
+  waspDbMigrateDev "add_task_model"
+  addSeeds seeds
 
-    seedScript :: T.Text -> T.Text -> T.Text
-    seedScript name body =
-      [trimming|
-        import { prisma } from 'wasp/server'
-
-        export async function $name() {
-          $body
-        }
-      |]
-
--- | Runs the seed with `wasp db seed`. Expects 'setUpProjectWithTaskSeeds' to
--- have added it.
-runTaskSeed :: TaskSeed -> TestM ()
-runTaskSeed seed = void $ waspDbSeed [taskSeedName seed]
-
--- | Runs `wasp db seed` with the arguments, and checks that Wasp ran the seed.
--- The seeds check the database's state by failing, so a seed that didn't run
--- would pass any check.
-waspDbSeed :: [String] -> TestM ProcessResult
-waspDbSeed arguments = do
-  result <- wasp ("db" : "seed" : arguments)
-  assertOutputContains "Database seeded successfully!" result
-  return result
-
-taskSeedName :: TaskSeed -> String
-taskSeedName = \case
-  PopulateTasks -> "populateTasks"
-  AssertTasksEmpty -> "assertTasksEmpty"
-  AssertTasksNotEmpty -> "assertTasksNotEmpty"
+-- | Runs the seed with `wasp db seed`. Expects 'addSeeds' to have added it.
+runSeed :: Seed -> TestM ()
+runSeed seed = void $ waspDbSeed [seed.name]
 
 -- | Writes each seed's script to @src/db/<name>.ts@, and makes the seeds the
--- app's only seeds in the starter's @main.wasp.ts@. Each script must export a
--- function with the seed's name.
-addSeeds :: [(String, T.Text)] -> TestM ()
+-- app's only seeds in the starter's @main.wasp.ts@.
+addSeeds :: [Seed] -> TestM ()
 addSeeds seeds = do
-  forM_ seeds $ \(name, script) -> writeToFile ("src/db/" ++ name ++ ".ts") script
+  forM_ seeds $ \seed -> writeToFile ("src/db/" ++ seed.name ++ ".ts") seed.script
   addMainWaspTsImports
-    [ "import { " <> name <> " } from \"./src/db/" <> name <> "\" with { type: \"ref\" };"
-    | name <- seedNameTexts
+    [ "import { " <> seedName <> " } from \"./src/db/" <> seedName <> "\" with { type: \"ref\" };"
+    | seedName <- seedNames
     ]
-  addMainWaspTsAppField $ "db: { seeds: [" <> T.intercalate ", " seedNameTexts <> "] }"
+  addMainWaspTsAppField $ "db: { seeds: [" <> T.intercalate ", " seedNames <> "] }"
   where
-    seedNameTexts = map (T.pack . fst) seeds
-
--- | `vite build` in the Wasp project, with the extra arguments.
---
--- Without the test runner's @REACT_APP_API_URL@, so that each test decides
--- whether the client gets it, which it needs to build. Use 'withApiUrl' to
--- set it.
-viteBuild :: [String] -> Command
-viteBuild arguments = withoutEnv [serverUrlEnvVarName] $ nodeModulesBin "vite" ("build" : arguments)
-
--- | Sets the server URL the client is built with.
-withApiUrl :: Command -> Command
-withApiUrl = withEnv [(serverUrlEnvVarName, "http://localhost:3001")]
+    seedNames = map (T.pack . (.name)) seeds
 
 addMainWaspTsImports :: [T.Text] -> TestM ()
 addMainWaspTsImports imports =
@@ -201,6 +208,7 @@ addMainWaspTsAppField field = replaceInFile "main.wasp.ts" "  spec: [" ("  " <> 
 
 addMainWaspTsSpecDeclaration :: T.Text -> TestM ()
 addMainWaspTsSpecDeclaration declaration =
-  replaceInFile "main.wasp.ts" starterRoute (starterRoute <> "\n    " <> declaration <> ",")
-  where
-    starterRoute = "    route(\"RootRoute\", \"/\", page(MainPage)),"
+  replaceInFile "main.wasp.ts" starterRootRoute (starterRootRoute <> "\n    " <> declaration <> ",")
+
+starterRootRoute :: T.Text
+starterRootRoute = "    route(\"RootRoute\", \"/\", page(MainPage)),"

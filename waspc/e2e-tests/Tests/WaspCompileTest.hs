@@ -2,7 +2,7 @@ module Tests.WaspCompileTest (waspCompileTest) where
 
 import E2E
 import qualified StrongPath as SP
-import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, tasksQueryTypeError, writeTasksQueryApp)
+import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, tasksQueryTypeError, userCodeTypeError, userCodeTypeErrorMessage, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
@@ -28,9 +28,8 @@ waspCompileTest =
             >>= assertOutputContains "Cannot find module or type declarations for side-effect import of './missing-side-effect-import'.",
       test "fail-type-error" $
         withNewWaspProject minimalStarterTemplate $ do
-          writeToFile "src/utils.ts" "export const shouldBeNumber: number = 'wrong'"
-          waspFails ["compile"]
-            >>= assertOutputContains "src/utils.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'.",
+          writeToFile "src/utils.ts" userCodeTypeError
+          waspFails ["compile"] >>= assertOutputContains ("src/utils.ts(1,14): " <> userCodeTypeErrorMessage),
       -- Regression test for https://github.com/wasp-lang/wasp/pull/4942
       test "fail-and-recover-with-updated-operation-types" $
         withNewWaspProject minimalStarterTemplate $ do

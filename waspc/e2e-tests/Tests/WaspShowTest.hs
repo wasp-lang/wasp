@@ -4,6 +4,7 @@ import Control.Monad (forM_)
 import qualified Data.Aeson as Aeson
 import qualified Data.Text as T
 import E2E
+import Tests.Fixtures (setRootRoutePath)
 import UnliftIO.Async (mapConcurrently)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -29,7 +30,7 @@ waspShowTest =
       -- its own.
       test "concurrent-spec-analyses-read-their-own-results" $
         withNewWaspProject minimalStarterTemplate $ do
-          replaceInFile "main.wasp.ts" "route(\"RootRoute\", \"/\"" "route(\"RootRoute\", `/${process.env.E2E_ROUTE}`"
+          setRootRoutePath "`/${process.env.E2E_ROUTE}`"
           let routes = ["e2e-route-" ++ show index | index <- [1 .. 8 :: Int]]
           results <-
             mapConcurrently

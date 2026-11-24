@@ -2,6 +2,7 @@ module Tests.WaspBuildTest (waspBuildTest) where
 
 import E2E
 import qualified StrongPath as SP
+import Tests.Fixtures (userCodeTypeError, userCodeTypeErrorMessage)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
@@ -23,6 +24,6 @@ waspBuildTest =
       test "fail-type-error" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres
-          appendToFile "src/MainPage.tsx" "export const shouldBeNumber: number = 'wrong'"
-          waspFails ["build"] >>= assertOutputContains "error TS2322: Type 'string' is not assignable to type 'number'."
+          appendToFile "src/MainPage.tsx" userCodeTypeError
+          waspFails ["build"] >>= assertOutputContains userCodeTypeErrorMessage
     ]

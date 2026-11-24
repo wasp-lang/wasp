@@ -48,7 +48,7 @@ import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newO
 import E2E.RunConfig (RunConfig (..))
 import E2E.Signals (Signal (..), processGroupExists, signalProcess, signalProcessGroup)
 import E2E.TestM (TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
-import System.Environment (getEnvironment, lookupEnv)
+import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import System.Process (getPid)
@@ -123,13 +123,7 @@ startInBackgroundWithStopKey :: Command -> TestM (ReleaseKey, RunningProcess)
 startInBackgroundWithStopKey cmd = do
   executable <- resolveExecutable cmd.executable
   workingDir <- getWorkingDir
-  pathOverride <- case cmd.extraPath of
-    [] -> return []
-    dirs -> do
-      absoluteDirs <- mapM resolvePath dirs
-      inheritedPath <- liftIO $ lookupEnv "PATH"
-      return [("PATH", Just . intercalate [FP.searchPathSeparator] $ absoluteDirs ++ maybeToList inheritedPath)]
-  environment <- liftIO $ buildEnvironment (pathOverride ++ cmd.environmentOverrides)
+  environment <- buildEnvironment cmd
   testEnv <- ask
   output <- liftIO $ newOutput testEnv.testLog
   logLine $ "\n==> " ++ showCommand cmd ++ "\n    in " ++ workingDir
@@ -166,13 +160,28 @@ stdinSpec = \case
   StdinText text -> TP.byteStringInput (BSL.fromStrict $ TE.encodeUtf8 text)
   OpenEmptyStdin -> void TP.createPipe
 
-buildEnvironment :: [(String, Maybe String)] -> IO (Maybe [(String, String)])
-buildEnvironment [] = return Nothing -- Inherit the test runner's environment.
-buildEnvironment overrides = Just . applyOverrides <$> getEnvironment
+-- | 'Nothing' inherits the test runner's environment.
+--
+-- The command's extra path dirs go before the @PATH@ that its environment
+-- overrides leave, so a @PATH@ set with 'E2E.Command.withEnv' doesn't drop
+-- them.
+buildEnvironment :: Command -> TestM (Maybe [(String, String)])
+buildEnvironment cmd = case (cmd.extraPath, cmd.environmentOverrides) of
+  ([], []) -> return Nothing
+  (extraPathDirs, overrides) -> do
+    absoluteExtraPathDirs <- mapM resolvePath extraPathDirs
+    environment <- liftIO getEnvironment
+    return . Just . prependToPath absoluteExtraPathDirs $ foldl applyOverride environment overrides
   where
-    applyOverrides environment = foldl applyOverride environment overrides
     applyOverride environment (key, maybeValue) =
-      filter ((/= key) . fst) environment ++ maybe [] (\value -> [(key, value)]) maybeValue
+      withoutKey key environment ++ maybe [] (\value -> [(key, value)]) maybeValue
+
+    prependToPath [] environment = environment
+    prependToPath dirs environment =
+      withoutKey "PATH" environment
+        ++ [("PATH", intercalate [FP.searchPathSeparator] $ dirs ++ maybeToList (lookup "PATH" environment))]
+
+    withoutKey key = filter ((/= key) . fst)
 
 -- | Waits until the process prints the text (to stdout or stderr), or returns
 -- right away if it already did, also before this step.

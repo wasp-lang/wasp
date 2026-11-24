@@ -17,6 +17,7 @@ where
 
 import Data.List (intercalate)
 import qualified Data.Text as T
+import qualified System.FilePath as FP
 import Wasp.Project.Db (databaseUrlEnvVarName)
 
 data Command = Command
@@ -107,10 +108,11 @@ showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (executableName : cmd
     executableName = case cmd.executable of
       WaspCli -> "wasp"
       Program program -> program
-    envPrefix = unsetPrefix ++ pathPrefix ++ [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides]
+    envPrefix = unsetPrefix ++ [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides] ++ pathPrefix
+    -- Last, since the extra path dirs go before the @PATH@ the overrides leave.
     pathPrefix = case cmd.extraPath of
       [] -> []
-      dirs -> ["PATH=" ++ intercalate ":" (map quoteIfNeeded dirs ++ ["$PATH"])]
+      dirs -> ["PATH=" ++ intercalate [FP.searchPathSeparator] (map quoteIfNeeded dirs ++ ["$PATH"])]
     unsetPrefix = case [key | (key, Nothing) <- cmd.environmentOverrides] of
       [] -> []
       unsetKeys -> "env" : concatMap (\key -> ["-u", key]) unsetKeys
