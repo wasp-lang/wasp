@@ -67,11 +67,17 @@ parsePackageExports packageJson =
 exportTargetExists :: FilePath -> PackageExport -> IO Bool
 exportTargetExists sdkPackageDir PackageExport {exportTarget} =
   if "*" `isInfixOf` generatedSourcePath
-    then doesDirectoryExist $ sdkPackageDir </> dropTrailingPathSeparator (takeWhile (/= '*') generatedSourcePath)
+    then doesDirectoryExist $ sdkPackageDir </> wildcardParentDir
     else or <$> mapM (doesFileExist . (sdkPackageDir </>)) (generatedSourcePathCandidates generatedSourcePath)
   where
+    -- Exports point at the built files in `dist/`. The sources they're built
+    -- from sit at the same path in the package (see
+    -- 'generatedSourcePathCandidates').
     generatedSourcePath = dropPrefix "dist/" $ dropPrefix "./" exportTarget
+    -- A wildcard export (e.g. @./foo/*@) is checked by its directory.
+    wildcardParentDir = dropTrailingPathSeparator $ takeWhile (/= '*') generatedSourcePath
 
+-- | The source of a built @.js@ file can be JavaScript or TypeScript.
 generatedSourcePathCandidates :: FilePath -> [FilePath]
 generatedSourcePathCandidates target
   | ".jsx" `isSuffixOf` target = [target, replaceSuffix ".jsx" ".tsx" target]

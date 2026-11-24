@@ -115,7 +115,7 @@ A helper that isn't specific to one test goes in `E2E/`, in the module for what 
 - `E2E/Wasp.hs`: wrappers around Wasp CLI commands and the tools a Wasp project runs (e.g. `viteBuildCommand`), and facts about Wasp projects (e.g. their migrations dirs).
 - `E2E/Assertions.hs`, `E2E/Files.hs`: generic checks and file system steps.
 
-A helper with a single caller stays in that test's module. Steps that write app content (models, TS files) shared by several tests go in `Tests/Fixtures.hs`.
+A helper that only makes sense for one test's scenario stays in that test's module, even if it's built from generic steps. A generic helper goes in `E2E/` even if only one test uses it so far. Steps that write app content (models, TS files) shared by several tests go in `Tests/Fixtures.hs`.
 
 Some tests still use the older shell commands DSL (`ShellCommands.hs`) while we port them (see [#3404](https://github.com/wasp-lang/wasp/issues/3404)).
 
