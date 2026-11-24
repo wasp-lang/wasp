@@ -14,6 +14,6 @@ waspStudioTest =
         withNewWaspProject minimalStarterTemplate $ do
           port <- allocatePort
           studio <- startInBackground $ waspCli ["studio", "--port", show port]
-          waitUntilListening studio [port] (5 * 60)
+          waitUntilListening studio [port] appStartTimeoutSeconds
           interruptProcessGroupAndWaitUntilStopped studio [port]
     ]

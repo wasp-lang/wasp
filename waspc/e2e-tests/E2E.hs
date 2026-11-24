@@ -26,6 +26,6 @@ import E2E.Process
 import E2E.Signals (Signal (..))
 import E2E.Snapshot
 import E2E.Test (E2ETest, sequentialTestGroup, test, testGroup)
-import E2E.TestM (TestM, failTest, getWorkingDir, inDirectory, logLine, makeUniqueName, registerCleanupStep, resolvePath, settleTimeoutSeconds, step, waitUntil)
+import E2E.TestM (TestM, failTest, inDirectory, logLine, makeUniqueName, registerCleanupStep, resolvePath, settleTimeoutSeconds, step, waitUntil)
 import E2E.Wasp
 import System.Exit (ExitCode (..))

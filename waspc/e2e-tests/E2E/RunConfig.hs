@@ -28,7 +28,7 @@ data RunConfig = RunConfig
     isDockerEnabled :: Bool,
     -- | How many tests run at once. 'Nothing' leaves it to tasty.
     maxJobs :: Maybe Int,
-    -- | The ports 'E2E.Ports.allocateAppPorts' gave to the tests of this run.
+    -- | The ports 'E2E.Ports' gave out to the tests of this run.
     allocatedPorts :: MVar (Set Int)
   }
 

@@ -31,8 +31,8 @@ waitUntilListening runningProcess ports seconds = do
   unless isEverythingListening $
     failWithOutput runningProcess ("didn't open ports " ++ show ports ++ " within " ++ show seconds ++ "s")
 
--- | How long a Wasp app may take to listen on its ports, `npm install`
--- included.
+-- | How long a Wasp command that serves an app (e.g. `wasp start`, `wasp
+-- studio`) may take to listen on its ports, `npm install` included.
 appStartTimeoutSeconds :: Int
 appStartTimeoutSeconds = 5 * 60
 

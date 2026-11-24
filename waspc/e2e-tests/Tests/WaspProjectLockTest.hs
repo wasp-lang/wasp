@@ -1,5 +1,6 @@
 module Tests.WaspProjectLockTest (waspProjectLockTest) where
 
+import Control.Monad (void)
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
@@ -51,30 +52,27 @@ waspProjectLockTest =
           lockHolder <- startLockHolder
           lockHolderPid <- getWaspPidFromLockFile
 
-          -- `wasp install` is not a watcher, so the db command waits for it to
-          -- finish, and gives up after a while.
-          result <- runExpectingFailure waspDbMigrateDevCommand
-          assertOutputContains (lockHolderMessage lockHolderPid "is working on this project right now.") result
-          assertOutputContains waitingForCompilationMessage result
-
-          setLockFileWatcherStatus lockHolder CompilationFailed
-          runExpectingFailure waspDbMigrateDevCommand
-            >>= assertOutputContains (lockHolderMessage lockHolderPid "is running for this project, but it failed to compile it.")
-
-          -- While the watcher compiles, the db command waits for it, and goes
-          -- on without compiling once the watcher is done.
-          setLockFileWatcherStatus lockHolder Compiling
-          dbCommand <- startInBackground waspDbMigrateDevCommand
-          waitForOutput dbCommand waitingForCompilationMessage lockHolderDeadlineSeconds
-          setLockFileWatcherStatus lockHolder UpToDate
-          assertExitsSuccessfully dbCommand lockHolderDeadlineSeconds
-          assertProcessOutputContains "is already watching this project, skipping compilation." dbCommand
+          step "the db command waits for a lock holder that isn't a watcher (`wasp install`), and gives up after a while" $ do
+            result <- runExpectingFailure waspDbMigrateDevCommand
+            assertOutputContains (lockHolderMessage lockHolderPid "is working on this project right now.") result
+            assertOutputContains waitingForCompilationMessage result
+          step "the db command fails while the watcher has a failed compilation" $ do
+            setLockFileWatcherStatus lockHolder CompilationFailed
+            runExpectingFailure waspDbMigrateDevCommand
+              >>= assertOutputContains (lockHolderMessage lockHolderPid "is running for this project, but it failed to compile it.")
+          step "the db command waits while the watcher compiles, and goes on without compiling once it's done" $ do
+            setLockFileWatcherStatus lockHolder Compiling
+            dbCommand <- startInBackground waspDbMigrateDevCommand
+            waitForOutput dbCommand waitingForCompilationMessage lockHolderDeadlineSeconds
+            setLockFileWatcherStatus lockHolder UpToDate
+            assertExitsSuccessfully dbCommand lockHolderDeadlineSeconds
+              >>= assertOutputContains "is already watching this project, skipping compilation."
 
           releaseLock lockHolder
     ]
   where
     waspDbMigrateDevCommand :: Command
-    waspDbMigrateDevCommand = waspCli ["db", "migrate-dev", "--name", "foo"]
+    waspDbMigrateDevCommand = waspCli ["db", "migrate-dev", "--name", "alongside_lock_holder"]
 
     waitingForCompilationMessage :: T.Text
     waitingForCompilationMessage = "Waiting for compilation to finish"
@@ -101,7 +99,7 @@ startLockHolder = do
         await new Promise((resolve) => setTimeout(resolve, 200));
       }
     |]
-  run addPreinstallHook
+  run addPreinstallHookCommand
   lockHolder <- startInBackground $ waspCli ["install"]
   waitForFile lockHolder lockAcquiredMarkerFile lockAcquiredTimeoutSeconds
   return lockHolder
@@ -121,14 +119,14 @@ lockHolderDeadlineSeconds = 120
 releaseLock :: RunningProcess -> TestM ()
 releaseLock lockHolder = do
   writeToFile releaseLockSignalFile ""
-  assertExitsSuccessfully lockHolder installFinishTimeoutSeconds
+  void $ assertExitsSuccessfully lockHolder installFinishTimeoutSeconds
   where
     -- The rest of `npm install`, after the hook.
     installFinishTimeoutSeconds = 120
 
-{- HLINT ignore addPreinstallHook "Avoid npm and npx" -}
-addPreinstallHook :: Command
-addPreinstallHook = command "npm" ["pkg", "set", "scripts.preinstall=node " ++ preinstallHookFile]
+{- HLINT ignore addPreinstallHookCommand "Avoid npm and npx" -}
+addPreinstallHookCommand :: Command
+addPreinstallHookCommand = command "npm" ["pkg", "set", "scripts.preinstall=node " ++ preinstallHookFile]
 
 preinstallHookFile :: FilePath
 preinstallHookFile = ".wasp-e2e-preinstall.mjs"
