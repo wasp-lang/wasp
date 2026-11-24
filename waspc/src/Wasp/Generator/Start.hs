@@ -16,19 +16,20 @@ import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
 import Wasp.Util (secondsToMicroSeconds)
+import Wasp.Util.IO.Process (WriteOutput)
 
 -- | This is a blocking action, that will start the processes that run web app and server.
 --   It will run until the web app exits. The server is kept up to date with the events sent to the given inbox.
 --   It alo receives 'onJobsQuietDown' IO action, which it executes every time all the processes
 --   go quiet (don't produce any stdout/err) for some time (5s), after they have previously
 --   produced some output.
-start :: ProjectRunConfig -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> IO () -> IO (Either String ())
-start projectRunConfig waspProjectDir outDir serverInbox onJobsQuietDown = do
+start :: WriteOutput -> ProjectRunConfig -> Path' Abs (Dir WaspProjectDir) -> Path' Abs (Dir GeneratedAppDir) -> ServerInbox -> IO () -> IO (Either String ())
+start writeOutput projectRunConfig waspProjectDir outDir serverInbox onJobsQuietDown = do
   -- `Left` (the server) is `Void`, because it always gets restarted and never
   -- exits. Only web app can exit normally.
   webAppExitCode <-
     fmap (either absurd id)
-      $ J.run
+      $ J.run writeOutput
       $ withJobsQuietDownListener onJobsQuietDown
       $ J.race
         (J.prefixWith J.Server $ startServer projectRunConfig outDir serverInbox)

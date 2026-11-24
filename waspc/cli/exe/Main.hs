@@ -36,6 +36,7 @@ import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
+import Wasp.Cli.Console (Console, initConsole)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Util (indent)
@@ -54,6 +55,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- started) when it's stopped with SIGTERM (process managers, `kill`) or
   -- SIGHUP (closed terminal), and not only with Ctrl+C.
   handleTerminationSignalsLikeInterrupt
+
+  console <- initConsole
 
   args <- getArgs
   let commandCall = case args of
@@ -81,32 +84,32 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         _unknownCommand -> Command.Call.Unknown args
 
-  telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
+  telemetryThread <- Async.async $ runCommand console $ Telemetry.considerSendingData commandCall
 
   setDefaultCliEnvVars
 
   case commandCall of
-    Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.Start startArgs -> runCommand $ start startArgs
-    Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
-    Command.Call.Clean -> runCommand clean
-    Command.Call.Install -> runCommand install
-    Command.Call.Compile -> runCommand compileCommand
-    Command.Call.Db dbArgs -> dbCli dbArgs
+    Command.Call.New newArgs -> runCommand console $ createNewProject newArgs
+    Command.Call.Start startArgs -> runCommand console $ start startArgs
+    Command.Call.StartDb startDbArgs -> runCommand console $ Command.Start.Db.start startDbArgs
+    Command.Call.Clean -> runCommand console clean
+    Command.Call.Install -> runCommand console install
+    Command.Call.Compile -> runCommand console compileCommand
+    Command.Call.Db dbArgs -> dbCli console dbArgs
     Command.Call.Version -> printVersion
     Command.Call.Doctor -> doctor
-    Command.Call.Studio studioArgs -> runCommand $ studio studioArgs
-    Command.Call.Uninstall uninstallArgs -> runCommand $ uninstall uninstallArgs
-    Command.Call.Build -> runCommand build
-    Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
-    Command.Call.Telemetry -> runCommand Telemetry.telemetry
-    Command.Call.Deps -> runCommand deps
-    Command.Call.Dockerfile -> runCommand printDockerfile
-    Command.Call.Show showArgs -> runCommand $ showCommand showArgs
-    Command.Call.News -> runCommand news
-    Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
-    Command.Call.BashCompletionListCommands -> runCommand bashCompletion
-    Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
+    Command.Call.Studio studioArgs -> runCommand console $ studio studioArgs
+    Command.Call.Uninstall uninstallArgs -> runCommand console $ uninstall uninstallArgs
+    Command.Call.Build -> runCommand console build
+    Command.Call.BuildStart buildStartArgs -> runCommand console $ buildStart buildStartArgs
+    Command.Call.Telemetry -> runCommand console Telemetry.telemetry
+    Command.Call.Deps -> runCommand console deps
+    Command.Call.Dockerfile -> runCommand console printDockerfile
+    Command.Call.Show showArgs -> runCommand console $ showCommand showArgs
+    Command.Call.News -> runCommand console news
+    Command.Call.PrintBashCompletionInstruction -> runCommand console printBashCompletionInstruction
+    Command.Call.BashCompletionListCommands -> runCommand console bashCompletion
+    Command.Call.Deploy deployArgs -> runCommand console $ deploy deployArgs
     Command.Call.Help -> printUsage
     Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -215,16 +218,16 @@ printVersion = do
       ]
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
-dbCli :: [String] -> IO ()
-dbCli args = case args of
+dbCli :: Console -> [String] -> IO ()
+dbCli console args = case args of
   [helpArg] | isHelpArg helpArg -> printDbUsage
   -- These commands don't require an existing and running database.
-  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
+  "start" : optionalStartArgs -> runCommand console $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommand $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommand $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
-  "seed" : seedArgs -> runCommand $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
-  "studio" : studioArgs -> runCommand $ withArguments Command.Db.Studio.studioArgsParser Command.Db.Studio.studio studioArgs
+  "reset" : resetArgs -> runCommand console $ withArguments Command.Db.Reset.resetArgsParser Command.Db.Reset.reset resetArgs
+  "migrate-dev" : optionalMigrateArgs -> runCommand console $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
+  "seed" : seedArgs -> runCommand console $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
+  "studio" : studioArgs -> runCommand console $ withArguments Command.Db.Studio.studioArgsParser Command.Db.Studio.studio studioArgs
   _unknownDbCommand -> printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}

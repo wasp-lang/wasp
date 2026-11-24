@@ -12,7 +12,7 @@ import Data.Maybe (isJust)
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
@@ -32,13 +32,16 @@ import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
+import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Util (indent)
+import Wasp.Util.IO.Process (WriteOutput)
 import Wasp.Util.TextStyle (styleCode)
 import qualified Wasp.Util.TextStyle as TextStyle
 
@@ -52,7 +55,8 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
   createProjectOnDisk newProjectDescription
   -- TODO consider removing if we start doing `wasp install` automatically
-  areDepsInstalled <- liftIO $ installDepsForNewProject absWaspProjectDir
+  console <- getConsole
+  areDepsInstalled <- liftIO $ installDepsForNewProject console.writeRawOutput absWaspProjectDir
 
   isDbMigrated <-
     if needsMigration && areDepsInstalled
@@ -77,9 +81,9 @@ createProjectOnDisk
         liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
 
 -- | Returns whether the dependencies got installed.
-installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
-installDepsForNewProject absWaspProjectDir =
-  installIO absWaspProjectDir >>= \case
+installDepsForNewProject :: WriteOutput -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
+installDepsForNewProject writeOutput absWaspProjectDir =
+  installIO writeOutput absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
       putStrLn $

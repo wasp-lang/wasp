@@ -6,6 +6,7 @@ module Wasp.Job
     markInteractive,
     addEnvVarsOverride,
     run,
+    runCapturingOutput,
     race,
     andThen,
     emitOutput,
@@ -28,14 +29,25 @@ import Wasp.Job.Common (Job (..), JobType (..), runWithSink, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, addEnvVarsOverride, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
-import Wasp.Util.IO.Process (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
--- | Runs the job, printing its output to Wasp's own stdout and stderr, and
--- returns once it has finished.
-run :: (MonadIO m) => Job a -> m a
-run job = liftIO $ do
+-- | Runs the job, writing its output out with the given function, and returns
+-- once it has finished.
+--
+-- The function receives the output that came from a job with a 'JobType'
+-- already prefixed with it. Each run starts its prefixes from scratch.
+run :: (MonadIO m) => WriteOutput -> Job a -> m a
+run writeOutput job = liftIO $ do
   prefixedWriter <- PrefixedWriter.newPrefixedWriter
-  runWithSink (PrefixedWriter.printOutput prefixedWriter) job
+  runWithSink (PrefixedWriter.prefixOutput prefixedWriter writeOutput) job
+
+-- | Runs the job and returns everything it emitted together with its result
+-- (see 'captureOutput'). Nothing is left to write out, so it takes no
+-- function for that.
+runCapturingOutput :: (MonadIO m) => Job a -> m (a, Text)
+runCapturingOutput = liftIO . runWithSink discardOutput . captureOutput
+  where
+    discardOutput _ _ _ = return ()
 
 -- | Runs both jobs at the same time, until one of them finishes. Then it stops
 -- the other one and returns the result of the first one.

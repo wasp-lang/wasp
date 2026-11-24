@@ -26,23 +26,26 @@ import qualified StrongPath as SP
 import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
+import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
+import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
@@ -57,7 +60,8 @@ compile = do
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  compileWithOptions $ defaultCompileOptions waspProjectDir
+  console <- getConsole
+  compileWithOptions $ defaultCompileOptions console.writeRawOutput waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -142,11 +146,12 @@ analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length e
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
 compileIO ::
+  WriteOutput ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO CompileResult
-compileIO waspProjectDir outDir =
-  compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
+compileIO writeJobOutput waspProjectDir outDir =
+  compileIOWithOptions (defaultCompileOptions writeJobOutput waspProjectDir) waspProjectDir outDir
 
 compileIOWithOptions ::
   CompileOptions ->
@@ -156,12 +161,13 @@ compileIOWithOptions ::
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
 
-defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
-defaultCompileOptions waspProjectDir =
+defaultCompileOptions :: WriteOutput -> Path' Abs (Dir WaspProjectDir) -> CompileOptions
+defaultCompileOptions writeJobOutput waspProjectDir =
   CompileOptions
     { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
+      writeJobOutput,
       setupGoals = allSetupGoals
     }
 
@@ -170,7 +176,8 @@ withSetupGoals goals options = options {setupGoals = goals}
 
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do
-  analyzeWithOptions waspProjectDir $ defaultCompileOptions waspProjectDir
+  console <- getConsole
+  analyzeWithOptions waspProjectDir $ defaultCompileOptions console.writeRawOutput waspProjectDir
 
 -- | Analyzes Wasp project that the current working directory is a part of and returns
 -- AppSpec. So same like compilation, but it stops before any code generation.
@@ -191,8 +198,9 @@ analyzeWithOptions waspProjectDir options = do
 -- compile errors, bypassing 'CommandError' for the same reason.
 analyzeWithDiagnosticsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyzeWithDiagnosticsOnStderr waspProjectDir = do
+  console <- getConsole
   (appSpecOrErrors, warnings) <-
-    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions waspProjectDir
+    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions console.writeRawOutput waspProjectDir
   liftIO
     $ unless (null warnings)
     $ printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)

@@ -517,6 +517,7 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.Compile
+    Wasp.Cli.Console
     Wasp.Cli.DevDb
     Wasp.Cli.DevDb.ArgumentsParser
     Wasp.Cli.EnvVarWithCtx
@@ -647,6 +648,7 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
+    Test.Job.Util
     Test.Process.Util
     Util.Control.MonadTest
     Util.DockerTest

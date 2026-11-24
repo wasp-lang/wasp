@@ -9,7 +9,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
@@ -18,6 +18,7 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -70,6 +71,7 @@ start = withArguments startArgsParser $ \args ->
     cliSendMessageC $ Msg.Start "Starting up generated project..."
     cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
 
+    console <- getConsole
     watchOrStartResult <- liftIO $ do
       -- This MVar is used to exchange information between the two processes below running in
       -- parallel, specifically to allow us to pass the results of re-compilation done by 'watch'
@@ -78,8 +80,8 @@ start = withArguments startArgsParser $ \args ->
       -- 'watch') once jobs from 'start' quiet down a bit.
       ongoingCompilationResultMVar <- newMVar (warnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
-      let watchWaspProjectSource = watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
-      let startGeneratedWebApp = Wasp.Generator.start projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
+      let watchWaspProjectSource = watch console.writeRawOutput waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
+      let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
       -- In parallel:
       -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
       --    code. On any change, Wasp is recompiled (and generated app is re-generated).

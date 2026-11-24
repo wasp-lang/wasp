@@ -23,16 +23,17 @@ import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (checkExitSuccess, secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.IO.Process (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
 -- Installs the npm deps of the user's project and its workspaces (the generated server and the
 -- Wasp SDK). Skips the install if `node_modules` exists and the installed npm deps log matches
 -- the current deps. Saves the log after a successful install.
 installNpmDependenciesWithInstallRecord ::
+  WriteOutput ->
   AppSpec ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO (Either GeneratorError ())
-installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
+installNpmDependenciesWithInstallRecord writeOutput spec dstDir = runExceptT $ do
   let allNpmDeps = getAllNpmDeps spec
 
   shouldInstallNpmDeps <-
@@ -50,7 +51,7 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
     -- a broken state, we remove the log of installed npm deps before we start npm install.
     liftIO $ forgetInstalledNpmDepsLog dstDir
 
-    liftIO (installProjectNpmDependencies waspProjectDirPath)
+    liftIO (installProjectNpmDependencies writeOutput waspProjectDirPath)
       >>= onLeftThrowError
 
     liftIO $ saveInstalledNpmDepsLog allNpmDeps dstDir
@@ -63,9 +64,9 @@ installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
 -- Runs `npm install` in the user's Wasp project directory, which also installs the deps of all of
 -- its npm workspaces (the generated server and the Wasp SDK).
 installProjectNpmDependencies ::
-  SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
-installProjectNpmDependencies projectDir =
-  Job.run (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
+  WriteOutput -> SP.Path SP.System Abs (Dir WaspProjectDir) -> IO (Either String ())
+installProjectNpmDependencies writeOutput projectDir =
+  Job.run writeOutput (Job.prefixWith Job.Wasp $ installNpmDependenciesAndReport projectDir)
     <&> checkExitSuccess "Project setup"
 
 {- HLINT ignore installNpmDependenciesAndReport "Avoid npm and npx" -}

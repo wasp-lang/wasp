@@ -46,6 +46,7 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
+import qualified Wasp.Job as Job
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
@@ -56,6 +57,7 @@ import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.IO.Process (WriteOutput)
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -162,14 +164,14 @@ formatPrismaSchema generatedAppDir =
 --
 --     NOTE: As one final optimization, if they do not have a schema.prisma.wasp-last-db-concurrence-checksum but the schema is
 --     in sync with the database and all migrations are applied, we generate that file to avoid future checks.
-warnIfDbNeedsMigration :: [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
-warnIfDbNeedsMigration envVars spec generatedAppDir = do
+warnIfDbNeedsMigration :: WriteOutput -> [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
+warnIfDbNeedsMigration writeOutput envVars spec generatedAppDir = do
   dbSchemaChecksumFileExists <- IOUtil.doesFileExist dbSchemaChecksumFp
   if dbSchemaChecksumFileExists
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
       if entitiesExist
-        then warnIfProjectDoesNotMatchDb envVars generatedAppDir
+        then warnIfProjectDoesNotMatchDb writeOutput envVars generatedAppDir
         else return Nothing
   where
     dbSchemaFp = generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
@@ -192,12 +194,12 @@ warnIfSchemaDiffersFromChecksum dbSchemaFileAbs dbschemachecksumfile =
 -- | Checks if the project (schema and migrations) matches the DB state.
 -- Returns Nothing if it matches, and Just warning if e.g.
 -- they differ, or the DB does not exist yet, etc.
-warnIfProjectDoesNotMatchDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
-warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
-  schemaDbMatch <- DbOps.checkIfSchemaMatchesDb envVars generatedAppDir
+warnIfProjectDoesNotMatchDb :: WriteOutput -> [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
+warnIfProjectDoesNotMatchDb writeOutput envVars generatedAppDir = do
+  schemaDbMatch <- DbOps.checkIfSchemaMatchesDb writeOutput envVars generatedAppDir
   case schemaDbMatch of
     DbOps.SchemaMatchesDb -> do
-      allMigrationsAppliedToDb <- DbOps.areAllMigrationsAppliedToDb envVars generatedAppDir
+      allMigrationsAppliedToDb <- DbOps.areAllMigrationsAppliedToDb writeOutput envVars generatedAppDir
       if allMigrationsAppliedToDb == Just True
         then do
           -- NOTE: Since we know schema == db and all migrations are applied,
@@ -222,8 +224,8 @@ warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
         "Wasp was unable to verify your database is up to date."
           <> " Running `wasp db migrate-dev` may fix this and will provide more info."
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
-generatePrismaClient spec generatedAppDir = do
+generatePrismaClient :: WriteOutput -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
+generatePrismaClient writeOutput spec generatedAppDir = do
   isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
   if not isGeneratedPrismaClientValid
     then generatePrismaClientIfEntitiesExist
@@ -247,7 +249,7 @@ generatePrismaClient spec generatedAppDir = do
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient generatedAppDir
+          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient writeOutput generatedAppDir
       | otherwise = return Nothing
 
     entitiesExist = hasEntities spec

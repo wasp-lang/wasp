@@ -16,6 +16,7 @@ import System.IO (readFile')
 import System.Info (os)
 import System.Timeout (timeout)
 import Test.Hspec (Spec, describe, expectationFailure, it, shouldNotBe, shouldReturn)
+import Test.Job.Util (writeOutputToStdout)
 import Test.Process.Util (ProcessId, isPortAvailable, isProcessAlive, killProcess, makeTempPath, readProcessId, trim, waitUntil)
 import qualified Wasp.Generator.ServerGenerator.Common as ServerGenerator.Common
 import Wasp.Generator.ServerGenerator.ServerEffect (ServerEffect (..))
@@ -228,7 +229,7 @@ withServerFixture serverScript test = do
   writeServerStartScript fixture serverScript
   generatedAppDir <- SP.parseAbsDir $ generatedAppDirPath fixture
   let runController =
-        Job.run
+        Job.run writeOutputToStdout
           $ Job.captureOutput
           $ Job.observeOutput (\_ chunk -> modifyIORef' output (<> chunk))
           $ startServer projectRunConfig generatedAppDir inbox
