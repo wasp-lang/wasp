@@ -1,11 +1,14 @@
 module Wasp.Cli.Console
   ( Console (..),
     initConsole,
+    isPromptInputEOF,
   )
 where
 
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
+import Wasp.Cli.Console.Internal.TerminalPrompter (makeTerminalPrompter)
 import Wasp.Cli.Console.Internal.TerminalReporter (makeTerminalReporter)
+import Wasp.Cli.Console.Prompter (Prompter)
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Util.IO.Process (WriteOutput)
 
@@ -14,13 +17,23 @@ import Wasp.Util.IO.Process (WriteOutput)
 data Console = Console
   { reporter :: Reporter,
     -- | Where the jobs write the output that the user should see.
-    writeRawOutput :: WriteOutput
+    writeRawOutput :: WriteOutput,
+    -- | Missing when there is nobody to answer the questions. The code that
+    -- wants to ask one decides what to do then.
+    prompter :: Maybe Prompter
   }
 
 initConsole :: IO Console
-initConsole =
+initConsole = do
+  canPrompt <- Terminal.isInputTerminal
   return
     Console
       { reporter = makeTerminalReporter,
-        writeRawOutput = Terminal.writeRawOutput
+        writeRawOutput = Terminal.writeRawOutput,
+        prompter = if canPrompt then Just makeTerminalPrompter else Nothing
       }
+
+-- | True for an error caused by the user ending the input (Ctrl+D) while a
+-- prompt is waiting for an answer.
+isPromptInputEOF :: IOError -> Bool
+isPromptInputEOF = Terminal.isInputEOF

@@ -21,7 +21,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), getConsole)
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Listing
   ( NewsListing (..),
@@ -29,17 +29,20 @@ import Wasp.Cli.Command.News.Listing
     shouldWaspListMustSeeNews,
   )
 import Wasp.Cli.Command.News.LocalNewsState (loadLocalNewsState)
+import Wasp.Cli.Console (Console (..))
+import Wasp.Cli.Console.Prompter (Prompter)
 import Wasp.Util (checkIfOnCi, whenM)
 
 news :: Command ()
 news = do
   newsEntries <- either (throwError . CommandError "Getting Wasp news failed") pure =<< liftIO fetchNews
+  console <- getConsole
   liftIO $ do
     localNewsState <- loadLocalNewsState
-    listNews localNewsState $ UserListingAllNews newsEntries
+    listNews console.prompter localNewsState $ UserListingAllNews newsEntries
 
-fetchAndListMustSeeNewsIfDue :: IO ()
-fetchAndListMustSeeNewsIfDue = do
+fetchAndListMustSeeNewsIfDue :: Maybe Prompter -> IO ()
+fetchAndListMustSeeNewsIfDue maybePrompter = do
   isWaspNewsDisabled <- isJust <$> lookupEnv "WASP_AUTO_NEWS_DISABLE"
   isOnCi <- checkIfOnCi
   unless (isWaspNewsDisabled || isOnCi) $ do
@@ -50,4 +53,4 @@ fetchAndListMustSeeNewsIfDue = do
         -- and we don't want to confuse the user.
         Left _err -> return ()
         Right newsEntries ->
-          listNews localNewsState $ WaspListingMustSeeNews newsEntries
+          listNews maybePrompter localNewsState $ WaspListingMustSeeNews newsEntries

@@ -32,7 +32,8 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
-import qualified Wasp.Util.Interactive as Interactive
+import Wasp.Cli.Console.Prompter (Prompter)
+import qualified Wasp.Cli.Console.Prompter as Prompter
 import Wasp.Util.TextStyle (styleCode)
 
 shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
@@ -70,8 +71,8 @@ getNewsToMarkAsSeen localState listing = case listing of
     -- explicitly.
     | otherwise -> []
 
-listNews :: LocalNewsState -> NewsListing -> IO ()
-listNews localState listing = do
+listNews :: Maybe Prompter -> LocalNewsState -> NewsListing -> IO ()
+listNews maybePrompter localState listing = do
   putStrLn $ intercalate "\n\n" $ catMaybes [newsListingStr, messageForUser]
 
   shouldMarkNewsAsSeen <-
@@ -87,13 +88,13 @@ listNews localState listing = do
     messageForUser = showMessageForUser localState listing
 
     getConfirmationFromUser =
-      Interactive.getInteractiveTerminal >>= \case
-        -- Without an interactive terminal we can't ask, so we don't assume the
-        -- user has seen the news.
+      case maybePrompter of
+        -- Without a prompter we can't ask, so we don't assume the user has
+        -- seen the news.
         Nothing -> return False
-        Just terminal ->
-          Interactive.tryGettingConfirmationWithTimeout
-            terminal
+        Just prompter ->
+          Prompter.tryGettingConfirmationWithTimeout
+            prompter
             "\nThere are critical annoucements above. Please confirm you've read them by typing 'y'"
             "y"
             10

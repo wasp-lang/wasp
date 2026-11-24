@@ -12,6 +12,8 @@ import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Console.Prompter (Prompter)
+import qualified Wasp.Cli.Console.Prompter as Prompter
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -19,7 +21,7 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
-import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal, withArguments)
+import Wasp.Cli.Util.Parser (ArgsParser (..), requirePrompter, withArguments)
 import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev.Postgres (waspDevDbDockerVolumePrefix)
@@ -31,8 +33,6 @@ import Wasp.Util.IO
     doesFileExist,
   )
 import Wasp.Util.InstallMethod (uninstallationCommand)
-import Wasp.Util.Interactive (InteractiveTerminal)
-import qualified Wasp.Util.Interactive as Interactive
 
 -- | Removes Wasp from the system.
 uninstall :: Arguments -> Command ()
@@ -42,12 +42,12 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
   if null $ toFilePaths waspPathsToRemove
     then cliSendMessageC $ Msg.Info "No Wasp data was found on this system."
     else do
-      confirmationTerminal <-
+      confirmationPrompter <-
         if skipConfirmation
           then return Nothing
-          else Just <$> requireInteractiveTerminal uninstallArgsParser
+          else Just <$> requirePrompter uninstallArgsParser
       cliSendMessageC $ Msg.Start "Removing Wasp data..."
-      liftIO $ removeWaspPaths confirmationTerminal waspPathsToRemove
+      liftIO $ removeWaspPaths confirmationPrompter waspPathsToRemove
       cliSendMessageC $ Msg.Success "Removed Wasp data."
 
   cliSendMessageC $ Msg.Info ""
@@ -98,18 +98,18 @@ findWaspPathsToRemove =
         [ homeDir </> waspExecutableInHomeDir
         ]
 
--- | Asks for confirmation on the given terminal before deleting anything.
+-- | Asks for confirmation on the given prompter before deleting anything.
 -- Without one (`--force`), deletes right away.
-removeWaspPaths :: Maybe InteractiveTerminal -> PathsToRemove -> IO ()
-removeWaspPaths confirmationTerminal pathsToRemove = do
+removeWaspPaths :: Maybe Prompter -> PathsToRemove -> IO ()
+removeWaspPaths confirmationPrompter pathsToRemove = do
   putStr $
     unlines
       [ "We will remove the following files and directories:",
         indent 2 $ unlines $ toFilePaths pathsToRemove
       ]
 
-  forM_ confirmationTerminal $ \terminal -> do
-    confirmed <- Interactive.askForConfirmation terminal "Are you sure you want to continue?"
+  forM_ confirmationPrompter $ \prompter -> do
+    confirmed <- Prompter.askForConfirmation prompter "Are you sure you want to continue?"
     unless confirmed $ die "Aborted."
 
   mapM_ deleteDirectoryIfExists $ fst pathsToRemove
