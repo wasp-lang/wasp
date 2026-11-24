@@ -6,13 +6,14 @@ module Wasp.Cli.Command.Show.Subcommand
   )
 where
 
-import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (ToJSON)
 import Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Message (cliWriteRawOutputC)
 import Wasp.Cli.Command.Show.Table (renderEntriesAsTables)
 import Wasp.Inspectable (Inspectable, inspect)
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- | Describes a `wasp show` subcommand: both its CLI parser and its
 -- implementation are derived from this description.
@@ -24,7 +25,7 @@ data ShowSubcommand where
 
 runShowSubcommand :: ShowSubcommand -> Bool -> Command ()
 runShowSubcommand (ShowSubcommand {getData}) asJson =
-  (liftIO . putStr) . render =<< getData
+  cliWriteRawOutputC Stdout . render =<< getData
   where
     render
       | asJson = renderJson

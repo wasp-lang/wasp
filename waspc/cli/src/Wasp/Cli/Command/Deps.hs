@@ -9,6 +9,7 @@ import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
+import Wasp.Cli.Command.Message (cliWriteRawOutputC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -17,6 +18,7 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Project (analyzeWaspProject)
+import Wasp.Util.IO.Process (OutputStream (..))
 import qualified Wasp.Util.TextStyle as TextStyle
 
 deps :: Command ()
@@ -32,7 +34,7 @@ deps = do
       return
       appSpecOrAnalyzerErrors
 
-  liftIO $ putStrLn $ depsMessage appSpec
+  cliWriteRawOutputC Stdout $ depsMessage appSpec ++ "\n"
 
 depsMessage :: AppSpec -> String
 depsMessage appSpec =

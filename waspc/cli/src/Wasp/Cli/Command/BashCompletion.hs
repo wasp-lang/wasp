@@ -8,8 +8,10 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Message (cliWriteRawOutputC)
 import qualified Wasp.Cli.Command.Show as Command.Show
 import qualified Wasp.Cli.Command.Show.Subcommand as Command.Show.Subcommand
+import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.TextStyle (styleCode)
 
 -- generate bash completion depending on commands input
@@ -28,7 +30,7 @@ bashCompletion = do
     [cmdPrefix] -> listMatchingCommands cmdPrefix commands
     ["db", cmdPrefix] -> listMatchingCommands cmdPrefix dbSubCommands
     ["show", cmdPrefix] -> listMatchingCommands cmdPrefix showSubCommands
-    _ -> liftIO . putStrLn $ ""
+    _ -> cliWriteRawOutputC Stdout "\n"
   where
     commands =
       [ "new",
@@ -54,11 +56,11 @@ bashCompletion = do
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()
-    listCommands cmdList = liftIO . putStrLn $ unlines cmdList
+    listCommands cmdList = cliWriteRawOutputC Stdout $ unlines cmdList ++ "\n"
 
 printBashCompletionInstruction :: Command ()
 printBashCompletionInstruction =
-  liftIO . putStrLn $
+  cliWriteRawOutputC Stdout . (++ "\n") $
     unlines
       [ "Setting up Bash auto-completion for Wasp:",
         "",

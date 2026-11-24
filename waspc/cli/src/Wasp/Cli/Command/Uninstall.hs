@@ -5,15 +5,18 @@ where
 
 import Control.Monad (filterM, forM_, unless)
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Text as T
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (die)
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, getConsole)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Prompter (Prompter)
 import qualified Wasp.Cli.Console.Prompter as Prompter
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -32,6 +35,7 @@ import Wasp.Util.IO
     doesDirectoryExist,
     doesFileExist,
   )
+import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 import Wasp.Util.InstallMethod (uninstallationCommand)
 
 -- | Removes Wasp from the system.
@@ -47,7 +51,8 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
           then return Nothing
           else Just <$> requirePrompter uninstallArgsParser
       cliSendMessageC $ Msg.Start "Removing Wasp data..."
-      liftIO $ removeWaspPaths confirmationPrompter waspPathsToRemove
+      console <- getConsole
+      liftIO $ removeWaspPaths console.writeRawOutput confirmationPrompter waspPathsToRemove
       cliSendMessageC $ Msg.Success "Removed Wasp data."
 
   cliSendMessageC $ Msg.Info ""
@@ -100,9 +105,9 @@ findWaspPathsToRemove =
 
 -- | Asks for confirmation on the given prompter before deleting anything.
 -- Without one (`--force`), deletes right away.
-removeWaspPaths :: Maybe Prompter -> PathsToRemove -> IO ()
-removeWaspPaths confirmationPrompter pathsToRemove = do
-  putStr $
+removeWaspPaths :: WriteOutput -> Maybe Prompter -> PathsToRemove -> IO ()
+removeWaspPaths writeRawOutput confirmationPrompter pathsToRemove = do
+  writeRawOutput Stdout . T.pack $
     unlines
       [ "We will remove the following files and directories:",
         indent 2 $ unlines $ toFilePaths pathsToRemove

@@ -35,6 +35,7 @@ import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -51,7 +52,7 @@ start = withArguments startArgsParser $ \args ->
     -- Therefore, it's best to keep the periodic news check contained and
     -- expected. This way we know exactly which workflows it could possibly
     -- interrupt (LLMs, CIs, people...).
-    liftIO . fetchAndListMustSeeNewsIfDue . (.prompter) =<< getConsole
+    liftIO . fetchAndListMustSeeNewsIfDue =<< getConsole
     InWaspProject waspProjectDir <- require
     let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
@@ -82,7 +83,7 @@ start = withArguments startArgsParser $ \args ->
       ongoingCompilationResultMVar <- newMVar (warnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
       let watchWaspProjectSource = watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
-      let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown console.reporter ongoingCompilationResultMVar)
+      let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown console ongoingCompilationResultMVar)
       -- In parallel:
       -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
       --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -97,8 +98,8 @@ start = withArguments startArgsParser $ \args ->
         Left startError -> throwError $ CommandError "Start failed" startError
         Right () -> error "This should never happen, start should never end but it did."
   where
-    onJobsQuietDown :: Reporter -> MVar ([CompileWarning], [CompileError]) -> IO ()
-    onJobsQuietDown reporter ongoingCompilationResultMVar = do
+    onJobsQuietDown :: Console -> MVar ([CompileWarning], [CompileError]) -> IO ()
+    onJobsQuietDown console ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
       -- latest (re)compile that haven't yet been printed in this situation.
       -- This way we ensure that even if web app jobs print a lot of output, users
@@ -109,9 +110,9 @@ start = withArguments startArgsParser $ \args ->
         Nothing -> return ()
         Just ([], []) -> return ()
         Just (warnings, errors) -> do
-          putStrLn ""
-          reportWarningsAndErrorsIfAny reporter (warnings, errors)
-          putStrLn ""
+          console.writeRawOutput Stdout "\n"
+          reportWarningsAndErrorsIfAny console.reporter (warnings, errors)
+          console.writeRawOutput Stdout "\n"
 
 -- | The web app and server have their own logic for reading environment
 -- variables autonomously, so we don't need to merge the different sources of

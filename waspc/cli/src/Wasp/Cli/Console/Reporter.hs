@@ -6,6 +6,6 @@ where
 import qualified Wasp.Message as Msg
 
 -- | How Wasp says things to the user.
-newtype Reporter = Reporter
+data Reporter = Reporter
   { send :: Msg.Message -> IO ()
   }

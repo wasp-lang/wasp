@@ -6,12 +6,13 @@ import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (intercalate)
+import qualified Data.Text as T
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
-import System.IO (BufferMode (LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
-import Wasp.Cli.Command (runCommand)
+import System.IO (BufferMode (LineBuffering), hSetBuffering, stdout)
+import Wasp.Cli.Command (Command, runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
@@ -29,6 +30,7 @@ import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Doctor (doctor)
 import Wasp.Cli.Command.Install (install)
+import Wasp.Cli.Command.Message (cliWriteRawOutputC)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Show (showCommand)
 import Wasp.Cli.Command.Start (start)
@@ -36,16 +38,23 @@ import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
-import Wasp.Cli.Console (Console, initConsole)
+import Wasp.Cli.Console (Console (..), initConsole)
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Util (indent)
+import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
 import qualified Wasp.Util.TextStyle as TextStyle
 import Wasp.Version (waspVersion)
 
 main :: IO ()
-main = withUtf8 . (`E.catch` handleInternalErrors) $ do
+main = withUtf8 $ do
+  console <- initConsole
+  runMain console `E.catch` handleInternalErrors console
+
+runMain :: Console -> IO ()
+runMain console = do
   -- If we don't explicitly set line buffering, the output gets block-buffered
   -- when stdout is not a terminal (e.g. redirected to a file or another program),
   -- so messages from long-running commands don't show up until the command exits.
@@ -55,8 +64,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- started) when it's stopped with SIGTERM (process managers, `kill`) or
   -- SIGHUP (closed terminal), and not only with Ctrl+C.
   handleTerminationSignalsLikeInterrupt
-
-  console <- initConsole
 
   args <- getArgs
   let commandCall = case args of
@@ -96,8 +103,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Install -> runCommand console install
     Command.Call.Compile -> runCommand console compileCommand
     Command.Call.Db dbArgs -> dbCli console dbArgs
-    Command.Call.Version -> printVersion
-    Command.Call.Doctor -> doctor
+    Command.Call.Version -> runCommand console printVersion
+    Command.Call.Doctor -> runCommand console doctor
     Command.Call.Studio studioArgs -> runCommand console $ studio studioArgs
     Command.Call.Uninstall uninstallArgs -> runCommand console $ uninstall uninstallArgs
     Command.Call.Build -> runCommand console build
@@ -110,8 +117,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.PrintBashCompletionInstruction -> runCommand console printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand console bashCompletion
     Command.Call.Deploy deployArgs -> runCommand console $ deploy deployArgs
-    Command.Call.Help -> printUsage
-    Command.Call.Unknown _ -> printUsage >> exitFailure
+    Command.Call.Help -> runCommand console printUsage
+    Command.Call.Unknown _ -> runCommand console printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
   void $ Async.race (threadDelaySeconds 1) (Async.waitCatch telemetryThread)
@@ -120,10 +127,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
-    handleInternalErrors :: E.ErrorCall -> IO ()
-    handleInternalErrors e = do
-      putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
-      exitFailure
+handleInternalErrors :: Console -> E.ErrorCall -> IO ()
+handleInternalErrors console e = do
+  console.writeRawOutput Stdout . T.pack $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e) ++ "\n"
+  exitFailure
 
 isHelpArg :: String -> Bool
 isHelpArg arg = arg `elem` ["help", "--help", "-h"]
@@ -142,9 +149,9 @@ setDefaultCliEnvVars = do
       ]
 
 {- ORMOLU_DISABLE -}
-printUsage :: IO ()
+printUsage :: Command ()
 printUsage =
-  putStrLn $
+  cliWriteRawOutputC Stdout . (++ "\n") $
     unlines
       [ TextStyle.styleTitle "USAGE",
               "  wasp <command> [command-args]",
@@ -201,10 +208,10 @@ printUsage =
       ]
 {- ORMOLU_ENABLE -}
 
-printVersion :: IO ()
+printVersion :: Command ()
 printVersion = do
-  print waspVersion
-  hPutStrLn stderr $
+  cliWriteRawOutputC Stdout $ show waspVersion ++ "\n"
+  cliWriteRawOutputC Stderr . (++ "\n") $
     unlines
       [ "",
         "If you wish to install/switch to the latest version of Wasp, do:",
@@ -220,7 +227,7 @@ printVersion = do
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: Console -> [String] -> IO ()
 dbCli console args = case args of
-  [helpArg] | isHelpArg helpArg -> printDbUsage
+  [helpArg] | isHelpArg helpArg -> runCommand console printDbUsage
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand console $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
@@ -228,12 +235,12 @@ dbCli console args = case args of
   "migrate-dev" : optionalMigrateArgs -> runCommand console $ withArguments Command.Db.Migrate.migrateArgsParser Command.Db.Migrate.migrateDev optionalMigrateArgs
   "seed" : seedArgs -> runCommand console $ withArguments Command.Db.Seed.seedArgsParser Command.Db.Seed.seed seedArgs
   "studio" : studioArgs -> runCommand console $ withArguments Command.Db.Studio.studioArgsParser Command.Db.Studio.studio studioArgs
-  _unknownDbCommand -> printDbUsage >> exitFailure
+  _unknownDbCommand -> runCommand console printDbUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
-printDbUsage :: IO ()
+printDbUsage :: Command ()
 printDbUsage =
-  putStrLn $
+  cliWriteRawOutputC Stdout . (++ "\n") $
     unlines
       [ TextStyle.styleTitle "USAGE",
               "  wasp db <command> [command-args]",
