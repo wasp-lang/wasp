@@ -23,6 +23,7 @@ describe("interpolatePath", () => {
   });
 
   // Wasp names this param `name.xml`, while React Router names it `name`.
+  // See https://github.com/wasp-lang/wasp/issues/5454
   it("builds a matching path for a param with a literal suffix", () => {
     const path = interpolatePath("/feed/:name.xml", {
       "name.xml": "release.xml",
