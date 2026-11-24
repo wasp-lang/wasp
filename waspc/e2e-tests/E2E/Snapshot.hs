@@ -170,7 +170,11 @@ showContentDiff goldenContent currentContent =
     truncateDiff diff
       | length diff <= maxDiffLength = diff
       | otherwise = take maxDiffLength diff ++ "\n... (diff truncated)\n"
-    maxDiffLength = 10000
+
+-- | How many characters of a file's diff a failure message shows, so that one
+-- big diff doesn't bury the others. The files are in the snapshot dirs.
+maxDiffLength :: Int
+maxDiffLength = 10000
 
 -- | Lists the files whose existence we check, so we notice when files appear
 -- or disappear. That includes files whose content we don't compare.
