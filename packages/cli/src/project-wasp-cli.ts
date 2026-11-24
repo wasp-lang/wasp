@@ -1,13 +1,13 @@
 // Hands a Wasp CLI over to the Wasp CLI of the project it runs in.
 
+import thisPackageJson from "#package.json" with { type: "json" };
 import { existsSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import * as path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
-import { readJsonFromPackageRoot } from "./package-root.js";
 
 export interface InstalledWaspCli {
   /** A real path, so symlinked installs of the same CLI compare equal. */
@@ -16,7 +16,7 @@ export interface InstalledWaspCli {
 }
 
 /**
- * What every version of `@wasp/cli` exports from `./run`. Other versions hand
+ * What every version of `@wasp/cli` exports from `./internal/run-wasp-cli`. Other versions hand
  * over through it, so it can only grow (see the note in `package.json`).
  */
 interface WaspCliRunModule {
@@ -24,12 +24,11 @@ interface WaspCliRunModule {
 }
 
 export async function getThisWaspCli(): Promise<InstalledWaspCli> {
-  const { version } = await readJsonFromPackageRoot<{ version: string }>(
-    "package.json",
-  );
   return {
-    runModulePath: await fs.realpath(path.join(import.meta.dirname, "run.js")),
-    version,
+    runModulePath: await fs.realpath(
+      fileURLToPath(import.meta.resolve("#run")),
+    ),
+    version: thisPackageJson.version,
   };
 }
 
@@ -69,6 +68,8 @@ export async function runProjectWaspCli(
     "Handing over to the project's Wasp CLI: %s",
     projectWaspCli.runModulePath,
   );
+  // Windows paths like `C:\...` aren't valid import specifiers, so import
+  // the file URL.
   const { runWaspCli }: WaspCliRunModule = await import(
     pathToFileURL(projectWaspCli.runModulePath).href
   );
@@ -78,6 +79,7 @@ export async function runProjectWaspCli(
 /**
  * Bash runs `wasp completion:list` on every TAB and reads only its stdout, so
  * anything that run prints to stderr lands in the user's prompt.
+ * `waspc/cli/exe/Main.hs` defines the command.
  */
 function isBashCompletionRequest(): boolean {
   return process.argv[2] === "completion:list";
@@ -90,6 +92,8 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
     return undefined;
   }
 
+  // Resolves from the project dir, like `evaluateOnInstalledWaspNpmPackageJson`
+  // in `waspc/src/Wasp/Project/WaspNpmPackage.hs`.
   const requireFromProject = createRequire(
     path.join(waspProjectDir, "package.json"),
   );
@@ -116,25 +120,17 @@ async function findProjectWaspCli(): Promise<InstalledWaspCli | undefined> {
     );
   }
 
-  const waspCli = await readInstalledWaspCli(
-    waspCliPackageJsonPath,
-    requireFromWasp.resolve("@wasp/cli/run"),
+  const waspCliPackageJson: { version: string } = requireFromWasp(
+    "@wasp/cli/package.json",
   );
-  debug("Found the project's Wasp CLI at %s", waspCli.runModulePath);
-  return waspCli;
-}
-
-async function readInstalledWaspCli(
-  waspCliPackageJsonPath: string,
-  runModulePath: string,
-): Promise<InstalledWaspCli> {
-  const waspCliPackageJson: { version: string } = JSON.parse(
-    await fs.readFile(waspCliPackageJsonPath, "utf8"),
-  );
-  return {
-    runModulePath: await fs.realpath(runModulePath),
+  const waspCli: InstalledWaspCli = {
+    runModulePath: await fs.realpath(
+      requireFromWasp.resolve("@wasp/cli/internal/run-wasp-cli"),
+    ),
     version: waspCliPackageJson.version,
   };
+  debug("Found the project's Wasp CLI at %s", waspCli.runModulePath);
+  return waspCli;
 }
 
 /**
@@ -148,7 +144,8 @@ function findWaspProjectDir(): string | undefined {
       return dir;
     }
     const parentDir = path.dirname(dir);
-    if (parentDir === dir) {
+    const isRootDir = parentDir === dir;
+    if (isRootDir) {
       return undefined;
     }
     dir = parentDir;

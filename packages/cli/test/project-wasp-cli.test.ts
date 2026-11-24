@@ -228,7 +228,7 @@ async function makePackage(
 }
 
 // A stand-in for `@wasp/cli` whose `runWaspCli` returns exit code 7. Returns
-// the path of its `./run` export.
+// the path of its `./internal/run-wasp-cli` export.
 async function makeWaspCliPackage(
   nodeModulesDir: string,
   version: string,
@@ -236,7 +236,7 @@ async function makeWaspCliPackage(
   const packageDir = await makePackage(nodeModulesDir, "@wasp/cli", version, {
     type: "module",
     exports: {
-      "./run": "./dist/run.js",
+      "./internal/run-wasp-cli": "./dist/run.js",
       "./package.json": "./package.json",
     },
   });

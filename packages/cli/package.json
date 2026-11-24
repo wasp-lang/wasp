@@ -23,9 +23,14 @@
   "bin": {
     "wasp": "dist/bin.js"
   },
+  "imports": {
+    "#package.json": "./package.json",
+    "#data.json": "./data.json",
+    "#run": "./dist/run.js"
+  },
   "exports": {
     "./bin": "./dist/bin.js",
-    "./run": "./dist/run.js",
+    "./internal/run-wasp-cli": "./dist/run.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -38,5 +43,8 @@
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "//": "Older Wasp CLIs hand over to this one through the `./run` and `./package.json` exports (see src/project-wasp-cli.ts), so changing them breaks the hand-over."
+  "//": [
+    "Other Wasp CLI versions hand over to this one through the `./internal/run-wasp-cli` and `./package.json` exports (see src/project-wasp-cli.ts), so renaming or removing them breaks the hand-over.",
+    "Exported `./bin` is the `wasp` executable that `@wasp/wasp` runs (see packages/wasp/bin.js)."
+  ]
 }

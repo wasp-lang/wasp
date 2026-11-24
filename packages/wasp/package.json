@@ -26,9 +26,9 @@
   },
   "exports": {
     "./package.json": "./package.json",
-    "./run-spec": "./scripts/run-spec.js",
-    "./run-deploy": "./scripts/run-deploy.js",
-    "./run-studio": "./scripts/run-studio.js"
+    "./internal/run-spec": "./scripts/run-spec.js",
+    "./internal/run-deploy": "./scripts/run-deploy.js",
+    "./internal/run-studio": "./scripts/run-studio.js"
   },
   "files": [
     "bin.js",
@@ -72,5 +72,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "//": "Older global Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/project-wasp-cli.ts), so changing it breaks their hand-over. The CLI of the same version runs the `./run-*` exports."
+  "//": [
+    "Older global Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/project-wasp-cli.ts), so changing it breaks their hand-over.",
+    "The `peerDependencies` are the packages the generated code needs in every app. See packages/README.md for details."
+  ]
 }

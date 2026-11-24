@@ -122,9 +122,9 @@ data WaspNpmPackageScript
 
 waspNpmPackageScriptExportName :: WaspNpmPackageScript -> String
 waspNpmPackageScriptExportName = \case
-  WaspSpecAnalyzerScript -> "run-spec"
-  WaspDeployScript -> "run-deploy"
-  WaspStudioScript -> "run-studio"
+  WaspSpecAnalyzerScript -> "internal/run-spec"
+  WaspDeployScript -> "internal/run-deploy"
+  WaspStudioScript -> "internal/run-studio"
 
 -- | Run from the project dir, Node resolves the script through \@wasp/wasp's
 -- `exports`. Requires the scripts to handle `--eval` arguments, which have no

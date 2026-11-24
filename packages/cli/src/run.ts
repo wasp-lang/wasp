@@ -1,5 +1,6 @@
 // Runs the Wasp binary of this `@wasp/cli`.
 
+import packageJson from "#package.json" with { type: "json" };
 import { execFileSync } from "node:child_process";
 import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
@@ -10,7 +11,6 @@ import {
   type CliSubPackageAPI,
   type PlatformTarget,
 } from "./package-data.js";
-import { readJsonFromPackageRoot } from "./package-root.js";
 
 interface PackageJson {
   version: string;
@@ -19,7 +19,6 @@ interface PackageJson {
 
 /** Returns the Wasp binary's exit code. */
 export async function runWaspCli(): Promise<number> {
-  const packageJson = await readPackageJson();
   const { waspBinPath, dataDirPath } = await getSubPackage(packageJson).catch(
     CLIError.rethrowWith("Can't find the Wasp executable."),
   );
@@ -204,11 +203,11 @@ async function runWaspBinary({
   }
 }
 
-async function readPackageJson(): Promise<PackageJson> {
-  return readJsonFromPackageRoot("package.json");
-}
-
-// `data.json` doesn't exist at dev time, only in the built package.
 async function readPackageData(): Promise<CliPackageData> {
-  return readJsonFromPackageRoot("data.json");
+  // Only the published package has `data.json`, so TypeScript must see a
+  // `string` instead of the path.
+  const { default: data } = await import("#data.json" as string, {
+    with: { type: "json" },
+  });
+  return data as CliPackageData;
 }
