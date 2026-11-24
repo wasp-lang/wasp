@@ -10,7 +10,7 @@ import Data.Bool (bool)
 import Data.Data (Typeable)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Cli.Command (Command, Requirable (checkRequirement), commandError, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
@@ -29,7 +29,7 @@ instance Requirable GeneratedAppIsDevelopment where
         (return . GeneratedAppIsDevelopment)
     where
       noDevelopmentCodeError =
-        CommandError
+        commandError
           "Built app does not exist"
           "You can build the app with the `wasp start` or `wasp compile` commands."
 
@@ -45,7 +45,7 @@ instance Requirable GeneratedAppIsProduction where
         (return . GeneratedAppIsProduction)
     where
       noProductionCodeError =
-        CommandError
+        commandError
           "Built app does not exist"
           "You can build the app with the `wasp build` command."
 

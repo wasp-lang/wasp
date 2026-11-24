@@ -11,9 +11,9 @@ import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
-import System.Exit (ExitCode, exitFailure)
+import System.Exit (ExitCode)
 import Text.Printf (printf)
-import Wasp.Cli.Command (Command, CommandError (CommandError), getConsole)
+import Wasp.Cli.Command (Command, commandError, failCommandWithoutError, getConsole)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Console (Console (..))
@@ -45,7 +45,7 @@ startPostgresDevDb waspProjectDir appName devDbOptions =
       cliSendMessageC . Msg.Info . unlines $
         ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
           : additionalInfoLines devDbSpec
-      liftIO exitFailure
+      failCommandWithoutError
 
 -- | Runs the action with the project's PostgreSQL dev database: the one that's
 -- already running, or a new one that is stopped and removed when the action
@@ -124,7 +124,7 @@ throwUnlessDevDbAcceptsConnections = \case
     throwDbError "Unable to check the database connection. Check that the database Docker image is a valid PostgreSQL image."
 
 throwDbError :: String -> Command a
-throwDbError = E.throwError . CommandError "Dev database failed"
+throwDbError = E.throwError . commandError "Dev database failed"
 
 throwIfDockerIsNotAvailable :: Command ()
 throwIfDockerIsNotAvailable = do
@@ -139,7 +139,7 @@ throwIfDockerIsNotAvailable = do
         Right () -> return ()
         Left dockerError ->
           E.throwError $
-            CommandError
+            commandError
               "Couldn't connect to the Docker daemon"
               ( "To run PostgreSQL dev database, Wasp needs Docker to be running."
                   <> " Make sure Docker is started (e.g. by opening Docker Desktop) and try again.\n\n"
@@ -160,7 +160,7 @@ additionalInfoLines devDbSpec =
 
 throwCustomDatabaseInUseError :: CustomDatabaseSource -> Command a
 throwCustomDatabaseInUseError =
-  E.throwError . CommandError "You are using custom database already" . \case
+  E.throwError . commandError "You are using custom database already" . \case
     InEnvironment ->
       "Wasp has detected existing "
         <> databaseUrlEnvVarName

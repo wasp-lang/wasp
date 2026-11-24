@@ -6,7 +6,7 @@ where
 import Control.Monad.Except (throwError)
 import System.Exit (ExitCode)
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (Command, CommandError (CommandError), getConsole, require)
+import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStartConfig)
@@ -78,4 +78,4 @@ buildAndStartServerAndClient appSpec config = do
 
     throwOnExitFailure :: String -> String -> ExitCode -> Command ()
     throwOnExitFailure errorTitle failedStep =
-      either (throwError . CommandError errorTitle) return . checkExitSuccess failedStep
+      either (throwError . commandError errorTitle) return . checkExitSuccess failedStep

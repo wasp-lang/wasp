@@ -16,7 +16,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, commandError)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs (..), buildStartArgsParser)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
@@ -81,7 +81,7 @@ makeBuildStartConfig appSpec args projectDir' = do
     buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
     noEnvVarsSourcesSpecifiedMsg =
-      CommandError
+      commandError
         "No env vars specified"
         $ "You called "
           ++ styleCode (commandName buildStartArgsParser)

@@ -7,7 +7,7 @@ where
 import Control.Monad.Except (throwError)
 import Data.Functor ((<&>))
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), commandError)
 import Wasp.Cli.Command.Compile (analyzeWithOptions, compileWithOptions)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -62,7 +62,7 @@ waitEnsureCompile options =
 
 makeProjectBusyError :: Maybe WaspProcessId -> CommandError
 makeProjectBusyError maybeProcessId =
-  CommandError "Wasp project is busy" $
+  commandError "Wasp project is busy" $
     ProjectLock.describeLockHolder maybeProcessId
       ++ " is working on this project right now. Run this command again once it finishes."
 
@@ -87,6 +87,6 @@ attemptEnsureCompile options =
           ++ " is already watching this project, skipping compilation."
 
     makeCompilationFailedError pid =
-      CommandError "Wasp project failed to compile" $
+      commandError "Wasp project failed to compile" $
         ProjectLock.describeLockHolder (Just pid)
           ++ " is running for this project, but it failed to compile it. Fix its compilation errors first."

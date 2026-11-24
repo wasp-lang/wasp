@@ -4,20 +4,20 @@ module Wasp.Cli.Command.Start
 where
 
 import Control.Concurrent.Async (race)
-import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
+import Control.Concurrent.MVar (newMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
+import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Compile (compile, reportWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
-import Wasp.Cli.Command.Watch (watch)
+import Wasp.Cli.Command.Watch (reportLatestCompileResultAgain, watch)
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
@@ -30,11 +30,9 @@ import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 import Wasp.Project.RunConfig (ProjectRunConfig)
-import Wasp.Util.IO.Process (OutputStream (..))
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -82,7 +80,7 @@ start = withArguments startArgsParser $ \args ->
       ongoingCompilationResultMVar <- newMVar (warnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
       let watchWaspProjectSource = watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
-      let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown console ongoingCompilationResultMVar)
+      let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (reportLatestCompileResultAgain console ongoingCompilationResultMVar)
       -- In parallel:
       -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
       --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -94,24 +92,8 @@ start = withArguments startArgsParser $ \args ->
     case watchOrStartResult of
       Left () -> error "This should never happen, listening for file changes should never end but it did."
       Right startResult -> case startResult of
-        Left startError -> throwError $ CommandError "Start failed" startError
+        Left startError -> throwError $ commandError "Start failed" startError
         Right () -> error "This should never happen, start should never end but it did."
-  where
-    onJobsQuietDown :: Console -> MVar ([CompileWarning], [CompileError]) -> IO ()
-    onJobsQuietDown console ongoingCompilationResultMVar = do
-      -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
-      -- latest (re)compile that haven't yet been printed in this situation.
-      -- This way we ensure that even if web app jobs print a lot of output, users
-      -- won't miss wasp compiler warnings and errors, since they will be again printed after all
-      -- of that output.
-      maybeOngoingCompilationResult <- tryTakeMVar ongoingCompilationResultMVar
-      case maybeOngoingCompilationResult of
-        Nothing -> return ()
-        Just ([], []) -> return ()
-        Just (warnings, errors) -> do
-          console.writeRawOutput Stdout "\n"
-          reportWarningsAndErrorsIfAny console.reporter (warnings, errors)
-          console.writeRawOutput Stdout "\n"
 
 -- | The web app and server have their own logic for reading environment
 -- variables autonomously, so we don't need to merge the different sources of

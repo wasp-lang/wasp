@@ -4,8 +4,19 @@
 module Wasp.Cli.Command
   ( Command,
     runCommand,
+    runCommandSilently,
     getConsole,
     CommandError (..),
+    commandError,
+    compileCommandError,
+    errorMessage,
+    reportCommandError,
+    reportCompileErrors,
+    reportCompileWarnings,
+    compilationWarningsTitle,
+    formatErrorOrWarningMessages,
+    abortCommand,
+    failCommandWithoutError,
 
     -- * Requirements
 
@@ -28,7 +39,7 @@ where
 
 import Control.Concurrent (threadDelay)
 import qualified Control.Exception as E
-import Control.Monad (guard)
+import Control.Monad (unless, void)
 import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
@@ -36,11 +47,14 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
+import Data.List (intercalate)
 import Data.Maybe (mapMaybe)
+import qualified Data.Text as T
 import System.Exit (exitFailure)
 import Wasp.Cli.Console (Console (..), isPromptInputEOF)
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
+import Wasp.Util (indent)
 import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.IO.Retry (MonadRetry (..))
 
@@ -50,24 +64,125 @@ newtype Command a = Command {_runCommand :: ReaderT Console (StateT [Requirement
 instance MonadRetry Command where
   rThreadDelay = liftIO . threadDelay
 
+-- | Runs the command and ends the program if it didn't succeed. This is the
+-- only place that prints a command's error and picks the exit code.
 runCommand :: Console -> Command a -> IO ()
 runCommand console cmd =
-  E.tryJust (guard . isPromptInputEOF) (runExceptT (flip evalStateT [] $ flip runReaderT console $ _runCommand cmd)) >>= \case
-    Left () -> do
-      -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
-      console.writeRawOutput Stdout "Aborted.\n"
+  tryRunningCommand console cmd >>= \case
+    Succeeded _ -> return ()
+    Failed cmdError -> do
+      reportCommandError console.reporter cmdError
       exitFailure
-    Right (Left cmdError) -> do
-      console.reporter.send $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
+    FailedWithoutError -> exitFailure
+    Aborted stream -> do
+      console.writeRawOutput stream "Aborted.\n"
       exitFailure
-    Right (Right _) -> return ()
+    HitInternalError internalError -> do
+      console.writeRawOutput Stdout . T.pack $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show internalError) ++ "\n"
+      exitFailure
+
+-- | Runs the command for its effects only: it never prints an error and never
+-- ends the program, whatever happens in the command.
+runCommandSilently :: Console -> Command a -> IO ()
+runCommandSilently console cmd = void $ tryRunningCommand console cmd
+
+data CommandOutcome a
+  = Succeeded a
+  | Failed CommandError
+  | FailedWithoutError
+  | -- | The user stopped the command. Holds the stream that gets told about it.
+    Aborted OutputStream
+  | HitInternalError E.ErrorCall
+
+tryRunningCommand :: Console -> Command a -> IO (CommandOutcome a)
+tryRunningCommand console cmd =
+  (either Failed Succeeded <$> runExceptT (flip evalStateT [] $ flip runReaderT console $ _runCommand cmd))
+    `E.catches` [ E.Handler $ \(stop :: CommandStop) -> return $ case stop of
+                    AbortedByUser -> Aborted Stderr
+                    StoppedWithoutError -> FailedWithoutError,
+                  -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
+                  E.Handler $ \(e :: IOError) -> if isPromptInputEOF e then return (Aborted Stdout) else E.throwIO e,
+                  E.Handler $ return . HitInternalError
+                ]
+
+-- | Stops a command from anywhere in its code, without it being an error that
+-- 'runCommand' prints.
+data CommandStop = AbortedByUser | StoppedWithoutError
+  deriving (Show)
+
+instance E.Exception CommandStop
+
+-- | For when the user decides not to go on with the command.
+abortCommand :: (MonadIO m) => m a
+abortCommand = liftIO $ E.throwIO AbortedByUser
+
+-- | For a command that fails after it has already said why.
+failCommandWithoutError :: (MonadIO m) => m a
+failCommandWithoutError = liftIO $ E.throwIO StoppedWithoutError
 
 getConsole :: Command Console
 getConsole = Command ask
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
-data CommandError = CommandError {_errorTitle :: !String, _errorMsg :: !String}
+data CommandError = CommandError
+  { _headline :: !String,
+    _errors :: ![String],
+    _warnings :: ![String],
+    -- | A failed compile is printed in its own way: the errors and the
+    -- warnings come first, each under their own title, and the headline comes
+    -- last, with this text under it. 'Nothing' for all the other errors.
+    _compileSummary :: !(Maybe String)
+  }
+
+commandError :: String -> String -> CommandError
+commandError headline message =
+  CommandError
+    { _headline = headline,
+      _errors = [message],
+      _warnings = [],
+      _compileSummary = Nothing
+    }
+
+compileCommandError :: String -> String -> [String] -> [String] -> CommandError
+compileCommandError headline summary errors warnings =
+  CommandError
+    { _headline = headline,
+      _errors = errors,
+      _warnings = warnings,
+      _compileSummary = Just summary
+    }
+
+errorMessage :: CommandError -> String
+errorMessage = intercalate "\n" . _errors
+
+reportCommandError :: Reporter -> CommandError -> IO ()
+reportCommandError reporter cmdError = case _compileSummary cmdError of
+  Nothing -> reporter.send $ Msg.Failure (_headline cmdError) (errorMessage cmdError)
+  Just compileSummary -> do
+    reportCompileErrors reporter $ _errors cmdError
+    reportCompileWarnings reporter $ _warnings cmdError
+    reporter.send $ Msg.Failure (_headline cmdError) compileSummary
+
+reportCompileErrors :: Reporter -> [String] -> IO ()
+reportCompileErrors reporter errors =
+  unless (null errors)
+    $ reporter.send
+    $ Msg.Failure "Your wasp project failed to compile"
+    $ formatErrorOrWarningMessages errors
+
+reportCompileWarnings :: Reporter -> [String] -> IO ()
+reportCompileWarnings reporter warnings =
+  unless (null warnings)
+    $ reporter.send
+    $ Msg.Warning compilationWarningsTitle
+    $ formatErrorOrWarningMessages warnings
+
+compilationWarningsTitle :: String
+compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
+
+formatErrorOrWarningMessages :: [String] -> String
+formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
 
 data Requirement where
   Requirement :: (Requirable r) => r -> Requirement

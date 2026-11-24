@@ -8,7 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Data (Typeable)
 import qualified Data.Map as M
 import StrongPath (Abs, Dir, Path')
-import Wasp.Cli.Command (CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Cli.Command (Requirable (checkRequirement), commandError, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -39,7 +39,7 @@ instance Requirable WaspSpecAvailable where
             dependsOnLegacyWaspSpec <- liftIO $ userPackageJsonDependsOnLegacyWaspSpec waspProjectDir
             throwError $ if dependsOnLegacyWaspSpec then legacyWaspSpecError else missingDepsError
       legacyWaspSpecError =
-        CommandError
+        commandError
           "Outdated Wasp spec package"
           $ "Wasp's spec package is now called "
             ++ styleCode "@wasp/spec"
@@ -55,7 +55,7 @@ instance Requirable WaspSpecAvailable where
             ++ styleCode "wasp install"
             ++ "."
       missingDepsError =
-        CommandError
+        commandError
           "Missing or stale dependencies in project"
           $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
 

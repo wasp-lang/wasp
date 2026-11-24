@@ -7,7 +7,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
+import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Message (cliWriteRawOutputC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -30,7 +30,7 @@ deps = do
     liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions console waspProjectDir)
   appSpec <-
     either
-      (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
+      (throwError . commandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
       return
       appSpecOrAnalyzerErrors
 
