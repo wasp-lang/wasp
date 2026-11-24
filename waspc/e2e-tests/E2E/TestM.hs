@@ -1,28 +1,26 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
--- | The monad test steps run in, and what every step can do: fail, skip, run
--- in a directory, register cleanups, log, and wait.
+-- | The monad test steps run in, and what every step can do: fail, label a
+-- phase, run in a directory, register cleanups, log, and wait.
 module E2E.TestM
   ( TestM,
     TestEnv (..),
     TestLog (..),
     TestFailure (..),
-    TestSkipped (..),
     runTestM,
     failTest,
-    skipIfDockerDisabled,
-    whenDockerEnabled,
+    step,
     inDirectory,
     getWorkingDir,
     resolvePath,
     allocateWithCleanup,
     registerCleanupStep,
-    cleanupCommandTimeoutSeconds,
     makeUniqueName,
     writeToLog,
     logLine,
     waitUntil,
     pollUntil,
+    settleTimeoutSeconds,
   )
 where
 
@@ -38,12 +36,12 @@ import qualified Data.Text.Encoding as TE
 import Data.Time.Clock (addUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.Unique (hashUnique, newUnique)
-import E2E.RunConfig (RunConfig (..), skipDockerEnvVar)
+import E2E.RunConfig (RunConfig)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
 import System.IO (Handle, hFlush, stderr)
 import UnliftIO (MonadUnliftIO, throwIO)
-import UnliftIO.Exception (Exception, SomeException, catchAny, displayException)
+import UnliftIO.Exception (Exception, SomeException, catch, catchAny, displayException)
 
 data TestEnv = TestEnv
   { runConfig :: RunConfig,
@@ -74,16 +72,12 @@ instance MonadResource TestM where
 
 newtype TestFailure = TestFailure String
 
+-- | Shows only the message, since tasty and tasty-golden show an exception that
+-- escapes a test (e.g. from a snapshot test's steps) with 'show'.
 instance Show TestFailure where
   show (TestFailure message) = message
 
 instance Exception TestFailure
-
--- | Ends the test early, as passed.
-newtype TestSkipped = TestSkipped String
-  deriving (Show)
-
-instance Exception TestSkipped
 
 runTestM :: TestEnv -> TestM a -> IO a
 runTestM testEnv (TestM reader) = runReaderT reader testEnv
@@ -91,24 +85,13 @@ runTestM testEnv (TestM reader) = runReaderT reader testEnv
 failTest :: String -> TestM a
 failTest = throwIO . TestFailure
 
--- | Ends the test early, as passed, when Docker is disabled. Steps before it
--- still run.
---
--- Not for snapshot tests, which must produce a snapshot: use
--- 'whenDockerEnabled' in them.
-skipIfDockerDisabled :: TestM ()
-skipIfDockerDisabled = do
-  isDockerEnabled <- asks (.runConfig.isDockerEnabled)
-  unless isDockerEnabled $ throwIO $ TestSkipped dockerDisabledMessage
-
--- | For steps that only some part of a test needs Docker for.
-whenDockerEnabled :: TestM () -> TestM ()
-whenDockerEnabled steps = do
-  isDockerEnabled <- asks (.runConfig.isDockerEnabled)
-  if isDockerEnabled then steps else logLine dockerDisabledMessage
-
-dockerDisabledMessage :: String
-dockerDisabledMessage = "SKIPPED: Docker is disabled via the " ++ skipDockerEnvVar ++ " environment variable."
+-- | Labels a phase of a long test: the label is logged as a header, and
+-- prefixed to the message when a step in the phase fails, so that the failure
+-- says which phase broke.
+step :: String -> TestM a -> TestM a
+step label steps = do
+  logLine $ "\n### " ++ label
+  steps `catch` \(TestFailure message) -> failTest $ "In step " ++ show label ++ ": " ++ message
 
 -- | Runs the steps with the working directory set to a path relative to the
 -- current one.
@@ -146,20 +129,14 @@ allocateWithCleanup acquire cleanup = do
 -- The steps can run commands: they get a cleanup scope of their own, which
 -- stops the processes they started when they finish. The test's scope is
 -- already closed when they run. Give the commands a short timeout (see
--- 'cleanupCommandTimeoutSeconds').
+-- 'E2E.Command.cleanupCommandTimeoutSeconds').
 registerCleanupStep :: TestM () -> TestM ()
-registerCleanupStep step = do
+registerCleanupStep cleanupSteps = do
   testEnv <- ask
-  let runStepInOwnScope = runResourceT $ do
-        stepResources <- getInternalState
-        liftIO $ runTestM testEnv {resources = stepResources} step
-  void $ allocateWithCleanup (return ()) (const runStepInOwnScope)
-
--- | For commands in cleanup steps, e.g. @docker rm --force@. Much shorter than
--- the default (see 'E2E.Command.command'), since nothing can cut a hung
--- cleanup short: cleanups run masked, and we ignore Ctrl+C after the first one.
-cleanupCommandTimeoutSeconds :: Int
-cleanupCommandTimeoutSeconds = 60
+  let runStepsInOwnScope = runResourceT $ do
+        stepsResources <- getInternalState
+        liftIO $ runTestM testEnv {resources = stepsResources} cleanupSteps
+  void $ allocateWithCleanup (return ()) (const runStepsInOwnScope)
 
 -- | Writes the failure to the test's log, and to the test runner's stderr,
 -- since the test still passes, and a passing test's output isn't shown with
@@ -190,9 +167,12 @@ logLine line = do
   testLog <- asks (.testLog)
   liftIO $ writeToLog testLog (TE.encodeUtf8 . T.pack $ line ++ "\n")
 
--- | Checks the condition right away, and then every half a second until it
--- holds. Fails the test if it still doesn't hold after the given number of
--- seconds.
+-- | Checks the condition right away, and then every 'pollIntervalMicroseconds'
+-- until it holds. Fails the test if it still doesn't hold after the given
+-- number of seconds.
+--
+-- The deadline is only checked between checks, so a condition that runs a
+-- command should give it a timeout no longer than the wait.
 waitUntil :: String -> Int -> TestM Bool -> TestM ()
 waitUntil description seconds condition = do
   holds <- pollUntil seconds condition
@@ -208,5 +188,14 @@ pollUntil seconds condition = do
         now <- liftIO getCurrentTime
         if holds || now > deadline
           then return holds
-          else liftIO (threadDelay 500000) >> poll
+          else liftIO (threadDelay pollIntervalMicroseconds) >> poll
   poll
+
+-- | Short enough not to slow tests down, long enough not to keep a core busy.
+pollIntervalMicroseconds :: Int
+pollIntervalMicroseconds = 500000
+
+-- | For a wait on something that follows an event we already waited for, e.g.
+-- a process's children stopping after it exited.
+settleTimeoutSeconds :: Int
+settleTimeoutSeconds = 30

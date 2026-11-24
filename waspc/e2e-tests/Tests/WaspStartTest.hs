@@ -1,6 +1,6 @@
 module Tests.WaspStartTest (waspStartTest) where
 
-import Control.Monad (void)
+import Control.Monad (unless)
 import E2E
 import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -14,8 +14,9 @@ waspStartTest =
       test "succeed-uncompiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           runWaspStartAndStopIt SIGINT
-          -- `wasp start` compiled the project.
-          assertDirectoryExists $ SP.fromRelDir generatedAppDirInWaspProjectDir,
+          -- `wasp start` compiled the project and installed its dependencies.
+          assertDirectoryExists $ SP.fromRelDir generatedAppDirInWaspProjectDir
+          assertDirectoryExists "node_modules",
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
@@ -33,23 +34,25 @@ waspStartTest =
           -- Like a terminal, 'startInBackground' starts Wasp in its own process group.
           (app, _) <- startWaspInBackground
           signalProcessGroupOf SIGHUP app
-          waitUntilStopped app []
-          waitUntil "all processes Wasp started stop" 30 $
+          waitUntilExited app
+          waitUntil "all processes Wasp started stop" settleTimeoutSeconds $
             not <$> processGroupOfExists app,
       test "fail-when-web-app-crashes" $
         withNewWaspProject minimalStarterTemplate $ do
           (app, ports) <- startWaspInBackground
           crashWebApp
-          assertExitsWithFailure app 60
-          waitUntilStopped app (appPortList ports)
-          assertProcessOutputContains "Web app failed" app
+          result <- assertExitsWithFailure app stopTimeoutSeconds
+          waitUntilNotListening (appPortList ports)
+          assertOutputContains "Web app failed" result
     ]
   where
     -- Kills the Vite dev server of the test's project.
     crashWebApp :: TestM ()
     crashWebApp = do
       viteBin <- resolvePath "node_modules/.bin/vite"
-      void . run $ command "pkill" ["-KILL", "-f", viteBin]
+      result <- runAllowingFailure $ command "pkill" ["-KILL", "-f", viteBin]
+      unless (result.exitCode == ExitSuccess) $
+        failWithResult result "found no Vite dev server process to kill"
 
 -- | Runs `wasp start` until the app is up, and then stops it with the signal.
 -- Checks that Wasp stops the processes it started, by checking that nothing
@@ -62,12 +65,12 @@ runWaspStartAndStopIt :: Signal -> TestM ()
 runWaspStartAndStopIt sig = do
   (app, ports) <- startWaspInBackground
   getWaspPidFromLockFile >>= signalPid sig
-  void $ waitUntilStopped app (appPortList ports)
+  waitUntilStopped app (appPortList ports)
 
 -- | Returns once the app listens on its ports.
 startWaspInBackground :: TestM (RunningProcess, AppPorts)
 startWaspInBackground = do
   ports <- allocateAppPorts
   app <- startInBackground $ waspCli ("start" : appPortArgs ports)
-  waitUntilListening app (appPortList ports) (5 * 60)
+  waitUntilListening app (appPortList ports) appStartTimeoutSeconds
   return (app, ports)

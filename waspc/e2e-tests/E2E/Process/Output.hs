@@ -50,7 +50,7 @@ captureStream output stream = TP.mkPipeStreamSpec $ \_ handle -> do
     readChunks handle = do
       hSetBuffering handle NoBuffering
       let loop = do
-            chunk <- BS.hGetSome handle 32768
+            chunk <- BS.hGetSome handle maxChunkBytes
             unless (BS.null chunk) $ do
               atomically $ modifyTVar' output.chunks ((stream, chunk) :)
               writeToLog output.testLog chunk
@@ -58,6 +58,9 @@ captureStream output stream = TP.mkPipeStreamSpec $ \_ handle -> do
       -- A read error ends the stream like EOF does. The output so far stays,
       -- and the test's assertions on it report what's missing.
       loop `catchAny` const (return ())
+
+    -- Large enough that a process printing a lot isn't slowed down by us.
+    maxChunkBytes = 32768
 
     closeStream :: Handle -> IO ()
     closeStream handle = do
