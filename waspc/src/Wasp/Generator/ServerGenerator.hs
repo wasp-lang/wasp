@@ -42,7 +42,6 @@ import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
-import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -55,7 +54,6 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (genWebSockets, mkWebSocketFnImport)
-import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Util ((<++>))
 
@@ -72,7 +70,6 @@ genServer spec =
       genPackageJson spec,
       genGitignore
     ]
-    <++> genNpmrc spec
     <++> genSrcDir spec
     <++> genDotEnv spec
     <++> genJobs spec
@@ -118,10 +115,9 @@ genPackageJson spec =
       (C.asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= serverPackageName,
+            [ "packageName" .= C.serverPackageName,
               "serverBundleCommand" .= serverBundleCommand,
               "devServerStartCommand" .= devServerStartCommand,
-              "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
               "startProductionScript"
                 .= ( (if runsMigrationsOnStart spec then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
@@ -136,25 +132,6 @@ genPackageJson spec =
       NodeCommand.toShellCommandFrom waspProjectDirFromServerDir ServerNodeCommands.runServer
     waspProjectDirFromServerDir :: Path' (Rel C.ServerRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromGeneratedAppComponentDir
-
-genNpmrc :: AppSpec -> Generator [FileDraft]
-genNpmrc spec
-  -- We only use `.npmrc` to force `npm` to error out if the Node.js version is incompatible.
-  --
-  -- In dev mode, we already check the Node.js version ourselves before running any `npm` commands,
-  -- so we don't need this there.
-  --
-  -- We do expect users to manually go into the generated directories when bundling the built ouput.
-  -- So we do add the `.npmrc` there to help them avoid using an incompatible Node.js version.
-  | AS.isProduction spec =
-      return
-        [ C.mkTmplFdWithDstAndData
-            (C.asTmplFile [relfile|npmrc|])
-            (C.asServerFile [relfile|.npmrc|])
-            Nothing
-        ]
-  | otherwise =
-      return []
 
 genGitignore :: Generator FileDraft
 genGitignore =
