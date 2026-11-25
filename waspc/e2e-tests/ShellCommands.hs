@@ -311,12 +311,13 @@ installOptionalFeaturePackagesCommand optionalFeaturesNpmDeps =
 -- Decide then how a copied example gets the dev packages.
 --
 -- Points the project at the dev Wasp npm package tarballs by their absolute
--- paths. Projects copied from the repo, e.g. the examples, point at them
+-- paths, also in the `devDependencies` that list a Wasp package (e.g.
+-- \@wasp/test-utils). Projects copied from the repo, e.g. the examples, point at them
 -- relative to their place in the repo, which doesn't hold in the test dir.
 -- `wasp new` does the same for a new project (see "Wasp.Cli.DevWaspNpmPackages").
 useDevWaspNpmPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
 useDevWaspNpmPackages =
-  return $ "eval \"npm pkg set $(jq -r '" ++ npmPkgSetArgsJqProgram ++ "' \"" ++ devPackagesDir ++ "/" ++ fromRelFile devWaspNpmPackagesManifestFile ++ "\")\""
+  return $ "eval \"npm pkg set $(jq -r --slurpfile packageJson package.json '" ++ npmPkgSetArgsJqProgram ++ "' \"" ++ devPackagesDir ++ "/" ++ fromRelFile devWaspNpmPackagesManifestFile ++ "\")\""
   where
     -- One shell-quoted `<field>=file:<tarball>` argument per tarball that the
     -- dev packages manifest lists.
@@ -327,6 +328,9 @@ useDevWaspNpmPackages =
         ++ tarballSpecifier ".waspTarball"
         ++ "\"]"
         ++ " + [.dependencyTarballs | to_entries[] | \"overrides.\\(.key)="
+        ++ tarballSpecifier ".value"
+        ++ "\"]"
+        ++ " + [.dependencyTarballs | to_entries[] | select($packageJson[0].devDependencies[.key]) | \"devDependencies.\\(.key)="
         ++ tarballSpecifier ".value"
         ++ "\"]"
         ++ " | @sh"

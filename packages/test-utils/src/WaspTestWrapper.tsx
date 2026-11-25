@@ -3,12 +3,25 @@ import { useState, type ReactNode } from "react";
 import { BrowserRouter } from "react-router";
 
 /**
- * Wraps its children in the providers that Wasp's client code needs, so tests
- * can render components that use queries, actions, or links.
+ * Wraps its children in the same providers as {@link renderInContext}. Pass it
+ * as the
+ * [`wrapper`](https://testing-library.com/docs/react-testing-library/api#wrapper)
+ * option when you call Testing Library's `render` or `renderHook` yourself.
  *
  * Each wrapper gets its own query client, so tests don't share cached data.
  *
- * @see https://testing-library.com/docs/react-testing-library/api#wrapper
+ * @example
+ * ```tsx
+ * import { renderHook } from "@testing-library/react";
+ * import { WaspTestWrapper } from "@wasp/test-utils";
+ * import { useTaskCount } from "./useTaskCount";
+ *
+ * const { result } = renderHook(() => useTaskCount(), {
+ *   wrapper: WaspTestWrapper,
+ * });
+ * ```
+ *
+ * @component
  */
 export function WaspTestWrapper({
   children,

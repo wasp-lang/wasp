@@ -6,6 +6,7 @@ TypeScript packages of the Wasp monorepo:
 - `cli/` -> `@wasp/cli`, the `wasp` executable wrapper. `cli/scripts/make-cli-npm-packages` turns it into the published package with the platform-specific binaries as optional dependencies.
 - `spec/` -> `@wasp/spec`, the package that exports the Wasp Spec, which users import in `main.wasp.ts`. Published to npm.
 - `deploy/`, `studio/` -> `@wasp/deploy` and `@wasp/studio`, the implementations of `wasp deploy` and `wasp studio`. Published to npm.
+- `test-utils/` -> `@wasp/test-utils`, the Vitest helpers that a Wasp app with tests installs. Published to npm.
 - `wasp-app-runner/` -> CLI for running Wasp apps in e2e tests. Published to npm.
 - The rest -> the code that the generated app imports (see [below](#packages-the-generated-code-imports)). Published to npm.
 
@@ -40,8 +41,9 @@ and `mise run test:packages` run it.
 Then add the package to:
 
 - `pnpm-workspace.yaml`
-- the `dependencies` of `wasp/package.json`. The repo's TS tooling reads the package list from
-  there (see `waspc/tools/packages/utils.ts`).
+- the `dependencies` of `wasp/package.json`, or its optional `peerDependencies` if only some
+  apps need the package, like `@wasp/test-utils`. The repo's TS tooling reads the package list
+  from there (see `waspc/tools/packages/utils.ts`).
 - the `overrides` of the example apps
 
 If `waspc` runs the package, give `@wasp/wasp` a run script for it in `wasp/scripts/` (see
