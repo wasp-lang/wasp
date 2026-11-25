@@ -15820,11 +15820,13 @@ The two fields take different versions. `wasp.overriddenDeps` lists the version 
 ```json title="package.json"
 {
   "dependencies": {
-    "react": "18.2.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "wasp": {
     "overriddenDeps": {
-      "react": "19.2.1"
+      "react": "19.2.1",
+      "react-dom": "19.2.1"
     }
   }
 }
@@ -15835,10 +15837,12 @@ The two fields take different versions. `wasp.overriddenDeps` lists the version 
 ```json title="package.json"
 {
   "dependencies": {
-    "react": "18.2.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "overrides": {
-    "react": "18.2.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }
 ```
