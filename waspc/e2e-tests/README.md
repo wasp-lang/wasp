@@ -121,9 +121,9 @@ A helper that only makes sense for one test's scenario stays in that test's modu
 
 - `mise run test:waspc:e2e` runs all of the tests.
 - `mise run test:waspc:e2e "<pattern>"` runs only the tests that match the [tasty pattern](https://github.com/UnkindPartition/tasty#patterns), e.g. `"/wasp-start/"`.
-- `mise run test:waspc:e2e:accept-all` runs all of the tests, and replaces the golden snapshots that differ from the current ones. Pass `--accept` to `test:waspc:e2e` to do that only for the tests that match a pattern.
+- `mise run test:waspc:e2e:accept-all` runs all of the tests, replaces the golden snapshots that differ from the current ones, and creates the missing ones. Pass `--accept` to `test:waspc:e2e` to do that only for the tests that match a pattern.
   - It doesn't delete golden snapshots that no test uses anymore (e.g. of a removed test), or files that became ignored in the golden snapshots. Delete those by hand.
-- Missing golden snapshots are created, also without `--accept`, except on CI: it sets `TASTY_NO_CREATE=true` (tasty-golden's `--no-create`), so there they fail the test.
+- Without `--accept`, a missing golden snapshot fails the test (the task passes tasty-golden's `--no-create`), so a new snapshot test needs `--accept` once to create its golden snapshot.
 - `WASP_CLI_CMD` sets the Wasp CLI under test. It must be a single executable (a path, or a program in `PATH`), since tests run it without a shell. By default, it's `tools/wasp-cli-dev`, which runs the current waspc source.
 - `WASP_E2E_TEST_MAX_JOBS` (a positive integer) limits how many tests run at once.
 - `WASP_E2E_TESTS_SKIP_DOCKER=1` skips the tests that need Docker (they pass, and the run says so when it starts). Unset, empty, or `0` runs them. Any other value fails the run.

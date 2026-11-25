@@ -92,9 +92,6 @@ jobs:
       - name: Run `waspc` e2e tests
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
-          # tasty-golden's `--no-create`: a missing golden snapshot fails the
-          # test instead of being created, so CI can't pass without comparing.
-          TASTY_NO_CREATE: "true"
           EXTRA_TOOLS: ${{ matrix.extra-tools }}
         run: |
           mise run ${EXTRA_TOOLS:+--tool "$EXTRA_TOOLS"} test:waspc:e2e
