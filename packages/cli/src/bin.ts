@@ -2,12 +2,14 @@
 
 import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
+import { findProjectWaspCli } from "./find-project-wasp-cli.js";
 import {
-  findProjectWaspCliToHandOverTo,
   getThisWaspCli,
-  runProjectWaspCli,
-} from "./project-wasp-cli.js";
-import { runWaspCli } from "./run.js";
+  handOverTo,
+  isSameWaspCli,
+  notifyIfVersionsDiffer,
+} from "./installed-wasp-cli.js";
+import { runWaspCli } from "./run-wasp-cli.js";
 
 try {
   const childProcessExitCode = await main();
@@ -27,13 +29,18 @@ try {
 
 async function main(): Promise<number> {
   const thisWaspCli = await getThisWaspCli();
+  const projectWaspCli = await findProjectWaspCli(process.cwd());
 
-  const projectWaspCli = await findProjectWaspCliToHandOverTo(thisWaspCli);
-  if (projectWaspCli !== undefined) {
-    return runProjectWaspCli(projectWaspCli, thisWaspCli).catch(
-      CLIError.rethrowWith("Failed to run the project's Wasp CLI."),
-    );
-  } else {
+  if (projectWaspCli === undefined) {
     return runWaspCli();
   }
+  if (isSameWaspCli(projectWaspCli, thisWaspCli)) {
+    debug("Running as the project's own Wasp CLI.");
+    return runWaspCli();
+  }
+
+  notifyIfVersionsDiffer(projectWaspCli, thisWaspCli, process.argv.slice(2));
+  return handOverTo(projectWaspCli).catch(
+    CLIError.rethrowWith("Failed to run the project's Wasp CLI."),
+  );
 }

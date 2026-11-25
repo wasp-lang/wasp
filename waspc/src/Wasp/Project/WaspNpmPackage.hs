@@ -61,7 +61,7 @@ tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
 
 -- | Reads the project's installed \@wasp/wasp's package.json through Node, so
 -- the CLI sees the same \@wasp/wasp as the project's code. Keep in sync with
--- `findProjectWaspCli` in @packages/cli/src/project-wasp-cli.ts@.
+-- `findProjectWaspCli` in @packages/cli/src/find-project-wasp-cli.ts@.
 evaluateOnInstalledWaspNpmPackageJson :: Path' Abs (Dir WaspProjectDir) -> (String -> String) -> IO (Either InstalledWaspNpmPackageError String)
 evaluateOnInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
   (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode evaluateProcess ""

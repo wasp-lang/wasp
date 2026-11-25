@@ -1,5 +1,6 @@
-// The format of `data.json`, which lists the platform packages that hold the
-// Wasp binary, the API each platform package exports, and how we pick ours.
+// The format of `data.json`, which lists the sub-packages that hold the Wasp
+// binary (one per platform), the API each sub-package exports, and how we
+// pick ours.
 //
 // `scripts/make-cli-npm-packages` and `mise-tasks/build/dev-packages.ts` run this
 // file with Node's type stripping, so it can only import types and Node.js
@@ -35,6 +36,14 @@ export interface PlatformTarget {
   os: string;
   cpu: string;
   libc: string;
+}
+
+/** `undefined` if there is no sub-package for the platform. */
+export function findSubPackageInfo(
+  packageData: CliPackageData,
+  { os, cpu, libc }: PlatformTarget,
+): CliSubPackageInfo | undefined {
+  return packageData.subPackages[os]?.[cpu]?.[libc];
 }
 
 /** The `data.json` keys of the platform this process runs on. */

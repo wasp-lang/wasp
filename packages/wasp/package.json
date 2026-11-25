@@ -73,7 +73,7 @@
     "access": "public"
   },
   "//": [
-    "Older global Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/project-wasp-cli.ts), so changing it breaks their hand-over.",
+    "Older global Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/find-project-wasp-cli.ts), so changing it breaks their hand-over.",
     "The `peerDependencies` are the packages Wasp needs in every app. See packages/README.md for details."
   ]
 }

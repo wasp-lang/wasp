@@ -168,7 +168,7 @@ function packDevCliPackage(devPackagesDir: string): string {
       JSON.stringify(packageJson, null, 2) + "\n",
     );
 
-    // Only this machine's platform. `dist/run.js` imports `packageName`, a
+    // Only this machine's platform. `dist/load-sub-package.js` imports `packageName`, a
     // path relative to it.
     const data = makeCliPackageData([
       {
