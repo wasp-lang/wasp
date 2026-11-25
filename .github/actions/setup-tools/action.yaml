@@ -16,16 +16,15 @@ runs:
     - name: Install Mise and cache pre-dependencies
       if: ${{ runner.os == 'Linux' }}
       shell: sh
-      # Bare container images lack some tools that the steps below need. They
-      # must be installed before Mise, because it restores its cache first.
+      # Bare container images lack some basic tools that the Mise action needs.
+      # Once it can run, Mise will install everything else.
       # - `curl` is needed to download Mise.
-      # - Alpine's default `tar` and `bash` (which are just BusyBox) don't
-      #   support GitHub's caches:
-      #   https://github.com/actions/toolkit/issues/634
-      # - We install `zstd` so caches can use a better, faster compression
+      # - Alpine's default `tar` (which is just BusyBox) doesn't support
+      #   GitHub's caches: https://github.com/actions/toolkit/issues/634
+      # - We install `zstd` so caches can use a smaller and faster compression
       #   method.
       run: |
-        tools="curl tar bash zstd"
+        tools="curl tar zstd"
 
         missing=false
         for package in $tools; do
@@ -42,23 +41,13 @@ runs:
           fi
         fi
 
-    - name: Select Mise environment
-      shell: bash
-      env:
-        # Loads `.config/mise/config.$MISE_ENV.toml` on top of `mise.toml`,
-        # which disables dev-only tools that are not used in CI.
-        MISE_ENV: ${{ inputs.haskell == 'true' && 'ci' || 'ci-no-haskell' }}
-      run:
-        # We control the value passed here completely.
-        # zizmor: ignore[github-env]
-        echo "MISE_ENV=$MISE_ENV" >> "$GITHUB_ENV"
-
     - name: Install Mise
       uses: jdx/mise-action@v5
       with:
         version: 2026.11.5
         bootstrap: true
         bootstrap_args: --update --yes
+        mise_env: ${{ inputs.haskell == 'true' && 'ci' || 'ci-no-haskell' }}
 
     - name: Probe pnpm store path
       id: probe-pnpm-store

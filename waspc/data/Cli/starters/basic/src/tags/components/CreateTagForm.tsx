@@ -89,7 +89,9 @@ export function CreateTagForm({ id, onTagCreated }: CreateTagFormProps) {
  *
  * @see https://github.com/react-hook-form/documentation/issues/916
  */
-function stopPropagate(callback: (event: React.SubmitEvent<HTMLFormElement>) => void) {
+function stopPropagate(
+  callback: (event: React.SubmitEvent<HTMLFormElement>) => void,
+) {
   return (e: React.SubmitEvent<HTMLFormElement>) => {
     e.stopPropagation();
     callback(e);

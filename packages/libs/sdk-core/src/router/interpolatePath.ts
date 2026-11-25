@@ -1,4 +1,4 @@
-import type { Params, Search } from "./types";
+import type { ParamValue, Params, Search } from "./types";
 
 export function interpolatePath(
   path: string,
@@ -15,13 +15,13 @@ export function interpolatePath(
 }
 
 function interpolatePathParams(path: string, params: Params) {
-  function mapPathPart(part: string) {
+  function mapPathPart(part: string): string {
     if (part === "*") {
-      return params["*"];
+      return encodeSplatParam(params["*"]);
     }
     if (part.startsWith(":")) {
       const paramName = extractParamNameFromPathPart(part);
-      return params[paramName];
+      return encodePathParam(params[paramName]);
     }
     return part;
   }
@@ -29,14 +29,23 @@ function interpolatePathParams(path: string, params: Params) {
   const interpolatedPath = path
     .split("/")
     .map(mapPathPart)
-    .filter(isValidPathPart)
+    .filter((part) => part !== "")
     .join("/");
 
   return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
 }
 
-function isValidPathPart(part: any): boolean {
-  return !!part;
+// A missing param encodes to "", so its segment is dropped.
+function encodePathParam(value: ParamValue | undefined): string {
+  return encodeURIComponent(value ?? "");
+}
+
+// A splat can span several segments, so its slashes stay unencoded.
+function encodeSplatParam(value: ParamValue | undefined): string {
+  return String(value ?? "")
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/");
 }
 
 function extractParamNameFromPathPart(paramString: string) {

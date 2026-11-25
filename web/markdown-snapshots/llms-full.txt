@@ -16364,7 +16364,29 @@ On the client, `client.onError` also receives the errors that an error tracker c
 
 If you use Sentry, follow the updated [Sentry guide](https://wasp.sh/docs/guides/integrations/sentry) for the full setup on both sides.
 
-#### 19. Enjoy your updated Wasp app
+#### 19. Pass raw values as route params
+
+**If you don't use `Link`, `NavLink`, or `routes.<name>.build()` with params, you can skip this step.**
+
+Wasp now keeps params that are `0`, and encodes characters like `/`, `?`, and `#` in route params. If you were encoding them yourself, they might end up encoded twice. From now on, you should pass the raw values instead:
+
+**Before**
+
+```tsx title="src/TaskList.tsx"
+<Link to="/tasks/:id" params={{ id: encodeURIComponent(task.id) }}>
+  {task.title}
+</Link>
+```
+
+**After**
+
+```tsx title="src/TaskList.tsx"
+<Link to="/tasks/:id" params={{ id: task.id }}>
+  {task.title}
+</Link>
+```
+
+#### 20. Enjoy your updated Wasp app
 
 That's it!
 
@@ -21495,7 +21517,7 @@ This guide shows you how to deploy the client, the server, and provision a datab
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `npm run build` in the project dir.
+1. In your Wasp project directory, run `npm install` to install dependencies, then run `npm run build`.
 2. Create a [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp) account.
 3. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp#installing-the-cli).
 4. Run `railway login` and a browser tab will open to authenticate you.
