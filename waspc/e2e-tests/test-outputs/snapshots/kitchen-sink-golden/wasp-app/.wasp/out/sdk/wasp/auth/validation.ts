@@ -2,11 +2,11 @@ import {
   defaultPasswordValidationSchema,
   ensureValidPassword as ensureValidPasswordForSchema,
   type PasswordValidationSchema,
-} from '@wasp/lib-sdk-core'
+} from '@wasp/sdk-core'
 import type { FromRegister } from '../types/register'
 import { passwordValidationSchema as passwordValidationSchema_ext } from "virtual:wasp/user/features/auth/password"
 
-export { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidUsername, PASSWORD_FIELD, throwValidationError } from '@wasp/lib-sdk-core'
+export { ensurePasswordIsPresent, ensureTokenIsPresent, ensureValidEmail, ensureValidUsername, PASSWORD_FIELD, throwValidationError } from '@wasp/sdk-core'
 
 export type RegisteredPasswordValidationSchema = FromRegister<"passwordValidationSchema", PasswordValidationSchema>
 
