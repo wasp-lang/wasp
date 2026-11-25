@@ -242,7 +242,14 @@ importers:
         specifier: ^7.5.22
         version: 7.5.22
 
-  packages/cli: {}
+  packages/cli:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.6
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
 
   packages/deploy:
     dependencies:

@@ -15,7 +15,7 @@ const MAIN_PACKAGE_SOURCE_DIR = path.resolve(
   import.meta.dirname,
   "../../../../packages/cli",
 );
-const COPIED_FILES = ["bin.js", "CLIError.js", "readme.md"];
+const COPIED_FILES = ["dist", "readme.md"];
 
 const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
 
@@ -62,6 +62,9 @@ function generatePackageJson(
 
   pkg.name = packageName;
   pkg.version = packageVersion;
+  // Only needed to build the package from source.
+  delete pkg.scripts;
+  delete pkg.devDependencies;
 
   pkg.optionalDependencies = {};
   for (const subPkgName of subPackages) {
