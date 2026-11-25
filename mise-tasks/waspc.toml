@@ -53,13 +53,11 @@ flag "--accept" help="Replace the golden snapshots that differ from the current 
 arg "[pattern]"
 '''
 dir = "waspc"
-shell = "bash -c"
 env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-# We use `cabal run` instead of `cabal test`, since `cabal test` exits on
-# Ctrl+C without waiting for the tests to stop the processes they started.
-# Without `--accept`, we pass tasty-golden's `--no-create`, so that a missing
-# golden snapshot fails the test instead of being created without comparing.
-run = 'cabal run waspc-e2e-tests -- --hide-successes $([ "${usage_accept:-}" = true ] && echo --accept || echo --no-create) --pattern="$usage_pattern"'
+run = '''
+#!/usr/bin/env bash
+cabal test waspc-e2e-tests --test-option=--hide-successes --test-option=$([ "${usage_accept:-}" = true ] && echo --accept || echo --no-create) --test-option=--pattern="$usage_pattern"
+'''
 
 ["test:waspc:e2e:accept-all"]
 description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by running the e2e tests, replacing the golden snapshots that differ with the current ones, and creating the missing ones."
