@@ -9,6 +9,7 @@ module Wasp.Util.Interactive
     askForRequiredInput,
     tryGettingConfirmation,
     askForConfirmation,
+    askForConfirmationDefaultingToYes,
     tryGettingConfirmationWithTimeout,
     IsOption (..),
     ConfirmationError (..),
@@ -103,6 +104,13 @@ askForConfirmation :: InteractiveTerminal -> String -> IO Bool
 askForConfirmation terminal question = do
   answer <- askForInput terminal (question <> " [y/N]")
   return $ map toLower answer `elem` ["y", "yes"]
+
+-- | Asks a yes/no question that an empty answer confirms. Only "n" or "no"
+-- (case-insensitive) count as no.
+askForConfirmationDefaultingToYes :: InteractiveTerminal -> String -> IO Bool
+askForConfirmationDefaultingToYes terminal question = do
+  answer <- askForInput terminal (question <> " [Y/n]")
+  return $ map toLower answer `notElem` ["n", "no"]
 
 askToChoose :: forall o. (IsOption o) => InteractiveTerminal -> String -> NonEmpty o -> IO o
 askToChoose _ _ (singleOption :| []) = return singleOption
