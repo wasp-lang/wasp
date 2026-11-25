@@ -71,7 +71,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - New projects approve the install scripts of Prisma, esbuild, and fsevents in their `package.json`, so `npm install` no longer warns about them and they keep running once npm starts skipping unapproved scripts. Existing projects can add the same `allowScripts` block. ([#5255](https://github.com/wasp-lang/wasp/pull/5255))
 - `wasp new` now creates and applies the initial database migration, so you can go straight to `wasp start`. ([#5298](https://github.com/wasp-lang/wasp/pull/5298))
 - The Auth UI reset password form now shows a password mismatch under the confirmation field. ([#5303](https://github.com/wasp-lang/wasp/pull/5303))
-- The Wasp CLI no longer refuses to run when the legacy installer's Wasp is also installed. ([#5265](https://github.com/wasp-lang/wasp/pull/5265))
+- Removed the check for old Wasp installations from the installer script (Wasp <= 0.20). ([#5265](https://github.com/wasp-lang/wasp/pull/5265))
 
 ### 📖 Documentation
 
