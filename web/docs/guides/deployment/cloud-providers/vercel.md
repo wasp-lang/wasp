@@ -95,12 +95,12 @@ The Supabase database is linked to your Vercel account. If you remove the integr
      "$schema": "https://openapi.vercel.sh/vercel.json",
      "framework": "express",
      "installCommand": "npm install",
-     "buildCommand": "cd .wasp/out/server && npm install && npx prisma generate --schema=../db/schema.prisma && npm run bundle && DATABASE_URL=$POSTGRES_URL_NON_POOLING npm run db-migrate-prod",
+     "buildCommand": "cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma && npm run bundle && DATABASE_URL=$POSTGRES_URL_NON_POOLING npm run db-migrate-prod",
      "outputDirectory": ".wasp/out/server/bundle"
    }
    ```
 
-   The build command mirrors what the generated `Dockerfile` does: it installs the server's dependencies, generates the Prisma client, bundles the server and runs any pending database migrations (using the session-mode pooler, as explained above). Vercel then looks for the bundled `server.js` in the output directory and wraps it in a function.
+   The build command mirrors what the generated `Dockerfile` does: it generates the Prisma client, bundles the server and runs any pending database migrations (using the session-mode pooler, as explained above). Vercel then looks for the bundled `server.js` in the output directory and wraps it in a function.
 
 1. Create a `.vercelignore` that keeps local files (and, importantly, your `.env` files) out of the upload:
 

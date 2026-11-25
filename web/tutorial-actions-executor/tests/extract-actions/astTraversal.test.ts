@@ -43,45 +43,97 @@ describe("getAttributeValue", () => {
 
 describe("createTutorialActionNode", () => {
   it("should create node with all attributes", () => {
-    const result = createTutorialActionNode("test-id", "APPLY_PATCH", "basic");
+    const result = createTutorialActionNode({
+      id: "test-id",
+      action: "APPLY_PATCH",
+      starterTemplateName: "basic",
+      packageSpecifiers: null,
+    });
     expect(result).toEqual({
       id: "test-id",
       action: "APPLY_PATCH",
       starterTemplateName: "basic",
+      packageSpecifiers: null,
     });
   });
 
   it("should create node without starterTemplateName", () => {
-    const result = createTutorialActionNode("test-id", "MIGRATE_DB", null);
+    const result = createTutorialActionNode({
+      id: "test-id",
+      action: "MIGRATE_DB",
+      starterTemplateName: null,
+      packageSpecifiers: null,
+    });
     expect(result).toEqual({
       id: "test-id",
       action: "MIGRATE_DB",
       starterTemplateName: null,
+      packageSpecifiers: null,
     });
   });
 
   it("should throw error when id is null", () => {
-    expect(() => createTutorialActionNode(null, "APPLY_PATCH", null)).toThrow(
-      "TutorialAction component requires the 'id' attribute",
-    );
+    expect(() =>
+      createTutorialActionNode({
+        id: null,
+        action: "APPLY_PATCH",
+        starterTemplateName: null,
+        packageSpecifiers: null,
+      }),
+    ).toThrow("TutorialAction component requires the 'id' attribute");
   });
 
   it("should throw error when id is empty string", () => {
-    expect(() => createTutorialActionNode("", "APPLY_PATCH", null)).toThrow(
-      "TutorialAction component requires the 'id' attribute",
-    );
+    expect(() =>
+      createTutorialActionNode({
+        id: "",
+        action: "APPLY_PATCH",
+        starterTemplateName: null,
+        packageSpecifiers: null,
+      }),
+    ).toThrow("TutorialAction component requires the 'id' attribute");
   });
 
   it("should throw error when action is null", () => {
-    expect(() => createTutorialActionNode("test-id", null, null)).toThrow(
-      "TutorialAction component requires the 'action' attribute",
-    );
+    expect(() =>
+      createTutorialActionNode({
+        id: "test-id",
+        action: null,
+        starterTemplateName: null,
+        packageSpecifiers: null,
+      }),
+    ).toThrow("TutorialAction component requires the 'action' attribute");
   });
 
   it("should throw error when action is empty string", () => {
-    expect(() => createTutorialActionNode("test-id", "", null)).toThrow(
-      "TutorialAction component requires the 'action' attribute",
-    );
+    expect(() =>
+      createTutorialActionNode({
+        id: "test-id",
+        action: "",
+        starterTemplateName: null,
+        packageSpecifiers: null,
+      }),
+    ).toThrow("TutorialAction component requires the 'action' attribute");
+  });
+
+  it("should split packageSpecifiers by spaces", () => {
+    const result = createTutorialActionNode({
+      id: "test-id",
+      action: "INSTALL_PACKAGES",
+      starterTemplateName: null,
+      packageSpecifiers: " lucia@3  arctic@1 ",
+    });
+    expect(result.packageSpecifiers).toEqual(["lucia@3", "arctic@1"]);
+  });
+
+  it("should have no packageSpecifiers when the attribute is blank", () => {
+    const result = createTutorialActionNode({
+      id: "test-id",
+      action: "INSTALL_PACKAGES",
+      starterTemplateName: null,
+      packageSpecifiers: " ",
+    });
+    expect(result.packageSpecifiers).toEqual([]);
   });
 });
 
@@ -151,6 +203,7 @@ describe("extractTutorialActionNodes", () => {
         id: "test-id" as ActionId,
         action: "APPLY_PATCH",
         starterTemplateName: null,
+        packageSpecifiers: null,
       },
     ],
   );
@@ -167,16 +220,19 @@ describe("extractTutorialActionNodes", () => {
         id: "init" as ActionId,
         action: "INIT_APP",
         starterTemplateName: "basic",
+        packageSpecifiers: null,
       },
       {
         id: "patch" as ActionId,
         action: "APPLY_PATCH",
         starterTemplateName: null,
+        packageSpecifiers: null,
       },
       {
         id: "migrate" as ActionId,
         action: "MIGRATE_DB",
         starterTemplateName: null,
+        packageSpecifiers: null,
       },
     ],
   );
@@ -193,6 +249,7 @@ describe("extractTutorialActionNodes", () => {
         id: "valid" as ActionId,
         action: "MIGRATE_DB",
         starterTemplateName: null,
+        packageSpecifiers: null,
       },
     ],
   );
@@ -208,11 +265,13 @@ describe("extractTutorialActionNodes", () => {
         id: "with-template" as ActionId,
         action: "INIT_APP",
         starterTemplateName: "advanced",
+        packageSpecifiers: null,
       },
       {
         id: "without-template" as ActionId,
         action: "APPLY_PATCH",
         starterTemplateName: null,
+        packageSpecifiers: null,
       },
     ],
   );

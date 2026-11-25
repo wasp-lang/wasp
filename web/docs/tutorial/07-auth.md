@@ -42,6 +42,12 @@ model User {
 
 ## Adding Auth to the Project
 
+Auth needs the `lucia` package in your project, so install it:
+
+<TutorialAction id="install-auth-packages" action="INSTALL_PACKAGES" packageSpecifiers="lucia@3" />
+
+<PackageManagerCommand npm="npm install lucia@3" />
+
 Next, tell Wasp to use full-stack [authentication](../features/auth/overview):
 
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">

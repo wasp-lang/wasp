@@ -10,6 +10,7 @@ export type TutorialActionNode = {
   id: ActionId;
   action: Action["kind"];
   starterTemplateName: string | null;
+  packageSpecifiers: string[] | null;
 };
 
 export function extractTutorialActionNodes(ast: Root): TutorialActionNode[] {
@@ -18,11 +19,12 @@ export function extractTutorialActionNodes(ast: Root): TutorialActionNode[] {
   visit(ast, "mdxJsxFlowElement", (node) => {
     if (node.name === TUTORIAL_ACTION_NODE_NAME) {
       nodes.push(
-        createTutorialActionNode(
-          getAttributeValue(node, "id"),
-          getAttributeValue(node, "action"),
-          getAttributeValue(node, "starterTemplateName"),
-        ),
+        createTutorialActionNode({
+          id: getAttributeValue(node, "id"),
+          action: getAttributeValue(node, "action"),
+          starterTemplateName: getAttributeValue(node, "starterTemplateName"),
+          packageSpecifiers: getAttributeValue(node, "packageSpecifiers"),
+        }),
       );
     }
   });
@@ -30,11 +32,21 @@ export function extractTutorialActionNodes(ast: Root): TutorialActionNode[] {
   return nodes;
 }
 
-export function createTutorialActionNode(
-  id: string | null,
-  action: string | null,
-  starterTemplateName: string | null,
-): TutorialActionNode {
+/** The raw attribute values of a `<TutorialAction>` element. */
+export type TutorialActionAttributes = {
+  id: string | null;
+  action: string | null;
+  starterTemplateName: string | null;
+  /** Space-separated, like the arguments of `npm install`. */
+  packageSpecifiers: string | null;
+};
+
+export function createTutorialActionNode({
+  id,
+  action,
+  starterTemplateName,
+  packageSpecifiers,
+}: TutorialActionAttributes): TutorialActionNode {
   if (!id) {
     throw new Error(`TutorialAction component requires the 'id' attribute.`);
   }
@@ -49,7 +61,13 @@ export function createTutorialActionNode(
     id: id as ActionId,
     action: action as Action["kind"],
     starterTemplateName,
+    packageSpecifiers:
+      packageSpecifiers === null ? null : splitBySpaces(packageSpecifiers),
   };
+}
+
+function splitBySpaces(text: string): string[] {
+  return text.split(/\s+/).filter(Boolean);
 }
 
 export function getAttributeValue(
