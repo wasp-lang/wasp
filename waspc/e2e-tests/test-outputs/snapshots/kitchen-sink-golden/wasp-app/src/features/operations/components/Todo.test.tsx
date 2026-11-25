@@ -1,9 +1,9 @@
 import type { TaskVisibility } from "@prisma/client";
 import { screen } from "@testing-library/react";
+import { mockServer, renderInContext } from "@wasp/test-utils";
 import { expect, test } from "vitest";
 import { type AuthUser } from "wasp/auth";
 import { getDate, getNumTasks, getTasks } from "wasp/client/operations";
-import { mockServer, renderInContext } from "wasp/client/test";
 
 import { getMe } from "wasp/client/auth";
 import { App } from "../../../App";

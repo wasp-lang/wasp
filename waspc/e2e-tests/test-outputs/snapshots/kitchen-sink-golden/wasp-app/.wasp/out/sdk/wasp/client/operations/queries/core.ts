@@ -4,12 +4,12 @@ import {
   type QueryFor,
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from '@wasp/lib-sdk-core/browser'
+} from '@wasp/sdk-core/browser'
 import {
   makeOperationRoute,
   type GenericBackendOperation,
   type OperationRpcFor,
-} from '@wasp/lib-sdk-core'
+} from '@wasp/sdk-core'
 import { callOperation } from '../internal/index.js'
 
 // PRIVATE API (used in SDK)

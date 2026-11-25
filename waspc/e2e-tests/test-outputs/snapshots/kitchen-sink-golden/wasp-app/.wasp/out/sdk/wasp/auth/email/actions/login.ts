@@ -1,6 +1,6 @@
 import { api, handleApiError } from '../../../api/index.js';
-import { initSession } from '@wasp/lib-sdk-core/browser';
-import { SessionResponseSchema } from '@wasp/lib-sdk-core';
+import { initSession } from '@wasp/sdk-core/browser';
+import { SessionResponseSchema } from '@wasp/sdk-core';
 
 // PUBLIC API
 export async function login(data: { email: string; password: string }): Promise<void> {
