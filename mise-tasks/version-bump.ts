@@ -75,7 +75,7 @@ function bumpPackagesVersion(nextVersion: string): void {
   for (const { name } of WASPC_PACKAGES) {
     bumpPackageJsonVersion(getPackageDirPath(name), nextVersion);
   }
-  // The `wasp` executable wrapper, which `scripts/make-npm-packages` publishes.
+  // The `wasp` executable wrapper, which `packages/cli/scripts/make-cli-npm-packages` publishes.
   bumpPackageJsonVersion(getPackageDirPath("cli"), nextVersion);
 }
 

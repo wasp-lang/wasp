@@ -8,8 +8,8 @@ import { report as processReport } from "node:process";
 import { debuglog } from "node:util";
 import { CLIError } from "./cli-error.js";
 import {
-  type MainPackageData,
-  type SubPackageAPI,
+  type CliPackageData,
+  type CliSubPackageAPI,
   UNDEFINED_LIBC_NAME,
 } from "./package-data.js";
 
@@ -45,12 +45,12 @@ async function main(): Promise<number> {
   );
 }
 
-async function getSubPackage(): Promise<SubPackageAPI> {
-  debug("Loading main package data...");
+async function getSubPackage(): Promise<CliSubPackageAPI> {
+  debug("Loading CLI package data...");
 
   const data = readPackageData();
 
-  debug("Loaded main package data: %j", data);
+  debug("Loaded CLI package data: %j", data);
 
   const { platform, arch } = process;
   const libc =
@@ -65,7 +65,7 @@ async function getSubPackage(): Promise<SubPackageAPI> {
 
   debug("Selected sub-package: %j", selectedSubPackage);
 
-  const importedPackage: { default: SubPackageAPI } = await import(
+  const importedPackage: { default: CliSubPackageAPI } = await import(
     selectedSubPackage.packageName
   )
     .catch(async (error: unknown) => {
@@ -92,7 +92,7 @@ async function getSubPackage(): Promise<SubPackageAPI> {
 async function runWasp({
   waspBinPath,
   dataDirPath,
-}: SubPackageAPI): Promise<number> {
+}: CliSubPackageAPI): Promise<number> {
   try {
     debug("Running Wasp executable at path: %s", waspBinPath);
     debug("Using data directory at path: %s", dataDirPath);
@@ -293,7 +293,7 @@ function readPackageJson(): { engines: { node: string } } {
 }
 
 // `data.json` doesn't exist at dev time, only in the built package.
-function readPackageData(): MainPackageData {
+function readPackageData(): CliPackageData {
   return readJsonFromPackageRoot("data.json");
 }
 
