@@ -24316,12 +24316,22 @@ curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z
 
 You should only use the legacy installer as a stopgap while migrating workstations and CI to npm installations, as it can cause conflicts with the new method. For that reason, the installer will not work in the following cases:
 
-- You have already installed Wasp through npm.
+- You have already installed Wasp 0.21 to 0.26 through npm (`@wasp.sh/wasp-cli`).
 - You have already run the migration tool.
 - You are trying to install Wasp >= 0.21.
 - You are calling the installer without a version argument.
 
 In any of these cases, the installer will print an error message and exit without installing Wasp. You can still [switch back manually](#switch-back) if needed.
+
+#### With Wasp 0.27 or newer installed through npm {#both-installed}
+
+Since Wasp 0.27, the npm Wasp CLI (`@wasp/cli`) and the installer don't check for each other, so you can end up with both. Your shell then runs whichever `wasp` comes first in your `PATH`, which might not be the one you expect. List them with:
+
+```shell
+type -a wasp
+```
+
+A `wasp` in `~/.local/bin` is the installer's. [Migrate off the legacy installer](#migrate) to remove it. Inside a project, `npm run wasp` always runs the project's own Wasp.
 
 ### Troubleshooting
 
@@ -24357,10 +24367,10 @@ If you have already switched to npm installation but need to switch back to the 
 
    If Wasp was correctly uninstalled, the `type` command will output "not found". If Wasp has not been completely uninstalled, it will print the path of the `wasp` binary, and you can manually remove it.
 
-3. Remove the npm marker file from your system:
+3. Remove the npm marker file from your system. Only Wasp 0.21 to 0.26 create it:
 
    ```shell
-   rm $HOME/.local/share/wasp-lang/.uses-npm
+   rm -f $HOME/.local/share/wasp-lang/.uses-npm
    ```
 
 4. Run the installer again with the version you need:
