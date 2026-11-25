@@ -1,5 +1,6 @@
 module Wasp.Generator.SdkGenerator.Server.AuthG
   ( genServerAuth,
+    authNpmDeps,
   )
 where
 
@@ -9,11 +10,13 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.OptionalFeatureNpmDeps.Common (OptionalFeatureNpmDeps (..))
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
@@ -21,6 +24,7 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 import Wasp.Util.Js (makeJsStringLiteral)
@@ -156,3 +160,12 @@ serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]
 genFileCopyInServerAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerAuth =
   genFileCopy . (serverAuthDirInSdkTemplatesDir </>)
+
+authNpmDeps :: OptionalFeatureNpmDeps
+authNpmDeps =
+  OptionalFeatureNpmDeps
+    { featureDescription = "auth",
+      isFeatureUsed = isAuthEnabled,
+      dependencies = [Npm.Dependency.make ("lucia", show [SV.r|^3.0.1|])],
+      devDependencies = []
+    }

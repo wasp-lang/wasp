@@ -1,102 +1,96 @@
 module Wasp.Generator.SdkGenerator.EmailSender.Providers
-  ( smtp,
-    sendGrid,
-    mailgun,
-    resend,
-    dummy,
-    EmailSenderProvider (..),
+  ( EmailSenderProvider (..),
+    ProvidersDir,
     getEmailSenderProvider,
+    emailSendersNpmDeps,
   )
 where
 
 import StrongPath (File', Path', Rel, relfile)
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
+import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.OptionalFeatureNpmDeps.Common (OptionalFeatureNpmDeps (OptionalFeatureNpmDeps))
+import qualified Wasp.Generator.OptionalFeatureNpmDeps.Common as OptionalFeatureNpmDeps
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
-  { npmDependency :: Maybe Npm.Dependency.Dependency,
-    npmDevDependency :: Maybe Npm.Dependency.Dependency,
+  { -- | Completes the sentence "Your app uses ...".
+    featureDescription :: String,
+    npmDependencies :: [Npm.Dependency.Dependency],
+    npmDevDependencies :: [Npm.Dependency.Dependency],
     setupFnFile :: Path' (Rel ProvidersDir) File'
   }
-  deriving (Show, Eq)
 
 data ProvidersDir
 
-smtp :: EmailSenderProvider
-smtp =
-  EmailSenderProvider
-    { npmDependency = Just nodeMailerDependency,
-      npmDevDependency = Just nodeMailerTypesDependency,
-      setupFnFile = [relfile|smtp.ts|]
-    }
-  where
-    nodeMailerVersionRange :: SV.Range
-    nodeMailerVersionRange = [SV.r|^8.0.1|]
-
-    nodeMailerDependency :: Npm.Dependency.Dependency
-    nodeMailerDependency = Npm.Dependency.make ("nodemailer", show nodeMailerVersionRange)
-
-    nodeMailerTypesVersionRange :: SV.Range
-    nodeMailerTypesVersionRange = [SV.r|^8.0.0|]
-
-    nodeMailerTypesDependency :: Npm.Dependency.Dependency
-    nodeMailerTypesDependency = Npm.Dependency.make ("@types/nodemailer", show nodeMailerTypesVersionRange)
-
-sendGrid :: EmailSenderProvider
-sendGrid =
-  EmailSenderProvider
-    { npmDependency = Just sendGridDependency,
-      npmDevDependency = Nothing,
-      setupFnFile = [relfile|sendgrid.ts|]
-    }
-  where
-    sendGridVersionRange :: SV.Range
-    sendGridVersionRange = [SV.r|^7.7.0|]
-
-    sendGridDependency :: Npm.Dependency.Dependency
-    sendGridDependency = Npm.Dependency.make ("@sendgrid/mail", show sendGridVersionRange)
-
-mailgun :: EmailSenderProvider
-mailgun =
-  EmailSenderProvider
-    { npmDependency = Just mailgunDependency,
-      npmDevDependency = Nothing,
-      setupFnFile = [relfile|mailgun.ts|]
-    }
-  where
-    mailgunVersionRange :: SV.Range
-    mailgunVersionRange = [SV.r|^10.2.3|]
-
-    mailgunDependency :: Npm.Dependency.Dependency
-    mailgunDependency = Npm.Dependency.make ("mailgun.js", show mailgunVersionRange)
-
-resend :: EmailSenderProvider
-resend =
-  EmailSenderProvider
-    { npmDependency = Just resendDependency,
-      npmDevDependency = Nothing,
-      setupFnFile = [relfile|resend.ts|]
-    }
-  where
-    resendVersionRange :: SV.Range
-    resendVersionRange = [SV.r|^6.0.0|]
-
-    resendDependency :: Npm.Dependency.Dependency
-    resendDependency = Npm.Dependency.make ("resend", show resendVersionRange)
-
-dummy :: EmailSenderProvider
-dummy =
-  EmailSenderProvider
-    { npmDependency = Nothing,
-      npmDevDependency = Nothing,
-      setupFnFile = [relfile|dummy.ts|]
-    }
-
-getEmailSenderProvider :: AS.EmailSender.EmailSender -> EmailSenderProvider
-getEmailSenderProvider email = case AS.EmailSender.provider email of
+getEmailSenderProvider :: AS.EmailSender.EmailProvider -> EmailSenderProvider
+getEmailSenderProvider = \case
   AS.EmailSender.SMTP -> smtp
   AS.EmailSender.SendGrid -> sendGrid
   AS.EmailSender.Mailgun -> mailgun
   AS.EmailSender.Resend -> resend
   AS.EmailSender.Dummy -> dummy
+
+emailSendersNpmDeps :: [OptionalFeatureNpmDeps.OptionalFeatureNpmDeps]
+emailSendersNpmDeps =
+  [ OptionalFeatureNpmDeps
+      { OptionalFeatureNpmDeps.featureDescription = featureDescription emailSenderProvider,
+        OptionalFeatureNpmDeps.isFeatureUsed = isEmailProviderUsed emailProvider,
+        OptionalFeatureNpmDeps.dependencies = npmDependencies emailSenderProvider,
+        OptionalFeatureNpmDeps.devDependencies = npmDevDependencies emailSenderProvider
+      }
+  | emailProvider <- [minBound .. maxBound],
+    let emailSenderProvider = getEmailSenderProvider emailProvider
+  ]
+  where
+    isEmailProviderUsed :: AS.EmailSender.EmailProvider -> AppSpec -> Bool
+    isEmailProviderUsed emailProvider spec =
+      (AS.EmailSender.provider <$> AS.App.emailSender (getApp spec)) == Just emailProvider
+
+smtp :: EmailSenderProvider
+smtp =
+  EmailSenderProvider
+    { featureDescription = "the SMTP email sender",
+      npmDependencies = [Npm.Dependency.make ("nodemailer", show [SV.r|^8.0.1|])],
+      npmDevDependencies = [Npm.Dependency.make ("@types/nodemailer", show [SV.r|^8.0.0|])],
+      setupFnFile = [relfile|smtp.ts|]
+    }
+
+sendGrid :: EmailSenderProvider
+sendGrid =
+  EmailSenderProvider
+    { featureDescription = "the SendGrid email sender",
+      npmDependencies = [Npm.Dependency.make ("@sendgrid/mail", show [SV.r|^7.7.0|])],
+      npmDevDependencies = [],
+      setupFnFile = [relfile|sendgrid.ts|]
+    }
+
+mailgun :: EmailSenderProvider
+mailgun =
+  EmailSenderProvider
+    { featureDescription = "the Mailgun email sender",
+      npmDependencies = [Npm.Dependency.make ("mailgun.js", show [SV.r|^10.2.3|])],
+      npmDevDependencies = [],
+      setupFnFile = [relfile|mailgun.ts|]
+    }
+
+resend :: EmailSenderProvider
+resend =
+  EmailSenderProvider
+    { featureDescription = "the Resend email sender",
+      npmDependencies = [Npm.Dependency.make ("resend", show [SV.r|^6.0.0|])],
+      npmDevDependencies = [],
+      setupFnFile = [relfile|resend.ts|]
+    }
+
+dummy :: EmailSenderProvider
+dummy =
+  EmailSenderProvider
+    { featureDescription = "the Dummy email sender",
+      npmDependencies = [],
+      npmDevDependencies = [],
+      setupFnFile = [relfile|dummy.ts|]
+    }

@@ -2,7 +2,7 @@ module Wasp.Project.WaspNpmPackage
   ( -- * Versions
     InstalledWaspNpmPackageError (..),
     tryGettingInstalledWaspNpmPackageVersion,
-    tryGettingInstalledWaspNpmPackagePeerDeps,
+    tryGettingInstalledWaspNpmPackageRequiredPeerDeps,
     doesVersionMatchDeclaredVersion,
     WaspNpmPackageDeclaration (..),
     getWaspNpmPackageDeclaration,
@@ -49,11 +49,16 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
 
 -- | The packages Wasp needs in every app, e.g. React or Express. Only the
 -- package.json of \@wasp/wasp lists them.
-tryGettingInstalledWaspNpmPackagePeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
-tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
-  (>>= parsePeerDeps) <$> readInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
+tryGettingInstalledWaspNpmPackageRequiredPeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
+tryGettingInstalledWaspNpmPackageRequiredPeerDeps waspProjectDir =
+  (>>= parsePeerDeps) <$> readInstalledWaspNpmPackageJson waspProjectDir requiredPeerDepsAsJson
   where
-    peerDepsAsJson packageJson = "JSON.stringify(" ++ packageJson ++ ".peerDependencies ?? {})"
+    requiredPeerDepsAsJson packageJson =
+      "JSON.stringify(Object.fromEntries(Object.entries("
+        ++ packageJson
+        ++ ".peerDependencies ?? {}).filter(([name]) => !"
+        ++ packageJson
+        ++ ".peerDependenciesMeta?.[name]?.optional)))"
     parsePeerDeps =
       first BrokenWaspNpmPackage
         . fmap (Npm.Dependency.fromList . M.toList)
@@ -112,8 +117,9 @@ getWaspNpmPackageDeclaration waspProjectDir =
 -- projects that develop Wasp itself do (see @Wasp.Cli.DevWaspNpmPackages@).
 dependsOnDevWaspNpmPackages :: PJ.PackageJson -> Bool
 dependsOnDevWaspNpmPackages packageJson =
-  maybe False ("file:" `isPrefixOf`) $
-    M.lookup waspNpmPackageName (PJ.dependencies packageJson)
+  any
+    (maybe False ("file:" `isPrefixOf`) . M.lookup waspNpmPackageName)
+    [PJ.dependencies packageJson, PJ.devDependencies packageJson]
 
 getDeclaredVersion :: WaspNpmPackageDeclaration -> Maybe String
 getDeclaredVersion = \case
