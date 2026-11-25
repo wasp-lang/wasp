@@ -30,6 +30,7 @@ import Wasp.JsImport
     makeValueJsImport,
   )
 import qualified Wasp.Util as U
+import Wasp.Util.TextStyle (styleLiteral)
 
 genOperationsRoutes :: AppSpec -> Generator [FileDraft]
 genOperationsRoutes spec =
@@ -98,7 +99,7 @@ operationRouteFileInOperationsRoutesDir operation = fromJust $ SP.parseRelFile $
 genOperationsRouter :: AppSpec -> Generator FileDraft
 genOperationsRouter spec
   -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
-  | any isAuthSpecifiedForOperation operations && not isAuthEnabledGlobally = logAndThrowGeneratorError $ GenericGeneratorError "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
+  | any isAuthSpecifiedForOperation operations && not isAuthEnabledGlobally = logAndThrowGeneratorError $ GenericGeneratorError $ styleLiteral "auth" ++ " cannot be specified for specific operations if it is not enabled for the whole app!"
   | otherwise = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.asTmplFile [relfile|src/routes/operations/index.js|]

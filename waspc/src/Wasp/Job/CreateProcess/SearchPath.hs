@@ -12,6 +12,7 @@ import System.Directory (findExecutablesInDirectories)
 import System.Environment (lookupEnv)
 import qualified System.FilePath as FP
 import Wasp.Env (EnvVar)
+import Wasp.Util.TextStyle (styleCode, styleLiteral)
 
 -- | Finds the executable an npm script in the given directory would run for the
 -- given name, by looking in the directories from 'getSearchPath'. Fails if none
@@ -34,7 +35,7 @@ findExecutableInSearchPath fromDir executableName searchPath =
       executable : _ -> return executable
       [] ->
         fail $
-          "Could not find `" <> executableName <> "` in node_modules/.bin of " <> SP.fromAbsDir fromDir <> " or its parents, or in the PATH."
+          "Could not find " <> styleCode executableName <> " in " <> styleLiteral "node_modules/.bin" <> " of " <> styleLiteral (SP.fromAbsDir fromDir) <> " or its parents, or in the PATH."
 
 -- | The env vars that give a process in the given directory the @PATH@ npm
 -- gives its scripts, so that the executables it runs are found the same way

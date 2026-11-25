@@ -48,7 +48,7 @@ studio args = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig -> do
       "Choose a different port with --port, or free up this one."
       "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --port."
 
-  cliSendMessageC $ Msg.Start "Running studio..."
+  cliSendMessageC $ Msg.Info "Starting Prisma Studio..."
 
   console <- getConsole
   _ <- Job.run console.writeRawOutput $ Job.prefixWith Job.Db $ runStudio (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir studioPort

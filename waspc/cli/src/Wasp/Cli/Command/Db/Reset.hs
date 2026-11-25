@@ -32,9 +32,9 @@ reset resetArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig ->
           </> generatedAppDirInDotWaspDir
 
   console <- getConsole
-  runTaskC "Resetting the database..." "Database reset successfully!" $
+  runTaskC "Resetting the database" "Reset the database" $
     liftIO (dbReset console.writeRawOutput (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir resetArgs)
-      >>= either (throwError . commandError "Database reset failed") return
+      >>= either (throwError . commandError "Failed to reset the database") return
 
 resetArgsParser :: ArgsParser ResetArgs
 resetArgsParser =

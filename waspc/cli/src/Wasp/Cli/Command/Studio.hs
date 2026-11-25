@@ -9,6 +9,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy as BSL
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust)
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
@@ -40,6 +41,7 @@ import Wasp.Cli.Util.PortArgument (portParser)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import qualified Wasp.Project.Studio
+import Wasp.Util.TextStyle (styleLiteral)
 
 newtype StudioArgs = StudioArgs
   { port :: Maybe PortNumber
@@ -161,10 +163,10 @@ studio = withArguments studioArgsParser $ \args -> do
       "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --port."
 
   cliSendMessageC . Msg.Info $
-    unlines
-      [ "✨ Starting Wasp Studio ✨",
-        "",
-        "➜ Open in your browser: http://localhost:" ++ show studioPort,
+    intercalate
+      "\n"
+      [ "Starting Wasp Studio...",
+        "  URL: " ++ styleLiteral ("http://localhost:" ++ show studioPort),
         "",
         "Wasp Studio visualises your app and lets you understand how different parts of your app are connected."
       ]
@@ -172,7 +174,7 @@ studio = withArguments studioArgsParser $ \args -> do
   result <- liftIO $ do
     Wasp.Project.Studio.startStudio (SP.toFilePath waspStudioDataJsonFilePath) studioPort
 
-  either (throwError . commandError "Studio command failed") return result
+  either (throwError . commandError "Wasp Studio failed") return result
   where
     getLinkedEntitiesData spec entityRefs =
       map

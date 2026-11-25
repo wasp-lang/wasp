@@ -8,6 +8,7 @@ module Wasp.Cli.ProjectRunConfig
   )
 where
 
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import Network.Socket (PortNumber)
 import Network.URI (URI)
@@ -16,6 +17,7 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebAppG
 import Wasp.Project.Db.Dev (findDevDatabaseUrl)
 import Wasp.Project.RunConfig (ProjectRunConfig (..), makeLocalUrl)
 import Wasp.Util.Network.URI (showUri)
+import Wasp.Util.TextStyle (styleLiteral)
 
 defaultDevClientPort :: PortNumber
 defaultDevClientPort = 3000
@@ -50,7 +52,8 @@ makeProjectRunConfig appSpec ports@(clientPort, serverPort) (customClientUrl, cu
 
 showRunConfigUrls :: AppSpec -> ProjectRunConfig -> String
 showRunConfigUrls appSpec config =
-  unlines
+  intercalate
+    "\n"
     [ showUrls "Client" config.clientUrl localClientUrl,
       showUrls "Server" config.serverUrl localServerUrl
     ]
@@ -59,11 +62,11 @@ showRunConfigUrls appSpec config =
 
     showUrls name url localUrl =
       concat
-        [ " ℹ ",
+        [ "  ",
           name,
           ": ",
-          showUrl url,
-          if url /= localUrl then " (local: " ++ showUrl localUrl ++ ")" else ""
+          styleLiteral $ showUrl url,
+          if url /= localUrl then " (local: " ++ styleLiteral (showUrl localUrl) ++ ")" else ""
         ]
 
     -- The server and client URLs have different expectations for trailing

@@ -2,80 +2,63 @@
 -- when it builds the console.
 module Wasp.Cli.Console.Internal.TerminalReporter
   ( makeTerminalReporter,
+    renderMessage,
+    renderTaskStart,
   )
 where
 
-import Control.Monad (unless)
 import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.Char (isSpace)
+import Data.List (dropWhileEnd, intercalate)
+import Wasp.Cli.Console.Internal.OutputStyle (OutputStyle (..), renderInOutputStyle)
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
+import Wasp.Util (indent)
 import qualified Wasp.Util.TextStyle as TextStyle
 
-makeTerminalReporter :: (String -> String) -> Reporter
-makeTerminalReporter filterText =
+-- | The interactive reporter ('Styled') is for a terminal that a user is
+-- looking at. The plain one is for output that ends up in a file, a pipe, or a
+-- terminal that can't show styles.
+makeTerminalReporter :: OutputStyle -> Reporter
+makeTerminalReporter outputStyle =
   Reporter
-    { send = sendMessage,
-      runTaskWithStatusReport = runTaskBySendingMessages sendMessage
+    { send = Terminal.writeLine . renderMessage outputStyle,
+      runTaskWithStatusReport = runTaskByWritingStartAndSuccessLines
     }
   where
-    sendMessage = Terminal.writeLine . filterText . renderMessage
+    runTaskByWritingStartAndSuccessLines :: (MonadIO m) => String -> String -> m a -> m a
+    runTaskByWritingStartAndSuccessLines runningText successText task = do
+      liftIO $ Terminal.writeLine $ renderTaskStart outputStyle runningText
+      result <- task
+      liftIO $ Terminal.writeLine $ renderMessage outputStyle $ Msg.Success successText
+      return result
 
--- | Reports a task with a start message and a success message. An empty
--- running text means that there is no start message.
-runTaskBySendingMessages :: (MonadIO m) => (Msg.Message -> IO ()) -> String -> String -> m a -> m a
-runTaskBySendingMessages sendMessage runningText successText task = do
-  unless (null runningText) $ liftIO $ sendMessage $ Msg.Start runningText
-  result <- task
-  liftIO $ sendMessage $ Msg.Success successText
-  return result
-
-renderMessage :: Msg.Message -> String
-renderMessage (Msg.Info msg) =
-  waspSays msg
-renderMessage (Msg.Start msg) =
-  waspSays $ asWaspStartMessage msg
-renderMessage (Msg.Success msg) =
-  waspSays $ asWaspSuccessMessage msg
-renderMessage (Msg.Failure title msg) =
-  waspScreams $ asWaspFailureMessage (title ++ ":") ++ msg
-renderMessage (Msg.Warning title msg) =
-  waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
-
-waspSays :: String -> String
-waspSays what = TextStyle.styleMessage what
-
-waspWarns :: String -> String
-waspWarns what = TextStyle.styleNotice what
-
-waspScreams :: String -> String
-waspScreams what = TextStyle.styleError what
-
-asWaspStartMessage :: String -> String
-asWaspStartMessage = waspMessageWithEmoji "🐝"
-
-asWaspSuccessMessage :: String -> String
-asWaspSuccessMessage = waspMessageWithEmoji "✅"
-
-asWaspWarningMessage :: String -> String
-asWaspWarningMessage str = concat ["\n", waspMessageWithEmoji "👀" errorStr, "\n"]
+renderMessage :: OutputStyle -> Msg.Message -> String
+renderMessage outputStyle =
+  renderInOutputStyle outputStyle . \case
+    Msg.Info text -> text
+    Msg.Success text -> TextStyle.styleSuccess "✔" ++ " " ++ text
+    Msg.Failure headline details -> renderLabeledMessage errorLabel headline details
+    Msg.Warning headline details -> renderLabeledMessage warningLabel headline details
   where
-    errorStr = "[Warning] " ++ str
+    errorLabel = renderLabel outputStyle TextStyle.styleError TextStyle.styleErrorLabel "ERROR"
+    warningLabel = renderLabel outputStyle TextStyle.styleWarning TextStyle.styleWarningLabel "WARNING"
 
-asWaspFailureMessage :: String -> String
--- Add a bit more padding on errors for more pronounced
--- visibility and better display of any following error context.
-asWaspFailureMessage str = concat ["\n", waspMessageWithEmoji "❌" errorStr, "\n"]
-  where
-    errorStr = "[Error] " ++ str
+renderTaskStart :: OutputStyle -> String -> String
+renderTaskStart outputStyle runningText = renderInOutputStyle outputStyle $ "▶ " ++ runningText
 
-waspMessageWithEmoji :: String -> String -> String
-waspMessageWithEmoji emoji message = concat ["\n", prefix, " ", message, " ", suffix, "\n"]
+renderLabeledMessage :: String -> String -> String -> String
+renderLabeledMessage label headline details =
+  intercalate "\n" $ (label ++ " " ++ TextStyle.styleTitle headline) : [indent 2 trimmedDetails | not (null trimmedDetails)]
   where
-    prefix = emoji ++ " ---"
-    prefixAndMessageLength = length prefix + length message
-    idealLength = 80
-    -- Pad suffix until returned message is the ideal length. However, if we have to go
-    -- beyond ideal length due to input length, just use 3 at the end to match the prefix.
-    rightPadLength = max 3 (idealLength - prefixAndMessageLength)
-    suffix = concat (replicate rightPadLength "-")
+    trimmedDetails = dropWhileEnd isSpace details
+
+-- | The label stands on a coloured background. Where that can't be shown, a
+-- colon sets it apart from the text after it.
+renderLabel :: OutputStyle -> (String -> String) -> (String -> String) -> String -> String
+renderLabel Styled styleSymbol styleLabel labelName = styleSymbol labelSymbol ++ " " ++ styleLabel (" " ++ labelName ++ " ")
+renderLabel Plain _ _ labelName = labelSymbol ++ " " ++ labelName ++ ":"
+
+labelSymbol :: String
+labelSymbol = "!"

@@ -13,8 +13,8 @@ import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import Wasp.Cli.Command (Command, commandError, compileCommandError, getConsole, require)
-import Wasp.Cli.Command.Compile (compileIOWithOptions, reportSuccessfulCompile)
+import Wasp.Cli.Command (Command, commandError, getConsole, require)
+import Wasp.Cli.Command.Compile (compileIOWithOptions, makeCompileError, reportSuccessfulCompile)
 import Wasp.Cli.Command.Message (runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -42,6 +42,7 @@ import Wasp.Project.Common
 import Wasp.TaskRunner (TaskRunner (..))
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
+import Wasp.Util.TextStyle (styleLiteral)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -61,30 +62,26 @@ build = ProjectLock.acquireExclusive $ do
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist
     $ runTaskC
-      ("Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory...")
-      ("Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory.")
+      ("Clearing the " ++ buildDirName ++ " directory")
+      ("Cleared the " ++ buildDirName ++ " directory")
     $ liftIO
     $ removeDirectory buildDir
 
   runTaskC
-    "Building wasp project..."
-    ("Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory.")
+    "Building the project"
+    ("Built the app into the " ++ buildDirName ++ " directory")
     $ do
       console <- getConsole
       (warnings, errors) <- liftIO $ buildIO console waspProjectDir buildDir
-      unless (null errors)
-        $ throwError
-        $ compileCommandError
-          "Building of wasp project failed"
-          (show (length errors) ++ " errors found.")
-          errors
-          warnings
+      unless (null errors) $ throwError $ makeCompileError "Build failed" errors warnings
       liftIO $ reportSuccessfulCompile console.reporter warnings
 
       liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
-        Left err -> throwError $ commandError "Failed to prepare files necessary for docker build" err
+        Left err -> throwError $ commandError "Failed to prepare the build directory" err
         Right () -> return ()
   where
+    buildDirName = styleLiteral $ fromRelDir generatedAppDirInWaspProjectDir
+
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       let srcTsConfigPath = srcTsConfig tsConfigPaths
 

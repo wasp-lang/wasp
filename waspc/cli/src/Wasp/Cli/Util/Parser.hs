@@ -39,8 +39,8 @@ getParserHelpMessage argsParser =
     helpFlag = "--help"
 
 -- | Call this before prompting the user.
--- If stdin is not an interactive terminal, the command fails with its full
--- usage, showing how to call it non-interactively.
+-- If there is nobody to answer, the command fails with its full usage, showing
+-- how to call it non-interactively.
 requirePrompter :: ArgsParser a -> Command Prompter
 requirePrompter argsParser = do
   console <- getConsole
@@ -49,7 +49,7 @@ requirePrompter argsParser = do
     Nothing ->
       throwError
         $ commandError "Interactive terminal required"
-        $ "Wasp needs to ask you something, but stdin is not an interactive terminal.\n"
+        $ "Wasp needs to ask you something, but it isn't running in an interactive terminal.\n"
           <> "Either run this command from a terminal, or pass everything it needs as arguments:\n\n"
           <> getParserHelpMessage argsParser
 

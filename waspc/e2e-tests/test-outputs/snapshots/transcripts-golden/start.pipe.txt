@@ -1,44 +1,20 @@
 [stdout]
-
-🐝 --- Starting compilation and setup phase. Hold tight... ------------------------
-
-
-🐝 --- Compiling wasp project... --------------------------------------------------
-
+▶ Compiling the project
+▶ Installing dependencies
 
 [  Wasp  ] <output>
-
-✅ --- Successfully completed npm install. ----------------------------------------
-
-
-🐝 --- Generating Prisma client... ------------------------------------------------
-
-
-✅ --- Prisma client is up to date. -----------------------------------------------
-
-
-🐝 --- Building SDK... ------------------------------------------------------------
-
-
-✅ --- SDK built successfully. ----------------------------------------------------
-
-
-🐝 --- Type-checking user code... -------------------------------------------------
-
-
-✅ --- User code type-checked successfully. ---------------------------------------
-
-
-✅ --- Your wasp project has successfully compiled. -------------------------------
-
-
-🐝 --- Listening for file changes... ----------------------------------------------
-
-
-🐝 --- Starting up generated project... -------------------------------------------
-
- ℹ Client: http://localhost:31100/
- ℹ Server: http://localhost:31101/
+✔ Installed dependencies
+▶ Generating the Prisma client
+✔ The Prisma client is up to date
+▶ Building the SDK
+✔ Built the SDK
+▶ Type-checking user code
+✔ Type-checked user code
+✔ Compiled the project
+Listening for file changes...
+Starting the app...
+  Client: http://localhost:31100/
+  Server: http://localhost:31101/
 <cut off: the app is running>
 [stderr]
 [  Wasp !] <output>

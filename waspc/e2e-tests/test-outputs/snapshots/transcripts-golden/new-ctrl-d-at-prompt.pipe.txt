@@ -1,19 +1,16 @@
 [stdout]
+! ERROR: Interactive terminal required
+  Wasp needs to ask you something, but it isn't running in an interactive terminal.
+  Either run this command from a terminal, or pass everything it needs as arguments:
 
+  Usage: wasp new [PROJECT_NAME] [-t|--template TEMPLATE_NAME]
 
-❌ --- [Error] Interactive terminal required: -------------------------------------
-
-Wasp needs to ask you something, but stdin is not an interactive terminal.
-Either run this command from a terminal, or pass everything it needs as arguments:
-
-Usage: wasp new [PROJECT_NAME] [-t|--template TEMPLATE_NAME]
-
-Available options:
-  PROJECT_NAME             Name of the new project. Required when running
-                           non-interactively
-  -t,--template TEMPLATE_NAME
-                           Template to use for the new project
-  -h,--help                Show this help text
+  Available options:
+    PROJECT_NAME             Name of the new project. Required when running
+                             non-interactively
+    -t,--template TEMPLATE_NAME
+                             Template to use for the new project
+    -h,--help                Show this help text
 [stderr]
 [exit code]
 1

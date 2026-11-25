@@ -8,6 +8,7 @@ import Control.Monad.Catch (bracket_)
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Functor (($>))
+import Data.List (intercalate)
 import Data.Maybe (isJust)
 import qualified Data.Text as T
 import qualified StrongPath as SP
@@ -31,17 +32,17 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Install (installIO)
-import Wasp.Cli.Command.Message (cliWriteRawOutputC, runTaskC)
+import Wasp.Cli.Command.Message (cliSendMessageC, runTaskC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
+import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Util (indent)
 import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
-import Wasp.Util.TextStyle (styleCode)
-import qualified Wasp.Util.TextStyle as TextStyle
+import Wasp.Util.TextStyle (styleLiteral)
 
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
@@ -50,12 +51,13 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
   let absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
       needsMigration = newProjectDescription._template.metadata._migratesDbOnCreation
+      projectDirName = styleLiteral $ getProjectDirName newProjectDescription
 
   console <- getConsole
   (areDepsInstalled, isDbMigrated) <-
     runTaskC
-      ("Creating your project from the \"" ++ show newProjectDescription._template ++ "\" template...")
-      ("Created a new Wasp app in `./" ++ getProjectDirName newProjectDescription ++ "`.")
+      ("Creating the " ++ projectDirName ++ " project from the " ++ styleLiteral (show newProjectDescription._template) ++ " template")
+      ("Created the " ++ projectDirName ++ " project")
       $ do
         createProjectOnDisk newProjectDescription
         -- TODO consider removing if we start doing `wasp install` automatically
@@ -71,7 +73,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   liftIO $ printGettingStartedInstructionsForProject console.writeRawOutput newProjectDescription
 
   liftIO
-    $ printExtraInstructionsForProject console.writeRawOutput
+    $ printExtraInstructionsForProject console.reporter
     $ ["wasp install" | not areDepsInstalled]
       ++ ["wasp db migrate-dev" | needsMigration && not isDbMigrated]
 
@@ -90,8 +92,7 @@ installDepsForNewProject console absWaspProjectDir =
   installIO console.writeRawOutput absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
-      console.writeRawOutput Stdout . T.pack $
-        TextStyle.styleWarning "Warning: The project was created, but dependency installation failed.\n" ++ "\n"
+      console.reporter.send $ Msg.Warning "The project was created, but dependency installation failed" ""
       return False
 
 -- | Creates and applies the project's initial migration, so users can run the
@@ -114,7 +115,7 @@ migrateDbForNewProject absWaspProjectDir =
         $ throwError
         $ commandError
           "Migration skipped"
-          (databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
+          (styleLiteral databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
 
     -- Commands find the project they work on through the current directory, and
     -- `wasp new` runs from outside of the project.
@@ -126,14 +127,9 @@ migrateDbForNewProject absWaspProjectDir =
         action
 
     warnAboutFailedMigration migrationError = do
-      cliWriteRawOutputC Stdout
-        $ (++ "\n")
-        $ TextStyle.styleWarning
-        $ "Warning: The project was created, but its database wasn't migrated.\n"
-          ++ _headline migrationError
-          ++ ": "
-          ++ errorMessage migrationError
-          ++ "\n"
+      cliSendMessageC
+        $ Msg.Warning "The project was created, but its database wasn't migrated"
+        $ _headline migrationError ++ ": " ++ errorMessage migrationError
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
@@ -145,12 +141,10 @@ printGettingStartedInstructionsForProject writeRawOutput projectDescription = do
 getProjectDirName :: NewProjectDescription -> String
 getProjectDirName = init . SP.toFilePath . SP.basename . _absTemplateOutputDir
 
-printExtraInstructionsForProject :: WriteOutput -> [String] -> IO ()
+printExtraInstructionsForProject :: Reporter -> [String] -> IO ()
 printExtraInstructionsForProject _ [] = return ()
-printExtraInstructionsForProject writeRawOutput steps =
-  writeRawOutput Stdout
-    . T.pack
-    $ (++ "\n")
-    $ TextStyle.styleWarning
-    $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
-      ++ concatMap (\step -> indent 4 (styleCode step) ++ "\n") steps
+printExtraInstructionsForProject reporter steps =
+  reporter.send
+    $ Msg.Warning "Some setup steps were skipped"
+    $ "Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
+      ++ indent 2 (intercalate "\n" $ map styleLiteral steps)

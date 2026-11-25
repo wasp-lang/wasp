@@ -42,9 +42,9 @@ migrateDev migrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunCo
 migrateDatabase :: [EnvVar] -> MigrateArgs -> Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
 migrateDatabase envVars migrateArgs generatedAppDir dbMigrationsDir = do
   console <- getConsole
-  runTaskC "Starting database migration..." "Database successfully migrated." $
+  runTaskC "Migrating the database" "Migrated the database" $
     liftIO (DbOps.migrateDevAndCopyToSource console.writeRawOutput envVars dbMigrationsDir generatedAppDir migrateArgs)
-      >>= either (throwError . commandError "Migrate dev failed") return
+      >>= either (throwError . commandError "Failed to migrate the database") return
 
 migrateArgsParser :: ArgsParser MigrateArgs
 migrateArgsParser =

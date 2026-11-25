@@ -50,7 +50,7 @@ waitEnsureCompile options =
 
     printWaiting numFailedTries _ =
       cliSendMessageC
-        $ Msg.Start
+        $ Msg.Info
         $ "Waiting for compilation to finish... ("
           ++ show numFailedTries
           ++ "/"
@@ -62,7 +62,7 @@ waitEnsureCompile options =
 
 makeProjectBusyError :: Maybe WaspProcessId -> CommandError
 makeProjectBusyError maybeProcessId =
-  commandError "Wasp project is busy" $
+  commandError "The project is busy" $
     ProjectLock.describeLockHolder maybeProcessId
       ++ " is working on this project right now. Run this command again once it finishes."
 
@@ -87,6 +87,6 @@ attemptEnsureCompile options =
           ++ " is already watching this project, skipping compilation."
 
     makeCompilationFailedError pid =
-      commandError "Wasp project failed to compile" $
+      commandError "The project failed to compile" $
         ProjectLock.describeLockHolder (Just pid)
           ++ " is running for this project, but it failed to compile it. Fix its compilation errors first."

@@ -1,16 +1,13 @@
 [stdout]
+! ERROR: Interactive terminal required
+  Wasp needs to ask you something, but it isn't running in an interactive terminal.
+  Either run this command from a terminal, or pass everything it needs as arguments:
 
+  Usage: wasp uninstall [--force]
 
-❌ --- [Error] Interactive terminal required: -------------------------------------
-
-Wasp needs to ask you something, but stdin is not an interactive terminal.
-Either run this command from a terminal, or pass everything it needs as arguments:
-
-Usage: wasp uninstall [--force]
-
-Available options:
-  --force                  Skip the confirmation prompt
-  -h,--help                Show this help text
+  Available options:
+    --force                  Skip the confirmation prompt
+    -h,--help                Show this help text
 [stderr]
 [exit code]
 1

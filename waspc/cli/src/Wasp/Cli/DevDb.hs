@@ -9,11 +9,12 @@ import Control.Concurrent.Async (async, cancel, race, wait)
 import Control.Monad.Catch (bracket)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Exit (ExitCode)
 import Text.Printf (printf)
-import Wasp.Cli.Command (Command, commandError, failCommandWithoutError, getConsole)
+import Wasp.Cli.Command (Command, commandError, getConsole)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Console (Console (..))
@@ -27,25 +28,26 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Dev (CustomDatabaseSource (..))
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
-import Wasp.Util (checkExitSuccess)
+import Wasp.Util (checkExitSuccess, indent)
 import qualified Wasp.Util.Docker as Docker
 import Wasp.Util.IO.Process (WriteOutput)
+import Wasp.Util.TextStyle (styleCode, styleLiteral)
 
 startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> Command ()
 startPostgresDevDb waspProjectDir appName devDbOptions =
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
-    Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
+    Just runningDb -> throwDbIsAlreadyRunningError runningDb
     Nothing ->
       withStartedPostgresDevDb waspProjectDir appName devDbOptions $ \waitForDbExit -> do
-        cliSendMessageC $ Msg.Info "PostgreSQL dev database is ready. Press Ctrl+C to stop it."
+        cliSendMessageC $ Msg.Info "The dev database is ready. Press Ctrl+C to stop it."
         waitForDbExit
   where
-    noteDbIsAlreadyRunningAndExit :: Dev.Postgres.DevDbSpec -> Command ()
-    noteDbIsAlreadyRunningAndExit devDbSpec = do
-      cliSendMessageC . Msg.Info . unlines $
-        ("Your PostgreSQL dev database is already running on port " ++ show devDbSpec.port ++ ".")
-          : additionalInfoLines devDbSpec
-      failCommandWithoutError
+    throwDbIsAlreadyRunningError :: Dev.Postgres.DevDbSpec -> Command ()
+    throwDbIsAlreadyRunningError devDbSpec =
+      E.throwError
+        $ commandError ("The dev database is already running on port " ++ styleLiteral (show devDbSpec.port))
+        $ showFacts
+        $ connectionFacts devDbSpec
 
 -- | Runs the action with the project's PostgreSQL dev database: the one that's
 -- already running, or a new one that is stopped and removed when the action
@@ -72,18 +74,15 @@ withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
         devDbOptions.dbPort
         defaultPostgresPort
         []
-        "Choose a different port with --db-port, or free up this one."
-        "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --db-port."
+        ("Choose a different port with " ++ styleCode "--db-port" ++ ", or free up this one.")
+        ("Free at least one of those ports by exiting the program listening on it, or choose the port yourself with " ++ styleCode "--db-port" ++ ".")
 
     startDbOnPort :: PortNumber -> Command a
     startDbOnPort port = do
       console <- getConsole
       let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName port
-      cliSendMessageC . Msg.Info . unlines $
-        "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
-          : additionalInfoLines devDbSpec
-            <> dockerRunInfoLines
-      cliSendMessageC $ Msg.Info "..."
+      cliSendMessageC $ Msg.Info "Starting the dev database..."
+      cliSendMessageC $ Msg.Info $ indent 2 $ showFacts $ connectionFacts devDbSpec ++ dockerRunFacts
       -- Cancelling the database job stops the container, which `docker run --rm`
       -- then removes.
       bracket (liftIO $ async $ runDbJob console.writeRawOutput devDbSpec) (liftIO . cancel) $ \dbJob -> do
@@ -111,10 +110,10 @@ withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
     -- only when starting the database: an already running container might have
     -- been started with a different image or mount path than the current
     -- invocation's arguments.
-    dockerRunInfoLines :: [String]
-    dockerRunInfoLines =
-      [ " ℹ Using Docker image: " <> devDbOptions.dbImage,
-        "   with the data volume mounted at: " <> devDbOptions.dbVolumeMountPath
+    dockerRunFacts :: [(String, String)]
+    dockerRunFacts =
+      [ ("Docker image", devDbOptions.dbImage),
+        ("Volume mount path", devDbOptions.dbVolumeMountPath)
       ]
 
 throwUnlessDevDbAcceptsConnections :: Dev.Postgres.ConnectionCheck -> Command ()
@@ -130,7 +129,7 @@ throwIfDockerIsNotAvailable :: Command ()
 throwIfDockerIsNotAvailable = do
   throwIfExeIsNotAvailable
     "docker"
-    "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
+    ("To run PostgreSQL dev database, Wasp needs " ++ styleCode "docker" ++ " installed and in PATH.")
   throwIfDockerDaemonIsNotReachable
   where
     throwIfDockerDaemonIsNotReachable :: Command ()
@@ -147,29 +146,33 @@ throwIfDockerIsNotAvailable = do
                   <> dockerError
               )
 
-additionalInfoLines :: Dev.Postgres.DevDbSpec -> [String]
-additionalInfoLines devDbSpec =
-  [ "",
-    "Additional info:",
-    " ℹ Connection URL, in case you might want to connect with external tools:",
-    "     " <> Dev.Postgres.getDevConnectionUrl devDbSpec,
-    " ℹ Database data is persisted in a Docker volume with the following name"
-      <> " (useful to know if you will want to delete it at some point):",
-    "     " <> devDbSpec.dockerVolumeName
+connectionFacts :: Dev.Postgres.DevDbSpec -> [(String, String)]
+connectionFacts devDbSpec =
+  [ ("Connection URL", Dev.Postgres.getDevConnectionUrl devDbSpec),
+    ("Docker volume", devDbSpec.dockerVolumeName)
   ]
+
+-- | Shows each fact on its own line, as "name: value", with the values lined
+-- up.
+showFacts :: [(String, String)] -> String
+showFacts facts = intercalate "\n" $ map showFact facts
+  where
+    showFact (name, value) = padToLength labelLength (name ++ ":") ++ " " ++ styleLiteral value
+    padToLength targetLength text = text ++ replicate (targetLength - length text) ' '
+    labelLength = maximum $ map ((+ 1) . length . fst) facts
 
 throwCustomDatabaseInUseError :: CustomDatabaseSource -> Command a
 throwCustomDatabaseInUseError =
-  E.throwError . commandError "You are using custom database already" . \case
+  E.throwError . commandError "A custom database is already configured" . \case
     InEnvironment ->
-      "Wasp has detected existing "
-        <> databaseUrlEnvVarName
-        <> " var in your environment.\n"
-        <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+      "Wasp found "
+        <> styleLiteral databaseUrlEnvVarName
+        <> " in your environment.\n"
+        <> "To have Wasp run the dev database for you, remove that env var first."
     InDotEnvServer ->
       printf
-        ( "Wasp has detected that you have defined %s env var in your %s file.\n"
-            <> "To have Wasp run the dev database for you, make sure you remove that env var first."
+        ( "Wasp found %s in your %s file.\n"
+            <> "To have Wasp run the dev database for you, remove that env var first."
         )
-        databaseUrlEnvVarName
-        (fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))
+        (styleLiteral databaseUrlEnvVarName)
+        (styleLiteral $ fromRelFile (dotEnvServer :: Path' (Rel WaspProjectDir) File'))

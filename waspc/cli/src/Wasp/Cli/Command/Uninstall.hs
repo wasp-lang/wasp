@@ -5,15 +5,13 @@ where
 
 import Control.Monad (filterM, forM_, unless)
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.Text as T
+import Data.List (intercalate)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command, abortCommand, getConsole)
+import Wasp.Cli.Command (Command, abortCommand)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC, runTaskC)
-import Wasp.Cli.Console (Console (..))
-import Wasp.Cli.Console.Prompter (Prompter)
 import qualified Wasp.Cli.Console.Prompter as Prompter
 import Wasp.Cli.FileSystem
   ( getHomeDir,
@@ -33,8 +31,8 @@ import Wasp.Util.IO
     doesDirectoryExist,
     doesFileExist,
   )
-import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 import Wasp.Util.InstallMethod (uninstallationCommand)
+import Wasp.Util.TextStyle (styleCode)
 
 -- | Removes Wasp from the system.
 uninstall :: Arguments -> Command ()
@@ -48,10 +46,14 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
         if skipConfirmation
           then return Nothing
           else Just <$> requirePrompter uninstallArgsParser
-      console <- getConsole
-      runTaskC "Removing Wasp data..." "Removed Wasp data."
-        $ liftIO
-        $ removeWaspPaths console.writeRawOutput confirmationPrompter waspPathsToRemove
+      cliSendMessageC
+        $ Msg.Info
+        $ "We will remove the following files and directories:\n"
+          ++ indent 2 (intercalate "\n" $ toFilePaths waspPathsToRemove)
+      forM_ confirmationPrompter $ \prompter -> do
+        confirmed <- liftIO $ Prompter.askForConfirmation prompter "Are you sure you want to continue?"
+        unless confirmed abortCommand
+      runTaskC "Removing Wasp data" "Removed Wasp data" $ liftIO $ removeWaspPaths waspPathsToRemove
 
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"
@@ -77,7 +79,7 @@ dockerVolumeMsg =
   Msg.Info $
     "If you have used Wasp to run dev database for you, you might want to make sure you also"
       <> " deleted all the docker volumes it might have created."
-      <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
+      <> (" You can easily list them by doing " <> styleCode ("docker volume ls | grep " <> waspDevDbDockerVolumePrefix) <> ".")
 
 type PathsToRemove = ([Path' Abs Dir'], [Path' Abs File'])
 
@@ -101,20 +103,8 @@ findWaspPathsToRemove =
         [ homeDir </> waspExecutableInHomeDir
         ]
 
--- | Asks for confirmation on the given prompter before deleting anything.
--- Without one (`--force`), deletes right away.
-removeWaspPaths :: WriteOutput -> Maybe Prompter -> PathsToRemove -> IO ()
-removeWaspPaths writeRawOutput confirmationPrompter pathsToRemove = do
-  writeRawOutput Stdout . T.pack $
-    unlines
-      [ "We will remove the following files and directories:",
-        indent 2 $ unlines $ toFilePaths pathsToRemove
-      ]
-
-  forM_ confirmationPrompter $ \prompter -> do
-    confirmed <- Prompter.askForConfirmation prompter "Are you sure you want to continue?"
-    unless confirmed abortCommand
-
+removeWaspPaths :: PathsToRemove -> IO ()
+removeWaspPaths pathsToRemove = do
   mapM_ deleteDirectoryIfExists $ fst pathsToRemove
   mapM_ deleteFileIfExists $ snd pathsToRemove
 

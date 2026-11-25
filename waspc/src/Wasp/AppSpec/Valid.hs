@@ -50,6 +50,7 @@ import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
+import Wasp.Util.TextStyle (styleLiteral)
 import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
@@ -202,7 +203,7 @@ validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =
   if null groupsOfConflictingRoutes
     then []
-    else [GenericValidationError $ "`api` routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
+    else [GenericValidationError $ styleLiteral "api" ++ " routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
   where
     apiRoutes = AS.Api.httpRoute <$> AS.getApis spec
     groupsOfConflictingRoutes = filter ((> 1) . length) (groupBy routesHaveConflictingDefinitions $ sortBy routeComparator apiRoutes)
@@ -222,7 +223,7 @@ validateApiNamespacePathsAreUnique :: AppSpec -> [ValidationError]
 validateApiNamespacePathsAreUnique spec =
   if null duplicatePaths
     then []
-    else [GenericValidationError $ "`apiNamespace` paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
+    else [GenericValidationError $ styleLiteral "apiNamespace" ++ " paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
   where
     namespacePaths = AS.ApiNamespace.path <$> AS.getApiNamespaces spec
     duplicatePaths = findDuplicateElems namespacePaths

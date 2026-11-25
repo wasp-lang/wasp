@@ -19,8 +19,8 @@ import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (CommandError (..), compileCommandError, reportCommandError, reportCompileErrors, reportCompileWarnings)
-import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, reportSuccessfulCompile)
+import Wasp.Cli.Command (CommandError (..), reportCommandError, reportCompileErrors, reportCompileWarnings)
+import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, makeCompileError)
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
@@ -156,24 +156,17 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
     recompile compileStartTime changedProjectFiles = do
       recompileResult <-
         runExceptT $
-          runTaskWithStatusReport console.reporter "Recompiling on file change..." "Recompilation on file change succeeded." $
+          runTaskWithStatusReport console.reporter "Recompiling on file change" "Recompiled the project" $
             do
               compileResult <- liftIO $ compileIO console waspProjectDir outDir
               let (warnings, errors) = compileResultWarningsAndErrors compileResult
               case _compileOutcome compileResult of
-                Right appSpec -> do
-                  liftIO $ reportSuccessfulCompile console.reporter warnings
-                  return (compileResult, appSpec)
-                Left _ ->
-                  throwError $
-                    compileCommandError
-                      "Recompilation on file change failed."
-                      (show (length errors) ++ " errors found")
-                      errors
-                      warnings
+                Right appSpec -> return (compileResult, appSpec)
+                Left _ -> throwError $ makeCompileError "Recompilation failed" errors warnings
 
       (compileOutcome, warnings, errors) <- case recompileResult of
         Right (compileResult, appSpec) -> do
+          reportCompileWarnings console.reporter $ _compileWarnings compileResult
           projectRunConfig <- makeProjectRunConfig appSpec
           let compileChanges =
                 CompileChanges

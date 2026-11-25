@@ -1,8 +1,5 @@
 [terminal]
-<ESC>[31m
-
-❌ --- [Error] Wasp command failed: -----------------------------------------------
-
-Couldn't find wasp project root - make sure you are running this command from a Wasp project.<ESC>[0m
+<ESC>[31m!<ESC>[0m <ESC>[31m<ESC>[7m<ESC>[1m ERROR <ESC>[0m <ESC>[1mCouldn't find the Wasp project root<ESC>[0m
+  Make sure you are running this command from a Wasp project.
 [exit code]
 1

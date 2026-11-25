@@ -1,6 +1,7 @@
 module Wasp.Util.TextStyle
   ( Style (..),
     styleCode,
+    styleLiteral,
     applyStyles,
     getAnsiCodeFor,
     ansiEscapeCode,
@@ -10,11 +11,12 @@ module Wasp.Util.TextStyle
     styleSuccess,
     styleError,
     styleWarning,
+    styleErrorLabel,
+    styleWarningLabel,
     styleNotice,
     styleInfo,
     styleHighlight,
     styleSubtle,
-    styleMessage,
     styleAccent,
     styleCommand,
     styleDate,
@@ -24,10 +26,21 @@ where
 
 import Data.List (foldl', stripPrefix)
 
--- | Applies the Wasp CLI standardized code styling to a string.
+-- | Applies the Wasp CLI standardized code styling to a string. Meant for a
+-- command or a piece of code that is mentioned in a sentence.
 styleCode :: String -> String
 styleCode "" = ""
-styleCode str = ansiEscapeCode ++ getAnsiCodeFor Bold ++ str ++ ansiEscapeCode ++ ansiResetBoldDimCode
+styleCode code = styleLiteral $ "`" ++ code ++ "`"
+
+-- | For something the user would type or look for exactly as it is written,
+-- like a file name, a URL or a value. Code that stands on its own line is
+-- styled with this too, because the backticks of 'styleCode' would get copied
+-- along with it.
+--
+-- It resets only the colour, so it can be used inside of a bold text.
+styleLiteral :: String -> String
+styleLiteral "" = ""
+styleLiteral str = ansiEscapeCode ++ getAnsiCodeFor Yellow ++ str ++ ansiEscapeCode ++ ansiResetForegroundCode
 
 -- | Applies the Wasp CLI standardized text styling to a string. Currently, this
 -- is a no-op, but it exists for future-proofing. And to make consecutive calls
@@ -47,6 +60,13 @@ styleError = applyStyles [Red]
 styleWarning :: String -> String
 styleWarning = applyStyles [Yellow]
 
+-- | For the word that says what kind of a message follows, e.g. "ERROR".
+styleErrorLabel :: String -> String
+styleErrorLabel = applyStyles [Bold, Reverse, Red]
+
+styleWarningLabel :: String -> String
+styleWarningLabel = applyStyles [Bold, Reverse, Yellow]
+
 -- | For something the user should notice, but that isn't a problem yet.
 styleNotice :: String -> String
 styleNotice = applyStyles [Magenta]
@@ -60,10 +80,6 @@ styleHighlight = applyStyles [Cyan]
 -- | For text that matters less than the text around it.
 styleSubtle :: String -> String
 styleSubtle = applyStyles [Grey]
-
--- | For what Wasp itself says about its work.
-styleMessage :: String -> String
-styleMessage = applyStyles [Yellow]
 
 -- | For a small part that should stand out from the plain text around it.
 styleAccent :: String -> String
@@ -108,6 +124,7 @@ data Style
   | Bold
   | Underline
   | Blink
+  | Reverse
   deriving (Show, Eq)
 
 -- | Given a string, returns decorated string that when printed in terminal
@@ -140,6 +157,7 @@ getAnsiCodeFor WhiteBg = "[47m"
 getAnsiCodeFor Bold = "[1m"
 getAnsiCodeFor Underline = "[4m"
 getAnsiCodeFor Blink = "[5m" -- Blink does not work in all terminal emulators (e.g. on mac in iTerm2).
+getAnsiCodeFor Reverse = "[7m"
 
 ansiEscapeCode :: String
 ansiEscapeCode = "\ESC"
@@ -147,5 +165,5 @@ ansiEscapeCode = "\ESC"
 ansiResetAllCode :: String
 ansiResetAllCode = "[0m"
 
-ansiResetBoldDimCode :: String
-ansiResetBoldDimCode = "[22m"
+ansiResetForegroundCode :: String
+ansiResetForegroundCode = "[39m"

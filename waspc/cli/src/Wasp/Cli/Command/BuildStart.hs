@@ -49,15 +49,15 @@ buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
 buildAndStartServerAndClient appSpec config = do
   writeRawOutput <- (.writeRawOutput) <$> getConsole
 
-  runTaskC "Building client..." "Client built." $
+  runTaskC "Building the client" "Built the client" $
     Job.run writeRawOutput (Job.prefixWith Job.WebApp $ buildClient config)
-      >>= throwOnExitFailure "Building client failed." "Building the client"
+      >>= throwOnExitFailure "Failed to build the client" "Building the client"
 
-  runTaskC "Building server..." "Server built." $
+  runTaskC "Building the server" "Built the server" $
     Job.run writeRawOutput (Job.prefixWith Job.Server $ buildServer config)
-      >>= throwOnExitFailure "Building server failed." "Building the server"
+      >>= throwOnExitFailure "Failed to build the server" "Building the server"
 
-  cliSendMessageC $ Msg.Start "Starting client and server..."
+  cliSendMessageC $ Msg.Info "Starting the app..."
   cliSendMessageC
     $ Msg.Info
     $ showRunConfigUrls appSpec config.projectRunConfig
@@ -72,7 +72,7 @@ buildAndStartServerAndClient appSpec config = do
     (throwOnExitFailure startErrorTitle "Running the server")
     clientOrServerExitCode
   where
-    startErrorTitle = "Starting Wasp app failed."
+    startErrorTitle = "Failed to start the app"
 
     throwOnExitFailure :: String -> String -> ExitCode -> Command ()
     throwOnExitFailure errorTitle failedStep =

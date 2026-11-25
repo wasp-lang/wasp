@@ -421,8 +421,8 @@ assertCommandFailsWithoutInteractiveTerminal ::
   ShellCommandBuilder context ShellCommand
 assertCommandFailsWithoutInteractiveTerminal commandName commandBuilder =
   assertCommandOutputContainsAll
-    (assertCommandFails commandBuilder)
-    ["stdin is not an interactive terminal", "Usage: " ++ commandName]
+    (("! " ++) <$> commandBuilder)
+    ["it isn't running in an interactive terminal", "Usage: " ++ commandName]
 
 -- 'SnapshotTest' specific commands
 

@@ -53,8 +53,6 @@ start = withArguments startArgsParser $ \args ->
     InWaspProject waspProjectDir <- require
     let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-    cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
-
     (warnings, appSpec) <- compile
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
@@ -66,8 +64,8 @@ start = withArguments startArgsParser $ \args ->
 
     throwIfDbConnectionNotEstablished projectRunConfig
 
-    cliSendMessageC $ Msg.Start "Listening for file changes..."
-    cliSendMessageC $ Msg.Start "Starting up generated project..."
+    cliSendMessageC $ Msg.Info "Listening for file changes..."
+    cliSendMessageC $ Msg.Info "Starting the app..."
     cliSendMessageC $ Msg.Info $ showRunConfigUrls appSpec projectRunConfig
 
     console <- getConsole
@@ -92,7 +90,7 @@ start = withArguments startArgsParser $ \args ->
     case watchOrStartResult of
       Left () -> error "This should never happen, listening for file changes should never end but it did."
       Right startResult -> case startResult of
-        Left startError -> throwError $ commandError "Start failed" startError
+        Left startError -> throwError $ commandError "Failed to start the app" startError
         Right () -> error "This should never happen, start should never end but it did."
 
 -- | The web app and server have their own logic for reading environment

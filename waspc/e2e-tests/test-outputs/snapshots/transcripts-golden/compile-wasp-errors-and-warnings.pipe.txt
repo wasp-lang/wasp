@@ -1,22 +1,9 @@
 [stdout]
-
-🐝 --- Compiling wasp project... --------------------------------------------------
-
-
-
-❌ --- [Error] Your wasp project failed to compile: -------------------------------
-
-- You must have at least one route in your app. You can add it using the 'route' declaration.
-
-
-👀 --- [Warning] Your wasp project reported following warnings during compilation: ---
-
-- Wasp .env files should be named .env.server or .env.client, depending on their use.
-
-
-❌ --- [Error] Compilation of wasp project failed: --------------------------------
-
-1 errors found
+▶ Compiling the project
+! ERROR: You must have at least one route in your app. You can add it using the 'route' declaration.
+! WARNING: Wasp .env files should be named .env.server or .env.client, depending on their use.
+! ERROR: Compilation failed
+  1 errors found
 [stderr]
 [exit code]
 1

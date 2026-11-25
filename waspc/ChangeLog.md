@@ -59,6 +59,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 
 - The Wasp CLI no longer prints colors when its output isn't shown in a terminal (e.g. it goes to a file or a pipe), on CI, when `NO_COLOR` is set, or when `TERM` is `dumb`.
 - When the Wasp CLI hits an unexpected error, it now says that it's a bug in Wasp and asks you to report it. Before, it did that only for some of them, and printed the raw error for the rest.
+- The Wasp CLI's messages have a new look: steps are marked with `▶` and `✔`, errors and warnings start with an `ERROR` or a `WARNING` label, and code is shown in yellow. Many messages are reworded, so scripts that search Wasp's output for specific text might need an update.
+- `wasp start db` now reports an already running dev database as an error. `wasp show` now prints compile errors to stdout like the other commands do, and no longer to stderr.
 - The Wasp server now responds to unexpected errors with JSON instead of an HTML page, and logs errors thrown in jobs. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - The `rootComponent` now receives the current page as `children`, so rendering `children` instead of `<Outlet />` no longer shows a blank page. ([#5129](https://github.com/wasp-lang/wasp/pull/5129))
 - `useQuery` no longer retries Queries that fail with a `4xx` status code (other than `408` and `429`), so client errors show up right away. ([#5131](https://github.com/wasp-lang/wasp/pull/5131))

@@ -169,7 +169,7 @@ devDbContainerNameFile = "db-container-name.txt"
 waitUntilDevDbReportsItIsReady :: ShellCommandBuilder WaspProjectContext ShellCommand
 waitUntilDevDbReportsItIsReady =
   return $
-    "{ retries=180; until grep -q 'PostgreSQL dev database is ready' "
+    "{ retries=180; until grep -q 'The dev database is ready' "
       ++ devDbOutputFile
       ++ "; do retries=$((retries - 1)); [ \"$retries\" -gt 0 ] || exit 1; sleep 1; done ; }"
 

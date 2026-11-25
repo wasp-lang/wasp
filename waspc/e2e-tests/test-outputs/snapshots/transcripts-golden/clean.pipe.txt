@@ -1,18 +1,9 @@
 [stdout]
-
-🐝 --- Deleting the node_modules/ directory... ------------------------------------
-
-
-✅ --- Deleted the node_modules/ directory. ---------------------------------------
-
-
-🐝 --- Deleting the .wasp/ directory... -------------------------------------------
-
-
-✅ --- Deleted the .wasp/ directory. ----------------------------------------------
-
-
-Run wasp install to reinstall dependencies.
+▶ Deleting the node_modules/ directory
+✔ Deleted the node_modules/ directory
+▶ Deleting the .wasp/ directory
+✔ Deleted the .wasp/ directory
+Run `wasp install` to reinstall dependencies.
 [stderr]
 [exit code]
 0

@@ -1,45 +1,20 @@
 [terminal]
-<ESC>[33m
-🐝 --- Starting compilation and setup phase. Hold tight... ------------------------
-<ESC>[0m
-<ESC>[33m
-🐝 --- Compiling wasp project... --------------------------------------------------
-<ESC>[0m
+▶ Compiling the project
+▶ Installing dependencies
 
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m <ESC>[1m<ESC>[31m!<ESC>[0m<ESC>[33m]<ESC>[0m <output>
-<ESC>[33m
-✅ --- Successfully completed npm install. ----------------------------------------
-<ESC>[0m
-<ESC>[33m
-🐝 --- Generating Prisma client... ------------------------------------------------
-<ESC>[0m
-<ESC>[33m
-✅ --- Prisma client is up to date. -----------------------------------------------
-<ESC>[0m
-<ESC>[33m
-🐝 --- Building SDK... ------------------------------------------------------------
-<ESC>[0m
-<ESC>[33m
-✅ --- SDK built successfully. ----------------------------------------------------
-<ESC>[0m
-<ESC>[33m
-🐝 --- Type-checking user code... -------------------------------------------------
-<ESC>[0m
-<ESC>[33m
-✅ --- User code type-checked successfully. ---------------------------------------
-<ESC>[0m
-<ESC>[33m
-✅ --- Your wasp project has successfully compiled. -------------------------------
-<ESC>[0m
-<ESC>[33m
-🐝 --- Listening for file changes... ----------------------------------------------
-<ESC>[0m
-<ESC>[33m
-🐝 --- Starting up generated project... -------------------------------------------
-<ESC>[0m
-<ESC>[33m ℹ Client: http://localhost:31110/
- ℹ Server: http://localhost:31111/
-<ESC>[0m
+<ESC>[32m✔<ESC>[0m Installed dependencies
+▶ Generating the Prisma client
+<ESC>[32m✔<ESC>[0m The Prisma client is up to date
+▶ Building the SDK
+<ESC>[32m✔<ESC>[0m Built the SDK
+▶ Type-checking user code
+<ESC>[32m✔<ESC>[0m Type-checked user code
+<ESC>[32m✔<ESC>[0m Compiled the project
+Listening for file changes...
+Starting the app...
+  Client: <ESC>[33mhttp://localhost:31110/<ESC>[39m
+  Server: <ESC>[33mhttp://localhost:31111/<ESC>[39m
 [exit code]
 130

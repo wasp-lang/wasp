@@ -46,6 +46,7 @@ import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.TextStyle (styleLiteral)
 
 -- | These are the globally installed packages waspc runs directly from
 -- their global installation path.
@@ -125,11 +126,11 @@ tryGettingInstalledPackageVersion ::
 tryGettingInstalledPackageVersion projectDir package = runExceptT $ do
   unlessM (liftIO $ IOUtil.doesFileExist packageJsonPath)
     $ throwError
-    $ "Couldn't find " ++ fromAbsFile packageJsonPath
+    $ "Couldn't find " ++ styleLiteral (fromAbsFile packageJsonPath)
   packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
   ExceptT $ return $ case PJ.version packageJson of
     Just versionString -> first show $ SV.parseVersion versionString
-    Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
+    Nothing -> Left $ styleLiteral (fromAbsFile packageJsonPath) ++ " has no " ++ styleLiteral "version" ++ " field"
   where
     packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
     packageJsonPath =

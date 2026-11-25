@@ -1,39 +1,19 @@
 [stdout]
-
-🐝 --- Compiling wasp project... --------------------------------------------------
-
-
-[  Wasp  ] <output>
-
-✅ --- Successfully completed npm install. ----------------------------------------
-
-
-🐝 --- Generating Prisma client... ------------------------------------------------
-
-
-✅ --- Prisma client is up to date. -----------------------------------------------
-
-
-🐝 --- Building SDK... ------------------------------------------------------------
-
-
-✅ --- SDK built successfully. ----------------------------------------------------
-
-
-🐝 --- Type-checking user code... -------------------------------------------------
-
+▶ Compiling the project
+▶ Installing dependencies
 
 [  Wasp  ] <output>
+✔ Installed dependencies
+▶ Generating the Prisma client
+✔ The Prisma client is up to date
+▶ Building the SDK
+✔ Built the SDK
+▶ Type-checking user code
 
-
-❌ --- [Error] Your wasp project failed to compile: -------------------------------
-
-- User code type-check failed with exit code: 2
-
-
-❌ --- [Error] Compilation of wasp project failed: --------------------------------
-
-1 errors found
+[  Wasp  ] <output>
+! ERROR: User code type-check failed with exit code: 2
+! ERROR: Compilation failed
+  1 errors found
 [stderr]
 [  Wasp !] <output>
 [exit code]

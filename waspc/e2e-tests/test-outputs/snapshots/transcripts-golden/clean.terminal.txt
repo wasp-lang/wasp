@@ -1,17 +1,8 @@
 [terminal]
-<ESC>[33m
-🐝 --- Deleting the node_modules/ directory... ------------------------------------
-<ESC>[0m
-<ESC>[33m
-✅ --- Deleted the node_modules/ directory. ---------------------------------------
-<ESC>[0m
-<ESC>[33m
-🐝 --- Deleting the .wasp/ directory... -------------------------------------------
-<ESC>[0m
-<ESC>[33m
-✅ --- Deleted the .wasp/ directory. ----------------------------------------------
-<ESC>[0m
-<ESC>[33m
-Run <ESC>[1mwasp install<ESC>[22m to reinstall dependencies.<ESC>[0m
+▶ Deleting the <ESC>[33mnode_modules/<ESC>[39m directory
+<ESC>[32m✔<ESC>[0m Deleted the <ESC>[33mnode_modules/<ESC>[39m directory
+▶ Deleting the <ESC>[33m.wasp/<ESC>[39m directory
+<ESC>[32m✔<ESC>[0m Deleted the <ESC>[33m.wasp/<ESC>[39m directory
+Run <ESC>[33m`wasp install`<ESC>[39m to reinstall dependencies.
 [exit code]
 0

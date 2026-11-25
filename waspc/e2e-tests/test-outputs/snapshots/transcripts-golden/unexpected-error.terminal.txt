@@ -1,6 +1,6 @@
 [terminal]
-
-This is a bug in Wasp. Please report it at https://github.com/wasp-lang/wasp/issues/new and include the following error:
-  COMP_LINE: getEnv: does not exist (no environment variable)
+<ESC>[31m!<ESC>[0m <ESC>[31m<ESC>[7m<ESC>[1m ERROR <ESC>[0m <ESC>[1mThis is a bug in Wasp<ESC>[0m
+  Please report it at <ESC>[33mhttps://github.com/wasp-lang/wasp/issues/new<ESC>[39m and include the following error:
+    COMP_LINE: getEnv: does not exist (no environment variable)
 [exit code]
 1

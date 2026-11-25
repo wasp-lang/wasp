@@ -14,6 +14,7 @@ import System.Directory (findExecutable)
 import Wasp.Cli.Command (Command, commandError)
 import Wasp.Cli.Command.Message (runTaskC)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.TextStyle (styleCode, styleLiteral)
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do
@@ -21,18 +22,18 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
     Just _ -> return ()
     Nothing ->
       E.throwError $
-        commandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
+        commandError ("Couldn't find the " <> styleCode exeName <> " executable") explanationMsg
 
 deleteDirectoryIfExistsVerbosely :: Path' Abs (Dir d) -> Command ()
 deleteDirectoryIfExistsVerbosely dir = do
   dirExist <- liftIO $ IOUtil.doesDirectoryExist dir
-  runTaskC ("Deleting the " ++ dirName ++ " directory...") (successText dirExist)
+  runTaskC ("Deleting the " ++ dirName ++ " directory") (successText dirExist)
     $ when dirExist
     $ liftIO
     $ IOUtil.removeDirectory dir
   where
     successText dirExist
-      | dirExist = "Deleted the " ++ dirName ++ " directory."
-      | otherwise = "Nothing to delete: The " ++ dirName ++ " directory does not exist."
+      | dirExist = "Deleted the " ++ dirName ++ " directory"
+      | otherwise = "The " ++ dirName ++ " directory is already gone"
 
-    dirName = SP.toFilePath $ basename dir
+    dirName = styleLiteral $ SP.toFilePath $ basename dir

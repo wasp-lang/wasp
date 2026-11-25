@@ -47,7 +47,5 @@ instance Requirable InWaspProject where
 
       notFoundError =
         commandError
-          "Wasp command failed"
-          ( "Couldn't find wasp project root - make sure"
-              ++ " you are running this command from a Wasp project."
-          )
+          "Couldn't find the Wasp project root"
+          "Make sure you are running this command from a Wasp project."

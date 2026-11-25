@@ -5,7 +5,7 @@ where
 
 import Wasp.AppSpec.Inspectable (InspectableAppSpec (InspectableAppSpec))
 import Wasp.Cli.Command (Command, require)
-import Wasp.Cli.Command.Compile (analyzeWithDiagnosticsOnStderr)
+import Wasp.Cli.Command.Compile (analyzeWithWarningsOnStderr)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
@@ -24,4 +24,4 @@ analyzeAppSpec = do
   ValidNodeAndNpm <- require
   InWaspProject waspDir <- require
   WaspSpecAvailable <- require
-  InspectableAppSpec <$> analyzeWithDiagnosticsOnStderr waspDir
+  InspectableAppSpec <$> analyzeWithWarningsOnStderr waspDir

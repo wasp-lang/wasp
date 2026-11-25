@@ -13,10 +13,7 @@ module Wasp.Cli.Command
     reportCommandError,
     reportCompileErrors,
     reportCompileWarnings,
-    compilationWarningsTitle,
-    formatErrorOrWarningMessages,
     abortCommand,
-    failCommandWithoutError,
 
     -- * Requirements
 
@@ -39,7 +36,7 @@ where
 
 import Control.Concurrent (threadDelay)
 import qualified Control.Exception as E
-import Control.Monad (unless, void)
+import Control.Monad (void)
 import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
@@ -49,14 +46,14 @@ import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
 import Data.List (intercalate)
 import Data.Maybe (isJust, mapMaybe)
-import qualified Data.Text as T
 import System.Exit (ExitCode, exitFailure)
 import Wasp.Cli.Console (Console (..), isPromptInputEOF)
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
-import Wasp.Util (indent)
+import Wasp.Util (indent, trim)
 import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.IO.Retry (MonadRetry (..))
+import Wasp.Util.TextStyle (styleLiteral)
 
 newtype Command a = Command {_runCommand :: ReaderT Console (StateT [Requirement] (ExceptT CommandError IO)) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadThrow, MonadCatch, MonadMask)
@@ -73,17 +70,16 @@ runCommand console cmd =
     Failed cmdError -> do
       reportCommandError console.reporter cmdError
       exitFailure
-    FailedWithoutError -> exitFailure
     Aborted stream -> do
       console.writeRawOutput stream "Aborted.\n"
       exitFailure
     HitBug unexpectedException -> do
-      console.writeRawOutput Stdout . T.pack $
-        "\nThis is a bug in Wasp. Please report it at "
-          ++ newIssueUrl
+      console.reporter.send
+        $ Msg.Failure "This is a bug in Wasp"
+        $ "Please report it at "
+          ++ styleLiteral newIssueUrl
           ++ " and include the following error:\n"
           ++ indent 2 (E.displayException unexpectedException)
-          ++ "\n"
       exitFailure
   where
     newIssueUrl = "https://github.com/wasp-lang/wasp/issues/new"
@@ -96,7 +92,6 @@ runCommandSilently console cmd = void $ tryRunningCommand console cmd
 data CommandOutcome a
   = Succeeded a
   | Failed CommandError
-  | FailedWithoutError
   | -- | The user stopped the command. Holds the stream that gets told about it.
     Aborted OutputStream
   | -- | The command threw an exception that nothing in Wasp expects.
@@ -114,7 +109,6 @@ tryRunningCommand console cmd =
 getOutcomeOfException :: E.SomeException -> Maybe (CommandOutcome a)
 getOutcomeOfException exception
   | Just AbortedByUser <- E.fromException exception = Just $ Aborted Stderr
-  | Just StoppedWithoutError <- E.fromException exception = Just FailedWithoutError
   | hasUserEndedPromptInput = Just $ Aborted Stdout
   | isExit || isAsyncException = Nothing
   | otherwise = Just $ HitBug exception
@@ -126,7 +120,7 @@ getOutcomeOfException exception
 
 -- | Stops a command from anywhere in its code, without it being an error that
 -- 'runCommand' prints.
-data CommandStop = AbortedByUser | StoppedWithoutError
+data CommandStop = AbortedByUser
   deriving (Show)
 
 instance E.Exception CommandStop
@@ -134,10 +128,6 @@ instance E.Exception CommandStop
 -- | For when the user decides not to go on with the command.
 abortCommand :: (MonadIO m) => m a
 abortCommand = liftIO $ E.throwIO AbortedByUser
-
--- | For a command that fails after it has already said why.
-failCommandWithoutError :: (MonadIO m) => m a
-failCommandWithoutError = liftIO $ E.throwIO StoppedWithoutError
 
 getConsole :: Command Console
 getConsole = Command ask
@@ -148,9 +138,9 @@ data CommandError = CommandError
   { _headline :: !String,
     _errors :: ![String],
     _warnings :: ![String],
-    -- | A failed compile is printed in its own way: the errors and the
-    -- warnings come first, each under their own title, and the headline comes
-    -- last, with this text under it. 'Nothing' for all the other errors.
+    -- | A failed compile is printed in its own way: every error and every
+    -- warning is a message of its own, and the headline comes last, with this
+    -- text under it. 'Nothing' for all the other errors.
     _compileSummary :: !(Maybe String)
   }
 
@@ -184,24 +174,17 @@ reportCommandError reporter cmdError = case _compileSummary cmdError of
     reporter.send $ Msg.Failure (_headline cmdError) compileSummary
 
 reportCompileErrors :: Reporter -> [String] -> IO ()
-reportCompileErrors reporter errors =
-  unless (null errors)
-    $ reporter.send
-    $ Msg.Failure "Your wasp project failed to compile"
-    $ formatErrorOrWarningMessages errors
+reportCompileErrors reporter = mapM_ $ reporter.send . uncurry Msg.Failure . splitIntoHeadlineAndDetails
 
 reportCompileWarnings :: Reporter -> [String] -> IO ()
-reportCompileWarnings reporter warnings =
-  unless (null warnings)
-    $ reporter.send
-    $ Msg.Warning compilationWarningsTitle
-    $ formatErrorOrWarningMessages warnings
+reportCompileWarnings reporter = mapM_ $ reporter.send . uncurry Msg.Warning . splitIntoHeadlineAndDetails
 
-compilationWarningsTitle :: String
-compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
-
-formatErrorOrWarningMessages :: [String] -> String
-formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
+-- | The compiler describes an error or a warning with a single text, whose
+-- first line says what it is about.
+splitIntoHeadlineAndDetails :: String -> (String, String)
+splitIntoHeadlineAndDetails text = (headline, dropWhile (== '\n') details)
+  where
+    (headline, details) = break (== '\n') $ trim text
 
 data Requirement where
   Requirement :: (Requirable r) => r -> Requirement

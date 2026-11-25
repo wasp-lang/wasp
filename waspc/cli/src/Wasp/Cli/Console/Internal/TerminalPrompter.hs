@@ -14,13 +14,14 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import Text.Read (readMaybe)
+import Wasp.Cli.Console.Internal.OutputStyle (OutputStyle (..), renderInOutputStyle)
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Prompter (IsOption (..), Prompter (Prompter))
 import qualified Wasp.Cli.Console.Prompter as Prompter
 import qualified Wasp.Util.TextStyle as TextStyle
 
-makeTerminalPrompter :: (String -> String) -> Prompter
-makeTerminalPrompter filterText =
+makeTerminalPrompter :: OutputStyle -> Prompter
+makeTerminalPrompter outputStyle =
   Prompter
     { Prompter.askForInput = askForInput interactiveTerminal,
       Prompter.askForRequiredInput = askForRequiredInput interactiveTerminal,
@@ -30,7 +31,7 @@ makeTerminalPrompter filterText =
   where
     interactiveTerminal =
       InteractiveTerminal
-        { write = Terminal.writePrompt . filterText,
+        { write = Terminal.writePrompt . renderInOutputStyle outputStyle,
           readLine = Terminal.readLine
         }
 

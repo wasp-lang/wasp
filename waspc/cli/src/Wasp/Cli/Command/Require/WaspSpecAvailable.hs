@@ -15,7 +15,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
-import Wasp.Util.TextStyle (styleCode)
+import Wasp.Util.TextStyle (styleCode, styleLiteral)
 import qualified Wasp.Version as WV
 
 -- | Require that the @wasp/spec package is available in node_modules and that
@@ -42,22 +42,22 @@ instance Requirable WaspSpecAvailable where
         commandError
           "Outdated Wasp spec package"
           $ "Wasp's spec package is now called "
-            ++ styleCode "@wasp/spec"
+            ++ styleLiteral "@wasp/spec"
             ++ ". In your "
-            ++ styleCode "package.json"
+            ++ styleLiteral "package.json"
             ++ ", rename the "
-            ++ styleCode legacyWaspSpecPackageName
+            ++ styleLiteral legacyWaspSpecPackageName
             ++ " dependency to "
-            ++ styleCode "@wasp/spec"
+            ++ styleLiteral "@wasp/spec"
             ++ " and update your imports from "
-            ++ styleCode legacyWaspSpecPackageName
+            ++ styleLiteral legacyWaspSpecPackageName
             ++ ". Then run "
             ++ styleCode "wasp install"
             ++ "."
       missingDepsError =
         commandError
-          "Missing or stale dependencies in project"
-          $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
+          "Your project's dependencies are missing or out of date"
+          $ "Run " ++ styleCode "wasp install" ++ " to install them."
 
 legacyWaspSpecPackageName :: P.PackageName
 legacyWaspSpecPackageName = "@wasp.sh/spec"

@@ -9,11 +9,13 @@ where
 import qualified Data.Text as T
 import System.Environment (lookupEnv)
 import Wasp.Cli.Console.Capabilities (Capabilities (..), Surroundings (..), decideCapabilities)
+import Wasp.Cli.Console.Internal.OutputStyle (OutputStyle (..))
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Internal.TerminalPrompter (makeTerminalPrompter)
 import Wasp.Cli.Console.Internal.TerminalReporter (makeTerminalReporter)
 import Wasp.Cli.Console.Prompter (Prompter)
 import Wasp.Cli.Console.Reporter (Reporter (..))
+import qualified Wasp.Job as Job
 import Wasp.Util (checkIfOnCi)
 import Wasp.Util.IO.Process (WriteOutput)
 import qualified Wasp.Util.TextStyle as TextStyle
@@ -38,15 +40,13 @@ initConsole :: IO Console
 initConsole = do
   Terminal.setLineBufferingForOutput
   capabilities <- decideCapabilities <$> getSurroundings
+  let outputStyle = if capabilities.canStyleOutput then Styled else Plain
   return
     Console
-      { reporter = if capabilities.canStyleOutput then interactiveReporter else plainReporter,
-        writeRawOutput = if capabilities.canStyleOutput then writeRawOutputWithStyles else writeRawOutputWithoutStyles,
+      { reporter = makeTerminalReporter outputStyle,
+        writeRawOutput = makeWriteRawOutput outputStyle,
         writeData = Terminal.writeToStdout,
-        prompter =
-          if capabilities.canPrompt
-            then Just $ if capabilities.canStyleOutput then interactivePrompter else plainPrompter
-            else Nothing
+        prompter = if capabilities.canPrompt then Just $ makeTerminalPrompter outputStyle else Nothing
       }
 
 -- | This is the only place that looks at where Wasp runs to decide how to talk
@@ -60,31 +60,9 @@ getSurroundings = do
   noColor <- lookupEnv "NO_COLOR"
   return Surroundings {isInputTerminal, isOutputTerminal, isOnCi, terminalType, noColor}
 
--- | For a terminal that a user is looking at.
-interactiveReporter :: Reporter
-interactiveReporter = makeTerminalReporter keepStyles
-
--- | For output that ends up in a file, a pipe, or a terminal that can't show
--- styles. Everything is the same as in the interactive one, minus the styles.
-plainReporter :: Reporter
-plainReporter = makeTerminalReporter TextStyle.stripStyles
-
-writeRawOutputWithStyles :: WriteOutput
-writeRawOutputWithStyles = Terminal.writeRawOutput
-
-writeRawOutputWithoutStyles :: WriteOutput
-writeRawOutputWithoutStyles outputStream = Terminal.writeRawOutput outputStream . T.pack . TextStyle.stripStyles . T.unpack
-
-interactivePrompter :: Prompter
-interactivePrompter = makeTerminalPrompter keepStyles
-
-plainPrompter :: Prompter
-plainPrompter = makeTerminalPrompter TextStyle.stripStyles
-
-type TextFilter = String -> String
-
-keepStyles :: TextFilter
-keepStyles = id
+makeWriteRawOutput :: OutputStyle -> WriteOutput
+makeWriteRawOutput Styled = Terminal.writeRawOutput
+makeWriteRawOutput Plain = \outputStream -> Terminal.writeRawOutput outputStream . T.pack . TextStyle.stripStyles . T.unpack
 
 -- | Whether what Wasp writes ends up in a terminal.
 isOutputShownInTerminal :: IO Bool
