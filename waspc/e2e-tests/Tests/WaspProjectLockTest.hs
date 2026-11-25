@@ -1,4 +1,4 @@
-module Tests.WaspProjectLockTest (waspProjectLockTest) where
+module Tests.WaspProjectLockTest (test_waspProjectLock) where
 
 import Control.Monad (void)
 import qualified Data.Text as T
@@ -9,8 +9,8 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WatcherStatus (..))
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir)
 
-waspProjectLockTest :: E2ETest
-waspProjectLockTest =
+test_waspProjectLock :: TestTree
+test_waspProjectLock =
   testGroup
     "wasp-project-lock"
     [ -- To test the lock we need a Wasp command that holds it for as long as

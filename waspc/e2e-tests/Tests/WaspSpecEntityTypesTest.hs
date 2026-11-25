@@ -1,12 +1,12 @@
-module Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest) where
+module Tests.WaspSpecEntityTypesTest (test_waspSpecEntityTypes) where
 
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspSpecEntityTypesTest :: E2ETest
-waspSpecEntityTypesTest =
+test_waspSpecEntityTypes :: TestTree
+test_waspSpecEntityTypes =
   testGroup
     "wasp-spec-entity-types"
     [ test "accepts-valid-entity-before-and-after-compile" $

@@ -1,4 +1,4 @@
-module Tests.ServerTypeCheckingTest (serverTypeCheckingTest) where
+module Tests.ServerTypeCheckingTest (test_serverTypeChecking) where
 
 import qualified Data.Text as T
 import E2E
@@ -11,8 +11,8 @@ import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 -- | Type checks the generated server for app configurations that
 -- kitchen-sink doesn't cover.
-serverTypeCheckingTest :: E2ETest
-serverTypeCheckingTest =
+test_serverTypeChecking :: TestTree
+test_serverTypeChecking =
   testGroup
     "server-type-checking"
     [ test "type-checks-server-features-without-auth" $

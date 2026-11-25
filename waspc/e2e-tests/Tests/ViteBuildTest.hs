@@ -1,23 +1,25 @@
-module Tests.ViteBuildTest (viteBuildTest) where
+module Tests.ViteBuildTest (test_viteBuild) where
 
-import Control.Monad (filterM)
+import Control.Monad (filterM, when)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.Text as T
 import E2E
+import GHC.Stack (HasCallStack)
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirRecursive)
+import System.FilePath (makeRelative)
 import Tests.Fixtures (userCodeTypeError, userCodeTypeErrorMessage)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
 import Wasp.Project.Env (dotEnvClient)
 
-viteBuildTest :: E2ETest
-viteBuildTest =
+test_viteBuild :: TestTree
+test_viteBuild =
   testGroup
     "vite-build"
     [ viteBuildTestCase "fail-on-missing-required-env-vars" $
@@ -64,7 +66,7 @@ viteBuildTest =
           >>= assertOutputContains "\"server.port\" is set to 4000"
     ]
   where
-    viteBuildTestCase :: String -> TestM a -> E2ETest
+    viteBuildTestCase :: String -> TestM a -> TestTree
     viteBuildTestCase name steps =
       test name $
         withNewWaspProject minimalStarterTemplate $ do
@@ -82,23 +84,26 @@ viteBuildTest =
     viteBuildWithApiUrlCommand :: Command
     viteBuildWithApiUrlCommand = withApiUrl $ viteBuildCommand []
 
-    assertBuildDirContains :: String -> TestM ()
-    assertBuildDirContains value =
-      buildDirContains value >>= assertTrue ("the build dir contains " ++ show value)
+    assertBuildDirContains :: (HasCallStack) => String -> TestM ()
+    assertBuildDirContains value = do
+      filesWithValue <- getBuildDirFilesContaining value
+      when (null filesWithValue) $
+        expectationFailure ("Expected a file in the build dir to contain " ++ show value)
 
     -- Also checks that the build dir has the main page, without which
     -- nothing would contain the value.
-    assertBuildDirDoesNotContain :: String -> TestM ()
+    assertBuildDirDoesNotContain :: (HasCallStack) => String -> TestM ()
     assertBuildDirDoesNotContain value = do
       assertBuildDirContains mainPageMarker
-      buildDirContains value >>= assertTrue ("the build dir doesn't contain " ++ show value) . not
+      getBuildDirFilesContaining value >>= (`shouldBe` [])
 
-    buildDirContains :: String -> TestM Bool
-    buildDirContains value = do
+    -- Relative to the build dir.
+    getBuildDirFilesContaining :: String -> TestM [FilePath]
+    getBuildDirFilesContaining value = do
       buildDir <- resolvePath $ SP.fromRelDir viteBuildDirPath
       liftIO $ do
         files <- getDirRecursive buildDir >>= filterM doesFileExist
-        any (BSC.pack value `BS.isInfixOf`) <$> mapM BS.readFile files
+        map (makeRelative buildDir) <$> filterM (fmap (BSC.pack value `BS.isInfixOf`) . BS.readFile) files
 
     writeDotEnvClientFile :: TestM ()
     writeDotEnvClientFile = writeToFile (SP.fromRelFile dotEnvClient) $ T.pack $ testEnvVarKey ++ "=" ++ dotEnvFileValue

@@ -1,4 +1,4 @@
-module Tests.WaspShowTest (waspShowTest) where
+module Tests.WaspShowTest (test_waspShow) where
 
 import Control.Monad (forM_)
 import qualified Data.Aeson as Aeson
@@ -8,8 +8,8 @@ import Tests.Fixtures (setRootRoutePath)
 import UnliftIO.Async (mapConcurrently)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspShowTest :: E2ETest
-waspShowTest =
+test_waspShow :: TestTree
+test_waspShow =
   testGroup
     "wasp-show"
     [ test "fail-without-subcommand" $ waspFails ["show"],

@@ -1,10 +1,10 @@
-module Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest) where
+module Tests.WaspTsSpecNodeEnvTest (test_waspTsSpecNodeEnv) where
 
 import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspTsSpecNodeEnvTest :: E2ETest
-waspTsSpecNodeEnvTest =
+test_waspTsSpecNodeEnv :: TestTree
+test_waspTsSpecNodeEnv =
   testGroup
     "wasp-ts-spec-node-env"
     [ test "node-env-is-development-on-compile" $

@@ -1,4 +1,4 @@
-module Tests.WaspCompileTest (waspCompileTest) where
+module Tests.WaspCompileTest (test_waspCompile) where
 
 import E2E
 import qualified StrongPath as SP
@@ -6,8 +6,8 @@ import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, tasksQueryTypeErr
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
-waspCompileTest :: E2ETest
-waspCompileTest =
+test_waspCompile :: TestTree
+test_waspCompile =
   testGroup
     "wasp-compile"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["compile"],

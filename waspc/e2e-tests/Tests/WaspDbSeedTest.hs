@@ -1,5 +1,6 @@
-module Tests.WaspDbSeedTest (waspDbSeedTest) where
+module Tests.WaspDbSeedTest (test_waspDbSeed) where
 
+import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import E2E
@@ -23,8 +24,8 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
-waspDbSeedTest :: E2ETest
-waspDbSeedTest =
+test_waspDbSeed :: TestTree
+test_waspDbSeed =
   testGroup
     "wasp-db-seed"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "seed"],
@@ -71,8 +72,9 @@ waspDbSeedTest =
       rootDotenvAbsDir <- resolvePath rootDotenvDir
       -- Before deleting the server's copy, so that the test fails on why it
       -- can't continue.
-      liftIO (doesDirectoryExist rootDotenvAbsDir)
-        >>= assertTrue ("npm hoisted dotenv to " ++ rootDotenvDir ++ ", which the test moves into the server's node_modules")
+      isDotenvHoisted <- liftIO $ doesDirectoryExist rootDotenvAbsDir
+      unless isDotenvHoisted $
+        expectationFailure ("npm didn't hoist dotenv to " ++ rootDotenvDir ++ ", which the test moves into the server's node_modules")
       deleteDirectory serverDotenvDir
       serverDotenvAbsDir <- resolvePath serverDotenvDir
       liftIO $ do

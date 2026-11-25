@@ -1,4 +1,4 @@
-module Tests.WaspStartTest (waspStartTest) where
+module Tests.WaspStartTest (test_waspStart) where
 
 import Control.Monad (unless)
 import E2E
@@ -6,8 +6,8 @@ import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
-waspStartTest :: E2ETest
-waspStartTest =
+test_waspStart :: TestTree
+test_waspStart =
   testGroup
     "wasp-start"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["start"],

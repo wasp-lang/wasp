@@ -1,4 +1,4 @@
-module Tests.WaspBuildTest (waspBuildTest) where
+module Tests.WaspBuildTest (test_waspBuild) where
 
 import E2E
 import qualified StrongPath as SP
@@ -6,8 +6,8 @@ import Tests.Fixtures (userCodeTypeError, userCodeTypeErrorMessage)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
-waspBuildTest :: E2ETest
-waspBuildTest =
+test_waspBuild :: TestTree
+test_waspBuild =
   testGroup
     "wasp-build"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["build"],

@@ -1,4 +1,4 @@
-module Tests.WaspNewTest (waspNewTest) where
+module Tests.WaspNewTest (test_waspNew) where
 
 import qualified Data.Text as T
 import E2E
@@ -11,8 +11,8 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Dev.Sqlite (devDbFileInDbRootDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
-waspNewTest :: E2ETest
-waspNewTest =
+test_waspNew :: TestTree
+test_waspNew =
   testGroup
     "wasp-new"
     [ test "create-minimal" $

@@ -25,7 +25,7 @@ import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.RunConfig (RunConfig (..))
-import E2E.Test (E2ETest (..), TestPaths (..), runTestSteps)
+import E2E.Test (TestPaths (..), TestTree, claimOutputDir, runTestSteps, withRunConfig)
 import E2E.TestM (TestM)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist, removePathForcibly)
@@ -47,19 +47,17 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInst
 --
 -- The whole snapshot is a single test, since we only know which files it has
 -- after its steps run.
-snapshotTest :: String -> TestM a -> E2ETest
+snapshotTest :: String -> TestM a -> TestTree
 snapshotTest name steps =
-  E2ETest
-    { outputDirs = const [[snapshotsDirInTestOutputsDir, snapshotDirName name Current]],
-      makeTestTree = \runConfig _ ->
-        let goldenSnapshotDir = getSnapshotsDir runConfig </> snapshotDirName name Golden
-         in goldenTest
-              name
-              (readGoldenSnapshot goldenSnapshotDir)
-              (runStepsAndReadCurrentSnapshot runConfig name steps)
-              compareSnapshots
-              (`writeGoldenSnapshot` goldenSnapshotDir)
-    }
+  withRunConfig $ \runConfig ->
+    let goldenSnapshotDir = getSnapshotsDir runConfig </> snapshotDirName name Golden
+     in claimOutputDir [snapshotsDirInTestOutputsDir, snapshotDirName name Current] $
+          goldenTest
+            name
+            (readGoldenSnapshot goldenSnapshotDir)
+            (runStepsAndReadCurrentSnapshot runConfig name steps)
+            compareSnapshots
+            (`writeGoldenSnapshot` goldenSnapshotDir)
 
 -- | Contains the current and golden snapshot dirs, and the logs of the
 -- snapshot tests.

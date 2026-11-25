@@ -1,11 +1,11 @@
-module Tests.WaspDbStudioTest (waspDbStudioTest) where
+module Tests.WaspDbStudioTest (test_waspDbStudio) where
 
 import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | NOTE: We don't test what Prisma Studio shows, since that's Prisma's feature.
-waspDbStudioTest :: E2ETest
-waspDbStudioTest =
+test_waspDbStudio :: TestTree
+test_waspDbStudio =
   testGroup
     "wasp-db-studio"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "studio"],

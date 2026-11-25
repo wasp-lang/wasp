@@ -1,4 +1,4 @@
-module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
+module Tests.SnapshotTests.WaspBuildSnapshotTest (test_waspBuildSnapshot) where
 
 import Control.Monad (void)
 import E2E
@@ -7,8 +7,8 @@ import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
-waspBuildSnapshotTest :: E2ETest
-waspBuildSnapshotTest =
+test_waspBuildSnapshot :: TestTree
+test_waspBuildSnapshot =
   snapshotTest "wasp-build" $
     withNewWaspProject minimalStarterTemplate $ do
       setDbToPostgres

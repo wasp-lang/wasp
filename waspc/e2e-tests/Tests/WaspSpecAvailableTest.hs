@@ -1,4 +1,4 @@
-module Tests.WaspSpecAvailableTest (waspSpecAvailableTest) where
+module Tests.WaspSpecAvailableTest (test_waspSpecAvailable) where
 
 import Control.Monad (forM_, void)
 import qualified Data.Text as T
@@ -8,8 +8,8 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInstallationPathInProject)
 import Wasp.Util.Terminal (styleCode)
 
-waspSpecAvailableTest :: E2ETest
-waspSpecAvailableTest =
+test_waspSpecAvailable :: TestTree
+test_waspSpecAvailable =
   testGroup
     "wasp-spec-available"
     [ test "commands-requiring-wasp-spec-fail-with-install-hint-when-missing" $

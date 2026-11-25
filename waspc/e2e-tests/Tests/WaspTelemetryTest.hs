@@ -1,9 +1,9 @@
-module Tests.WaspTelemetryTest (waspTelemetryTest) where
+module Tests.WaspTelemetryTest (test_waspTelemetry) where
 
 import E2E
 
-waspTelemetryTest :: E2ETest
-waspTelemetryTest =
+test_waspTelemetry :: TestTree
+test_waspTelemetry =
   testGroup
     "wasp-telemetry"
     [ test "enabled-by-default" $

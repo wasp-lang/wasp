@@ -1,11 +1,11 @@
-module Tests.WaspDockerfileTest (waspDockerfileTest) where
+module Tests.WaspDockerfileTest (test_waspDockerfile) where
 
 import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- TODO: Test `wasp dockerfile` content.
-waspDockerfileTest :: E2ETest
-waspDockerfileTest =
+test_waspDockerfile :: TestTree
+test_waspDockerfile =
   testGroup
     "wasp-dockerfile"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["dockerfile"],

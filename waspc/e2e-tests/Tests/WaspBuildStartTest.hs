@@ -1,4 +1,4 @@
-module Tests.WaspBuildStartTest (waspBuildStartTest) where
+module Tests.WaspBuildStartTest (test_waspBuildStart) where
 
 import Data.Char (toLower)
 import qualified Data.Text as T
@@ -7,8 +7,8 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.Project.Common (makeAppUniqueId)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 
-waspBuildStartTest :: E2ETest
-waspBuildStartTest =
+test_waspBuildStart :: TestTree
+test_waspBuildStart =
   testGroup
     "wasp-build-start"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["build", "start"],

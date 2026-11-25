@@ -1,12 +1,12 @@
-module Tests.WaspCleanTest (waspCleanTest) where
+module Tests.WaspCleanTest (test_waspClean) where
 
 import E2E
 import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir)
 
-waspCleanTest :: E2ETest
-waspCleanTest =
+test_waspClean :: TestTree
+test_waspClean =
   testGroup
     "wasp-clean"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["clean"],

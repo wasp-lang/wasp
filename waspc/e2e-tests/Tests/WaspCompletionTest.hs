@@ -1,10 +1,11 @@
-module Tests.WaspCompletionTest (waspCompletionTest) where
+module Tests.WaspCompletionTest (test_waspCompletion) where
 
 import qualified Data.Text as T
 import E2E
+import GHC.Stack (HasCallStack)
 
-waspCompletionTest :: E2ETest
-waspCompletionTest =
+test_waspCompletion :: TestTree
+test_waspCompletion =
   testGroup
     "wasp-completion"
     [ -- Ideally we would test this without calling `wasp cli completion:list`
@@ -19,7 +20,8 @@ waspCompletionTest =
         assertCompletion "wasp-cli unknown" ""
     ]
   where
-    assertCompletion :: String -> String -> TestM ()
+    -- Fails where it's called, so the failure says which query it's for.
+    assertCompletion :: (HasCallStack) => String -> String -> TestM ()
     assertCompletion query expectedCompletion = do
       result <- run $ withEnv [("COMP_LINE", query)] $ waspCli ["completion:list"]
-      assertEqual ("completion of " ++ show query) expectedCompletion (T.unpack . T.dropWhileEnd (== '\n') $ result.stdout)
+      T.unpack (T.dropWhileEnd (== '\n') result.stdout) `shouldBe` expectedCompletion

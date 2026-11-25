@@ -1,11 +1,11 @@
-module Tests.ViteConfigTest (viteConfigTest) where
+module Tests.ViteConfigTest (test_viteConfig) where
 
 import E2E
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-viteConfigTest :: E2ETest
-viteConfigTest =
+test_viteConfig :: TestTree
+test_viteConfig =
   testGroup
     "vite-config-validation"
     [ test "fail-on-missing-vite-config" $

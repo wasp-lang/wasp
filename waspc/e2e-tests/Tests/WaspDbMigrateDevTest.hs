@@ -1,14 +1,15 @@
-module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
+module Tests.WaspDbMigrateDevTest (test_waspDbMigrateDev) where
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, unless)
 import Data.List (isInfixOf)
 import E2E
+import GHC.Stack (HasCallStack)
 import Tests.Fixtures (taskPrismaModel)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
-waspDbMigrateDevTest :: E2ETest
-waspDbMigrateDevTest =
+test_waspDbMigrateDev :: TestTree
+test_waspDbMigrateDev =
   testGroup
     "wasp-db-migrate-dev"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "migrate-dev"],
@@ -39,16 +40,15 @@ waspDbMigrateDevTest =
     hangTimeoutSeconds :: Int
     hangTimeoutSeconds = 5 * 60
 
-    assertMigrationExists, assertNoMigrationExists :: String -> TestM ()
+    assertMigrationExists, assertNoMigrationExists :: (HasCallStack) => String -> TestM ()
     assertMigrationExists = assertMigrationPresence True
     assertNoMigrationExists = assertMigrationPresence False
 
     -- In the project and in the generated app.
-    assertMigrationPresence :: Bool -> String -> TestM ()
+    assertMigrationPresence :: (HasCallStack) => Bool -> String -> TestM ()
     assertMigrationPresence shouldExist migrationName =
       forM_ dbMigrationsDirs $ \migrationsDir -> do
         migrations <- listDbMigrations migrationsDir
         let quantifier = if shouldExist then "a" else "no"
-        assertTrue
-          ("there's " ++ quantifier ++ " migration named " ++ show migrationName ++ " in " ++ migrationsDir ++ ", which has: " ++ show migrations)
-          (any (migrationName `isInfixOf`) migrations == shouldExist)
+        unless (any (migrationName `isInfixOf`) migrations == shouldExist) $
+          expectationFailure ("Expected " ++ quantifier ++ " migration named " ++ show migrationName ++ " in " ++ migrationsDir ++ ", which has: " ++ show migrations)

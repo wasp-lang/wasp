@@ -2,46 +2,15 @@ import Control.Monad (unless, when)
 import E2E.Heartbeat (heartbeatReporter)
 import E2E.RunConfig (RunConfig (..), getRunConfig, skipDockerEnvVar)
 import E2E.Signals (stopOnFirstCtrlC)
-import E2E.Test (E2ETest, checkOutputDirs, toTestTree)
+import E2E.Test (checkOutputDirs, setRunConfig)
+import qualified SnapshotTestsDiscoverDriver
 import System.Exit (ExitCode (..))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
-import Test.Tasty (TestTree, defaultMainWithIngredients, localOption, testGroup)
+import Test.Tasty (defaultMainWithIngredients, localOption, testGroup)
 import Test.Tasty.Ingredients (composeReporters)
-import Test.Tasty.Runners (NumThreads (..), consoleTestReporter, listingTests)
-import Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest)
-import Tests.ServerTypeCheckingTest (serverTypeCheckingTest)
-import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
-import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
-import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
-import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
-import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
-import Tests.ViteBuildTest (viteBuildTest)
-import Tests.ViteConfigTest (viteConfigTest)
-import Tests.VitestTest (vitestTest)
-import Tests.WaspBuildStartTest (waspBuildStartTest)
-import Tests.WaspBuildTest (waspBuildTest)
-import Tests.WaspCleanTest (waspCleanTest)
-import Tests.WaspCompileTest (waspCompileTest)
-import Tests.WaspCompletionTest (waspCompletionTest)
-import Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest)
-import Tests.WaspDbResetTest (waspDbResetTest)
-import Tests.WaspDbSeedTest (waspDbSeedTest)
-import Tests.WaspDbStartTest (waspDbStartTest)
-import Tests.WaspDbStudioTest (waspDbStudioTest)
-import Tests.WaspDepsTest (waspDepsTest)
-import Tests.WaspDockerfileTest (waspDockerfileTest)
-import Tests.WaspInstallTest (waspInstallTest)
-import Tests.WaspNewTest (waspNewTest)
-import Tests.WaspProjectLockTest (waspProjectLockTest)
-import Tests.WaspShowTest (waspShowTest)
-import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
-import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
-import Tests.WaspStartTest (waspStartTest)
-import Tests.WaspStudioTest (waspStudioTest)
-import Tests.WaspTelemetryTest (waspTelemetryTest)
-import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
-import Tests.WaspVersionTest (waspVersionTest)
+import Test.Tasty.Runners (NumThreads (..), TestTree (TestGroup), consoleTestReporter, listingTests)
+import qualified TestsDiscoverDriver
 
 main :: IO ()
 main = do
@@ -54,12 +23,18 @@ main = do
       unless runConfig.isDockerEnabled
         $ putStrLn
         $ "Docker is disabled via " ++ skipDockerEnvVar ++ ", so the tests that need it pass without running, and snapshot tests skip their Docker steps."
-      checkOutputDirs (e2eSnapshotTests ++ e2eTests)
+      snapshotTests <- SnapshotTestsDiscoverDriver.tests
+      tests <- TestsDiscoverDriver.tests
+      let testTree =
+            setRunConfig runConfig . maybe id (localOption . NumThreads) runConfig.maxJobs $
+              testGroup
+                "E2E tests"
+                -- Tasty starts the tests in order, so the slowest ones go first.
+                [renameGroup "Snapshot Tests" snapshotTests, renameGroup "Tests" tests]
+      checkOutputDirs testTree
       -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
       warmUpWaspCli runConfig.waspCliPath
-      defaultMainWithIngredients
-        [listingTests, composeReporters heartbeatReporter consoleTestReporter]
-        (maybe id (localOption . NumThreads) runConfig.maxJobs $ makeTestTree runConfig)
+      defaultMainWithIngredients [listingTests, composeReporters heartbeatReporter consoleTestReporter] testTree
 
 -- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
 -- concurrently.
@@ -75,55 +50,9 @@ warmUpWaspCli waspCliPath = do
   (exitCode, out, err) <- readProcessWithExitCode waspCliPath ["version"] ""
   when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliPath ++ " version` failed:\n" ++ out ++ err
 
--- TODO: Investigate automatically discovering the tests.
-makeTestTree :: RunConfig -> TestTree
-makeTestTree runConfig =
-  testGroup
-    "E2E tests"
-    [ testGroup "Snapshot Tests" (map (toTestTree runConfig) e2eSnapshotTests),
-      testGroup "Tests" (map (toTestTree runConfig) e2eTests)
-    ]
-
--- | The tests written with the 'E2E' module.
-e2eTests, e2eSnapshotTests :: [E2ETest]
-e2eTests =
-  [ -- general Wasp commands
-    waspNewTest,
-    waspTelemetryTest,
-    waspCompletionTest,
-    waspVersionTest,
-    -- Wasp project commands
-    waspCompileTest,
-    waspStartTest,
-    waspBuildTest,
-    waspBuildStartTest,
-    waspTsSpecNodeEnvTest,
-    viteBuildTest,
-    viteConfigTest,
-    vitestTest,
-    waspCleanTest,
-    waspProjectLockTest,
-    waspSpecAvailableTest,
-    waspShowTest,
-    waspInstallTest,
-    waspDepsTest,
-    waspDockerfileTest,
-    waspStudioTest,
-    -- Wasp project db commands
-    waspDbStartTest,
-    waspDbStudioTest,
-    waspDbSeedTest,
-    waspDbResetTest,
-    waspDbMigrateDevTest,
-    waspSpecEntityTypesTest,
-    incrementalTypeCheckingTest,
-    serverTypeCheckingTest
-  ]
-e2eSnapshotTests =
-  [ -- Tasty starts the tests in order, so the slowest ones go first.
-    kitchenSinkSnapshotTest,
-    waspBuildSnapshotTest,
-    waspMigrateSnapshotTest,
-    waspCompileSnapshotTest,
-    waspNewSnapshotTest
-  ]
+-- | tasty-discover names the group of the tests it collects after the driver
+-- file, e.g. @e2e-tests/TestsDiscoverDriver.hs@.
+renameGroup :: String -> TestTree -> TestTree
+renameGroup name = \case
+  TestGroup _ tests -> testGroup name tests
+  testTree -> testGroup name [testTree]

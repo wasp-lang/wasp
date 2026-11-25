@@ -1,4 +1,4 @@
-module Tests.WaspDbStartTest (waspDbStartTest) where
+module Tests.WaspDbStartTest (test_waspDbStart) where
 
 import Control.Monad (unless, void, when)
 import Data.Char (isSpace)
@@ -9,8 +9,8 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.Db.Postgres (defaultPostgresPort)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 
-waspDbStartTest :: E2ETest
-waspDbStartTest =
+test_waspDbStart :: TestTree
+test_waspDbStart =
   testGroup
     "wasp-db-start"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "start"],
@@ -39,7 +39,7 @@ waspDbStartTest =
                 -- cleanup can't tell a wrong name from a container or volume
                 -- that's already gone.
                 getReportedVolumeName devDb
-                  >>= assertEqual "volume reported by `wasp db start`" devDbDockerNames.volumeName
+                  >>= (`shouldBe` devDbDockerNames.volumeName)
                 return devDb
               step "a Wasp command finds the database and connects to it once `wasp db start` says it's ready" $
                 waspDbMigrateDev "first_migration"
@@ -61,7 +61,7 @@ waspDbStartTest =
                   return devDbOnOtherPort
               step "the new database uses the same volume, so the data is still there" $
                 getReportedVolumeName devDbOnOtherPort
-                  >>= assertEqual "volume reported by the second `wasp db start`" devDbDockerNames.volumeName
+                  >>= (`shouldBe` devDbDockerNames.volumeName)
               step "a Wasp command finds the database and connects to it on a non-default port" $
                 waspDbMigrateDev "no_new_migration"
               step "SIGTERM (e.g. from a process manager) also stops the database and deletes the container" $

@@ -74,8 +74,8 @@ e2e-tests/
 Tests are written in plain Haskell with the `E2E` module, which runs commands as processes (no shell) and checks their results:
 
 ```haskell
-waspStartTest :: E2ETest
-waspStartTest =
+test_waspStart :: TestTree
+test_waspStart =
   testGroup
     "wasp-start"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["start"],
@@ -89,9 +89,11 @@ waspStartTest =
           waitUntilStopped app (appPortList ports)
     ]
 
-waspNewSnapshotTest :: E2ETest
-waspNewSnapshotTest = snapshotTest "wasp-new" $ createWaspProject minimalStarterTemplate
+test_waspNewSnapshot :: TestTree
+test_waspNewSnapshot = snapshotTest "wasp-new" $ createWaspProject minimalStarterTemplate
 ```
+
+- Tests are found with [tasty-discover](https://github.com/haskell-works/tasty-discover): every `test_<name> :: TestTree` in a `Tests/*Test.hs` module is a test, and in a `Tests/SnapshotTests/*Test.hs` one a snapshot test, so there's no list to add a new one to. The cabal file still lists the module.
 
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
 - When a step fails, the test's failure message says which command failed and shows the last lines of its output.
@@ -113,7 +115,7 @@ A helper that isn't specific to one test goes in `E2E/`, in the module for what 
 - `E2E/Ports.hs`, `E2E/Net.hs`: allocating ports, and waiting for a process to listen on them or to stop listening (`waitUntilStopped`).
 - `E2E/Docker.hs`: Docker commands, and tests and steps that need Docker.
 - `E2E/Wasp.hs`: wrappers around Wasp CLI commands and the tools a Wasp project runs (e.g. `viteBuildCommand`), and facts about Wasp projects (e.g. their migrations dirs).
-- `E2E/Assertions.hs`, `E2E/Files.hs`: generic checks and file system steps.
+- `E2E/Assertions.hs`, `E2E/Files.hs`: generic checks and file system steps. `shouldBe` and `expectationFailure` are hspec's expectations, the ones the unit tests use. Any other hspec expectation or HUnit assertion works in a step too (with `liftIO`): its failure says where it failed.
 
 A helper that only makes sense for one test's scenario stays in that test's module, even if it's built from generic steps. A generic helper goes in `E2E/` even if only one test uses it so far. Steps that write app content (models, TS files) shared by several tests go in `Tests/Fixtures.hs`.
 

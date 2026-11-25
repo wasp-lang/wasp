@@ -1,4 +1,4 @@
-module Tests.VitestTest (vitestTest) where
+module Tests.VitestTest (test_vitest) where
 
 import qualified Data.Text as T
 import E2E
@@ -8,8 +8,8 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 
 -- | Sets up Vitest in a Wasp app the way the testing docs describe, and runs
 -- client tests that use the `wasp/client/test` helpers.
-vitestTest :: E2ETest
-vitestTest =
+test_vitest :: TestTree
+test_vitest =
   testGroup
     "vitest"
     [ test "runs-client-tests" $

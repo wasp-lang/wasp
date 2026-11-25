@@ -1,10 +1,10 @@
-module Tests.WaspInstallTest (waspInstallTest) where
+module Tests.WaspInstallTest (test_waspInstall) where
 
 import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspInstallTest :: E2ETest
-waspInstallTest =
+test_waspInstall :: TestTree
+test_waspInstall =
   testGroup
     "wasp-install"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["install"],

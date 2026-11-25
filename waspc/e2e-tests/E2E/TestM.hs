@@ -9,6 +9,7 @@ module E2E.TestM
     TestFailure (..),
     runTestM,
     failTest,
+    failureMessage,
     step,
     inDirectory,
     getWorkingDir,
@@ -37,11 +38,13 @@ import Data.Time.Clock (addUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.Unique (hashUnique, newUnique)
 import E2E.RunConfig (RunConfig)
+import GHC.Stack (prettySrcLoc)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
 import System.IO (Handle, hFlush, stderr)
+import Test.HUnit.Lang (HUnitFailure (..), formatFailureReason)
 import UnliftIO (MonadUnliftIO, throwIO)
-import UnliftIO.Exception (Exception, SomeException, catchAny, displayException)
+import UnliftIO.Exception (Exception, SomeException, catchAny, displayException, fromException)
 
 data TestEnv = TestEnv
   { runConfig :: RunConfig,
@@ -85,6 +88,18 @@ runTestM testEnv (TestM reader) = runReaderT reader testEnv
 failTest :: String -> TestM a
 failTest = throwIO . TestFailure
 
+-- | What a test that a step threw the exception in fails with.
+--
+-- hspec expectations and HUnit assertions (see "E2E.Assertions") throw
+-- 'HUnitFailure', which only shows as a readable message when formatted. We
+-- show where it failed, as GHC shows call stacks, then why.
+failureMessage :: SomeException -> String
+failureMessage err
+  | Just (TestFailure message) <- fromException err = message
+  | Just (HUnitFailure location reason) <- fromException err =
+      maybe "" ((++ "\n") . prettySrcLoc) location ++ formatFailureReason reason
+  | otherwise = displayException err
+
 -- | Labels a phase of a long test: the label is logged as a header, and
 -- prefixed to the message when a step in the phase fails, so that the failure
 -- says which phase broke.
@@ -94,7 +109,7 @@ step label steps = do
   -- Any exception, not only a 'TestFailure', so that e.g. an IO error in the
   -- step says which step it's in too. 'catchAny' lets asynchronous exceptions
   -- (e.g. a timeout or Ctrl+C) through untouched.
-  steps `catchAny` \err -> failTest $ "In step " ++ show label ++ ": " ++ displayException err
+  steps `catchAny` \err -> failTest $ "In step " ++ show label ++ ": " ++ failureMessage err
 
 -- | Runs the steps with the working directory set to a path relative to the
 -- current one.
@@ -146,9 +161,9 @@ registerCleanupStep cleanupSteps = do
 -- @--hide-successes@.
 reportCleanupFailure :: TestEnv -> SomeException -> IO ()
 reportCleanupFailure testEnv err = do
-  writeToLog testEnv.testLog (encode $ "Cleanup failed: " ++ displayException err ++ "\n")
+  writeToLog testEnv.testLog (encode $ "Cleanup failed: " ++ failureMessage err ++ "\n")
   -- In one write, so that lines from tests running in parallel don't mix.
-  BS.hPut stderr . encode $ "Cleanup failed in " ++ testEnv.testName ++ " (log: " ++ testEnv.testLog.logFile ++ "): " ++ displayException err ++ "\n"
+  BS.hPut stderr . encode $ "Cleanup failed in " ++ testEnv.testName ++ " (log: " ++ testEnv.testLog.logFile ++ "): " ++ failureMessage err ++ "\n"
   where
     encode = TE.encodeUtf8 . T.pack
 

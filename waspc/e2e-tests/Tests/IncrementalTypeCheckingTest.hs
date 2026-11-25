@@ -1,11 +1,11 @@
-module Tests.IncrementalTypeCheckingTest (incrementalTypeCheckingTest) where
+module Tests.IncrementalTypeCheckingTest (test_incrementalTypeChecking) where
 
 import E2E
 import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, tasksQueryTypeError, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-incrementalTypeCheckingTest :: E2ETest
-incrementalTypeCheckingTest =
+test_incrementalTypeChecking :: TestTree
+test_incrementalTypeChecking =
   testGroup
     "incremental-type-checking"
     [ -- Regression test for https://github.com/wasp-lang/wasp/pull/4885

@@ -14,25 +14,20 @@ import Control.Monad.Reader (asks)
 import E2E.Command (Command (..), cleanupCommandTimeoutSeconds, command)
 import E2E.Process (ProcessResult, run, runAllowingFailure)
 import E2E.RunConfig (RunConfig (..), skipDockerEnvVar)
-import E2E.Test (E2ETest (..), TestSteps (..), test)
+import E2E.Test (TestTree, skippedTest, test, withRunConfig)
 import E2E.TestM (TestEnv (..), TestM, logLine)
-import Test.Tasty.Providers (singleTest, testPassed)
 
 -- | A test that needs Docker. When Docker is disabled, it passes without
 -- running any of its steps.
 --
 -- Not for snapshot tests, which must produce a snapshot: use
 -- 'whenDockerEnabled' in their steps.
-dockerTest :: String -> TestM a -> E2ETest
+dockerTest :: String -> TestM a -> TestTree
 dockerTest name steps =
-  e2eTest
-    { makeTestTree = \runConfig groupNames ->
-        if runConfig.isDockerEnabled
-          then e2eTest.makeTestTree runConfig groupNames
-          else singleTest name . TestSteps . return $ testPassed dockerDisabledMessage
-    }
-  where
-    e2eTest = test name steps
+  withRunConfig $ \runConfig ->
+    if runConfig.isDockerEnabled
+      then test name steps
+      else skippedTest name dockerDisabledMessage
 
 -- | For steps that only some part of a test needs Docker for.
 whenDockerEnabled :: TestM () -> TestM ()

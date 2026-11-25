@@ -1,7 +1,12 @@
 -- | Steps that fail the test when a check doesn't hold.
+--
+-- The general ones are hspec's expectations, the ones the unit tests use. Any
+-- other hspec expectation or HUnit assertion works in a step too, with
+-- 'liftIO'. Their failures say where they failed (see
+-- 'E2E.TestM.failureMessage').
 module E2E.Assertions
-  ( assertTrue,
-    assertEqual,
+  ( shouldBe,
+    expectationFailure,
     assertOutputContains,
     assertStdoutContains,
     assertDirectoryExists,
@@ -20,17 +25,21 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Process (ProcessResult (..), failWithResult)
 import E2E.TestM (TestM, failTest, resolvePath)
+import GHC.Stack (HasCallStack)
 import System.Directory (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
+import qualified Test.Hspec.Expectations as Hspec
 import UnliftIO.Exception (catchAny)
 
-assertTrue :: String -> Bool -> TestM ()
-assertTrue description condition = unless condition $ failTest $ "Assertion failed: " ++ description
+infix 1 `shouldBe`
 
-assertEqual :: (Eq a, Show a) => String -> a -> a -> TestM ()
-assertEqual description expected actual =
-  unless (expected == actual)
-    $ failTest
-    $ unlines ["Assertion failed: " ++ description, "  expected: " ++ show expected, "  actual:   " ++ show actual]
+-- | hspec's 'Hspec.shouldBe', in 'TestM'.
+shouldBe :: (HasCallStack, Show a, Eq a) => a -> a -> TestM ()
+actual `shouldBe` expected = liftIO $ actual `Hspec.shouldBe` expected
+
+-- | hspec's 'Hspec.expectationFailure', in 'TestM'. For checks that need to
+-- say more than a comparison would.
+expectationFailure :: (HasCallStack) => String -> TestM ()
+expectationFailure = liftIO . Hspec.expectationFailure
 
 -- | Checks both stdout and stderr.
 assertOutputContains :: T.Text -> ProcessResult -> TestM ()

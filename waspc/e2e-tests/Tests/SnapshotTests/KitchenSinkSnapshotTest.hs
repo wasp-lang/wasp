@@ -1,4 +1,4 @@
-module Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
+module Tests.SnapshotTests.KitchenSinkSnapshotTest (test_kitchenSinkSnapshot) where
 
 import Control.Monad (filterM, unless)
 import Control.Monad.IO.Class (liftIO)
@@ -17,8 +17,8 @@ import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 
-kitchenSinkSnapshotTest :: E2ETest
-kitchenSinkSnapshotTest =
+test_kitchenSinkSnapshot :: TestTree
+test_kitchenSinkSnapshot =
   snapshotTest "kitchen-sink" $ do
     copyGitTrackedDir "examples/kitchen-sink" waspAppDirName
     inDirectory waspAppDirName $ do

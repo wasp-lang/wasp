@@ -1,4 +1,4 @@
-module Tests.WaspDbResetTest (waspDbResetTest) where
+module Tests.WaspDbResetTest (test_waspDbReset) where
 
 import E2E
 import Tests.Fixtures (allTaskSeeds, assertTasksEmptySeed, assertTasksNotEmptySeed, populateTasksSeed, runSeed, setUpProjectWithTaskSeeds)
@@ -6,8 +6,8 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 
 -- | We include seeds in the test, because Wasp skips the seeding during the
 -- reset (unlike Prisma), and seeds are how we check the database's state.
-waspDbResetTest :: E2ETest
-waspDbResetTest =
+test_waspDbReset :: TestTree
+test_waspDbReset =
   testGroup
     "wasp-db-reset"
     [ test "fail-outside-project" $ waspFailsOutsideProject ["db", "reset"],

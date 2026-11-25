@@ -1,11 +1,11 @@
-module Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) where
+module Tests.SnapshotTests.WaspMigrateSnapshotTest (test_waspMigrateSnapshot) where
 
 import E2E
 import Tests.Fixtures (taskPrismaModel)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
-waspMigrateSnapshotTest :: E2ETest
-waspMigrateSnapshotTest =
+test_waspMigrateSnapshot :: TestTree
+test_waspMigrateSnapshot =
   snapshotTest "wasp-migrate" $
     withNewWaspProject minimalStarterTemplate $ do
       wasp ["compile"]
