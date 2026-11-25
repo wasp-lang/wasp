@@ -15,7 +15,7 @@ The main package uses npm's `optionalDependencies` to install the correct platfo
 
 ### Main Package
 
-- Contains a CLI wrapper (`bin.js`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
+- Contains a CLI wrapper (`packages/cli/src/bin.ts`) that detects the current platform, and through a `data.json` file (injected at package generation time), finds and imports it.
 - Executes the native binary with proper environment variables for the data directory
 - Declares all sub-packages as optional dependencies (so all the other non-matching platforms doesn't cause installation failure)
 
@@ -26,6 +26,14 @@ The main package uses npm's `optionalDependencies` to install the correct platfo
 - Uses npm's `os`, `cpu`, and `libc` fields to ensure correct installation
 
 ## Usage
+
+Build the CLI wrapper first, since the tool copies its `dist/` into the main package:
+
+```bash
+pnpm --filter @wasp/cli run build
+```
+
+Then run the tool:
 
 ```bash
 node src/index.ts \
@@ -52,11 +60,11 @@ The input directory must contain a `data.json` file with the following structure
   "tarballs": [
     {
       "fileName": "path/to/waspc-darwin-arm64-cli.tar.gz",
-      "target": ["darwin", "arm64"]
+      "target": { "os": "darwin", "cpu": "arm64" }
     },
     {
       "fileName": "path/to/waspc-linux-x64-musl-cli.tar.gz",
-      "target": ["linux", "x64", "musl"]
+      "target": { "os": "linux", "cpu": "x64", "libc": "musl" }
     }
   ]
 }
@@ -77,8 +85,7 @@ The tool creates:
    - Extracted tarball contents
 2. One directory for the main package, containing:
    - `package.json` (from `packages/cli/package.json`) with all sub-packages as optional dependencies
-   - `bin.js` CLI wrapper
-   - `CLIError.js` error handling utility
+   - `dist/`, the built CLI wrapper
    - `data.json` with sub-package metadata
 
 You can then run `npm publish` in each package directory to publish them to npm.
@@ -87,4 +94,4 @@ You can then run `npm publish` in each package directory to publish them to npm.
 
 The generator script is written in TypeScript. It is run through the native Node.js TypeScript support in v22.18+, so no compilation step is needed.
 
-The sub-package template is in the `templates/` directory and the main package source is `packages/cli/`. You can modify them as needed to change the behavior of the generated packages. They are written in regular JavaScript, but have JSDoc comments for type hinting during development.
+The sub-package template is in the `templates/` directory and the main package source is `packages/cli/`. You can modify them as needed to change the behavior of the generated packages. The sub-package template is regular JavaScript with JSDoc comments for type hinting, and the main package is TypeScript.
