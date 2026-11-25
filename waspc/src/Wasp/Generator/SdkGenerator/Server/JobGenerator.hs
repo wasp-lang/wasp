@@ -1,9 +1,9 @@
 module Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( genJobsApi,
     genJobExecutors,
-    depsRequiredByJobs,
     getJobExecutorSdkPackageImportPath,
     getImportJsonForJobDefinition,
+    jobsNpmDeps,
   )
 where
 
@@ -23,6 +23,7 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.OptionalFeatureNpmDeps.Common (OptionalFeatureNpmDeps (..))
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     genFileCopy,
@@ -130,17 +131,6 @@ genJobExecutors spec = case getJobs spec of
           genFileCopyInServerJob [relfile|core/pgBoss/index.ts|]
         ]
 
--- NOTE: Our pg-boss related documentation references this version in URLs.
--- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
-pgBossVersionRange :: SV.Range
-pgBossVersionRange = [SV.r|^8.4.2|]
-
-pgBossDependency :: Npm.Dependency.Dependency
-pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
-
-depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
-
 serverJobsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]
 
@@ -159,3 +149,14 @@ getJobExecutorSdkInternalImportPath :: JobExecutor -> String
 getJobExecutorSdkInternalImportPath PgBoss =
   JI.getJsImportPathStringFromPath $
     JI.RelativeImportPath [relfileP|core/pgBoss/index.js|]
+
+jobsNpmDeps :: OptionalFeatureNpmDeps
+jobsNpmDeps =
+  OptionalFeatureNpmDeps
+    { featureDescription = "jobs",
+      isFeatureUsed = isPgBossJobExecutorUsed,
+      -- NOTE: Our pg-boss related documentation references this version in URLs.
+      -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
+      dependencies = [Npm.Dependency.make ("pg-boss", show [SV.r|^8.4.2|])],
+      devDependencies = []
+    }
