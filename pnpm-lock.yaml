@@ -242,7 +242,14 @@ importers:
         specifier: ^7.5.22
         version: 7.5.22
 
-  packages/cli: {}
+  packages/cli:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.6
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
 
   packages/deploy:
     dependencies:
@@ -448,6 +455,9 @@ importers:
 
   packages/libs/vite-ssr:
     devDependencies:
+      '@arethetypeswrong/core':
+        specifier: ^0.18.2
+        version: 0.18.5
       '@tsconfig/node-ts':
         specifier: ^23.6.4
         version: 23.6.4
@@ -469,6 +479,9 @@ importers:
 
   packages/spec:
     dependencies:
+      commander:
+        specifier: 'catalog:'
+        version: 14.0.3
       es-toolkit:
         specifier: ^1.49.0
         version: 1.52.0
@@ -491,6 +504,9 @@ importers:
         specifier: ^0.3.0
         version: 0.3.1
     devDependencies:
+      '@arethetypeswrong/cli':
+        specifier: ^0.18.2
+        version: 0.18.5
       '@eslint/js':
         specifier: ^9.9.0
         version: 9.39.5

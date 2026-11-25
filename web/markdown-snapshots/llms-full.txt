@@ -16096,8 +16096,8 @@ My app currently uses the Wasp DSL in main.wasp. Please convert the config to th
 Use these docs:
 
 - 0.23 to 0.24 migration guide: https://wasp.sh/docs/0.24/migration-guide.md
-- Wasp DSL to Wasp Spec conversion guide: https://wasp.sh/docs/guides/legacy/wasp-dsl.md
-- Wasp Spec docs: https://wasp.sh/docs/general/spec.md
+- Wasp DSL to Wasp Spec conversion guide: https://wasp.sh/docs/0.24/guides/legacy/wasp-dsl.md
+- Wasp Spec docs: https://wasp.sh/docs/0.24/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts
 - Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/tsAppSpec.ts
 
@@ -16126,8 +16126,8 @@ My app currently uses the old class-based Wasp TS Config in `main.wasp.ts`. Plea
 Use these docs:
 
 - 0.23 to 0.24 migration guide: https://wasp.sh/docs/0.24/migration-guide.md
-- Wasp TS Config to Wasp Spec conversion guide: https://wasp.sh/docs/guides/legacy/wasp-ts-config.md
-- Wasp Spec docs: https://wasp.sh/docs/general/spec.md
+- Wasp TS Config to Wasp Spec conversion guide: https://wasp.sh/docs/0.24/guides/legacy/wasp-ts-config.md
+- Wasp Spec docs: https://wasp.sh/docs/0.24/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts
 - Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/waspSpec.ts
 
@@ -20694,7 +20694,7 @@ This guide shows you how to deploy the client, the server, and provision a datab
 
 To get started, follow these steps:
 
-1. Make sure your Wasp app is built by running `wasp build` in the project dir.
+1. In your Wasp project directory, run `wasp install` to install dependencies, then run `wasp build`.
 2. Create a [Railway](https://railway.com/?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp) account.
 3. Install the [Railway CLI](https://docs.railway.com/develop/cli?utm_medium=integration\&utm_source=docs\&utm_campaign=wasp#installing-the-cli).
 4. Run `railway login` and a browser tab will open to authenticate you.
