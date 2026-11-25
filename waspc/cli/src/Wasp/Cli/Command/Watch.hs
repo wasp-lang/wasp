@@ -156,7 +156,7 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
     recompile compileStartTime changedProjectFiles = do
       recompileResult <-
         runExceptT $
-          runTaskWithStatusReport console.reporter "Recompiling on file change" "Recompiled the project" $
+          runTaskWithStatusReport console.reporter "Recompiling on file change" "Recompiled the project" "Recompilation failed" $
             do
               compileResult <- liftIO $ compileIO console waspProjectDir outDir
               let (warnings, errors) = compileResultWarningsAndErrors compileResult

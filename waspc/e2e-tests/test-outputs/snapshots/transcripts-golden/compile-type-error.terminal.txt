@@ -1,17 +1,14 @@
 [terminal]
-▶ Compiling the project
-▶ Installing dependencies
 
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m <ESC>[1m<ESC>[31m!<ESC>[0m<ESC>[33m]<ESC>[0m <output>
 <ESC>[32m✔<ESC>[0m Installed dependencies
-▶ Generating the Prisma client
 <ESC>[32m✔<ESC>[0m The Prisma client is up to date
-▶ Building the SDK
 <ESC>[32m✔<ESC>[0m Built the SDK
-▶ Type-checking user code
 
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
+<ESC>[31m✖<ESC>[0m Failed to type-check user code
+<ESC>[31m✖<ESC>[0m Compilation failed
 <ESC>[31m!<ESC>[0m <ESC>[31m<ESC>[7m<ESC>[1m ERROR <ESC>[0m <ESC>[1mUser code type-check failed with exit code: 2<ESC>[0m
 <ESC>[31m!<ESC>[0m <ESC>[31m<ESC>[7m<ESC>[1m ERROR <ESC>[0m <ESC>[1mCompilation failed<ESC>[0m
   1 errors found

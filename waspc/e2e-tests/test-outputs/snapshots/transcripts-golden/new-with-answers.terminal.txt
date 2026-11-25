@@ -8,7 +8,6 @@
 <ESC>[33m[3]<ESC>[0m <ESC>[1msaas<ESC>[0m
     Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
 <ESC>[33m ▸ <ESC>[0mminimal
-▶ Creating the <ESC>[33mwasp-app<ESC>[39m project from the <ESC>[33mminimal<ESC>[39m template
 
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
 <ESC>[32m✔<ESC>[0m Created the <ESC>[33mwasp-app<ESC>[39m project

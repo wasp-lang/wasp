@@ -1,7 +1,5 @@
 [terminal]
-▶ Deleting the <ESC>[33mnode_modules/<ESC>[39m directory
 <ESC>[32m✔<ESC>[0m Deleted the <ESC>[33mnode_modules/<ESC>[39m directory
-▶ Deleting the <ESC>[33m.wasp/<ESC>[39m directory
 <ESC>[32m✔<ESC>[0m Deleted the <ESC>[33m.wasp/<ESC>[39m directory
 Run <ESC>[33m`wasp install`<ESC>[39m to reinstall dependencies.
 [exit code]

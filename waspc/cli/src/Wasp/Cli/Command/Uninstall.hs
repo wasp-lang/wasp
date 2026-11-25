@@ -53,7 +53,7 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
       forM_ confirmationPrompter $ \prompter -> do
         confirmed <- liftIO $ Prompter.askForConfirmation prompter "Are you sure you want to continue?"
         unless confirmed abortCommand
-      runTaskC "Removing Wasp data" "Removed Wasp data" $ liftIO $ removeWaspPaths waspPathsToRemove
+      runTaskC "Removing Wasp data" "Removed Wasp data" "Failed to remove Wasp data" $ liftIO $ removeWaspPaths waspPathsToRemove
 
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"

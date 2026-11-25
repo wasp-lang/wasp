@@ -59,6 +59,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
     runTaskC
       ("Creating the " ++ projectDirName ++ " project from the " ++ styleLiteral (show newProjectDescription._template) ++ " template")
       ("Created the " ++ projectDirName ++ " project")
+      ("Failed to create the " ++ projectDirName ++ " project")
       $ do
         createProjectOnDisk newProjectDescription
         -- TODO consider removing if we start doing `wasp install` automatically

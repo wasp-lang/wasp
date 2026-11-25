@@ -2,7 +2,7 @@ module Wasp.Cli.Console.Internal.TerminalReporterTest where
 
 import Test.Hspec
 import Wasp.Cli.Console.Internal.OutputStyle (OutputStyle (..))
-import Wasp.Cli.Console.Internal.TerminalReporter (renderMessage, renderTaskStart)
+import Wasp.Cli.Console.Internal.TerminalReporter (renderMessage, renderTaskFailure, renderTaskStart)
 import qualified Wasp.Message as Msg
 import Wasp.Util.TextStyle (styleCode)
 
@@ -42,3 +42,8 @@ spec_renderTaskStart :: Spec
 spec_renderTaskStart = do
   it "marks a started task with a triangle" $ do
     renderTaskStart Plain "Compiling the project" `shouldBe` "▶ Compiling the project"
+
+spec_renderTaskFailure :: Spec
+spec_renderTaskFailure = do
+  it "marks a failed task with a cross" $ do
+    renderTaskFailure Plain "Failed to build the SDK" `shouldBe` "✖ Failed to build the SDK"

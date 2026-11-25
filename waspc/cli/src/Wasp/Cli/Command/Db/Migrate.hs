@@ -10,7 +10,7 @@ import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Db (makeDbCommand)
-import Wasp.Cli.Command.Message (runTaskC)
+import Wasp.Cli.Command.Message (handOverTerminalC, runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
@@ -42,7 +42,7 @@ migrateDev migrateArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunCo
 migrateDatabase :: [EnvVar] -> MigrateArgs -> Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
 migrateDatabase envVars migrateArgs generatedAppDir dbMigrationsDir = do
   console <- getConsole
-  runTaskC "Migrating the database" "Migrated the database" $
+  runTaskC "Migrating the database" "Migrated the database" "Failed to migrate the database" . handOverTerminalC $
     liftIO (DbOps.migrateDevAndCopyToSource console.writeRawOutput envVars dbMigrationsDir generatedAppDir migrateArgs)
       >>= either (throwError . commandError "Failed to migrate the database") return
 

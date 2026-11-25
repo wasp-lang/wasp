@@ -15,13 +15,14 @@ import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import Text.Read (readMaybe)
 import Wasp.Cli.Console.Internal.OutputStyle (OutputStyle (..), renderInOutputStyle)
+import Wasp.Cli.Console.Internal.Terminal (Terminal)
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Prompter (IsOption (..), Prompter (Prompter))
 import qualified Wasp.Cli.Console.Prompter as Prompter
 import qualified Wasp.Util.TextStyle as TextStyle
 
-makeTerminalPrompter :: OutputStyle -> Prompter
-makeTerminalPrompter outputStyle =
+makeTerminalPrompter :: Terminal -> OutputStyle -> Prompter
+makeTerminalPrompter terminal outputStyle =
   Prompter
     { Prompter.askForInput = askForInput interactiveTerminal,
       Prompter.askForRequiredInput = askForRequiredInput interactiveTerminal,
@@ -31,8 +32,8 @@ makeTerminalPrompter outputStyle =
   where
     interactiveTerminal =
       InteractiveTerminal
-        { write = Terminal.writePrompt . renderInOutputStyle outputStyle,
-          readLine = Terminal.readLine
+        { write = Terminal.writePrompt terminal . renderInOutputStyle outputStyle,
+          readLine = Terminal.readLine terminal
         }
 
 -- | What the questions below need from the terminal.

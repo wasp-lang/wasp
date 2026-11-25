@@ -24,7 +24,7 @@ install = ProjectLock.acquireExclusive $ do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
   console <- getConsole
-  runTaskC "Installing dependencies" "Installed dependencies" $
+  runTaskC "Installing dependencies" "Installed dependencies" "Failed to install dependencies" $
     liftIO (installIO console.writeRawOutput waspProjectDir)
       >>= either
         (throwError . commandError "Failed to install dependencies")

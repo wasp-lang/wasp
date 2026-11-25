@@ -11,6 +11,8 @@
 ▶ Type-checking user code
 
 [  Wasp  ] <output>
+✖ Failed to type-check user code
+✖ Compilation failed
 ! ERROR: User code type-check failed with exit code: 2
 ! ERROR: Compilation failed
   1 errors found

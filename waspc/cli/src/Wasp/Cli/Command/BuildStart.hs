@@ -49,11 +49,11 @@ buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
 buildAndStartServerAndClient appSpec config = do
   writeRawOutput <- (.writeRawOutput) <$> getConsole
 
-  runTaskC "Building the client" "Built the client" $
+  runTaskC "Building the client" "Built the client" "Failed to build the client" $
     Job.run writeRawOutput (Job.prefixWith Job.WebApp $ buildClient config)
       >>= throwOnExitFailure "Failed to build the client" "Building the client"
 
-  runTaskC "Building the server" "Built the server" $
+  runTaskC "Building the server" "Built the server" "Failed to build the server" $
     Job.run writeRawOutput (Job.prefixWith Job.Server $ buildServer config)
       >>= throwOnExitFailure "Failed to build the server" "Building the server"
 

@@ -18,7 +18,7 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Db (makeDbCommand)
-import Wasp.Cli.Command.Message (runTaskC)
+import Wasp.Cli.Command.Message (handOverTerminalC, runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
@@ -40,7 +40,7 @@ seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCli
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
   console <- getConsole
-  runTaskC ("Running the " <> styleLiteral nameOfSeedToRun <> " seed") ("Ran the " <> styleLiteral nameOfSeedToRun <> " seed") $
+  runTaskC ("Running the " <> styleLiteral nameOfSeedToRun <> " seed") ("Ran the " <> styleLiteral nameOfSeedToRun <> " seed") ("Failed to run the " <> styleLiteral nameOfSeedToRun <> " seed") . handOverTerminalC $
     liftIO (dbSeed console.writeRawOutput (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir nameOfSeedToRun)
       >>= either (E.throwError . commandError "Failed to seed the database") return
 

@@ -6,6 +6,7 @@ module Wasp.Util.TextStyle
     getAnsiCodeFor,
     ansiEscapeCode,
     ansiResetAllCode,
+    ansiEraseLineCode,
     styleText,
     styleTitle,
     styleSuccess,
@@ -164,6 +165,9 @@ ansiEscapeCode = "\ESC"
 
 ansiResetAllCode :: String
 ansiResetAllCode = "[0m"
+
+ansiEraseLineCode :: String
+ansiEraseLineCode = "[2K"
 
 ansiResetForegroundCode :: String
 ansiResetForegroundCode = "[39m"

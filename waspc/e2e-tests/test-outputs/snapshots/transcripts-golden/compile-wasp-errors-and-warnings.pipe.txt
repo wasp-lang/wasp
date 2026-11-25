@@ -1,5 +1,6 @@
 [stdout]
 ▶ Compiling the project
+✖ Compilation failed
 ! ERROR: You must have at least one route in your app. You can add it using the 'route' declaration.
 ! WARNING: Wasp .env files should be named .env.server or .env.client, depending on their use.
 ! ERROR: Compilation failed

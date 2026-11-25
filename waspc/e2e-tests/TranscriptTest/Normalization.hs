@@ -39,6 +39,7 @@ normalizeOutput options =
   makeControlCharactersVisible
     . normalizeLines options.runtimeOutput
     . T.replace (T.pack options.scenarioDir) "<scenario-dir>"
+    . dropErasedLines
     . dropCtrlDEcho
     . dropTerminalLineEndings
   where
@@ -47,6 +48,14 @@ normalizeOutput options =
     -- Some terminals (e.g. on macOS) show Ctrl-D as "^D" and then move the
     -- cursor back over it. Others show nothing.
     dropCtrlDEcho = T.replace "^D\b\b" ""
+
+-- | Wasp redraws its live line (e.g. a spinner) many times, a different number
+-- of times on every run. Each redraw starts by erasing the line, so only what
+-- was written after the last erasing is what stays on the screen.
+dropErasedLines :: T.Text -> T.Text
+dropErasedLines = T.intercalate "\n" . map (snd . T.breakOnEnd eraseLineSequence) . T.splitOn "\n"
+  where
+    eraseLineSequence = "\r\ESC[2K"
 
 normalizeLines :: RuntimeOutput -> T.Text -> T.Text
 normalizeLines runtimeOutput output = case runtimeOutput of

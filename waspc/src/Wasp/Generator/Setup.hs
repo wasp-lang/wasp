@@ -119,7 +119,7 @@ runSetupStep step spec generatedAppDir taskRunner writeOutput = case step of
 
 installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
 installDependencies spec generatedAppDir taskRunner writeOutput =
-  runTask taskRunner "Installing dependencies" "Installed dependencies" $ do
+  runTask taskRunner "Installing dependencies" "Installed dependencies" "Failed to install dependencies" $ do
     result <- liftIO $ installNpmDependenciesWithInstallRecord writeOutput spec generatedAppDir
     either (throwError . pure) return result
 
@@ -139,19 +139,19 @@ formatPrismaSchema generatedAppDir = do
 
 generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
 generatePrismaClient spec generatedAppDir taskRunner writeOutput =
-  runTask taskRunner "Generating the Prisma client" "The Prisma client is up to date" $ do
+  runTask taskRunner "Generating the Prisma client" "The Prisma client is up to date" "Failed to generate the Prisma client" $ do
     maybeGeneratorError <- liftIO $ DbGenerator.generatePrismaClient writeOutput spec generatedAppDir
     forM_ maybeGeneratorError $ throwError . pure
 
 buildSdk :: Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> Setup ()
 buildSdk generatedAppDir taskRunner writeOutput =
-  runTask taskRunner "Building the SDK" "Built the SDK" $ do
+  runTask taskRunner "Building the SDK" "Built the SDK" "Failed to build the SDK" $ do
     result <- liftIO $ SdkGenerator.buildSdk writeOutput generatedAppDir
     either (throwError . pure . GenericGeneratorError) return result
 
 typeCheckUserCode :: AppSpec -> TaskRunner -> WriteOutput -> Setup ()
 typeCheckUserCode spec taskRunner writeOutput =
-  runTask taskRunner "Type-checking user code" "Type-checked user code" $ do
+  runTask taskRunner "Type-checking user code" "Type-checked user code" "Failed to type-check user code" $ do
     exitCode <- liftIO $ J.run writeOutput $ J.prefixWith J.Wasp typeCheck
     case exitCode of
       ExitSuccess -> return ()

@@ -87,11 +87,12 @@ compileWithOptions options = do
     $ runTaskC
       ("Clearing the " ++ outDirName ++ " directory")
       ("Cleared the " ++ outDirName ++ " directory")
+      ("Failed to clear the " ++ outDirName ++ " directory")
     $ liftIO
     $ removeDirectory outDir
 
   (warnings, appSpec) <-
-    runTaskC "Compiling the project" successfulCompileText $ do
+    runTaskC "Compiling the project" successfulCompileText "Compilation failed" $ do
       compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
       let (warnings, _errors) = compileResultWarningsAndErrors compileResult
       case _compileOutcome compileResult of

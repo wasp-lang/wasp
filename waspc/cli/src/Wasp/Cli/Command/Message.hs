@@ -3,6 +3,7 @@ module Wasp.Cli.Command.Message
     cliWriteRawOutputC,
     cliWriteDataC,
     runTaskC,
+    handOverTerminalC,
   )
 where
 
@@ -30,7 +31,13 @@ cliWriteDataC text = do
   liftIO $ console.writeData text
 
 -- | See 'runTaskWithStatusReport'.
-runTaskC :: String -> String -> Command a -> Command a
-runTaskC runningText successText task = do
+runTaskC :: String -> String -> String -> Command a -> Command a
+runTaskC runningText successText failedText task = do
   console <- getConsole
-  runTaskWithStatusReport console.reporter runningText successText task
+  runTaskWithStatusReport console.reporter runningText successText failedText task
+
+-- | See 'handOverTerminal'.
+handOverTerminalC :: Command a -> Command a
+handOverTerminalC action = do
+  console <- getConsole
+  handOverTerminal console action

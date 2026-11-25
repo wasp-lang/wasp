@@ -1,15 +1,10 @@
 [terminal]
-▶ Compiling the project
-▶ Installing dependencies
 
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
 <ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m <ESC>[1m<ESC>[31m!<ESC>[0m<ESC>[33m]<ESC>[0m <output>
 <ESC>[32m✔<ESC>[0m Installed dependencies
-▶ Generating the Prisma client
 <ESC>[32m✔<ESC>[0m The Prisma client is up to date
-▶ Building the SDK
 <ESC>[32m✔<ESC>[0m Built the SDK
-▶ Type-checking user code
 <ESC>[32m✔<ESC>[0m Type-checked user code
 <ESC>[32m✔<ESC>[0m Compiled the project
 [exit code]

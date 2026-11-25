@@ -27,7 +27,7 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
 deleteDirectoryIfExistsVerbosely :: Path' Abs (Dir d) -> Command ()
 deleteDirectoryIfExistsVerbosely dir = do
   dirExist <- liftIO $ IOUtil.doesDirectoryExist dir
-  runTaskC ("Deleting the " ++ dirName ++ " directory") (successText dirExist)
+  runTaskC ("Deleting the " ++ dirName ++ " directory") (successText dirExist) ("Failed to delete the " ++ dirName ++ " directory")
     $ when dirExist
     $ liftIO
     $ IOUtil.removeDirectory dir

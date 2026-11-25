@@ -64,12 +64,14 @@ build = ProjectLock.acquireExclusive $ do
     $ runTaskC
       ("Clearing the " ++ buildDirName ++ " directory")
       ("Cleared the " ++ buildDirName ++ " directory")
+      ("Failed to clear the " ++ buildDirName ++ " directory")
     $ liftIO
     $ removeDirectory buildDir
 
   runTaskC
     "Building the project"
     ("Built the app into the " ++ buildDirName ++ " directory")
+    "Build failed"
     $ do
       console <- getConsole
       (warnings, errors) <- liftIO $ buildIO console waspProjectDir buildDir

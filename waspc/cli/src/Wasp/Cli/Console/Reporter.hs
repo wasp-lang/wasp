@@ -5,6 +5,7 @@ module Wasp.Cli.Console.Reporter
   )
 where
 
+import Control.Monad.Catch (MonadMask)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Wasp.Message as Msg
 
@@ -12,11 +13,11 @@ import qualified Wasp.Message as Msg
 data Reporter = Reporter
   { send :: Msg.Message -> IO (),
     -- | Runs a step of work and tells the user how it goes. It takes the text
-    -- to show while the step runs and the text to show once it succeeds. A
-    -- step that fails says nothing of its own, and its error passes on
-    -- unchanged.
+    -- to show while the step runs, the text to show once it succeeds, and the
+    -- text to show if it fails. A failed step is one that throws, in @m@ or
+    -- as an exception. Its error passes on unchanged.
     --
     -- Record dot syntax doesn't work on this field, so call it as
     -- @runTaskWithStatusReport reporter@.
-    runTaskWithStatusReport :: forall m a. (MonadIO m) => String -> String -> m a -> m a
+    runTaskWithStatusReport :: forall m a. (MonadIO m, MonadMask m) => String -> String -> String -> m a -> m a
   }

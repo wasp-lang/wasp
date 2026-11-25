@@ -11,7 +11,7 @@ import qualified Options.Applicative as Opt
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Db (makeDbCommand)
-import Wasp.Cli.Command.Message (runTaskC)
+import Wasp.Cli.Command.Message (handOverTerminalC, runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
@@ -32,7 +32,7 @@ reset resetArgs = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig ->
           </> generatedAppDirInDotWaspDir
 
   console <- getConsole
-  runTaskC "Resetting the database" "Reset the database" $
+  runTaskC "Resetting the database" "Reset the database" "Failed to reset the database" . handOverTerminalC $
     liftIO (dbReset console.writeRawOutput (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir resetArgs)
       >>= either (throwError . commandError "Failed to reset the database") return
 
