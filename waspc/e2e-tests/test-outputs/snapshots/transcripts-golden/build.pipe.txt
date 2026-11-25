@@ -8,7 +8,6 @@
 ✔ Built the SDK
 ▶ Type-checking user code
 ✔ Type-checked user code
-✔ Compiled the project
 ✔ Built the app into the .wasp/out/ directory
 [stderr]
 [exit code]

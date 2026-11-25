@@ -145,9 +145,9 @@ data CommandError = CommandError
     _errors :: ![Problem],
     _warnings :: ![Problem],
     -- | A failed compile is printed in its own way: every error and every
-    -- warning is a message of its own, and the headline comes last, with this
-    -- text under it. 'Nothing' for all the other errors.
-    _compileSummary :: !(Maybe String)
+    -- warning is a message of its own, errors first. The headline is left
+    -- out, because the line that ends the compile's task already says it.
+    _isHeadlineLeftOut :: !Bool
   }
 
 commandError :: String -> String -> CommandError
@@ -163,16 +163,16 @@ commandErrorFromProblem headline commandProblem =
     { _headline = headline,
       _errors = [commandProblem],
       _warnings = [],
-      _compileSummary = Nothing
+      _isHeadlineLeftOut = False
     }
 
-compileCommandError :: String -> String -> [Problem] -> [Problem] -> CommandError
-compileCommandError headline summary errors warnings =
+compileCommandError :: String -> [Problem] -> [Problem] -> CommandError
+compileCommandError headline errors warnings =
   CommandError
     { _headline = headline,
       _errors = errors,
       _warnings = warnings,
-      _compileSummary = Just summary
+      _isHeadlineLeftOut = True
     }
 
 errorMessage :: CommandError -> String
@@ -182,12 +182,11 @@ errorToolOutput :: CommandError -> Maybe ToolOutput
 errorToolOutput = listToMaybe . mapMaybe (.toolOutput) . _errors
 
 reportCommandError :: Reporter -> CommandError -> IO ()
-reportCommandError reporter cmdError = case _compileSummary cmdError of
-  Nothing -> reporter.send $ Msg.Failure (_headline cmdError) (errorMessage cmdError) (errorToolOutput cmdError)
-  Just compileSummary -> do
-    reportCompileErrors reporter $ _errors cmdError
-    reportCompileWarnings reporter $ _warnings cmdError
-    reporter.send $ Msg.Failure (_headline cmdError) compileSummary Nothing
+reportCommandError reporter cmdError
+  | _isHeadlineLeftOut cmdError = do
+      reportCompileErrors reporter $ _errors cmdError
+      reportCompileWarnings reporter $ _warnings cmdError
+  | otherwise = reporter.send $ Msg.Failure (_headline cmdError) (errorMessage cmdError) (errorToolOutput cmdError)
 
 reportCompileErrors :: Reporter -> [Problem] -> IO ()
 reportCompileErrors reporter = mapM_ $ reporter.send . makeMessageFromProblem Msg.Failure

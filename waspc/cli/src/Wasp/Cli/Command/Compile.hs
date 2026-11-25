@@ -9,8 +9,7 @@ module Wasp.Cli.Command.Compile
     compileIOWithOptions,
     defaultCompileOptions,
     withSetupGoals,
-    reportSuccessfulCompile,
-    makeCompileError,
+    describeCompileEnd,
     analyze,
     analyzeWithOptions,
     analyzeWithWarningsOnStderr,
@@ -21,23 +20,23 @@ import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
+import Data.Maybe (mapMaybe)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError, compileCommandError, getConsole, reportCompileWarnings, require)
-import Wasp.Cli.Command.Message (runTaskC)
+import Wasp.Cli.Command (Command, compileCommandError, getConsole, reportCompileWarnings, require)
+import Wasp.Cli.Command.Message (runTaskC, runTaskWithResultC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Console (Console (..))
-import Wasp.Cli.Console.Reporter (Reporter (..))
+import Wasp.Cli.Console.Reporter (Reporter (..), TaskEnd (..), runTaskWithFixedTexts)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
-import qualified Wasp.Message as Msg
 import Wasp.Problem (Problem (..))
 import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import qualified Wasp.Project
@@ -92,29 +91,38 @@ compileWithOptions options = do
     $ liftIO
     $ removeDirectory outDir
 
-  (warnings, appSpec) <-
-    runTaskC "Compiling the project" successfulCompileText "Compilation failed" $ do
-      compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
-      let (warnings, _errors) = compileResultWarningsAndErrors compileResult
-      case _compileOutcome compileResult of
-        Right appSpec -> return (warnings, appSpec)
-        Left compileErrors ->
-          throwError $ makeCompileError "Compilation failed" compileErrors warnings
-  console <- getConsole
-  liftIO $ reportCompileWarnings console.reporter warnings
-  return (warnings, appSpec)
+  compileResult <-
+    runTaskWithResultC "Compiling the project" (describeCompileEnd "Compiled the project" compilationFailedText) compilationFailedText
+      $ liftIO
+      $ compileIOWithOptions options waspProjectDir outDir
+  let (warnings, errors) = compileResultWarningsAndErrors compileResult
+  case _compileOutcome compileResult of
+    Left _ -> throwError $ compileCommandError compilationFailedText errors warnings
+    Right appSpec -> do
+      console <- getConsole
+      liftIO $ reportCompileWarnings console.reporter warnings
+      return (warnings, appSpec)
+  where
+    compilationFailedText = "Compilation failed"
 
--- | Reports that the compilation went well, followed by any warnings it had.
-reportSuccessfulCompile :: Reporter -> [CompileWarning] -> IO ()
-reportSuccessfulCompile reporter warnings = do
-  reporter.send $ Msg.Success successfulCompileText
-  reportCompileWarnings reporter warnings
+-- | Says how a compile ended on the line that ends its task, together with
+-- the number of errors and warnings it had.
+describeCompileEnd :: String -> String -> CompileResult -> TaskEnd
+describeCompileEnd successText failedText compileResult = case _compileOutcome compileResult of
+  Right _ -> TaskSucceeded $ successText `withCountsOf` compileResult
+  Left _ -> TaskFailed $ failedText `withCountsOf` compileResult
 
-successfulCompileText :: String
-successfulCompileText = "Compiled the project"
+withCountsOf :: String -> CompileResult -> String
+withCountsOf text compileResult = case mapMaybe showCount [(length errors, "error"), (length warnings, "warning")] of
+  [] -> text
+  counts -> text ++ ": " ++ intercalate ", " counts
+  where
+    (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-makeCompileError :: String -> [CompileError] -> [CompileWarning] -> CommandError
-makeCompileError headline errors = compileCommandError headline (show (length errors) ++ " errors found") errors
+    showCount :: (Int, String) -> Maybe String
+    showCount (0, _) = Nothing
+    showCount (1, name) = Just $ "1 " ++ name
+    showCount (count, name) = Just $ show count ++ " " ++ name ++ "s"
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
@@ -139,7 +147,7 @@ defaultCompileOptions reporter waspProjectDir =
   CompileOptions
     { waspProjectDir,
       buildType = BuildType.Development,
-      taskRunner = TaskRunner (runTaskWithStatusReport reporter),
+      taskRunner = TaskRunner (runTaskWithFixedTexts reporter),
       setupGoals = allSetupGoals
     }
 
@@ -180,7 +188,7 @@ analyzeWithWarningsOnStderr waspProjectDir = do
 -- | The warnings are not a part of the error, because they have already been
 -- reported.
 throwIfAnalysisFailed :: Either [CompileError] AS.AppSpec -> Command AS.AppSpec
-throwIfAnalysisFailed = either (\errors -> throwError $ makeCompileError "Analysis of the project failed" errors []) return
+throwIfAnalysisFailed = either (\errors -> throwError $ compileCommandError "Analysis of the project failed" errors []) return
 
 printDiagnosticToStderr :: WriteOutput -> String -> String -> IO ()
 printDiagnosticToStderr writeRawOutput diagnosticTitle body =

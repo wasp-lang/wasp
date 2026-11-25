@@ -3,12 +3,10 @@
 <ESC>[32m✔<ESC>[0m The Prisma client is up to date
 <ESC>[32m✔<ESC>[0m Built the SDK
 <ESC>[31m✖<ESC>[0m Failed to type-check user code
-<ESC>[31m✖<ESC>[0m Compilation failed
+<ESC>[31m✖<ESC>[0m Compilation failed: 1 error
 <ESC>[31m!<ESC>[0m <ESC>[31m<ESC>[7m<ESC>[1m ERROR <ESC>[0m <ESC>[1mYour code has type errors.<ESC>[0m
   Output of <ESC>[33m`tsc`<ESC>[39m:
   <ESC>[31m│<ESC>[0m src/utils.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'.
   <ESC>[31m└─<ESC>[0m exited with code 2
-<ESC>[31m!<ESC>[0m <ESC>[31m<ESC>[7m<ESC>[1m ERROR <ESC>[0m <ESC>[1mCompilation failed<ESC>[0m
-  1 errors found
 [exit code]
 1

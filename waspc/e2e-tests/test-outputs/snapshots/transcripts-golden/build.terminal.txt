@@ -3,7 +3,6 @@
 <ESC>[32m✔<ESC>[0m The Prisma client is up to date
 <ESC>[32m✔<ESC>[0m Built the SDK
 <ESC>[32m✔<ESC>[0m Type-checked user code
-<ESC>[32m✔<ESC>[0m Compiled the project
 <ESC>[32m✔<ESC>[0m Built the app into the <ESC>[33m.wasp/out/<ESC>[39m directory
 [exit code]
 0

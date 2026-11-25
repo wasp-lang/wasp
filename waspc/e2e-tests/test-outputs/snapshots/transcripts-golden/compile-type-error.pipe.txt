@@ -8,13 +8,11 @@
 ✔ Built the SDK
 ▶ Type-checking user code
 ✖ Failed to type-check user code
-✖ Compilation failed
+✖ Compilation failed: 1 error
 ! ERROR: Your code has type errors.
   Output of `tsc`:
   │ src/utils.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'.
   └─ exited with code 2
-! ERROR: Compilation failed
-  1 errors found
 [stderr]
 [exit code]
 1

@@ -12,26 +12,25 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
+import Data.Either (isRight)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import Wasp.Cli.Command (Command, commandError, getConsole, require)
-import Wasp.Cli.Command.Compile (compileIOWithOptions, makeCompileError, reportSuccessfulCompile)
-import Wasp.Cli.Command.Message (runTaskC)
+import Wasp.Cli.Command (Command, commandError, compileCommandError, getConsole, reportCompileWarnings, require)
+import Wasp.Cli.Command.Compile (compileIOWithOptions, describeCompileEnd)
+import Wasp.Cli.Command.Message (runTaskC, runTaskWithResultC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Console (Console (..))
-import Wasp.Cli.Console.Reporter (Reporter (..))
+import Wasp.Cli.Console.Reporter (Reporter (..), runTaskWithFixedTexts)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Setup (allSetupGoals)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
-import Wasp.Project (compileResultWarningsAndErrors)
+import Wasp.Project (CompileResult (..), compileResultWarningsAndErrors)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
-  ( CompileError,
-    CompileWarning,
-    WaspProjectDir,
+  ( WaspProjectDir,
     generatedAppDirInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -68,20 +67,24 @@ build = ProjectLock.acquireExclusive $ do
     $ liftIO
     $ removeDirectory buildDir
 
-  runTaskC
-    "Building the project"
-    ("Built the app into the " ++ buildDirName ++ " directory")
-    "Build failed"
-    $ do
-      console <- getConsole
-      (warnings, errors) <- liftIO $ buildIO console.reporter waspProjectDir buildDir
-      unless (null errors) $ throwError $ makeCompileError "Build failed" errors warnings
-      liftIO $ reportSuccessfulCompile console.reporter warnings
-
-      liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
-        Left err -> throwError $ commandError "Failed to prepare the build directory" err
-        Right () -> return ()
+  console <- getConsole
+  compileResult <-
+    runTaskWithResultC
+      "Building the project"
+      (describeCompileEnd ("Built the app into the " ++ buildDirName ++ " directory") buildFailedText)
+      buildFailedText
+      $ do
+        compileResult <- liftIO $ buildIO console.reporter waspProjectDir buildDir
+        when (isRight $ _compileOutcome compileResult) $
+          liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir)
+            >>= either (throwError . commandError "Failed to prepare the build directory") return
+        return compileResult
+  let (warnings, errors) = compileResultWarningsAndErrors compileResult
+  unless (null errors) $ throwError $ compileCommandError buildFailedText errors warnings
+  liftIO $ reportCompileWarnings console.reporter warnings
   where
+    buildFailedText = "Build failed"
+
     buildDirName = styleLiteral $ fromRelDir generatedAppDirInWaspProjectDir
 
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
@@ -150,13 +153,13 @@ buildIO ::
   Reporter ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
-  IO ([CompileWarning], [CompileError])
-buildIO reporter waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
+  IO CompileResult
+buildIO reporter waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
         { waspProjectDir,
           buildType = BuildType.Production,
-          taskRunner = TaskRunner (runTaskWithStatusReport reporter),
+          taskRunner = TaskRunner (runTaskWithFixedTexts reporter),
           setupGoals = allSetupGoals
         }

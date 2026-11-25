@@ -17,7 +17,7 @@ import Data.Maybe (isJust)
 import Wasp.Cli.Console.Internal.OutputStyle (OutputStyle (..), renderInOutputStyle)
 import Wasp.Cli.Console.Internal.Terminal (Terminal)
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
-import Wasp.Cli.Console.Reporter (Reporter (..))
+import Wasp.Cli.Console.Reporter (Reporter (..), TaskEnd (..))
 import qualified Wasp.Message as Msg
 import Wasp.Problem (ToolOutput (..))
 import Wasp.Util (indent)
@@ -33,12 +33,12 @@ makeTerminalReporter terminal outputStyle =
       runTaskWithStatusReport = runTask
     }
   where
-    runTask :: (MonadIO m, MonadMask m) => String -> String -> String -> m a -> m a
-    runTask runningText successText failedText task =
+    runTask :: (MonadIO m, MonadMask m) => String -> (a -> TaskEnd) -> String -> m a -> m a
+    runTask runningText describeTaskEnd failedText task =
       fst
         <$> generalBracket
           (liftIO $ announceTask runningText)
-          (\_ taskExitCase -> liftIO $ concludeTask >> reportTaskEnd successText failedText taskExitCase)
+          (\_ taskExitCase -> liftIO $ concludeTask >> reportTaskEnd describeTaskEnd failedText taskExitCase)
           (const task)
 
     -- The interactive reporter shows a running task on the live line, which
@@ -47,13 +47,17 @@ makeTerminalReporter terminal outputStyle =
       Styled -> (Terminal.showLiveLine terminal, Terminal.hideLiveLine terminal)
       Plain -> (Terminal.writeLine terminal . renderTaskStart outputStyle, return ())
 
-    reportTaskEnd :: String -> String -> ExitCase a -> IO ()
-    reportTaskEnd successText failedText = \case
-      ExitCaseSuccess _ -> Terminal.writeLine terminal $ renderMessage outputStyle $ Msg.Success successText
+    reportTaskEnd :: (a -> TaskEnd) -> String -> ExitCase a -> IO ()
+    reportTaskEnd describeTaskEnd failedText = \case
+      ExitCaseSuccess taskResult -> case describeTaskEnd taskResult of
+        TaskSucceeded successText -> Terminal.writeLine terminal $ renderMessage outputStyle $ Msg.Success successText
+        TaskFailed resultFailedText -> writeFailedLine resultFailedText
       ExitCaseException exception
         -- The task didn't fail, it was stopped from the outside (e.g. Ctrl+C).
         | isJust (fromException exception :: Maybe SomeAsyncException) -> return ()
-      _failed -> Terminal.writeLine terminal $ renderTaskFailure outputStyle failedText
+      _failed -> writeFailedLine failedText
+
+    writeFailedLine = Terminal.writeLine terminal . renderTaskFailure outputStyle
 
 renderMessage :: OutputStyle -> Msg.Message -> String
 renderMessage outputStyle =
