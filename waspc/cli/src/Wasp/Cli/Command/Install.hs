@@ -7,30 +7,28 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
-import Wasp.Cli.Command (Command, commandError, getConsole, require)
+import Wasp.Cli.Command (Command, commandErrorWithToolOutput, require)
 import Wasp.Cli.Command.Message (runTaskC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Console (Console (..))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
+import Wasp.Problem (ToolOutput)
 import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Standalone `wasp install` command: copies @wasp/spec and runs npm install.
 install :: Command ()
 install = ProjectLock.acquireExclusive $ do
   ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
-  console <- getConsole
   runTaskC "Installing dependencies" "Installed dependencies" "Failed to install dependencies" $
-    liftIO (installIO console.writeRawOutput waspProjectDir)
+    liftIO (installIO waspProjectDir)
       >>= either
-        (throwError . commandError "Failed to install dependencies")
+        (throwError . commandErrorWithToolOutput "Installing the project's dependencies failed")
         return
 
-installIO :: WriteOutput -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-installIO writeOutput waspProjectDir = do
+installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either ToolOutput ())
+installIO waspProjectDir = do
   ensurePackageIsAtInstallationPathInProject waspProjectDir WaspSpecPackage
-  installProjectNpmDependencies writeOutput waspProjectDir
+  installProjectNpmDependencies waspProjectDir

@@ -20,7 +20,7 @@ newtype Job a = Job (ReaderT Sink IO a)
   deriving (Functor, Applicative, Monad, MonadFail, MonadIO, MonadUnliftIO)
 
 -- | Labels the output of a job, e.g. "[Server]".
-data JobType = WebApp | Server | Db | Wasp deriving (Show, Eq, Ord, Bounded, Enum)
+data JobType = WebApp | Server | Db deriving (Show, Eq, Ord, Bounded, Enum)
 
 -- | Receives a job's output, labeled with the kind of the job it comes from,
 -- if any. Jobs can call it from several threads at once.

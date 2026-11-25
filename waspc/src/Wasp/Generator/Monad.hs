@@ -4,6 +4,8 @@ module Wasp.Generator.Monad
   ( Generator,
     GeneratorError (..),
     GeneratorWarning (..),
+    generatorErrorToProblem,
+    generatorWarningToProblem,
     catchGeneratorError,
     logAndThrowGeneratorError,
     logGeneratorWarning,
@@ -16,6 +18,7 @@ import qualified Control.Monad.Except as MonadExcept
 import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.State (MonadState, State, modify, runStateT)
 import Data.List.NonEmpty (NonEmpty, fromList)
+import Wasp.Problem (Problem (..), ToolOutput, problem, problemWithToolOutput)
 
 -- | Generator is a monad transformer stack where we abstract away the underlying
 -- concrete monad transformers with the helper functions below. This will allow us
@@ -40,19 +43,30 @@ data GeneratorState = GeneratorState
     errors :: [GeneratorError]
   }
 
-data GeneratorError = GenericGeneratorError String
+data GeneratorError
+  = GenericGeneratorError String
+  | -- | A tool that the generator ran has failed.
+    GeneratorToolError String ToolOutput
   deriving (Eq)
 
 instance Show GeneratorError where
-  show (GenericGeneratorError e) = e
+  show = description . generatorErrorToProblem
+
+generatorErrorToProblem :: GeneratorError -> Problem
+generatorErrorToProblem (GenericGeneratorError e) = problem e
+generatorErrorToProblem (GeneratorToolError e failedToolOutput) = problemWithToolOutput e failedToolOutput
 
 data GeneratorWarning
   = GenericGeneratorWarning String
-  | GeneratorNeedsMigrationWarning String
+  | -- | Can hold what Prisma printed when the check of the database failed.
+    GeneratorNeedsMigrationWarning String (Maybe ToolOutput)
 
 instance Show GeneratorWarning where
-  show (GenericGeneratorWarning e) = e
-  show (GeneratorNeedsMigrationWarning e) = e
+  show = description . generatorWarningToProblem
+
+generatorWarningToProblem :: GeneratorWarning -> Problem
+generatorWarningToProblem (GenericGeneratorWarning w) = problem w
+generatorWarningToProblem (GeneratorNeedsMigrationWarning w maybeToolOutput) = Problem {description = w, toolOutput = maybeToolOutput}
 
 -- Runs the generator and either returns a result, or a list of 1 or more errors.
 -- Results in error if any error was ever logged and thrown (even if caught).

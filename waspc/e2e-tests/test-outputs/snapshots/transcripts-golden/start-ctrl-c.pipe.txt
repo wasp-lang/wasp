@@ -1,8 +1,6 @@
 [stdout]
 ▶ Compiling the project
 ▶ Installing dependencies
-
-[  Wasp  ] <output>
 ✔ Installed dependencies
 ▶ Generating the Prisma client
 ✔ The Prisma client is up to date
@@ -16,6 +14,5 @@ Starting the app...
   Client: http://localhost:31110/
   Server: http://localhost:31111/
 [stderr]
-[  Wasp !] <output>
 [exit code]
 130

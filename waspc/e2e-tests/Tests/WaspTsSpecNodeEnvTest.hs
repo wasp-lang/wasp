@@ -5,7 +5,8 @@ module Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest) where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import ShellCommands
-  ( assertCommandOutputContains,
+  ( ShellCommand,
+    ShellCommandBuilder,
     createTestWaspProject,
     inTestWaspProjectDir,
     replaceMainWaspTsFile,
@@ -27,7 +28,8 @@ waspTsSpecNodeEnvTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandOutputContains waspCliCompile "E2E-NODE-ENV=development"
+                  waspCliCompile,
+                  assertSpecSawNodeEnv "development"
                 ]
             ]
         ),
@@ -38,19 +40,32 @@ waspTsSpecNodeEnvTest =
               inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandOutputContains waspCliBuild "E2E-NODE-ENV=production"
+                  waspCliBuild,
+                  assertSpecSawNodeEnv "production"
                 ]
             ]
         )
     ]
   where
+    -- The spec writes what it sees into a file, because Wasp doesn't show what
+    -- the spec prints when the analysis succeeds.
+    assertSpecSawNodeEnv :: String -> ShellCommandBuilder context ShellCommand
+    assertSpecSawNodeEnv expectedNodeEnv = return $ "grep -qx " ++ expectedNodeEnv ++ " " ++ nodeEnvFile
+
+    nodeEnvFile :: FilePath
+    nodeEnvFile = "e2e-node-env.txt"
+
+    textNodeEnvFile :: T.Text
+    textNodeEnvFile = T.pack nodeEnvFile
+
     nodeEnvMainWaspTs :: T.Text
     nodeEnvMainWaspTs =
       [trimming|
         import { app, page, route } from "@wasp/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" }
+        import { writeFileSync } from "node:fs";
 
-        console.log(`E2E-NODE-ENV=$${process.env.NODE_ENV}`);
+        writeFileSync("$textNodeEnvFile", process.env.NODE_ENV + "\n");
 
         export default app({
           name: "tsSpecNodeEnvTest",

@@ -8,8 +8,10 @@ module Wasp.Cli.Command
     getConsole,
     CommandError (..),
     commandError,
+    commandErrorWithToolOutput,
     compileCommandError,
     errorMessage,
+    errorToolOutput,
     reportCommandError,
     reportCompileErrors,
     reportCompileWarnings,
@@ -45,11 +47,12 @@ import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
 import Data.List (intercalate)
-import Data.Maybe (isJust, mapMaybe)
+import Data.Maybe (isJust, listToMaybe, mapMaybe)
 import System.Exit (ExitCode, exitFailure)
 import Wasp.Cli.Console (Console (..), isPromptInputEOF)
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
+import Wasp.Problem (Problem (..), ToolOutput, problem, problemWithToolOutput)
 import Wasp.Util (indent, trim)
 import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.IO.Retry (MonadRetry (..))
@@ -74,12 +77,15 @@ runCommand console cmd =
       console.writeRawOutput stream "Aborted.\n"
       exitFailure
     HitBug unexpectedException -> do
-      console.reporter.send
-        $ Msg.Failure "This is a bug in Wasp"
-        $ "Please report it at "
-          ++ styleLiteral newIssueUrl
-          ++ " and include the following error:\n"
-          ++ indent 2 (E.displayException unexpectedException)
+      console.reporter.send $
+        Msg.Failure
+          "This is a bug in Wasp"
+          ( "Please report it at "
+              ++ styleLiteral newIssueUrl
+              ++ " and include the following error:\n"
+              ++ indent 2 (E.displayException unexpectedException)
+          )
+          Nothing
       exitFailure
   where
     newIssueUrl = "https://github.com/wasp-lang/wasp/issues/new"
@@ -136,8 +142,8 @@ getConsole = Command ask
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
 data CommandError = CommandError
   { _headline :: !String,
-    _errors :: ![String],
-    _warnings :: ![String],
+    _errors :: ![Problem],
+    _warnings :: ![Problem],
     -- | A failed compile is printed in its own way: every error and every
     -- warning is a message of its own, and the headline comes last, with this
     -- text under it. 'Nothing' for all the other errors.
@@ -145,15 +151,22 @@ data CommandError = CommandError
   }
 
 commandError :: String -> String -> CommandError
-commandError headline message =
+commandError headline message = commandErrorFromProblem headline $ problem message
+
+-- | For an error that comes from a tool that Wasp ran.
+commandErrorWithToolOutput :: String -> ToolOutput -> CommandError
+commandErrorWithToolOutput headline failedToolOutput = commandErrorFromProblem headline $ problemWithToolOutput "" failedToolOutput
+
+commandErrorFromProblem :: String -> Problem -> CommandError
+commandErrorFromProblem headline commandProblem =
   CommandError
     { _headline = headline,
-      _errors = [message],
+      _errors = [commandProblem],
       _warnings = [],
       _compileSummary = Nothing
     }
 
-compileCommandError :: String -> String -> [String] -> [String] -> CommandError
+compileCommandError :: String -> String -> [Problem] -> [Problem] -> CommandError
 compileCommandError headline summary errors warnings =
   CommandError
     { _headline = headline,
@@ -163,21 +176,29 @@ compileCommandError headline summary errors warnings =
     }
 
 errorMessage :: CommandError -> String
-errorMessage = intercalate "\n" . _errors
+errorMessage = intercalate "\n" . map (.description) . _errors
+
+errorToolOutput :: CommandError -> Maybe ToolOutput
+errorToolOutput = listToMaybe . mapMaybe (.toolOutput) . _errors
 
 reportCommandError :: Reporter -> CommandError -> IO ()
 reportCommandError reporter cmdError = case _compileSummary cmdError of
-  Nothing -> reporter.send $ Msg.Failure (_headline cmdError) (errorMessage cmdError)
+  Nothing -> reporter.send $ Msg.Failure (_headline cmdError) (errorMessage cmdError) (errorToolOutput cmdError)
   Just compileSummary -> do
     reportCompileErrors reporter $ _errors cmdError
     reportCompileWarnings reporter $ _warnings cmdError
-    reporter.send $ Msg.Failure (_headline cmdError) compileSummary
+    reporter.send $ Msg.Failure (_headline cmdError) compileSummary Nothing
 
-reportCompileErrors :: Reporter -> [String] -> IO ()
-reportCompileErrors reporter = mapM_ $ reporter.send . uncurry Msg.Failure . splitIntoHeadlineAndDetails
+reportCompileErrors :: Reporter -> [Problem] -> IO ()
+reportCompileErrors reporter = mapM_ $ reporter.send . makeMessageFromProblem Msg.Failure
 
-reportCompileWarnings :: Reporter -> [String] -> IO ()
-reportCompileWarnings reporter = mapM_ $ reporter.send . uncurry Msg.Warning . splitIntoHeadlineAndDetails
+reportCompileWarnings :: Reporter -> [Problem] -> IO ()
+reportCompileWarnings reporter = mapM_ $ reporter.send . makeMessageFromProblem Msg.Warning
+
+makeMessageFromProblem :: (String -> String -> Maybe ToolOutput -> Msg.Message) -> Problem -> Msg.Message
+makeMessageFromProblem makeMessage compileProblem = makeMessage headline details compileProblem.toolOutput
+  where
+    (headline, details) = splitIntoHeadlineAndDetails compileProblem.description
 
 -- | The compiler describes an error or a warning with a single text, whose
 -- first line says what it is about.

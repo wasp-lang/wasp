@@ -77,7 +77,7 @@ start = withArguments startArgsParser $ \args ->
       -- 'watch') once jobs from 'start' quiet down a bit.
       ongoingCompilationResultMVar <- newMVar (warnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
-      let watchWaspProjectSource = watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
+      let watchWaspProjectSource = watch console.reporter waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
       let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (reportLatestCompileResultAgain console ongoingCompilationResultMVar)
       -- In parallel:
       -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...

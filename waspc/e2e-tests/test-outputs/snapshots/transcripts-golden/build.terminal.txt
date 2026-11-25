@@ -1,7 +1,4 @@
 [terminal]
-
-<ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
-<ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m <ESC>[1m<ESC>[31m!<ESC>[0m<ESC>[33m]<ESC>[0m <output>
 <ESC>[32m✔<ESC>[0m Installed dependencies
 <ESC>[32m✔<ESC>[0m The Prisma client is up to date
 <ESC>[32m✔<ESC>[0m Built the SDK

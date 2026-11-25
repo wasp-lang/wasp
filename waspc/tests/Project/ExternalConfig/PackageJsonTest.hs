@@ -5,6 +5,7 @@ import qualified Data.Map as M
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Problem (Problem (..))
 import Wasp.Project.Common (TsConfigPaths (..), tsConfigPaths)
 import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForProject)
 
@@ -19,7 +20,7 @@ spec_PackageJson = do
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
-validate = validatePackageJsonForProject
+validate projectTsConfigPaths = map description . validatePackageJsonForProject projectTsConfigPaths
 
 assertReturnsValidationErrorMentioningField :: String -> P.PackageJson -> Expectation
 assertReturnsValidationErrorMentioningField fieldName packageJson =

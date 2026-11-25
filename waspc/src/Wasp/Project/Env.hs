@@ -9,6 +9,7 @@ where
 
 import StrongPath (Abs, Dir, File', Path', Rel, relfile)
 import Wasp.Env (EnvVar, parseDotEnvFile)
+import Wasp.Problem (problem)
 import Wasp.Project.Common (CompileWarning, WaspProjectDir, findFileInWaspProjectDir)
 
 dotEnvServer :: Path' (Rel WaspProjectDir) File'
@@ -30,7 +31,7 @@ readDotEnvClient waspDir = readDotEnvFileInWaspProjectDir waspDir dotEnvClient
 warnIfTheDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe CompileWarning)
 warnIfTheDotEnvPresent waspDir = (warningMessage <$) <$> findFileInWaspProjectDir waspDir [relfile|.env|]
   where
-    warningMessage = "Wasp .env files should be named .env.server or .env.client, depending on their use."
+    warningMessage = problem "Wasp .env files should be named .env.server or .env.client, depending on their use."
 
 -- Reads specified dotenv file and returns its values.
 -- If file doesn't exist, returns an empty list.

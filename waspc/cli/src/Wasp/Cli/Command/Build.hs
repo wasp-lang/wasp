@@ -74,7 +74,7 @@ build = ProjectLock.acquireExclusive $ do
     "Build failed"
     $ do
       console <- getConsole
-      (warnings, errors) <- liftIO $ buildIO console waspProjectDir buildDir
+      (warnings, errors) <- liftIO $ buildIO console.reporter waspProjectDir buildDir
       unless (null errors) $ throwError $ makeCompileError "Build failed" errors warnings
       liftIO $ reportSuccessfulCompile console.reporter warnings
 
@@ -147,17 +147,16 @@ build = ProjectLock.acquireExclusive $ do
     waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 buildIO ::
-  Console ->
+  Reporter ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-buildIO console waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
+buildIO reporter waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
         { waspProjectDir,
           buildType = BuildType.Production,
-          taskRunner = TaskRunner (runTaskWithStatusReport console.reporter),
-          writeJobOutput = console.writeRawOutput,
+          taskRunner = TaskRunner (runTaskWithStatusReport reporter),
           setupGoals = allSetupGoals
         }

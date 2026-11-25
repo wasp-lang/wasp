@@ -327,6 +327,7 @@ library
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
+    Wasp.Problem
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType

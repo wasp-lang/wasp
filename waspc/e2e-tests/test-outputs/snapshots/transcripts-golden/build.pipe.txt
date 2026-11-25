@@ -1,8 +1,6 @@
 [stdout]
 ▶ Building the project
 ▶ Installing dependencies
-
-[  Wasp  ] <output>
 ✔ Installed dependencies
 ▶ Generating the Prisma client
 ✔ The Prisma client is up to date
@@ -13,6 +11,5 @@
 ✔ Compiled the project
 ✔ Built the app into the .wasp/out/ directory
 [stderr]
-[  Wasp !] <output>
 [exit code]
 0

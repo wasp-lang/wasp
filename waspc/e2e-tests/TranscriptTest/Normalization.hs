@@ -143,7 +143,7 @@ runtimeJobNames :: [T.Text]
 runtimeJobNames = ["Server", "Client"]
 
 knownJobNames :: [T.Text]
-knownJobNames = runtimeJobNames ++ ["Wasp", "Db"]
+knownJobNames = runtimeJobNames ++ ["Db"]
 
 -- | Recognizes lines like "[ Server ] text" and "[ Server!] text", where the
 -- "!" marks the job's stderr.

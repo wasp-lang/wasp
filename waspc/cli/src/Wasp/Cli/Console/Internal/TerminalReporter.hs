@@ -19,6 +19,7 @@ import Wasp.Cli.Console.Internal.Terminal (Terminal)
 import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
+import Wasp.Problem (ToolOutput (..))
 import Wasp.Util (indent)
 import qualified Wasp.Util.TextStyle as TextStyle
 
@@ -59,11 +60,17 @@ renderMessage outputStyle =
   renderInOutputStyle outputStyle . \case
     Msg.Info text -> text
     Msg.Success text -> TextStyle.styleSuccess "✔" ++ " " ++ text
-    Msg.Failure headline details -> renderLabeledMessage errorLabel headline details
-    Msg.Warning headline details -> renderLabeledMessage warningLabel headline details
+    Msg.Failure headline details maybeToolOutput ->
+      renderLabeledMessage errorLabel headline $ details `followedBy` maybe "" (renderToolOutput TextStyle.styleError) maybeToolOutput
+    Msg.Warning headline details maybeToolOutput ->
+      renderLabeledMessage warningLabel headline $ details `followedBy` maybe "" (renderToolOutput TextStyle.styleWarning) maybeToolOutput
   where
     errorLabel = renderLabel outputStyle TextStyle.styleError TextStyle.styleErrorLabel "ERROR"
     warningLabel = renderLabel outputStyle TextStyle.styleWarning TextStyle.styleWarningLabel "WARNING"
+
+    followedBy "" text = text
+    followedBy text "" = text
+    followedBy text moreText = text ++ "\n" ++ moreText
 
 renderTaskStart :: OutputStyle -> String -> String
 renderTaskStart outputStyle runningText = renderInOutputStyle outputStyle $ "▶ " ++ runningText
@@ -76,6 +83,18 @@ renderLabeledMessage label headline details =
   intercalate "\n" $ (label ++ " " ++ TextStyle.styleTitle headline) : [indent 2 trimmedDetails | not (null trimmedDetails)]
   where
     trimmedDetails = dropWhileEnd isSpace details
+
+-- | Shows what the tool printed behind a gutter, which sets it apart from what
+-- Wasp itself says.
+renderToolOutput :: (String -> String) -> ToolOutput -> String
+renderToolOutput styleGutter failedToolOutput =
+  intercalate "\n" $
+    ("Output of " ++ TextStyle.styleCode failedToolOutput.command ++ ":")
+      : map renderOutputLine (lines failedToolOutput.output)
+      ++ [styleGutter "└─" ++ " exited with code " ++ show failedToolOutput.exitCode]
+  where
+    renderOutputLine "" = styleGutter "│"
+    renderOutputLine outputLine = styleGutter "│" ++ " " ++ outputLine
 
 -- | The label stands on a coloured background. Where that can't be shown, a
 -- colon sets it apart from the text after it.

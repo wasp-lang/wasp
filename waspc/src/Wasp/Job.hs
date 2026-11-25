@@ -7,6 +7,7 @@ module Wasp.Job
     addEnvVarsOverride,
     run,
     runCapturingOutput,
+    runCapturingToolOutput,
     race,
     andThen,
     emitOutput,
@@ -29,6 +30,7 @@ import Wasp.Job.Common (Job (..), JobType (..), runWithSink, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, addEnvVarsOverride, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
+import Wasp.Problem (ToolOutput (..))
 import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
 -- | Runs the job, writing its output out with the given function, and returns
@@ -48,6 +50,15 @@ runCapturingOutput :: (MonadIO m) => Job a -> m (a, Text)
 runCapturingOutput = liftIO . runWithSink discardOutput . captureOutput
   where
     discardOutput _ _ _ = return ()
+
+-- | Runs a tool without showing what it prints. If it fails, returns what it
+-- printed. The name is what the user knows the tool by (e.g. "npm install").
+runCapturingToolOutput :: (MonadIO m) => String -> Job ExitCode -> m (Either ToolOutput ())
+runCapturingToolOutput toolName job = do
+  (exitCode, output) <- runCapturingOutput job
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code -> Left ToolOutput {command = toolName, exitCode = code, output = T.unpack $ T.strip output}
 
 -- | Runs both jobs at the same time, until one of them finishes. Then it stops
 -- the other one and returns the result of the first one.

@@ -3,6 +3,7 @@ module Project.ExternalConfig.WaspTsConfigTest (spec_WaspTsConfig) where
 import Data.List (isInfixOf)
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
+import Wasp.Problem (Problem (..))
 import Wasp.Project.ExternalConfig.TsConfig (validateTsConfig)
 import Wasp.Project.ExternalConfig.WaspTsConfig (waspTsConfigValidator)
 
@@ -57,7 +58,7 @@ spec_WaspTsConfig = do
         `shouldBe` []
 
 validate :: T.TsConfig -> [String]
-validate = validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
+validate = map description . validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
 
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =

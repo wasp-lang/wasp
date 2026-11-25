@@ -19,9 +19,10 @@ import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
-import Wasp.CompileOptions (CompileOptions (setupGoals, taskRunner, writeJobOutput))
+import Wasp.CompileOptions (CompileOptions (setupGoals, taskRunner))
 import qualified Wasp.Generator as Generator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
+import Wasp.Generator.Monad (generatorErrorToProblem, generatorWarningToProblem)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
@@ -67,11 +68,11 @@ generateCode ::
   IO CompileResult
 generateCode appSpec outDir options = do
   (generatorWarnings, generatorErrors, changedGeneratedAppPaths) <-
-    Generator.writeWebAppCode appSpec outDir (taskRunner options) (writeJobOutput options) (setupGoals options)
+    Generator.writeWebAppCode appSpec outDir (taskRunner options) (setupGoals options)
   return
     CompileResult
-      { _compileWarnings = show <$> generatorWarnings,
-        _compileOutcome = if null generatorErrors then Right appSpec else Left $ show <$> generatorErrors,
+      { _compileWarnings = generatorWarningToProblem <$> generatorWarnings,
+        _compileOutcome = if null generatorErrors then Right appSpec else Left $ generatorErrorToProblem <$> generatorErrors,
         _compileChangedGeneratedAppPaths = changedGeneratedAppPaths
       }
 
@@ -82,4 +83,4 @@ compileAndRenderDockerfile waspDir compileOptions = do
     Left errors -> return $ Left errors
     Right appSpec -> do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
-      return $ Control.Arrow.left (map show . toList) dockerfileOrGeneratorErrors
+      return $ Control.Arrow.left (map generatorErrorToProblem . toList) dockerfileOrGeneratorErrors

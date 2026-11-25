@@ -56,7 +56,6 @@ import qualified Wasp.Psl.Generator.Schema as Psl.Generator.Schema
 import Wasp.Psl.Generator.WithCtx (generateWithCtx)
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.IO.Process (WriteOutput)
 import Wasp.Util.TextStyle (styleCode)
 
 genDb :: AppSpec -> Generator [FileDraft]
@@ -143,7 +142,7 @@ genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir gen
 -- automatically, so we have to do the same to be able to compare them.
 formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
 formatPrismaSchema generatedAppDir =
-  either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.formatSchema generatedAppDir
+  either (Just . GeneratorToolError "Formatting the Prisma schema failed.") (const Nothing) <$> DbOps.formatSchema generatedAppDir
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
 -- When doing this, it looks at schema.prisma in the generated project.
@@ -164,14 +163,14 @@ formatPrismaSchema generatedAppDir =
 --
 --     NOTE: As one final optimization, if they do not have a schema.prisma.wasp-last-db-concurrence-checksum but the schema is
 --     in sync with the database and all migrations are applied, we generate that file to avoid future checks.
-warnIfDbNeedsMigration :: WriteOutput -> [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
-warnIfDbNeedsMigration writeOutput envVars spec generatedAppDir = do
+warnIfDbNeedsMigration :: [EnvVar] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
+warnIfDbNeedsMigration envVars spec generatedAppDir = do
   dbSchemaChecksumFileExists <- IOUtil.doesFileExist dbSchemaChecksumFp
   if dbSchemaChecksumFileExists
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
       if entitiesExist
-        then warnIfProjectDoesNotMatchDb writeOutput envVars generatedAppDir
+        then warnIfProjectDoesNotMatchDb envVars generatedAppDir
         else return Nothing
   where
     dbSchemaFp = generatedAppDir </> Wasp.Generator.DbGenerator.Common.dbSchemaFileInGeneratedAppDir
@@ -187,47 +186,54 @@ warnIfSchemaDiffersFromChecksum dbSchemaFileAbs dbschemachecksumfile =
     (checksumFileMatchesSchema dbSchemaFileAbs dbschemachecksumfile)
     (return Nothing)
     ( return . Just $
-        GeneratorNeedsMigrationWarning
+        makeNeedsMigrationWarning
           ("Your Prisma schema has changed, please run " ++ styleCode "wasp db migrate-dev" ++ " when ready.")
     )
 
 -- | Checks if the project (schema and migrations) matches the DB state.
 -- Returns Nothing if it matches, and Just warning if e.g.
 -- they differ, or the DB does not exist yet, etc.
-warnIfProjectDoesNotMatchDb :: WriteOutput -> [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
-warnIfProjectDoesNotMatchDb writeOutput envVars generatedAppDir = do
-  schemaDbMatch <- DbOps.checkIfSchemaMatchesDb writeOutput envVars generatedAppDir
+warnIfProjectDoesNotMatchDb :: [EnvVar] -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorWarning)
+warnIfProjectDoesNotMatchDb envVars generatedAppDir = do
+  schemaDbMatch <- DbOps.checkIfSchemaMatchesDb envVars generatedAppDir
   case schemaDbMatch of
-    DbOps.SchemaMatchesDb -> do
-      allMigrationsAppliedToDb <- DbOps.areAllMigrationsAppliedToDb writeOutput envVars generatedAppDir
-      if allMigrationsAppliedToDb == Just True
-        then do
+    DbOps.SchemaMatchesDb ->
+      DbOps.areAllMigrationsAppliedToDb envVars generatedAppDir >>= \case
+        Right () -> do
           -- NOTE: Since we know schema == db and all migrations are applied,
           -- we can write this file to prevent future redundant Prisma checks.
           DbOps.writeDbSchemaChecksumToFile generatedAppDir Wasp.Generator.DbGenerator.Common.dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir
           return Nothing
-        else
-          return . Just . GeneratorNeedsMigrationWarning $
-            "You have unapplied migrations. Please run " ++ styleCode "wasp db migrate-dev" ++ " when ready."
+        Left migrateStatusOutput ->
+          return . Just $
+            GeneratorNeedsMigrationWarning
+              ("You have unapplied migrations. Please run " ++ styleCode "wasp db migrate-dev" ++ " when ready.")
+              (Just migrateStatusOutput)
     DbOps.SchemaDiffersFromDb ->
-      return . Just . GeneratorNeedsMigrationWarning $
+      return . Just . makeNeedsMigrationWarning $
         "Your Prisma schema does not match your database, please run " ++ styleCode "wasp db migrate-dev" ++ "."
     -- DB not yet existing is not an error but a common case, i.e. when app is
     -- run for the first time on a new machine.
     DbOps.DbDoesNotExist ->
-      return . Just . GeneratorNeedsMigrationWarning $
+      return . Just . makeNeedsMigrationWarning $
         "Your database has not been created yet, please run " ++ styleCode "wasp db migrate-dev" ++ " to create it."
     -- If db match check failed we don't really know what is the issue so we
     -- suggest they call db migrate-dev and get more info.
-    DbOps.SchemaDbMatchCheckFailed ->
-      return . Just . GeneratorNeedsMigrationWarning $
-        "Wasp was unable to verify your database is up to date."
-          <> " Running "
-          <> styleCode "wasp db migrate-dev"
-          <> " may fix this and will provide more info."
+    DbOps.SchemaDbMatchCheckFailed migrateDiffOutput ->
+      return . Just $
+        GeneratorNeedsMigrationWarning
+          ( "Wasp was unable to verify your database is up to date."
+              <> " Running "
+              <> styleCode "wasp db migrate-dev"
+              <> " may fix this and will provide more info."
+          )
+          (Just migrateDiffOutput)
 
-generatePrismaClient :: WriteOutput -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
-generatePrismaClient writeOutput spec generatedAppDir = do
+makeNeedsMigrationWarning :: String -> GeneratorWarning
+makeNeedsMigrationWarning warning = GeneratorNeedsMigrationWarning warning Nothing
+
+generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> IO (Maybe GeneratorError)
+generatePrismaClient spec generatedAppDir = do
   isGeneratedPrismaClientValid <- and <$> sequence [isCurrentSchemaUpToDate, isNodeModulesSchemaSameAsProjectSchema]
   if not isGeneratedPrismaClientValid
     then generatePrismaClientIfEntitiesExist
@@ -251,7 +257,7 @@ generatePrismaClient writeOutput spec generatedAppDir = do
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientIfEntitiesExist
       | entitiesExist =
-          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient writeOutput generatedAppDir
+          either (Just . GeneratorToolError "Generating the Prisma client failed.") (const Nothing) <$> DbOps.generatePrismaClient generatedAppDir
       | otherwise = return Nothing
 
     entitiesExist = hasEntities spec

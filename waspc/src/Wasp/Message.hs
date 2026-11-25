@@ -1,5 +1,7 @@
 module Wasp.Message (Message (..)) where
 
+import Wasp.Problem (ToolOutput)
+
 -- This module defines a simple protocol for sending progress messages to a
 -- UI (like the CLI).
 -- This protocol is for sending messages for display in a UI.
@@ -8,8 +10,9 @@ module Wasp.Message (Message (..)) where
 data Message
   = Info String
   | Success String
-  | -- | What went wrong, and then the details: more about it, or how to fix it.
-    -- The details can be empty.
-    Failure String String
+  | -- | What went wrong, then the details (more about it, or how to fix it),
+    -- and then what the tool that ran into it printed, if it was a tool. The
+    -- details can be empty.
+    Failure String String (Maybe ToolOutput)
   | -- | Has the same parts as 'Failure'.
-    Warning String String
+    Warning String String (Maybe ToolOutput)

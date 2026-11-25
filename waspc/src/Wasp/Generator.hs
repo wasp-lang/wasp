@@ -34,7 +34,6 @@ import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath, synchronizeFileDraftsWithDisk)
 import Wasp.TaskRunner (TaskRunner)
 import Wasp.Util ((<++>))
-import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Generates web app code from given Wasp and writes it to given destination directory.
 --   If dstDir does not exist yet, it will be created.
@@ -44,8 +43,8 @@ import Wasp.Util.IO.Process (WriteOutput)
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> WriteOutput -> [SetupGoal] -> IO ([GeneratorWarning], [GeneratorError], [ChangedGeneratedAppPath])
-writeWebAppCode spec dstDir taskRunner writeJobOutput setupGoals = do
+writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> TaskRunner -> [SetupGoal] -> IO ([GeneratorWarning], [GeneratorError], [ChangedGeneratedAppPath])
+writeWebAppCode spec dstDir taskRunner setupGoals = do
   case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors, [])
     [] -> do
@@ -56,7 +55,7 @@ writeWebAppCode spec dstDir taskRunner writeJobOutput setupGoals = do
         Right fileDrafts -> do
           changedGeneratedAppPaths <- synchronizeFileDraftsWithDisk dstDir fileDrafts
           WaspInfo.persist dstDir $ AS.buildType spec
-          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp setupGoals spec dstDir taskRunner writeJobOutput
+          (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup $ setUpGeneratedApp setupGoals spec dstDir taskRunner
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors, changedGeneratedAppPaths)
 
 genApp :: AppSpec -> Generator [FileDraft]

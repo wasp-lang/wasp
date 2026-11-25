@@ -78,19 +78,17 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as Job
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Problem (ToolOutput)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
-import Wasp.Util (checkExitSuccess, (<++>))
-import Wasp.Util.IO.Process (WriteOutput)
+import Wasp.Util ((<++>))
 
-buildSdk :: WriteOutput -> Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
-buildSdk writeOutput generatedAppDir = do
-  exitCode <-
-    Job.run writeOutput . Job.prefixWith Job.Wasp $
-      Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.compileSdk)
-        `Job.andThen` Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.copySdkAssets)
-
-  return $ checkExitSuccess "SDK build" exitCode
+-- | What the build prints is not shown, and is returned if the build fails.
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either ToolOutput ())
+buildSdk generatedAppDir =
+  Job.runCapturingToolOutput "tsc" $
+    Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.compileSdk)
+      `Job.andThen` Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.copySdkAssets)
   where
     sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 

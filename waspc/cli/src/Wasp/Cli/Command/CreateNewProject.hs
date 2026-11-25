@@ -14,7 +14,7 @@ import qualified Data.Text as T
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command, CommandError (..), commandError, errorMessage, getConsole, require)
+import Wasp.Cli.Command (Command, CommandError (..), commandError, errorMessage, errorToolOutput, getConsole, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
@@ -91,10 +91,10 @@ createProjectOnDisk
 -- | Returns whether the dependencies got installed.
 installDepsForNewProject :: Console -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
 installDepsForNewProject console absWaspProjectDir =
-  installIO console.writeRawOutput absWaspProjectDir >>= \case
+  installIO absWaspProjectDir >>= \case
     Right () -> return True
-    Left _err -> do
-      console.reporter.send $ Msg.Warning "The project was created, but dependency installation failed" ""
+    Left npmInstallOutput -> do
+      console.reporter.send $ Msg.Warning "The project was created, but dependency installation failed" "" (Just npmInstallOutput)
       return False
 
 -- | Creates and applies the project's initial migration, so users can run the
@@ -129,9 +129,11 @@ migrateDbForNewProject absWaspProjectDir =
         action
 
     warnAboutFailedMigration migrationError = do
-      cliSendMessageC
-        $ Msg.Warning "The project was created, but its database wasn't migrated"
-        $ _headline migrationError ++ ": " ++ errorMessage migrationError
+      cliSendMessageC $
+        Msg.Warning
+          "The project was created, but its database wasn't migrated"
+          (_headline migrationError ++ ": " ++ errorMessage migrationError)
+          (errorToolOutput migrationError)
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
@@ -146,7 +148,10 @@ getProjectDirName = init . SP.toFilePath . SP.basename . _absTemplateOutputDir
 printExtraInstructionsForProject :: Reporter -> [String] -> IO ()
 printExtraInstructionsForProject _ [] = return ()
 printExtraInstructionsForProject reporter steps =
-  reporter.send
-    $ Msg.Warning "Some setup steps were skipped"
-    $ "Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
-      ++ indent 2 (intercalate "\n" $ map styleLiteral steps)
+  reporter.send $
+    Msg.Warning
+      "Some setup steps were skipped"
+      ( "Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
+          ++ indent 2 (intercalate "\n" $ map styleLiteral steps)
+      )
+      Nothing

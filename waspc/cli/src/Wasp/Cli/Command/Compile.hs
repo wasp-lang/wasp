@@ -38,6 +38,7 @@ import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Message as Msg
+import Wasp.Problem (Problem (..))
 import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
@@ -61,7 +62,7 @@ compile = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   console <- getConsole
-  compileWithOptions $ defaultCompileOptions console waspProjectDir
+  compileWithOptions $ defaultCompileOptions console.reporter waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -118,12 +119,12 @@ makeCompileError headline errors = compileCommandError headline (show (length er
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
 compileIO ::
-  Console ->
+  Reporter ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO CompileResult
-compileIO console waspProjectDir outDir =
-  compileIOWithOptions (defaultCompileOptions console waspProjectDir) waspProjectDir outDir
+compileIO reporter waspProjectDir outDir =
+  compileIOWithOptions (defaultCompileOptions reporter waspProjectDir) waspProjectDir outDir
 
 compileIOWithOptions ::
   CompileOptions ->
@@ -133,13 +134,12 @@ compileIOWithOptions ::
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
 
-defaultCompileOptions :: Console -> Path' Abs (Dir WaspProjectDir) -> CompileOptions
-defaultCompileOptions console waspProjectDir =
+defaultCompileOptions :: Reporter -> Path' Abs (Dir WaspProjectDir) -> CompileOptions
+defaultCompileOptions reporter waspProjectDir =
   CompileOptions
     { waspProjectDir,
       buildType = BuildType.Development,
-      taskRunner = TaskRunner (runTaskWithStatusReport console.reporter),
-      writeJobOutput = console.writeRawOutput,
+      taskRunner = TaskRunner (runTaskWithStatusReport reporter),
       setupGoals = allSetupGoals
     }
 
@@ -149,7 +149,7 @@ withSetupGoals goals options = options {setupGoals = goals}
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do
   console <- getConsole
-  analyzeWithOptions waspProjectDir $ defaultCompileOptions console waspProjectDir
+  analyzeWithOptions waspProjectDir $ defaultCompileOptions console.reporter waspProjectDir
 
 -- | Analyzes Wasp project that the current working directory is a part of and returns
 -- AppSpec. So same like compilation, but it stops before any code generation.
@@ -168,14 +168,14 @@ analyzeWithWarningsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppS
 analyzeWithWarningsOnStderr waspProjectDir = do
   console <- getConsole
   (appSpecOrErrors, warnings) <-
-    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions console waspProjectDir
+    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions console.reporter waspProjectDir
   liftIO
     $ unless (null warnings)
     $ printDiagnosticToStderr console.writeRawOutput compilationWarningsTitle (formatWarnings warnings)
   throwIfAnalysisFailed appSpecOrErrors
   where
     compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
-    formatWarnings = intercalate "\n" . map ("- " ++)
+    formatWarnings = intercalate "\n" . map (("- " ++) . (.description))
 
 -- | The warnings are not a part of the error, because they have already been
 -- reported.

@@ -21,7 +21,6 @@ import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (CommandError (..), reportCommandError, reportCompileErrors, reportCompileWarnings)
 import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, makeCompileError)
-import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
@@ -52,7 +51,7 @@ import Wasp.Util.IO.Process (OutputStream (..))
 -- it starts as 'UpToDate', and from then on it uses the given @projectLock@ to
 -- keep other Wasp processes posted about the state of the generated app.
 watch ::
-  Console ->
+  Reporter ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   ProjectLock ->
@@ -60,7 +59,7 @@ watch ::
   (AppSpec -> IO ProjectRunConfig) ->
   (ServerEvent -> IO ()) ->
   IO ()
-watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig onServerEvent = do
+watch reporter waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig onServerEvent = do
   -- fsnotify reports paths under the canonical path of the watched dirs, which
   -- differs from the project dir's path if that goes through a symlink.
   canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
@@ -156,9 +155,9 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
     recompile compileStartTime changedProjectFiles = do
       recompileResult <-
         runExceptT $
-          runTaskWithStatusReport console.reporter "Recompiling on file change" "Recompiled the project" "Recompilation failed" $
+          runTaskWithStatusReport reporter "Recompiling on file change" "Recompiled the project" "Recompilation failed" $
             do
-              compileResult <- liftIO $ compileIO console waspProjectDir outDir
+              compileResult <- liftIO $ compileIO reporter waspProjectDir outDir
               let (warnings, errors) = compileResultWarningsAndErrors compileResult
               case _compileOutcome compileResult of
                 Right appSpec -> return (compileResult, appSpec)
@@ -166,7 +165,7 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
 
       (compileOutcome, warnings, errors) <- case recompileResult of
         Right (compileResult, appSpec) -> do
-          reportCompileWarnings console.reporter $ _compileWarnings compileResult
+          reportCompileWarnings reporter $ _compileWarnings compileResult
           projectRunConfig <- makeProjectRunConfig appSpec
           let compileChanges =
                 CompileChanges
@@ -177,7 +176,7 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
           return (SuccessfulCompile projectRunConfig compileChanges, _compileWarnings compileResult, [])
         Left recompileError -> do
           -- The command carries on, so the error is reported here and not thrown.
-          reportCommandError console.reporter recompileError
+          reportCommandError reporter recompileError
           return (FailedCompile, _warnings recompileError, _errors recompileError)
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)

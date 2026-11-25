@@ -3,6 +3,7 @@ module Project.ExternalConfig.TsConfigTest (spec_TsConfig) where
 import Data.List (isInfixOf)
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
+import Wasp.Problem (Problem (..))
 import Wasp.Project.ExternalConfig.TsConfig (validateTsConfig)
 import qualified Wasp.Validator as V
 
@@ -12,7 +13,7 @@ spec_TsConfig = do
     it "includes the given file name in error messages" $ do
       let alwaysFails = const $ V.failure "boom"
       validateTsConfig alwaysFails "custom-name.json" anyTsConfig
-        `shouldSatisfy` any ("custom-name.json" `isInfixOf`)
+        `shouldSatisfy` any (("custom-name.json" `isInfixOf`) . description)
 
 anyTsConfig :: T.TsConfig
 anyTsConfig =

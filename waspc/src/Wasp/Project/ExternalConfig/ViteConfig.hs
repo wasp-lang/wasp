@@ -10,6 +10,7 @@ import NeatInterpolation (trimming)
 import StrongPath (Abs, Dir, File', Path', relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Validation (Validation (..))
+import Wasp.Problem (problem)
 import Wasp.Project.Common
   ( CompileError,
     WaspProjectDir,
@@ -45,7 +46,7 @@ validateViteConfig waspDir =
 
     fileNotFoundMessage :: CompileError
     fileNotFoundMessage =
-      T.unpack
+      problem . T.unpack $
         [trimming|
           Couldn't find ${viteConfigTsFile} (or ${viteConfigJsFile}) in the project directory.
           Wasp requires a Vite config file with the ${waspPluginName} plugin configured.
@@ -54,7 +55,7 @@ validateViteConfig waspDir =
 
     missingPluginImportMessage :: CompileError
     missingPluginImportMessage =
-      T.unpack
+      problem . T.unpack $
         [trimming|
           Your Vite config file doesn't seem to import the Wasp Vite plugin from ${styledWaspPluginImportModule}.
           The ${waspPluginName} plugin is required for Wasp to work correctly.

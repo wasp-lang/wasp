@@ -4,6 +4,7 @@ import Test.Hspec
 import Wasp.Cli.Console.Internal.OutputStyle (OutputStyle (..))
 import Wasp.Cli.Console.Internal.TerminalReporter (renderMessage, renderTaskFailure, renderTaskStart)
 import qualified Wasp.Message as Msg
+import Wasp.Problem (ToolOutput (..))
 import Wasp.Util.TextStyle (styleCode)
 
 spec_renderMessage :: Spec
@@ -18,12 +19,17 @@ spec_renderMessage = do
         `shouldBe` "✔ Compiled the project"
 
     it "labels an error and indents its details" $ do
-      renderMessage Plain (Msg.Failure "Cannot connect to the database" "It needs to be running.\nStart it first.")
+      renderMessage Plain (Msg.Failure "Cannot connect to the database" "It needs to be running.\nStart it first." Nothing)
         `shouldBe` "! ERROR: Cannot connect to the database\n  It needs to be running.\n  Start it first."
 
     it "labels a warning" $ do
-      renderMessage Plain (Msg.Warning "You have unapplied migrations" "")
+      renderMessage Plain (Msg.Warning "You have unapplied migrations" "" Nothing)
         `shouldBe` "! WARNING: You have unapplied migrations"
+
+    it "shows what a failed tool printed behind a gutter, with its exit code" $ do
+      let tscOutput = ToolOutput {command = "tsc", exitCode = 2, output = "src/a.ts(1,1): error TS1\n\nFound 1 error."}
+      renderMessage Plain (Msg.Failure "Your code has type errors." "" (Just tscOutput))
+        `shouldBe` "! ERROR: Your code has type errors.\n  Output of `tsc`:\n  │ src/a.ts(1,1): error TS1\n  │\n  │ Found 1 error.\n  └─ exited with code 2"
 
     it "keeps the backticks of code and drops its colour" $ do
       renderMessage Plain (Msg.Info $ "Run " ++ styleCode "wasp install" ++ ".")
@@ -35,7 +41,7 @@ spec_renderMessage = do
         `shouldBe` "Run \ESC[33m`wasp install`\ESC[39m."
 
     it "puts the label of an error on a red background and makes its headline bold" $ do
-      renderMessage Styled (Msg.Failure "Compilation failed" "")
+      renderMessage Styled (Msg.Failure "Compilation failed" "" Nothing)
         `shouldBe` "\ESC[31m!\ESC[0m \ESC[31m\ESC[7m\ESC[1m ERROR \ESC[0m \ESC[1mCompilation failed\ESC[0m"
 
 spec_renderTaskStart :: Spec
