@@ -91,7 +91,7 @@ First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-s
 
 <!-- TODO(#2262): Once the examples join the pnpm workspace, `pnpm install` at the repo root replaces this. -->
 
-Install its dependencies against the Wasp npm packages you built with `mise run build`. Plain `npm install` fails on their stale lockfile entries:
+Install its dependencies against the development Wasp npm packages you built with `mise run build`:
 
 ```sh
 mise run reinstall-dev-wasp-app-deps

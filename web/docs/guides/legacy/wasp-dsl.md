@@ -1,5 +1,5 @@
 ---
-title: Migrating from the Wasp DSL to the Wasp Spec
+title: Migrating from the Wasp DSL to TypeScript in 0.24
 sidebar_label: "Wasp DSL"
 comments: true
 ---
@@ -8,11 +8,13 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Migrating from the Wasp DSL
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27" }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24" }} />
 
-Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Wasp 0.24 retired the Wasp DSL in favor of the [Wasp Spec](../../features/spec.md), a `main.wasp.ts` file written in TypeScript.
+Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Starting with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../features/spec.md): a `main.wasp.ts` file written in TypeScript.
 
-If your project still has a `main.wasp` file, it runs Wasp 0.23 or older. This guide shows how each part of the Wasp DSL looks in the Wasp Spec, and [How to migrate](#how-to-migrate) shows how to upgrade your project.
+:::tip Upgrading from Wasp 0.23 to 0.24?
+The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](/docs/0.24/migration-guide#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](/docs/0.24/migration-guide) for the remaining shared steps.
+:::
 
 ## New features
 
@@ -42,7 +44,6 @@ See the [Wasp Spec documentation](../../features/spec.md#splitting-your-spec-int
 | Adding app specifications | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre>   | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>});</pre> |
 | Referencing code          | `import { x } from "@src/..."` inside a declaration                      | `import { ... } from "./src/..." with { type: "ref" };` at the top level                          |
 | Entity references         | `Task` (identifier)                                                      | `"Task"` (string)                                                                                |
-| Wasp version              | `wasp: { version: "^0.23.0" }` in `app`                                  | `"@wasp/wasp": "0.27.0"` in `package.json`                                                       |
 
 ### App, routes, and pages
 
@@ -53,7 +54,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
     ```wasp title="main.wasp"
     app todoApp {
       title: "ToDo App",
-      wasp: { version: "^0.23.0" }
+      wasp: { version: "^0.24.0" }
     }
 
     route MainRoute { path: "/", to: MainPage }
@@ -72,7 +73,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      // ...
+      wasp: { version: "^0.24.0" },
       spec: [
         route("MainRoute", "/", page(MainPage, { authRequired: true })),
       ],
@@ -83,8 +84,6 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
 </Tabs>
 
 Note that `route` no longer references a page by name (`to: MainPage`); it takes the `page(...)` object directly.
-
-The Wasp Spec has no `wasp` field. The `@wasp/wasp` version in `package.json` sets your project's Wasp version.
 
 ### Queries and actions
 
@@ -240,6 +239,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
     ```wasp title="main.wasp"
     app todoApp {
       title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       auth: {
         userEntity: User,
         methods: { google: {} },
@@ -263,6 +263,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
     export default app({
       name: "todoApp",
       title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       auth: {
         userEntity: "User",
         methods: { google: {} },
@@ -284,10 +285,11 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
 
 ## How to migrate
 
-Upgrade your project one Wasp version at a time with the migration guides, starting with the one from your project's version, for example [Migration from 0.22 to 0.23](/docs/0.23/migration-guide).
+Upgrade the project to the latest Wasp. Follow the [migration guides](../../migration-guide.md) one version at a time, starting with the one from your project's version.
 
-When you reach [Migration from 0.23 to 0.24](/docs/0.24/migration-guide), convert your config with [the Wasp 0.24 version of this guide](/docs/0.24/guides/legacy/wasp-dsl#how-to-migrate), which has the steps for Wasp 0.24. Then continue with the migration guides up to the [latest one](../../migration-guide.md).
+<!-- TODO: Link `/docs/0.27/migration-guide` once Wasp 0.27 is released. The docs build fails on links to unreleased versions. -->
 
-The [changes above](#changes) show the Wasp Spec of the latest Wasp version, so they show how your config looks once you finish.
+Notable releases on the way:
 
-See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.
+- [Wasp 0.24](/docs/0.24/migration-guide): the Wasp Spec replaces the Wasp DSL. The [0.24 version of this guide](/docs/0.24/guides/legacy/wasp-dsl) has the full conversion steps.
+- [Wasp 0.27](../../migration-guide.md): each project installs its own Wasp as an npm dependency, and the global Wasp CLI is `@wasp/cli`.

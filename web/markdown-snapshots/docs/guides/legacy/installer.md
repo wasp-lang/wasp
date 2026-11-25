@@ -28,7 +28,12 @@ Since Wasp 0.21, you install Wasp through npm, and since Wasp 0.27, each project
 
    For a project older than Wasp 0.20.2, see [I need to use versions older than Wasp 0.20.2](#older-versions).
 
-3. Upgrade the project to the latest Wasp. Follow the migration guides one version at a time, starting with the one from your project's version, for example [Migration from 0.20 to 0.21](https://wasp.sh/docs/0.21/migration-guide). The last one, [Migration from 0.26 to 0.27](https://wasp.sh/docs/migration-guide), makes the project install its own Wasp, which you then run through its npm scripts, and switches your global CLI to `@wasp/cli`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
+3. Upgrade the project to the latest Wasp. Follow the [migration guides](https://wasp.sh/docs/migration-guide) one version at a time, starting with the one from your project's version.
+
+   Notable releases on the way:
+
+   - [Wasp 0.21](https://wasp.sh/docs/0.21/migration-guide): Wasp moved from the installer script to npm.
+   - [Wasp 0.27](https://wasp.sh/docs/migration-guide): each project installs its own Wasp as an npm dependency, and the global Wasp CLI is `@wasp/cli`. Read more in [Running Wasp commands](https://wasp.sh/docs/advanced/cli#running-wasp-commands).
 
 ## Keep using the legacy installer {#keep-using}
 

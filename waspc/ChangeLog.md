@@ -6,7 +6,8 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-guide) for step-by-step documentation on how to upgrade.
 
-- Wasp projects now depend on the `@wasp/wasp` npm package, which brings `@wasp/spec` and the Wasp CLI, and `npm install` replaces `wasp install`. ([#5264](https://github.com/wasp-lang/wasp/pull/5264), [#5266](https://github.com/wasp-lang/wasp/pull/5266))
+- Wasp projects now depend on the `@wasp/wasp` npm package, which brings `@wasp/spec` and the Wasp CLI. ([#5264](https://github.com/wasp-lang/wasp/pull/5264))
+- The custom `wasp install` is no longer needed. A regular `npm install` replaces it. ([#5266](https://github.com/wasp-lang/wasp/pull/5266))
 - `app()` in `main.wasp.ts` no longer takes a `wasp: { version }` field. The `@wasp/wasp` version in `package.json` decides which Wasp a project runs. ([#5269](https://github.com/wasp-lang/wasp/pull/5269))
 - `wasp.overriddenDeps` no longer works for packages that come with `@wasp/wasp`, like React, Vite or Express. Use npm's `overrides` instead. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
 - React, Vite, Express and the other packages that come with `@wasp/wasp` are now its peer dependencies, so Wasp projects no longer work with npm's `legacy-peer-deps` or `omit=peer` settings. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
@@ -35,7 +36,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `HttpError` can now set response headers through its `headers` option. ([#5019](https://github.com/wasp-lang/wasp/pull/5019))
 - The Wasp server now logs an unhandled promise rejection and keeps running, instead of exiting. ([#5421](https://github.com/wasp-lang/wasp/pull/5421))
 - Password fields in the Auth UI now have a show/hide toggle. ([#4816](https://github.com/wasp-lang/wasp/issues/4816))
-- New Wasp projects come with `dev`, `build`, `preview` and `wasp` npm scripts, so `npm run dev` starts the app without a global Wasp CLI. ([#5271](https://github.com/wasp-lang/wasp/pull/5271))
+- New Wasp projects come with `dev`, `build`, `preview` and `wasp` npm scripts, which run the project's own Wasp. ([#5271](https://github.com/wasp-lang/wasp/pull/5271))
 - Email and username auth can set `passwordValidationSchema`, a Zod schema that new passwords must pass on signup and password reset. ([#5290](https://github.com/wasp-lang/wasp/pull/5290))
 - The Auth UI signup and reset password forms check the password schema before submitting, so users see what to fix right away. ([#5291](https://github.com/wasp-lang/wasp/pull/5291))
 - `wasp studio` and `wasp db studio` now pick a free port, and accept `--port <port>` to choose it yourself. ([#5438](https://github.com/wasp-lang/wasp/pull/5438))
