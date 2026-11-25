@@ -10,6 +10,7 @@ import ShellCommands
     appendToPrismaFile,
     createTestWaspProject,
     inTestWaspProjectDir,
+    installOptionalFeaturePackagesCommand,
     replaceMainWaspTsFile,
     setWaspDbToPSQL,
     waspCliCompile,
@@ -18,6 +19,8 @@ import ShellCommands
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator (jobsNpmDeps)
+import Wasp.Generator.WebSocket (webSocketsNpmDeps)
 
 -- | Type checks the generated server for app configurations that
 -- kitchen-sink doesn't cover.
@@ -34,6 +37,7 @@ serverTypeCheckingTest =
                   appendToPrismaFile prismaTaskModel,
                   writeServerFeaturesFile,
                   replaceMainWaspTsFile serverFeaturesWithoutAuthMainWaspTs,
+                  installOptionalFeaturePackages,
                   waspCliCompile,
                   typeCheckServer
                 ]
@@ -41,6 +45,9 @@ serverTypeCheckingTest =
         )
     ]
   where
+    installOptionalFeaturePackages :: ShellCommandBuilder WaspProjectContext ShellCommand
+    installOptionalFeaturePackages = return $ installOptionalFeaturePackagesCommand [jobsNpmDeps, webSocketsNpmDeps]
+
     typeCheckServer :: ShellCommandBuilder WaspProjectContext ShellCommand
     typeCheckServer = return "(cd .wasp/out/server && npx tsc --build)"
 
