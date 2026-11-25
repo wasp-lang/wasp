@@ -430,15 +430,18 @@ function interpolatePath(path, params, search, hash) {
 }
 function interpolatePathParams(path, params) {
 	function mapPathPart(part) {
-		if (part === "*") return params["*"];
-		if (part.startsWith(":")) return params[extractParamNameFromPathPart(part)];
+		if (part === "*") return encodeSplatParam(params["*"]);
+		if (part.startsWith(":")) return encodePathParam(params[extractParamNameFromPathPart(part)]);
 		return part;
 	}
-	const interpolatedPath = path.split("/").map(mapPathPart).filter(isValidPathPart).join("/");
+	const interpolatedPath = path.split("/").map(mapPathPart).filter((part) => part !== "").join("/");
 	return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
 }
-function isValidPathPart(part) {
-	return !!part;
+function encodePathParam(value) {
+	return encodeURIComponent(value ?? "");
+}
+function encodeSplatParam(value) {
+	return String(value ?? "").split("/").map(encodeURIComponent).join("/");
 }
 function extractParamNameFromPathPart(paramString) {
 	if (paramString.endsWith("?")) return paramString.slice(1, -1);
