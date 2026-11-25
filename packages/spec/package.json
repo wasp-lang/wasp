@@ -39,9 +39,10 @@
     "build": "tsc",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
-    "test": "pnpm run build && vitest run --reporter=verbose",
+    "test": "pnpm run build && vitest run --reporter=verbose && pnpm run test:type-exports",
     "test:integration": "pnpm run build && vitest run --reporter=verbose --project integration",
     "test:type": "pnpm run build && vitest run --reporter=verbose --project type",
+    "test:type-exports": "attw --pack --profile esm-only",
     "test:unit": "pnpm run build && vitest run --reporter=verbose --project unit",
     "test:watch": "pnpm run build && vitest --reporter=verbose"
   },
@@ -56,6 +57,7 @@
     "unrun": "^0.3.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
     "@eslint/js": "^9.9.0",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
