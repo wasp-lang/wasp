@@ -22,6 +22,11 @@ type ActionProps = {
   | {
       action: "MIGRATE_DB";
     }
+  | {
+      action: "INSTALL_PACKAGES";
+      /** Space-separated, like the arguments of `npm install`. */
+      packageSpecifiers: string;
+    }
 );
 
 export function TutorialAction(props: React.PropsWithChildren<ActionProps>) {

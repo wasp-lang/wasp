@@ -9,6 +9,7 @@ import { SocialAuthGrid } from './SocialAuthGrid';
 import DefaultBehaviour from './_default-behaviour.md';
 import OverrideIntro from './_override-intro.md';
 import GetUserFieldsType from './_getuserfields-type.md';
+import SocialAuthPackages from './_social-auth-packages.md';
 
 # Social auth overview
 
@@ -26,6 +27,8 @@ This page goes through the common behaviors between all supported social login p
 Wasp currently supports the following social login providers:
 
 <SocialAuthGrid />
+
+<SocialAuthPackages />
 
 ## User Entity
 

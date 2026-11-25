@@ -44,7 +44,6 @@ services:
       npm ci &&
       npm run build &&
       cd .wasp/out/server &&
-      npm install &&
       npx prisma generate --schema=../db/schema.prisma &&
       npm run bundle
     startCommand: cd .wasp/out/server && npm run start-production

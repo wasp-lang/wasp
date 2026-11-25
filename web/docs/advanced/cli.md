@@ -72,6 +72,8 @@ COMMANDS
       OPTIONS:
         -t|--template <template-name>
            Available starter templates are: basic, minimal, saas.
+        --install|--no-install
+           Installs the project's dependencies, or doesn't, without asking.
 
     help                  Prints this help message.
     version               Prints current version of CLI.
@@ -162,7 +164,7 @@ To run your new app, do:
     npm run dev
 ```
 
-- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the npm scripts fail with `wasp: command not found`.
+- `wasp new` asks if it should run `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. Pass `--install` or `--no-install` to answer up front. Without an interactive terminal, e.g. in a script, it installs unless you pass `--no-install`. If you skip the install, or in a fresh clone, run `npm install` yourself. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the npm scripts fail with `wasp: command not found`.
 
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.

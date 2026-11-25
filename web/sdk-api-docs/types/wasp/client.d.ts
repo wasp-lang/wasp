@@ -95,7 +95,7 @@ type ClientEnv = {
  * an API with.
  *
  * Use it to describe a {@link Route}, for example when mocking an API with the
- * `mockApi` helper that {@link "client/test"!mockServer | mockServer} returns.
+ * `mockApi` helper that `mockServer` from `@wasp/test-utils` returns.
  */
 export { HttpMethod } from "@wasp/sdk-core";
 

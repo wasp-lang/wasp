@@ -1,7 +1,11 @@
 import type { Branded } from "../brandedTypes.ts";
 
 // If you modify or add new action kinds, make sure to also update the type in `web/docs/tutorial/TutorialAction.tsx`.
-export type Action = InitAppAction | ApplyPatchAction | MigrateDbAction;
+export type Action =
+  | InitAppAction
+  | ApplyPatchAction
+  | MigrateDbAction
+  | InstallPackagesAction;
 
 export interface InitAppAction extends BaseAction {
   kind: "INIT_APP";
@@ -16,6 +20,12 @@ export interface ApplyPatchAction extends BaseAction {
 
 export interface MigrateDbAction extends BaseAction {
   kind: "MIGRATE_DB";
+}
+
+export interface InstallPackagesAction extends BaseAction {
+  kind: "INSTALL_PACKAGES";
+  /** What `npm install` takes, e.g. `lucia@3`. */
+  packageSpecifiers: string[];
 }
 
 export interface BaseAction {

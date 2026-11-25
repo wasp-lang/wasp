@@ -10,6 +10,7 @@ import ReadMoreAboutAuthEntities from '../_read-more-about-auth-entities.md';
 import UsernameData from '../entities/_username-data.md';
 import AccessingUserDataNote from '../_accessing-user-data-note.md';
 import TailwindNote from '../_tailwind-note.md';
+import AuthPackages from '../_auth-packages.md';
 
 # Username and password auth
 
@@ -47,6 +48,8 @@ export default app({
 ```
 
 ### 1. Enable Username Authentication
+
+<AuthPackages />
 
 Let's start with adding the following to our `main.wasp.ts` file:
 
