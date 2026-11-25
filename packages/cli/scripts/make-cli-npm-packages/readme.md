@@ -27,7 +27,7 @@ The CLI package uses npm's `optionalDependencies` to install the correct platfor
 
 ## Usage
 
-Build the CLI wrapper first, since the tool copies its `dist/` into the main package:
+Build the CLI wrapper first, since the tool copies its `dist/` into the CLI package:
 
 ```bash
 pnpm --filter @wasp/cli run build

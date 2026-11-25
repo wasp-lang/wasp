@@ -47,6 +47,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - `logout` now throws an `HttpError` when the server answers with an error, like the other auth functions. ([#5021](https://github.com/wasp-lang/wasp/pull/5021))
 - The Auth UI reset password form now shows the error for an empty new password. ([#5138](https://github.com/wasp-lang/wasp/pull/5138))
 - The `basic` starter's ESLint config no longer lints the generated `.wasp/` dir, and its Prettier config sorts the Tailwind classes of the starter's theme. ([#5455](https://github.com/wasp-lang/wasp/pull/5455))
+- `wasp studio` now works when Wasp is installed in a path with spaces or other special characters. ([#5468](https://github.com/wasp-lang/wasp/pull/5468))
 - Async `userSignupFields` getters no longer make the client `signup()` types require a `Promise`. ([#5150](https://github.com/wasp-lang/wasp/pull/5150))
 - `wasp new` now rejects more edge-cases of invalid project names. ([#4763](https://github.com/wasp-lang/wasp/issues/4763))
 - Wasp commands running at the same time in the same project (e.g. `wasp show spec` next to `wasp start`) no longer fail or mix up each other's `main.wasp.ts` results. ([#5054](https://github.com/wasp-lang/wasp/pull/5054))
