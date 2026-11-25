@@ -209,14 +209,11 @@ library
     Wasp.Generator.FileDraft.TextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
+    Wasp.Generator.InstalledNpmDeps
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.NodeCommand
     Wasp.Generator.NodeCommands
-    Wasp.Generator.NpmDependencies
-    Wasp.Generator.NpmInstall
-    Wasp.Generator.NpmInstall.Common
-    Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.OptionalFeatureNpmDeps
     Wasp.Generator.OptionalFeatureNpmDeps.Common
     Wasp.Generator.SdkGenerator
@@ -452,6 +449,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.AvailableTemplates
     Wasp.Cli.Command.CreateNewProject.Common
+    Wasp.Cli.Command.CreateNewProject.NpmInstall
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled
@@ -569,7 +567,6 @@ test-suite waspc-tests
     AppSpec.FromJSONTest
     AppSpec.ValidTest
     EnvTest
-    ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
     Fixtures.AppSpec
     Fixtures.Paths
@@ -580,14 +577,15 @@ test-suite waspc-tests
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
+    Generator.InstalledNpmDepsTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.ServerGenerator.ServerEffectTest
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
-    Generator.VirtualUserModulesTest
     Generator.Valid.PackageJson.DependenciesTest
+    Generator.VirtualUserModulesTest
     Generator.WaspNpmPackageJsonTest
     Generator.WriteFileDraftsTest
     Job.CreateProcess.SearchPathTest
