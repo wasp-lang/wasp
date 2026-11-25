@@ -17,9 +17,10 @@ import System.Exit (ExitCode)
 import System.IO (Handle, hClose)
 import qualified System.Process as P
 import System.Timeout (timeout)
-import Wasp.Job.Common (Job (..), OutputType (..))
+import Wasp.Job.Common (Job (..))
 import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
 import Wasp.Util (secondsToMicroSeconds)
+import Wasp.Util.OutputStream (OutputStream (..))
 
 -- | Runs the process to completion, emitting its stdout and stderr as the job's
 -- output, and returns its exit code once all of it has been emitted.
@@ -38,7 +39,7 @@ fromProc jobProcess = Job $ do
 -- the process takes too long to exit, it stops waiting for it. The same happens
 -- if emitting the output fails. We only signal the process itself, and rely on
 -- it to stop the processes it started.
-run :: (OutputType -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
+run :: (OutputStream -> Text -> IO ()) -> P.CreateProcess -> IO ExitCode
 run emit process =
   P.withCreateProcess process {P.std_out = P.CreatePipe, P.std_err = P.CreatePipe} $
     \stdinHandle stdoutHandle stderrHandle processHandle ->

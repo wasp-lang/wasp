@@ -23,6 +23,7 @@ import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (checkExitSuccess, secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.OutputStream (OutputStream (..))
 
 -- Installs the npm deps of the user's project and its workspaces (the generated server and the
 -- Wasp SDK). Skips the install if `node_modules` exists and the installed npm deps log matches
@@ -71,7 +72,7 @@ installProjectNpmDependencies projectDir =
 
 installNpmDependenciesAndReport :: Path' Abs (Dir WaspProjectDir) -> Job.Job ExitCode
 installNpmDependenciesAndReport projectDir = do
-  Job.emitOutput Job.Stdout "Starting npm install\n"
+  Job.emitOutput Stdout "Starting npm install\n"
 
   either absurd id
     <$> Job.race
@@ -87,7 +88,7 @@ reportInstallationProgress =
   where
     reportMessage message = do
       liftIO $ threadDelay $ secondsToMicroSeconds 5
-      Job.emitOutput Job.Stdout $ T.append message "\n"
+      Job.emitOutput Stdout $ T.append message "\n"
       liftIO $ threadDelay $ secondsToMicroSeconds 5
 
     possibleMessages =

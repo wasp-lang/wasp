@@ -31,6 +31,7 @@ import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Util.OutputStream (OutputStream (..))
 
 -- We disable this lint because we use it for clarity here, because it is
 -- complex code:
@@ -124,11 +125,11 @@ startServer initialProjectRunConfig generatedAppDir inbox = do
 
     printUpdatingServer :: J.Job ()
     printUpdatingServer =
-      J.emitOutput J.Stdout "Updating server...\n"
+      J.emitOutput Stdout "Updating server...\n"
 
     printWaitingForChanges :: J.Job ()
     printWaitingForChanges =
-      J.emitOutput J.Stdout "Waiting for file changes before starting the server...\n"
+      J.emitOutput Stdout "Waiting for file changes before starting the server...\n"
 
     bundle :: J.Job ExitCode
     bundle =
@@ -178,8 +179,8 @@ waitUntilCompilesHandled inbox = atomically $ do
 
 reportServerExit :: ExitCode -> J.Job ()
 reportServerExit = \case
-  ExitSuccess -> J.emitOutput J.Stdout "Server process exited.\n"
-  ExitFailure code -> J.emitOutput J.Stderr $ T.pack $ "Server process exited with code " <> show code <> ".\n"
+  ExitSuccess -> J.emitOutput Stdout "Server process exited.\n"
+  ExitFailure code -> J.emitOutput Stderr $ T.pack $ "Server process exited with code " <> show code <> ".\n"
 
 data ServerEvent
   = -- | Interrupts the bundling for any compile that started before the change.
