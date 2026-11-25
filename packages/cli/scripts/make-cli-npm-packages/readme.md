@@ -27,6 +27,14 @@ The CLI package uses npm's `optionalDependencies` to install the correct platfor
 
 ## Usage
 
+Build the CLI wrapper first, since the tool copies its `dist/` into the main package:
+
+```bash
+pnpm --filter @wasp/cli run build
+```
+
+Then run the tool:
+
 ```bash
 node src/index.ts \
   --input-dir <path-to-input> \
@@ -52,11 +60,11 @@ The input directory must contain a `data.json` file with the following structure
   "tarballs": [
     {
       "fileName": "path/to/waspc-darwin-arm64-cli.tar.gz",
-      "target": ["darwin", "arm64"]
+      "target": { "os": "darwin", "cpu": "arm64" }
     },
     {
       "fileName": "path/to/waspc-linux-x64-musl-cli.tar.gz",
-      "target": ["linux", "x64", "musl"]
+      "target": { "os": "linux", "cpu": "x64", "libc": "musl" }
     }
   ]
 }
