@@ -67,3 +67,7 @@ Key things to know:
 - **Documentation**: Only edit `web/docs/` (the latest version). Do not modify `web/versioned_docs/` — those are auto-generated snapshots of previous versions.
 - **Markdown snapshots** (`web/markdown-snapshots/`) must never be manually edited. After changing docs, blog, or resources content (or the LLM files plugin), regenerate them by running `cd web && pnpm run build-dev && pnpm run markdown-snapshots:update`, then review the diff before committing. CI checks them with `pnpm run markdown-snapshots:check`.
 - **Pull requests**: Always use the repo's `PULL_REQUEST_TEMPLATE.md`. Never delete any checkbox from the template — leave irrelevant ones unchecked.
+- **PR stacks**: Use `gh stack` and merge instead of rebase:
+  - Update branches bottom to top with `git merge`, then `gh stack submit`.
+  - Merge PRs with `gh stack merge`. GitHub then rebases the remaining branches, so reset them to `origin`.
+  - Don't use `gh stack sync`, `gh stack rebase` or `gh stack modify`.
