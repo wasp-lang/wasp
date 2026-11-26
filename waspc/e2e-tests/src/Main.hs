@@ -51,7 +51,7 @@ warmUpWaspCli waspCliPath = do
   when (exitCode /= ExitSuccess) $ fail $ "Running `" ++ waspCliPath ++ " version` failed:\n" ++ out ++ err
 
 -- | tasty-discover names the group of the tests it collects after the driver
--- file, e.g. @e2e-tests/TestsDiscoverDriver.hs@.
+-- file, e.g. @e2e-tests/src/TestsDiscoverDriver.hs@.
 renameGroup :: String -> TestTree -> TestTree
 renameGroup name = \case
   TestGroup _ tests -> testGroup name tests

@@ -692,7 +692,7 @@ test-suite wasp-cli-tests
 test-suite waspc-e2e-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: e2e-tests
+  hs-source-dirs: e2e-tests/src
   main-is: Main.hs
   -- Test steps often run commands only for their side effects.
   ghc-options: -Wno-unused-do-bind

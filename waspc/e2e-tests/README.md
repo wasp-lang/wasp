@@ -50,7 +50,7 @@ Snapshots are compared in two ways:
 1. **By existence**: a file must exist in both the `current` and the `golden` snapshot.
 2. **By content**: the file contents must be identical in both the `current` and the `golden` snapshot.
 
-For more details, check out the `waspc/e2e-tests/E2E/Snapshot.hs` file.
+For more details, check out the `waspc/e2e-tests/src/E2E/Snapshot.hs` file.
 
 Snapshot tests run in their snapshot directory in `waspc/e2e-tests/test-outputs/snapshots/`.
 While the exact files within a snapshot aren't strictly defined, they usually have the following structure:
@@ -94,6 +94,7 @@ test_waspNewSnapshot = snapshotTest "wasp-new" $ createWaspProject minimalStarte
 ```
 
 - Tests are found with [tasty-discover](https://github.com/haskell-works/tasty-discover): every `test_<name> :: TestTree` in a `Tests/*Test.hs` module is a test, and in a `Tests/SnapshotTests/*Test.hs` one a snapshot test, so there's no list to add a new one to. The cabal file still lists the module.
+  - The Haskell sources live in `src/` because tasty-discover walks the whole directory of its driver module on every build, and `test-outputs/` can hold hundreds of thousands of files.
 
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
 - When a step fails, the test's failure message says which command failed and shows the last lines of its output.
