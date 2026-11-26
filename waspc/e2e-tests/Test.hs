@@ -72,12 +72,9 @@ cleanUpTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
 cleanUpTestCase testCaseDir = do
   shouldKeepOutputs <- isKeepOutputsEnabled
   unless shouldKeepOutputs $ removeDirectoryRecursive (fromAbsDir testCaseDir)
-
-isKeepOutputsEnabled :: IO Bool
-isKeepOutputsEnabled = maybe False (not . null) <$> lookupEnv keepOutputsEnvVarName
-
-keepOutputsEnvVarName :: String
-keepOutputsEnvVarName = "WASP_E2E_TESTS_KEEP_OUTPUTS"
+  where
+    isKeepOutputsEnabled = maybe False (not . null) <$> lookupEnv keepOutputsEnvVarName
+    keepOutputsEnvVarName = "WASP_E2E_TESTS_KEEP_OUTPUTS"
 
 executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> String -> IO (ExitCode, Path' Abs (File TestLogFile))
 executeTestCaseCommand testCaseDir testCaseCommand testName = do
