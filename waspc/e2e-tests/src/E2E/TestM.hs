@@ -64,9 +64,6 @@ data TestLog = TestLog
   }
 
 -- | A sequence of test steps. Steps fail the test by throwing 'TestFailure'.
---
--- Its 'ResourceT' scope holds the actions to run when the steps end, no matter
--- how they end. The last registered one runs first.
 newtype TestM a = TestM (ReaderT TestEnv (ResourceT IO) a)
   deriving (Functor, Applicative, Monad, MonadIO, MonadUnliftIO, MonadResource, MonadReader TestEnv)
 

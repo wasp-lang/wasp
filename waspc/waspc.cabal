@@ -711,7 +711,7 @@ test-suite waspc-e2e-tests
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
-    hspec-expectations ^>=0.8.4,
+    hspec-expectations-lifted ^>=0.10.0,
     HUnit ^>=1.6.2,
     mtl,
     neat-interpolation,

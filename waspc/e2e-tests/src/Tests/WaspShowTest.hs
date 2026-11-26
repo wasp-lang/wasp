@@ -2,6 +2,7 @@ module Tests.WaspShowTest (test_waspShow) where
 
 import Control.Monad (forM_)
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Text as T
 import E2E
 import Tests.Fixtures (setRootRoutePath)
@@ -20,10 +21,12 @@ test_waspShow =
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["show", "spec"] >>= assertStdoutContains "RootRoute"
           -- With `--json`, stdout alone must be the JSON.
-          wasp ["show", "spec", "--json"] >>= assertStdoutJsonField "waspVersion" (Aeson.String textWaspVersion)
+          spec <- wasp ["show", "spec", "--json"] >>= decodeStdoutJson
+          KeyMap.lookup "waspVersion" spec `shouldBe` Just (Aeson.String textWaspVersion)
           wasp ["show", "build"] >>= assertStdoutContains "Project dir size"
+          build <- wasp ["show", "build", "--json"] >>= decodeStdoutJson
           -- The project was never compiled.
-          wasp ["show", "build", "--json"] >>= assertStdoutJsonField "lastCompile" Aeson.Null,
+          KeyMap.lookup "lastCompile" build `shouldBe` Just Aeson.Null,
       -- `wasp show spec` doesn't lock the project, so its analysis can overlap
       -- with others (e.g. a `wasp start` recompile). Each analysis here
       -- declares a different route (taken from an env var), and must only see

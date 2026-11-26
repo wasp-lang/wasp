@@ -20,6 +20,7 @@ module E2E.Process
     getOutput,
     stdoutLines,
     firstStdoutLine,
+    decodeStdoutJson,
     waitForExit,
     waitUntilExited,
     stopTimeoutSeconds,
@@ -37,6 +38,7 @@ import Control.Monad (forM_, unless, void, when)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask, asks)
 import Control.Monad.Trans.Resource (ReleaseKey, release)
+import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as BSL
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.List (intercalate)
@@ -239,6 +241,13 @@ firstStdoutLine :: ProcessResult -> TestM String
 firstStdoutLine result = case stdoutLines result of
   firstLine : _ -> return firstLine
   [] -> failWithResult result "printed nothing to stdout"
+
+-- | Stdout decoded as JSON, e.g. into an 'Aeson.Object' to check its fields.
+-- Fails the test if it doesn't decode.
+decodeStdoutJson :: (Aeson.FromJSON a) => ProcessResult -> TestM a
+decodeStdoutJson result =
+  either (failWithResult result . ("printed JSON to stdout that doesn't decode: " ++)) return $
+    Aeson.eitherDecodeStrict (TE.encodeUtf8 result.stdout)
 
 -- | Waits for the process to exit, but at most for the given number of seconds.
 -- If it doesn't exit in time, the test fails (and the process is stopped).
