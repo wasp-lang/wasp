@@ -205,7 +205,7 @@ export default app({
 })
 ```
 
-Prerendering can't be used on auth-required pages. You can read more in our prerendering documentation:
+The prerendering documentation covers the rest, including why auth-required pages can't be prerendered:
 
 <CardLink
   kind="docs"
