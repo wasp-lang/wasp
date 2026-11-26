@@ -48,6 +48,17 @@
   --wasp-w: #fafafa;
   --wasp-bg: #f7f5f0;
   --wasp-code-bg: #f0ede6;
+  /* Translucent, so inline code darkens (light theme) or lightens (dark theme) whatever is behind it. */
+  --wasp-inline-code-bg: color-mix(
+    in srgb,
+    var(--ifm-heading-color) 6%,
+    transparent
+  );
+  --wasp-inline-code-border: color-mix(
+    in srgb,
+    var(--ifm-heading-color) 22%,
+    transparent
+  );
   --wasp-handle: 7px;
 }
 
@@ -144,8 +155,8 @@ code {
 }
 
 :not(pre) > code {
-  background-color: var(--wasp-code-bg);
-  border: 1px solid var(--wasp-g3);
+  background-color: var(--wasp-inline-code-bg);
+  border: 1px solid var(--wasp-inline-code-border);
   border-radius: 0;
   padding: 1px 0.3em;
   color: var(--ifm-heading-color);

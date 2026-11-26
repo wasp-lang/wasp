@@ -57,8 +57,8 @@ pre[class*="language-"] {
 /* Inline code (no JS theme equivalent — must be CSS). */
 :not(pre) > code[class*="language-"] {
   padding: 1px 0.3em;
-  background: var(--wasp-code-bg);
-  border: 1px solid var(--wasp-g3);
+  background: var(--wasp-inline-code-bg);
+  border: 1px solid var(--wasp-inline-code-border);
 }
 
 .token.namespace {
