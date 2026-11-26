@@ -30,7 +30,7 @@ import Control.Concurrent.MVar (MVar, withMVar)
 import Control.Monad (unless, void)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT)
-import Control.Monad.Trans.Resource (InternalState, MonadResource (..), ReleaseKey, allocate, getInternalState, runInternalState, runResourceT)
+import Control.Monad.Trans.Resource (MonadResource, ReleaseKey, ResourceT, allocate, runResourceT)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -53,10 +53,7 @@ data TestEnv = TestEnv
     -- | The absolute directory relative paths are resolved against and
     -- commands run in.
     workingDir :: FilePath,
-    testLog :: TestLog,
-    -- | Holds the actions to run when the test ends, no matter how it ends.
-    -- The last registered one runs first.
-    resources :: InternalState
+    testLog :: TestLog
   }
 
 data TestLog = TestLog
@@ -67,11 +64,11 @@ data TestLog = TestLog
   }
 
 -- | A sequence of test steps. Steps fail the test by throwing 'TestFailure'.
-newtype TestM a = TestM (ReaderT TestEnv IO a)
-  deriving (Functor, Applicative, Monad, MonadIO, MonadUnliftIO, MonadReader TestEnv)
-
-instance MonadResource TestM where
-  liftResourceT action = asks (.resources) >>= liftIO . runInternalState action
+--
+-- Its 'ResourceT' scope holds the actions to run when the steps end, no matter
+-- how they end. The last registered one runs first.
+newtype TestM a = TestM (ReaderT TestEnv (ResourceT IO) a)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadUnliftIO, MonadResource, MonadReader TestEnv)
 
 newtype TestFailure = TestFailure String
 
@@ -82,8 +79,10 @@ instance Show TestFailure where
 
 instance Exception TestFailure
 
+-- | Runs the steps in a cleanup scope of their own, which runs the cleanups
+-- they registered once they end.
 runTestM :: TestEnv -> TestM a -> IO a
-runTestM testEnv (TestM reader) = runReaderT reader testEnv
+runTestM testEnv (TestM reader) = runResourceT $ runReaderT reader testEnv
 
 failTest :: String -> TestM a
 failTest = throwIO . TestFailure
@@ -151,10 +150,7 @@ allocateWithCleanup acquire cleanup = do
 registerCleanupStep :: TestM () -> TestM ()
 registerCleanupStep cleanupSteps = do
   testEnv <- ask
-  let runStepsInOwnScope = runResourceT $ do
-        stepsResources <- getInternalState
-        liftIO $ runTestM testEnv {resources = stepsResources} cleanupSteps
-  void $ allocateWithCleanup (return ()) (const runStepsInOwnScope)
+  void $ allocateWithCleanup (return ()) (const $ runTestM testEnv cleanupSteps)
 
 -- | Writes the failure to the test's log, and to the test runner's stderr,
 -- since the test still passes, and a passing test's output isn't shown with

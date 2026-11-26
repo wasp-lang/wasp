@@ -23,8 +23,6 @@ where
 import Control.Concurrent.MVar (newMVar)
 import Control.Exception (throwIO)
 import Control.Monad (unless)
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Trans.Resource (getInternalState, runResourceT)
 import Data.List (intercalate, isPrefixOf, nub)
 import Data.Tagged (Tagged (..))
 import E2E.RunConfig (RunConfig (..))
@@ -174,18 +172,15 @@ runTestSteps runConfig testName TestPaths {workingDir, logFile} steps = do
   withFile logFile WriteMode $ \logHandle -> do
     hPutStrLn logHandle $ "=== " ++ testName ++ " ==="
     logLock <- newMVar ()
-    let runStepsAndCleanups = runResourceT $ do
-          resources <- getInternalState
-          liftIO $
-            runTestM
-              TestEnv
-                { runConfig,
-                  testName,
-                  workingDir,
-                  testLog = TestLog {logFile, logHandle, logLock},
-                  resources
-                }
-              steps
+    let runStepsAndCleanups =
+          runTestM
+            TestEnv
+              { runConfig,
+                testName,
+                workingDir,
+                testLog = TestLog {logFile, logHandle, logLock}
+              }
+            steps
 
     tryAny runStepsAndCleanups >>= \case
       Right result -> return result
