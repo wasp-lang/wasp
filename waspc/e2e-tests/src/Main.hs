@@ -1,5 +1,4 @@
 import Control.Monad (unless, when)
-import E2E.Heartbeat (heartbeatReporter)
 import E2E.Signals (stopOnFirstCtrlC)
 import E2E.Test (checkOutputDirs, setTestSuiteEnv)
 import E2E.TestSuiteEnv (TestSuiteEnv (..), getTestSuiteEnv, skipDockerEnvVar)
@@ -7,9 +6,8 @@ import qualified SnapshotTestsDiscoverDriver
 import System.Exit (ExitCode (..))
 import System.Info (os)
 import System.Process (readProcessWithExitCode)
-import Test.Tasty (defaultMainWithIngredients, localOption, testGroup)
-import Test.Tasty.Ingredients (composeReporters)
-import Test.Tasty.Runners (NumThreads (..), TestTree (TestGroup), consoleTestReporter, listingTests)
+import Test.Tasty (defaultMain, localOption, testGroup)
+import Test.Tasty.Runners (NumThreads (..), TestTree (TestGroup))
 import qualified TestsDiscoverDriver
 
 main :: IO ()
@@ -34,7 +32,7 @@ main = do
       checkOutputDirs testTree
       -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
       warmUpWaspCli testSuiteEnv.waspCliPath
-      defaultMainWithIngredients [listingTests, composeReporters heartbeatReporter consoleTestReporter] testTree
+      defaultMain testTree
 
 -- | Builds the dev Wasp CLI once, serially, before the tests start invoking it
 -- concurrently.
