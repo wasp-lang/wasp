@@ -27,8 +27,8 @@
 
 :root {
   --wasp-y: #f5c842;
-  --wasp-sl: "#f8d670";
-  --wasp-ql: "#fce59e";
+  --wasp-sl: #f8d670;
+  --wasp-ql: #fce59e;
   --wasp-yl: #fff3cc;
   --wasp-yd: #d4a930;
   --wasp-p: #7b42f5;
@@ -419,17 +419,15 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --ifm-font-family-base: "IBM Plex Sans", sans-serif;
   --ifm-heading-font-family: "IBM Plex Mono", monospace;
   --ifm-color-primary: #bf9900;
-  /* TODO: update colors below with new design (#f5c842) */
-  /* wasp color (ffcc00) darkened by 25% */
-  --ifm-color-primary-dark: #8a6f04;
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208);
+  /* Shades of the primary color, generated like Docusaurus' color generator does. */
+  --ifm-color-primary-dark: #ac8a00;
+  --ifm-color-primary-darker: #a28200;
+  --ifm-color-primary-darkest: #866b00;
+  --ifm-color-primary-light: #d2a800;
+  --ifm-color-primary-lighter: #dcb000;
+  --ifm-color-primary-lightest: #f8c700;
   /* Controls inline code size. Is set to 95% by default. */
   --ifm-code-font-size: 100%;
-  --ifm-code-background-dark: #292d3e;
   /* NOTE(matija): used this because setting --ifm-code-border-radius did nothing, not sure why. */
   --ifm-global-radius: 0;
   /* Kill all Infima lightweight shadows globally — fits our flat/schematic look */
