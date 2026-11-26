@@ -694,6 +694,8 @@ test-suite waspc-e2e-tests
   type: exitcode-stdio-1.0
   hs-source-dirs: e2e-tests
   main-is: Main.hs
+  -- Test steps often run commands only for their side effects.
+  ghc-options: -Wno-unused-do-bind
   build-tool-depends:
     tasty-discover:tasty-discover,
     waspc:wasp-cli,
