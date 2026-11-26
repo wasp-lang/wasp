@@ -48,10 +48,6 @@
   --wasp-w: #fafafa;
   --wasp-bg: #f7f5f0;
   --wasp-code-bg: #f0ede6;
-  /* Translucent so inline code stands out on the page and on every admonition color. */
-  --wasp-inline-code-bg: rgba(17, 17, 17, 0.08);
-  --wasp-inline-code-border: rgba(17, 17, 17, 0.2);
-  --wasp-inline-code-color: #1f1f1f;
   --wasp-handle: 7px;
 }
 
@@ -142,22 +138,18 @@ html.blog-wrapper[data-theme="dark"] {
   --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
-html[data-theme="dark"] {
-  --wasp-inline-code-bg: rgba(255, 255, 255, 0.1);
-  --wasp-inline-code-border: rgba(255, 255, 255, 0.2);
-  --wasp-inline-code-color: #e6e6e6;
-}
-
 /* Infima sets `vertical-align: middle`, which pushes inline code off the text's baseline. */
 code {
   vertical-align: baseline;
 }
 
-/* Infima's inline code background blends into our page and admonition colors. */
+/* Inline code matches the page title. Infima's own background blends into our page,
+   and Tailwind's preflight zeroes Infima's border width. */
 :not(pre) > code {
-  background-color: var(--wasp-inline-code-bg);
-  border-color: var(--wasp-inline-code-border);
-  color: var(--wasp-inline-code-color);
+  background-color: var(--wasp-yl);
+  border: 1px solid var(--wasp-g3);
+  border-radius: 0;
+  color: var(--ifm-heading-color);
 }
 
 /* Links keep their color so they still read as links. */
