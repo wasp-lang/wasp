@@ -138,11 +138,11 @@ stopDevDbWithSignal sig devDb devDbDockerNames = do
     -- `docker run` client instead, which is Wasp.
     getWaspPid = do
       -- Matches `docker run ... --name <container> ...`, which only Wasp runs.
-      pgrepResult <- runAllowingFailure $ command "pgrep" ["-f", "docker run .*--name " ++ devDbDockerNames.containerName ++ " "]
+      pgrepResult <- runAllowingFailure $ program "pgrep" ["-f", "docker run .*--name " ++ devDbDockerNames.containerName ++ " "]
       unless (pgrepResult.exitCode == ExitSuccess) $
         failWithResult pgrepResult "found no `docker run` process of the dev database"
       dockerRunPid <- firstStdoutLine pgrepResult
-      psResult <- run (command "ps" ["-o", "ppid=", "-p", dockerRunPid])
+      psResult <- run (program "ps" ["-o", "ppid=", "-p", dockerRunPid])
       waspPid <- firstStdoutLine psResult
       maybe (failWithResult psResult "printed an invalid parent PID") return (readMaybe waspPid)
 

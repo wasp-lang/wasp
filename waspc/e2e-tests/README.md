@@ -104,7 +104,6 @@ test_waspNewSnapshot = snapshotTest "wasp-new" $ createWaspProject minimalStarte
 - Tests that need Docker are made with `dockerTest` instead of `test`, and pass without running when Docker is disabled. Snapshot tests must produce a snapshot, so they use `whenDockerEnabled` for their Docker steps.
 - Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them, registered before the step that creates them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone. Nothing can cut a hung cleanup short, so give their commands the short `cleanupCommandTimeoutSeconds` (`dockerCleanup` does).
 - Timeouts and other tuning numbers are named constants (e.g. `failFastTimeoutSeconds`, `settleTimeoutSeconds`), defined once in `E2E/` when more than one module uses them for the same reason.
-- `wasp` commands run without the runner's `DATABASE_URL`, so they can't act on a database outside the test. Tests that need one set it with `withEnv`.
 
 ### Where helpers go
 

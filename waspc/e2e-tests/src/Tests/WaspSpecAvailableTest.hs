@@ -84,4 +84,4 @@ test_waspSpecAvailable =
 
 {- HLINT ignore npmPkgSetVersionCommand "Avoid npm and npx" -}
 npmPkgSetVersionCommand :: Command
-npmPkgSetVersionCommand = command "npm" ["pkg", "set", "version=9.9.9"]
+npmPkgSetVersionCommand = program "npm" ["pkg", "set", "version=9.9.9"]

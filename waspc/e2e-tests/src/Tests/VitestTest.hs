@@ -104,4 +104,4 @@ test_vitest =
 -- | Like the testing docs, we install the latest versions, so that we notice
 -- when a new release of these libraries breaks the `wasp/client/test` helpers.
 installTestingLibrariesCommand :: Command
-installTestingLibrariesCommand = command "npm" ["install", "-D", "vitest", "jsdom", "@testing-library/react", "msw"]
+installTestingLibrariesCommand = program "npm" ["install", "-D", "vitest", "jsdom", "@testing-library/react", "msw"]

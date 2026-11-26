@@ -11,7 +11,7 @@ where
 
 import Control.Monad (void)
 import Control.Monad.Reader (asks)
-import E2E.Command (Command (..), cleanupCommandTimeoutSeconds, command)
+import E2E.Command (Command (..), cleanupCommandTimeoutSeconds, program)
 import E2E.Process (ProcessResult, run, runAllowingFailure)
 import E2E.Test (TestTree, skippedTest, test, withTestSuiteEnv)
 import E2E.TestM (TestEnv (..), TestM, logLine)
@@ -45,7 +45,7 @@ docker = run . dockerCommand
 -- | For Docker CLI commands that need different settings, e.g. a shorter
 -- timeout.
 dockerCommand :: [String] -> Command
-dockerCommand = command "docker"
+dockerCommand = program "docker"
 
 -- | For cleanup steps: the resource may already be gone, and nothing can cut
 -- a hung cleanup short.

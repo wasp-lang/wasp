@@ -50,7 +50,7 @@ test_waspStart =
     crashWebApp :: TestM ()
     crashWebApp = do
       viteBin <- resolvePath "node_modules/.bin/vite"
-      result <- runAllowingFailure $ command "pkill" ["-KILL", "-f", viteBin]
+      result <- runAllowingFailure $ program "pkill" ["-KILL", "-f", viteBin]
       unless (result.exitCode == ExitSuccess) $
         failWithResult result "found no Vite dev server process to kill"
 

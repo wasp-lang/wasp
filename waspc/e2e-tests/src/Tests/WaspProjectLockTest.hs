@@ -128,7 +128,7 @@ releaseLock lockHolder = do
 
 {- HLINT ignore addPreinstallHookCommand "Avoid npm and npx" -}
 addPreinstallHookCommand :: Command
-addPreinstallHookCommand = command "npm" ["pkg", "set", "scripts.preinstall=node " ++ preinstallHookFile]
+addPreinstallHookCommand = program "npm" ["pkg", "set", "scripts.preinstall=node " ++ preinstallHookFile]
 
 preinstallHookFile :: FilePath
 preinstallHookFile = ".wasp-e2e-preinstall.mjs"

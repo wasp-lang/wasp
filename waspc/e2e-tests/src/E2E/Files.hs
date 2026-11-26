@@ -17,7 +17,7 @@ import Control.Monad.Reader (asks)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Command (command)
+import E2E.Command (program)
 import E2E.Process (ProcessResult (..), RunningProcess, failIfExited, failWithOutput, run)
 import E2E.TestM (TestEnv (..), TestM, failTest, inDirectory, pollUntil, resolvePath)
 import E2E.TestSuiteEnv (TestSuiteEnv (..))
@@ -83,7 +83,7 @@ copyGitTrackedDir srcDirInGitRoot dstDir = do
   -- Run in the source directory, so the paths are relative to it.
   trackedFiles <-
     map T.unpack . filter (not . T.null) . T.splitOn "\0" . (.stdout)
-      <$> inDirectory srcDir (run $ command "git" ["ls-files", "-z"])
+      <$> inDirectory srcDir (run $ program "git" ["ls-files", "-z"])
   liftIO $
     forM_ trackedFiles $ \file -> do
       createDirectoryIfMissing True (takeDirectory $ absDstDir </> file)

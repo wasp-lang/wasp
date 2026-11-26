@@ -3,7 +3,7 @@ module E2E.Command
   ( Command (..),
     Executable (..),
     StdinMode (..),
-    command,
+    program,
     waspCli,
     nodeModulesBin,
     withEnv,
@@ -18,7 +18,6 @@ where
 import Data.List (intercalate)
 import qualified Data.Text as T
 import qualified System.FilePath as FP
-import Wasp.Project.Db (databaseUrlEnvVarName)
 
 data Command = Command
   { executable :: Executable,
@@ -45,10 +44,16 @@ data StdinMode
   | -- | Stdin stays open, without any data, until the process is stopped.
     OpenEmptyStdin
 
-command :: String -> [String] -> Command
-command program arguments =
+waspCli :: [String] -> Command
+waspCli = command WaspCli
+
+program :: String -> [String] -> Command
+program = command . Program
+
+command :: Executable -> [String] -> Command
+command executable arguments =
   Command
-    { executable = Program program,
+    { executable = executable,
       arguments,
       environmentOverrides = [],
       extraPath = [],
@@ -73,17 +78,11 @@ failFastTimeoutSeconds = 2 * 60
 cleanupCommandTimeoutSeconds :: Int
 cleanupCommandTimeoutSeconds = 60
 
--- | Runs without the test runner's @DATABASE_URL@. With it, Wasp would use
--- that database instead of the project's dev database, so e.g. a test's
--- `wasp db reset` would wipe it. Tests that need it set it with 'withEnv'.
-waspCli :: [String] -> Command
-waspCli arguments = withoutEnv [databaseUrlEnvVarName] $ (command "wasp" arguments) {executable = WaspCli}
-
 -- | A binary of an npm package installed in the working directory. Like with
 -- @npx@, the other binaries there are on its @PATH@. We don't use @npx@ itself
 -- since it doesn't forward signals correctly in some environments.
 nodeModulesBin :: String -> [String] -> Command
-nodeModulesBin bin arguments = (command (binDir ++ "/" ++ bin) arguments) {extraPath = [binDir]}
+nodeModulesBin bin arguments = (program (binDir ++ "/" ++ bin) arguments) {extraPath = [binDir]}
   where
     binDir = "node_modules/.bin"
 
@@ -107,7 +106,7 @@ showCommand cmd = unwords $ envPrefix ++ map quoteIfNeeded (executableName : cmd
   where
     executableName = case cmd.executable of
       WaspCli -> "wasp"
-      Program program -> program
+      Program program' -> program'
     envPrefix = unsetPrefix ++ [key ++ "=" ++ quoteIfNeeded value | (key, Just value) <- cmd.environmentOverrides] ++ pathPrefix
     -- Last, since the extra path dirs go before the @PATH@ the overrides leave.
     pathPrefix = case cmd.extraPath of
