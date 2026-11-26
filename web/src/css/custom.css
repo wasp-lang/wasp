@@ -144,7 +144,7 @@ code {
 }
 
 :not(pre) > code {
-  background-color: var(--wasp-yl);
+  background-color: var(--wasp-code-bg);
   border: 1px solid var(--wasp-g3);
   border-radius: 0;
   padding: 1px 0.3em;
