@@ -44,6 +44,24 @@ spec_PackageManager_Detection_ProjectFiles = do
           detectFromProjectFiles projectRoot
             `shouldReturn` found Bun (DevEnginesField $ projectRoot </> [relfile|package.json|])
 
+      it "picks the devEngines alternative that Wasp supports"
+        $ withProject
+          [ ".git/HEAD" ~> "",
+            "package.json" ~> [trimming|{ "devEngines": { "packageManager": [{ "name": "yarn" }, { "name": "npm" }] } }|]
+          ]
+        $ \projectRoot ->
+          detectFromProjectFiles projectRoot
+            `shouldReturn` found Npm (DevEnginesField $ projectRoot </> [relfile|package.json|])
+
+      it "picks the first devEngines alternative when Wasp supports none of them"
+        $ withProject
+          [ ".git/HEAD" ~> "",
+            "package.json" ~> [trimming|{ "devEngines": { "packageManager": [{ "name": "yarn" }, { "name": "pnpm" }] } }|]
+          ]
+        $ \projectRoot ->
+          detectFromProjectFiles projectRoot
+            `shouldReturn` found Yarn (DevEnginesField $ projectRoot </> [relfile|package.json|])
+
       it "detects the pnpm lockfile"
         $ withProject
           [ ".git/HEAD" ~> "",

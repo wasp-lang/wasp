@@ -3,15 +3,18 @@ module Wasp.PackageManager.Detection.ProjectFiles
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Monad.Extra (findM, firstJustM, ifM, (||^))
 import Data.Aeson (Value)
-import Data.Foldable (asum)
+import Data.Foldable (asum, find)
+import Data.Maybe (listToMaybe)
 import StrongPath (Abs, Dir, File', Path', relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesPathExist)
 import Wasp.PackageManager.Detection.Common (Detection (..), DetectionSource (..))
 import Wasp.PackageManager.MarkerFiles (MarkerFile (..), PackageRootDir, installMetadataFiles, lockfilesAndWorkspaceFiles)
 import Wasp.PackageManager.PackageJson (hasWorkspacesField, parseDevEnginesField, parsePackageManagerField)
+import Wasp.PackageManager.PackageManager (supportedPackageManagers)
 import Wasp.Util.IO (doesFileExist)
 import Wasp.Util.Json (readJsonFile)
 
@@ -51,8 +54,12 @@ detectFromPackageJson :: Path' Abs File' -> Value -> Maybe Detection
 detectFromPackageJson packageJsonPath packageJson =
   asum
     [ (`Detection` PackageManagerField packageJsonPath) <$> parsePackageManagerField packageJson,
-      (`Detection` DevEnginesField packageJsonPath) <$> parseDevEnginesField packageJson
+      (`Detection` DevEnginesField packageJsonPath) <$> pickAlternative (parseDevEnginesField packageJson)
     ]
+  where
+    -- The project accepts any of the alternatives, so one Wasp supports wins.
+    pickAlternative alternatives =
+      find (`elem` supportedPackageManagers) alternatives <|> listToMaybe alternatives
 
 detectFromMarkerFiles ::
   (Path' Abs File' -> DetectionSource) ->
