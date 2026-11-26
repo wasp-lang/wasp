@@ -156,9 +156,6 @@ npmDepsFromWasp spec =
       { -- TODO(#4824): The generated server stops being an npm workspace once
         -- it lists no dependencies. For that, the optional ones (WebSockets)
         -- move to the user's project and the Wasp libs to @wasp/wasp.
-        --
-        -- Only the dependencies that depend on the app. The core ones are peer
-        -- dependencies of @wasp/wasp.
         N.dependencies =
           depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,
