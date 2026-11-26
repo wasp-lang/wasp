@@ -18,31 +18,31 @@ import Wasp.Util.Json (readJsonFile)
 -- | Checks the given directory, and then the workspace roots above it, so a
 -- package inside a monorepo finds the root's lockfile.
 detectFromProjectFiles :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
-detectFromProjectFiles startDir =
-  firstJustM id [detectInDir startDir, detectInWorkspaceRootsAbove startDir]
+detectFromProjectFiles startDir = do
+  packageJson <- readPackageJsonIfValid startDir
+  firstJustM id [detectInDir startDir packageJson, detectInWorkspaceRootsAbove startDir]
 
+-- | Walks up one directory at a time, nearest first, and stops at the first
+-- detection or at the repository root.
 detectInWorkspaceRootsAbove :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
-detectInWorkspaceRootsAbove dir = getAncestorDirsInRepository dir >>= firstJustM detectInWorkspaceRoot
-  where
-    detectInWorkspaceRoot ancestorDir =
-      ifM (isWorkspaceRoot ancestorDir) (detectInDir ancestorDir) (return Nothing)
-
--- | The directories above the given one, nearest first, up to the repository
--- root.
-getAncestorDirsInRepository :: Path' Abs (Dir PackageRootDir) -> IO [Path' Abs (Dir PackageRootDir)]
-getAncestorDirsInRepository dir = do
-  isAtRepositoryRoot <- isRepositoryRoot dir
-  if isAtRepositoryRoot || parentDir == dir
-    then return []
-    else (parentDir :) <$> getAncestorDirsInRepository parentDir
+detectInWorkspaceRootsAbove dir =
+  ifM
+    (pure (parentDir == dir) ||^ isRepositoryRoot dir)
+    (return Nothing)
+    (firstJustM id [detectInWorkspaceRoot parentDir, detectInWorkspaceRootsAbove parentDir])
   where
     parentDir = SP.parent dir
 
-detectInDir :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
-detectInDir dir =
+detectInWorkspaceRoot :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
+detectInWorkspaceRoot dir = do
+  packageJson <- readPackageJsonIfValid dir
+  ifM (isWorkspaceRoot dir packageJson) (detectInDir dir packageJson) (return Nothing)
+
+detectInDir :: Path' Abs (Dir PackageRootDir) -> Maybe Value -> IO (Maybe Detection)
+detectInDir dir packageJson =
   firstJustM
     id
-    [ (>>= detectFromPackageJson (packageJsonPathIn dir)) <$> readPackageJsonIfValid dir,
+    [ return $ packageJson >>= detectFromPackageJson (packageJsonPathIn dir),
       detectFromMarkerFiles LockfileOrWorkspaceFile lockfilesAndWorkspaceFiles dir,
       detectFromMarkerFiles InstallMetadata installMetadataFiles dir
     ]
@@ -71,15 +71,16 @@ packageJsonPathIn dir = dir </> [relfile|package.json|]
 -- | 'Nothing' for an invalid package.json too, so the other files in the
 -- directory still get checked.
 readPackageJsonIfValid :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Value)
-readPackageJsonIfValid dir = do
-  exists <- doesFileExist $ packageJsonPathIn dir
-  if exists then readJsonFile $ packageJsonPathIn dir else return Nothing
+readPackageJsonIfValid dir =
+  ifM (doesFileExist packageJsonPath) (readJsonFile packageJsonPath) (return Nothing)
+  where
+    packageJsonPath = packageJsonPathIn dir
 
 -- | @.git@ is a directory in a normal clone and a file in a git worktree.
 isRepositoryRoot :: Path' Abs (Dir PackageRootDir) -> IO Bool
 isRepositoryRoot dir = doesPathExist $ SP.fromAbsFile $ dir </> [relfile|.git|]
 
-isWorkspaceRoot :: Path' Abs (Dir PackageRootDir) -> IO Bool
-isWorkspaceRoot dir =
-  doesFileExist (dir </> [relfile|pnpm-workspace.yaml|])
-    ||^ (maybe False hasWorkspacesField <$> readPackageJsonIfValid dir)
+isWorkspaceRoot :: Path' Abs (Dir PackageRootDir) -> Maybe Value -> IO Bool
+isWorkspaceRoot dir packageJson =
+  pure (maybe False hasWorkspacesField packageJson)
+    ||^ doesFileExist (dir </> [relfile|pnpm-workspace.yaml|])
