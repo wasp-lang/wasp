@@ -143,12 +143,11 @@ code {
   vertical-align: baseline;
 }
 
-/* Inline code matches the page title. Infima's own background blends into our page,
-   and Tailwind's preflight zeroes Infima's border width. */
 :not(pre) > code {
   background-color: var(--wasp-yl);
   border: 1px solid var(--wasp-g3);
   border-radius: 0;
+  padding: 1px 0.3em;
   color: var(--ifm-heading-color);
 }
 
