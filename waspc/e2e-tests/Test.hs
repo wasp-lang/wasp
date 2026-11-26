@@ -7,10 +7,13 @@ module Test
   )
 where
 
+import Control.Monad (unless)
 import Data.Maybe (fromJust)
 import FileSystem (TestCaseDir, TestLogFile, getTestCaseDir, testCaseLogFileInTestCaseDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
 import StrongPath (Abs, Dir, File, Path', fromAbsDir, parseRelDir, (</>))
+import System.Directory (removeDirectoryRecursive)
+import System.Environment (lookupEnv)
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
 import Test.Hspec (Spec, expectationFailure, it)
@@ -45,7 +48,7 @@ testTreeFromTest test = do
 
         case exitCode of
           ExitFailure code -> expectationFailure =<< formatCommandFailure code logFile
-          ExitSuccess -> return ()
+          ExitSuccess -> cleanUpTestCase testCaseDir
 
 createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
 createTestCaseCommand testCaseDir testCase =
@@ -62,6 +65,16 @@ setupTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
 setupTestCase testCaseDir = do
   callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
   callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
+
+-- | Outputs of a passed test case are rarely needed and take up a lot of disk space
+-- (mostly `node_modules`), so we remove them unless asked to keep them.
+cleanUpTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
+cleanUpTestCase testCaseDir = do
+  shouldKeepOutputs <- isKeepOutputsEnabled
+  unless shouldKeepOutputs $ removeDirectoryRecursive (fromAbsDir testCaseDir)
+  where
+    isKeepOutputsEnabled = maybe False (not . null) <$> lookupEnv keepOutputsEnvVarName
+    keepOutputsEnvVarName = "WASP_E2E_TESTS_KEEP_OUTPUTS"
 
 executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> String -> IO (ExitCode, Path' Abs (File TestLogFile))
 executeTestCaseCommand testCaseDir testCaseCommand testName = do

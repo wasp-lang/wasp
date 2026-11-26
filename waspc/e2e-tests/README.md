@@ -26,6 +26,8 @@ We test Wasp CLI commands whose outputs we can discard.
 
 Tests execute their test cases in the `TestCaseDir`s.
 The `TestCaseDir`s are created in the `waspc/e2e-tests/test-outputs/` directory.
+A `TestCaseDir` is removed when its test case passes and kept when it fails, so you can inspect what went wrong.
+To keep the `TestCaseDir`s of passed test cases too, set `WASP_E2E_TESTS_KEEP_OUTPUTS=1`.
 While the exact files within a `TestCaseDir` aren't strictly defined, they usually have the following structure:
 
 ```
