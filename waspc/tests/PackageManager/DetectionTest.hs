@@ -38,7 +38,7 @@ spec_PackageManager_Detection = do
       withRepositoryRoot $ \repositoryRoot ->
         detectProjectPackageManager repositoryRoot `shouldReturn` (Npm, Nothing)
 
-  -- This never gets to the user agent, so it can run next to the test above.
+  -- This never gets to the user agent, so it can run next to the previous test.
   it "uses npm with a warning when Wasp doesn't support the project's package manager" $
     withRepositoryRoot $ \repositoryRoot -> do
       lockfile <- writeEmptyFile repositoryRoot [relfile|pnpm-lock.yaml|]
@@ -53,7 +53,7 @@ spec_PackageManager_Detection = do
 
     setUserAgent = maybe (unsetEnv userAgentEnvVarName) (setEnv userAgentEnvVarName)
 
-    -- The @.git@ keeps detection from looking above the temporary directory.
+    -- The @.git@ keeps detection out of the parent directories of the temporary one.
     withRepositoryRoot check =
       withSystemTempDirectory "wasp-package-manager" $ \tempDir -> do
         repositoryRoot <- fromJust . SP.parseAbsDir <$> canonicalizePath tempDir

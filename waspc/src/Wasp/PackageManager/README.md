@@ -21,7 +21,7 @@ Both give the package manager to use, so the caller has nothing left to decide. 
 ```mermaid
 flowchart LR
   start(["dir"]) --> checkStart["Check dir"]
-  checkStart -->|nothing| workspaceRoots["Check workspace roots above dir"]
+  checkStart -->|nothing| workspaceRoots["Check parent workspace roots"]
   workspaceRoots -->|nothing| userAgent["Read npm_config_user_agent"]
   userAgent -->|nothing| npm(["npm"])
   checkStart -->|found| isSupported{"Supported?"}
@@ -33,7 +33,7 @@ flowchart LR
 
 npm, pnpm, Yarn and Bun are all detected, but only the ones in `supportedPackageManagers` are used. For now that is npm.
 
-Checking the workspace roots above `dir`:
+Checking the parent directories that are workspace roots:
 
 ```mermaid
 flowchart TD
@@ -61,7 +61,7 @@ An invalid `package.json` is ignored, and the other files in its directory are s
 
 1. Project files win over the user agent. npm is the default when neither says anything.
 2. The search goes no higher than the first directory that has `.git`.
-3. Above the start dir, only workspace roots are checked.
+3. Of the parent directories, only workspace roots are checked.
 
 ### Drawbacks
 

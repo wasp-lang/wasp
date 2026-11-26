@@ -19,8 +19,6 @@ import Wasp.PackageManager.PackageManager (PackageManager, parsePackageManagerNa
 import Wasp.Util.IO (doesFileExist)
 import Wasp.Util.Json (readJsonFile)
 
--- | 'Nothing' for an invalid package.json too, so the other files in the
--- directory still get checked.
 readPackageJsonIfValid :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Value)
 readPackageJsonIfValid dir =
   ifM (doesFileExist packageJsonPath) (readJsonFile packageJsonPath) (return Nothing)

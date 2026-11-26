@@ -14,21 +14,21 @@ import Wasp.PackageManager.Detection.MarkerFiles (MarkerFile (..), installMetada
 import Wasp.PackageManager.Detection.PackageJson (hasWorkspacesField, parseDevEnginesField, parsePackageManagerField, readPackageJsonIfValid)
 import Wasp.Util.IO (doesFileExist)
 
--- | Checks the given directory, and then the workspace roots above it, so a
--- package inside a monorepo finds the root's lockfile.
+-- | Checks the given directory, and then its parent directories that are
+-- workspace roots, so a package inside a monorepo finds the root's lockfile.
 detectFromProjectFiles :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
 detectFromProjectFiles startDir = do
   packageJson <- readPackageJsonIfValid startDir
-  firstJustM id [detectInDir startDir packageJson, detectInWorkspaceRootsAbove startDir]
+  firstJustM id [detectInDir startDir packageJson, detectInParentWorkspaceRoots startDir]
 
 -- | Walks up one directory at a time, nearest first, and stops at the first
 -- detection or at the repository root.
-detectInWorkspaceRootsAbove :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
-detectInWorkspaceRootsAbove dir =
+detectInParentWorkspaceRoots :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
+detectInParentWorkspaceRoots dir =
   ifM
     (pure (parentDir == dir) ||^ isRepositoryRoot dir)
     (return Nothing)
-    (firstJustM id [detectInWorkspaceRoot parentDir, detectInWorkspaceRootsAbove parentDir])
+    (firstJustM id [detectInWorkspaceRoot parentDir, detectInParentWorkspaceRoots parentDir])
   where
     parentDir = SP.parent dir
 

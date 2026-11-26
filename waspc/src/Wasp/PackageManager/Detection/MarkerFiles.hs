@@ -17,8 +17,7 @@ data MarkerFile = MarkerFile
   }
 
 -- | Committed files, so they work on a fresh clone. When several exist, the
--- first one wins. A stray @package-lock.json@ next to @pnpm-lock.yaml@ usually
--- comes from someone running @npm install@ by mistake.
+-- first one wins.
 lockfilesAndWorkspaceFiles :: [MarkerFile]
 lockfilesAndWorkspaceFiles =
   [ MarkerFile [relfile|pnpm-lock.yaml|] Pnpm,

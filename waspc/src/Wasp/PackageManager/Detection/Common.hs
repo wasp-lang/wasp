@@ -10,7 +10,7 @@ import Wasp.PackageManager.PackageManager (PackageManager)
 
 -- | The root directory of a package, where its package.json lives. That is
 -- the directory detection starts in, or, when it starts in a package inside a
--- monorepo, the workspace root above it.
+-- monorepo, the parent directory that is its workspace root.
 data PackageRootDir
 
 data Detection = Detection

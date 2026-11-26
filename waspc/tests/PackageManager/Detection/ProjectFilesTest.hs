@@ -153,7 +153,7 @@ spec_PackageManager_Detection_ProjectFiles = do
           detectFromProjectFiles projectRoot
             `shouldReturn` found Bun (LockfileOrWorkspaceFile $ projectRoot </> [relfile|bun.lock|])
 
-    describe "in the workspace roots above the project directory" $ do
+    describe "when a parent directory is a workspace root" $ do
       it "finds the pnpm workspace root's lockfile from a package"
         $ withProject
           [ ".git/HEAD" ~> "",
@@ -209,7 +209,7 @@ spec_PackageManager_Detection_ProjectFiles = do
           detectFromProjectFiles (projectRoot </> [reldir|apps/web|])
             `shouldReturn` found Npm (LockfileOrWorkspaceFile $ projectRoot </> [relfile|apps/web/package-lock.json|])
 
-      it "ignores a lockfile in an ancestor that isn't a workspace root"
+      it "ignores a lockfile in a parent directory that isn't a workspace root"
         $ withProject
           [ ".git/HEAD" ~> "",
             "package.json" ~> "{}",
@@ -219,7 +219,7 @@ spec_PackageManager_Detection_ProjectFiles = do
         $ \projectRoot ->
           detectFromProjectFiles (projectRoot </> [reldir|apps/web|]) `shouldReturn` foundNothing
 
-      it "ignores the packageManager field in an ancestor that isn't a workspace root"
+      it "ignores the packageManager field in a parent directory that isn't a workspace root"
         $ withProject
           [ ".git/HEAD" ~> "",
             "package.json" ~> [trimming|{ "packageManager": "pnpm@10.20.0" }|],
@@ -240,7 +240,7 @@ spec_PackageManager_Detection_ProjectFiles = do
           detectFromProjectFiles (projectRoot </> [reldir|apps/web|])
             `shouldReturn` found Pnpm (LockfileOrWorkspaceFile $ projectRoot </> [relfile|pnpm-lock.yaml|])
 
-      it "ignores an invalid package.json in an ancestor"
+      it "ignores an invalid package.json in a parent directory"
         $ withProject
           [ ".git/HEAD" ~> "",
             "package.json" ~> "{ not json",
