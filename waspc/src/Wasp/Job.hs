@@ -8,7 +8,6 @@ module Wasp.Job
     run,
     race,
     andThen,
-    OutputType (..),
     emitOutput,
     captureOutput,
     observeOutput,
@@ -25,10 +24,11 @@ import Data.IORef (atomicModifyIORef', newIORef, readIORef)
 import Data.Text (Text)
 import qualified Data.Text as T
 import System.Exit (ExitCode (..))
-import Wasp.Job.Common (Job (..), JobType (..), OutputType (..), runWithSink, withSink)
+import Wasp.Job.Common (Job (..), JobType (..), runWithSink, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, addEnvVarsOverride, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
+import Wasp.Util.OutputStream (OutputStream (..))
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.
@@ -43,10 +43,10 @@ race :: Job a -> Job b -> Job (Either a b)
 race left right = Job $ ReaderT $ \sink ->
   Async.race (runWithSink sink left) (runWithSink sink right)
 
-emitOutput :: OutputType -> Text -> Job ()
-emitOutput outputType output = Job $ do
+emitOutput :: OutputStream -> Text -> Job ()
+emitOutput outputStream output = Job $ do
   sink <- ask
-  liftIO $ sink Nothing outputType output
+  liftIO $ sink Nothing outputStream output
 
 -- | Collects all the output the job emits, from both stdout and stderr, in
 -- the order it was emitted, as the monad's result.
@@ -60,13 +60,13 @@ captureOutput job = do
 
 -- | Calls @onOutput@ with every output the job emits, and then passes the
 -- output on unchanged.
-observeOutput :: (OutputType -> Text -> IO ()) -> Job a -> Job a
+observeOutput :: (OutputStream -> Text -> IO ()) -> Job a -> Job a
 observeOutput onOutput job = withSink wrapOutputSink job
   where
     wrapOutputSink forwardOutput =
-      \jobType outputType outputChunk -> do
-        onOutput outputType outputChunk
-        forwardOutput jobType outputType outputChunk
+      \jobType outputStream outputChunk -> do
+        onOutput outputStream outputChunk
+        forwardOutput jobType outputStream outputChunk
 
 -- | Runs the second job only if the first one succeeds (like @&&@ in a shell),
 -- and returns the exit code of the last one that ran.

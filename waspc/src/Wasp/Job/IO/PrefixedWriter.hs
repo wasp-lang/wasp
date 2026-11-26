@@ -23,6 +23,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
 import qualified Wasp.Job.Common as J
+import Wasp.Util.OutputStream (OutputStream (..))
 import qualified Wasp.Util.Terminal as Term
 
 -- | Prints job output to Wasp's own stdout and stderr. Jobs can print from
@@ -34,11 +35,11 @@ newPrefixedWriter = PrefixedWriter <$> newMVar initialPrefixedWriterState
 
 -- | Prints the output as is if it has no job type, or prefixed with the job
 -- type otherwise.
-printOutput :: PrefixedWriter -> Maybe J.JobType -> J.OutputType -> T.Text -> IO ()
-printOutput (PrefixedWriter stateVar) maybeJobType outputType content =
+printOutput :: PrefixedWriter -> Maybe J.JobType -> OutputStream -> T.Text -> IO ()
+printOutput (PrefixedWriter stateVar) maybeJobType outputStream content =
   modifyMVar_ stateVar $ execStateT $ _runPrefixedWriterM $ case maybeJobType of
-    Nothing -> liftIO $ printMessageContent outputType content
-    Just jobType -> printJobMessagePrefixed (Output jobType outputType) content
+    Nothing -> liftIO $ printMessageContent outputStream content
+    Just jobType -> printJobMessagePrefixed (Output jobType outputStream) content
 
 -- |
 -- Imagine you have a job sending following two messages:
@@ -86,7 +87,7 @@ printJobMessagePrefixed output content = do
   writerState <- get
   let (writerState', prefixedContent) = formatOutput writerState output content
   put writerState'
-  liftIO $ printMessageContent (_outputType output) prefixedContent
+  liftIO $ printMessageContent (_outputStream output) prefixedContent
 
 formatOutput :: PrefixedWriterState -> Output -> T.Text -> (PrefixedWriterState, T.Text)
 formatOutput (PrefixedWriterState outputsWithPendingPrefix lastOutput) output content =
@@ -144,7 +145,7 @@ initialPrefixedWriterState =
 -- Job message output type.
 data Output = Output
   { _outputJobType :: !J.JobType,
-    _outputType :: !J.OutputType
+    _outputStream :: !OutputStream
   }
   deriving (Eq, Ord)
 
@@ -199,7 +200,7 @@ makeJobMessagePrefix output =
 
     styledFlags :: [StyledText]
     styledFlags =
-      [("!", [Term.Red, Term.Bold]) | _outputType output == J.Stderr]
+      [("!", [Term.Red, Term.Bold]) | _outputStream output == Stderr]
 
     (jobName, jobStyles) = getJobNameAndStyles $ _outputJobType output
 
@@ -213,11 +214,11 @@ makeJobMessagePrefix output =
 
 type StyledText = (String, [Term.Style])
 
-printMessageContent :: J.OutputType -> T.Text -> IO ()
-printMessageContent outputType content = T.IO.hPutStr outHandle content >> hFlush outHandle
+printMessageContent :: OutputStream -> T.Text -> IO ()
+printMessageContent outputStream content = T.IO.hPutStr outHandle content >> hFlush outHandle
   where
-    outHandle = getOutputTypeHandle outputType
+    outHandle = getOutputStreamHandle outputStream
 
-getOutputTypeHandle :: J.OutputType -> Handle
-getOutputTypeHandle J.Stdout = stdout
-getOutputTypeHandle J.Stderr = stderr
+getOutputStreamHandle :: OutputStream -> Handle
+getOutputStreamHandle Stdout = stdout
+getOutputStreamHandle Stderr = stderr

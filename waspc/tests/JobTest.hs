@@ -19,15 +19,16 @@ import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shoul
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
+import Wasp.Util.OutputStream (OutputStream (..))
 
 spec_Job :: Spec
 spec_Job = do
   describe "captureOutput" $ do
     it "collects stdout and stderr in the order they were emitted" $ do
       let job = do
-            Job.emitOutput Job.Stdout "first "
-            Job.emitOutput Job.Stderr "second "
-            Job.emitOutput Job.Stdout "last"
+            Job.emitOutput Stdout "first "
+            Job.emitOutput Stderr "second "
+            Job.emitOutput Stdout "last"
       Job.run (Job.captureOutput job) `shouldReturn` ((), "first second last")
 
     it "doesn't pass the output on" $ do
@@ -35,7 +36,7 @@ spec_Job = do
       let job =
             Job.observeOutput (\_ _ -> modifyIORef' outputCount (+ 1))
               $ Job.captureOutput
-              $ Job.emitOutput Job.Stdout "captured"
+              $ Job.emitOutput Stdout "captured"
       _ <- Job.run job
       readIORef outputCount `shouldReturn` 0
 
@@ -44,11 +45,11 @@ spec_Job = do
       tappedOutputs <- newIORef []
       let job =
             Job.captureOutput $
-              Job.observeOutput (\outputType output -> modifyIORef' tappedOutputs ((outputType, output) :)) $ do
-                Job.emitOutput Job.Stdout "first"
-                Job.emitOutput Job.Stderr "second"
+              Job.observeOutput (\outputStream output -> modifyIORef' tappedOutputs ((outputStream, output) :)) $ do
+                Job.emitOutput Stdout "first"
+                Job.emitOutput Stderr "second"
       Job.run job `shouldReturn` ((), "firstsecond")
-      reverse <$> readIORef tappedOutputs `shouldReturn` [(Job.Stdout, "first"), (Job.Stderr, "second")]
+      reverse <$> readIORef tappedOutputs `shouldReturn` [(Stdout, "first"), (Stderr, "second")]
 
   describe "race" $ do
     it "returns the result of the job that finishes first" $ do
@@ -81,14 +82,14 @@ spec_Job = do
   describe "andThen" $ do
     it "runs the second job if the first one succeeds" $ do
       let job =
-            (Job.emitOutput Job.Stdout "first " >> return ExitSuccess)
-              `Job.andThen` (Job.emitOutput Job.Stdout "second" >> return (ExitFailure 2))
+            (Job.emitOutput Stdout "first " >> return ExitSuccess)
+              `Job.andThen` (Job.emitOutput Stdout "second" >> return (ExitFailure 2))
       Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 2, "first second")
 
     it "doesn't run the second job if the first one fails" $ do
       let job =
-            (Job.emitOutput Job.Stdout "first" >> return (ExitFailure 1))
-              `Job.andThen` (Job.emitOutput Job.Stdout " second" >> return ExitSuccess)
+            (Job.emitOutput Stdout "first" >> return (ExitFailure 1))
+              `Job.andThen` (Job.emitOutput Stdout " second" >> return ExitSuccess)
       Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 1, "first")
 
   describe "fromProc" $ do

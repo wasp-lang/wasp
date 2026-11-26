@@ -46,6 +46,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checkExitSuccess, checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.OutputStream (OutputStream (..))
 
 data DbConnectionTestResult
   = DbConnectionSuccess
@@ -205,7 +206,7 @@ checkIfSchemaMatchesDb envVars generatedAppDirAbs = Job.run $ Job.prefixWith Job
     SchemaMatchesDb -> return ()
     SchemaDiffersFromDb -> return ()
     DbDoesNotExist -> return ()
-    SchemaDbMatchCheckFailed -> Job.emitOutput Job.Stderr output
+    SchemaDbMatchCheckFailed -> Job.emitOutput Stderr output
   return schemaDbMatch
 
 -- | Checks `prisma migrate status` exit code to determine if migrations dir
