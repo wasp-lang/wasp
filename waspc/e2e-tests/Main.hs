@@ -1,8 +1,8 @@
 import Control.Monad (unless, when)
 import E2E.Heartbeat (heartbeatReporter)
-import E2E.RunConfig (RunConfig (..), getRunConfig, skipDockerEnvVar)
 import E2E.Signals (stopOnFirstCtrlC)
-import E2E.Test (checkOutputDirs, setRunConfig)
+import E2E.Test (checkOutputDirs, setTestSuiteEnv)
+import E2E.TestSuiteEnv (TestSuiteEnv (..), getTestSuiteEnv, skipDockerEnvVar)
 import qualified SnapshotTestsDiscoverDriver
 import System.Exit (ExitCode (..))
 import System.Info (os)
@@ -18,22 +18,22 @@ main = do
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
     else do
       stopOnFirstCtrlC
-      runConfig <- getRunConfig
+      testSuiteEnv <- getTestSuiteEnv
       -- With --hide-successes, the skipped tests don't show up as skipped.
-      unless runConfig.isDockerEnabled
+      unless testSuiteEnv.isDockerEnabled
         $ putStrLn
         $ "Docker is disabled via " ++ skipDockerEnvVar ++ ", so the tests that need it pass without running, and snapshot tests skip their Docker steps."
       snapshotTests <- SnapshotTestsDiscoverDriver.tests
       tests <- TestsDiscoverDriver.tests
       let testTree =
-            setRunConfig runConfig . maybe id (localOption . NumThreads) runConfig.maxJobs $
+            setTestSuiteEnv testSuiteEnv . maybe id (localOption . NumThreads) testSuiteEnv.maxJobs $
               testGroup
                 "E2E tests"
                 -- Tasty starts the tests in order, so the slowest ones go first.
                 [renameGroup "Snapshot Tests" snapshotTests, renameGroup "Tests" tests]
       checkOutputDirs testTree
       -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
-      warmUpWaspCli runConfig.waspCliPath
+      warmUpWaspCli testSuiteEnv.waspCliPath
       defaultMainWithIngredients [listingTests, composeReporters heartbeatReporter consoleTestReporter] testTree
 
 -- | Builds the dev Wasp CLI once, serially, before the tests start invoking it

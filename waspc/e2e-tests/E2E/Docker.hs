@@ -1,5 +1,5 @@
 -- | Tests and steps that need Docker, which a run can disable (see
--- 'E2E.RunConfig.skipDockerEnvVar').
+-- 'E2E.TestSuiteEnv.skipDockerEnvVar').
 module E2E.Docker
   ( dockerTest,
     whenDockerEnabled,
@@ -13,9 +13,9 @@ import Control.Monad (void)
 import Control.Monad.Reader (asks)
 import E2E.Command (Command (..), cleanupCommandTimeoutSeconds, command)
 import E2E.Process (ProcessResult, run, runAllowingFailure)
-import E2E.RunConfig (RunConfig (..), skipDockerEnvVar)
-import E2E.Test (TestTree, skippedTest, test, withRunConfig)
+import E2E.Test (TestTree, skippedTest, test, withTestSuiteEnv)
 import E2E.TestM (TestEnv (..), TestM, logLine)
+import E2E.TestSuiteEnv (TestSuiteEnv (..), skipDockerEnvVar)
 
 -- | A test that needs Docker. When Docker is disabled, it passes without
 -- running any of its steps.
@@ -24,15 +24,15 @@ import E2E.TestM (TestEnv (..), TestM, logLine)
 -- 'whenDockerEnabled' in their steps.
 dockerTest :: String -> TestM a -> TestTree
 dockerTest name steps =
-  withRunConfig $ \runConfig ->
-    if runConfig.isDockerEnabled
+  withTestSuiteEnv $ \testSuiteEnv ->
+    if testSuiteEnv.isDockerEnabled
       then test name steps
       else skippedTest name dockerDisabledMessage
 
 -- | For steps that only some part of a test needs Docker for.
 whenDockerEnabled :: TestM () -> TestM ()
 whenDockerEnabled steps = do
-  isDockerEnabled <- asks (.runConfig.isDockerEnabled)
+  isDockerEnabled <- asks (.testSuiteEnv.isDockerEnabled)
   if isDockerEnabled then steps else logLine dockerDisabledMessage
 
 dockerDisabledMessage :: String

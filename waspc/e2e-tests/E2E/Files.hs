@@ -19,8 +19,8 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (command)
 import E2E.Process (ProcessResult (..), RunningProcess, failIfExited, failWithOutput, run)
-import E2E.RunConfig (RunConfig (..))
 import E2E.TestM (TestEnv (..), TestM, failTest, inDirectory, pollUntil, resolvePath)
+import E2E.TestSuiteEnv (TestSuiteEnv (..))
 import System.Directory (createDirectoryIfMissing, doesFileExist, removeFile, removePathForcibly)
 import qualified System.Directory as Directory
 import System.FilePath (takeDirectory, (</>))
@@ -78,7 +78,7 @@ deleteDirectory path = resolvePath path >>= liftIO . removePathForcibly
 -- build outputs) are left out. Symlinks are copied as the files they point to.
 copyGitTrackedDir :: FilePath -> FilePath -> TestM ()
 copyGitTrackedDir srcDirInGitRoot dstDir = do
-  srcDir <- asks ((</> srcDirInGitRoot) . (.runConfig.gitRootDir))
+  srcDir <- asks ((</> srcDirInGitRoot) . (.testSuiteEnv.gitRootDir))
   absDstDir <- resolvePath dstDir
   -- Run in the source directory, so the paths are relative to it.
   trackedFiles <-

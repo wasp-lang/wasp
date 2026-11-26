@@ -45,9 +45,9 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (Command (..), Executable (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
-import E2E.RunConfig (RunConfig (..))
 import E2E.Signals (Signal (..), processGroupExists, signalProcess, signalProcessGroup)
 import E2E.TestM (TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
+import E2E.TestSuiteEnv (TestSuiteEnv (..))
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
@@ -148,7 +148,7 @@ startInBackgroundWithStopKey cmd = do
 -- set, it depends on the platform whether @process@ resolves them against it
 -- or against ours.
 resolveExecutable :: Executable -> TestM FilePath
-resolveExecutable WaspCli = asks (.runConfig.waspCliPath)
+resolveExecutable WaspCli = asks (.testSuiteEnv.waspCliPath)
 resolveExecutable (Program program)
   | any FP.isPathSeparator program = resolvePath program
   | otherwise = return program

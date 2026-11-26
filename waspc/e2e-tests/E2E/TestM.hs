@@ -37,7 +37,7 @@ import qualified Data.Text.Encoding as TE
 import Data.Time.Clock (addUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.Unique (hashUnique, newUnique)
-import E2E.RunConfig (RunConfig)
+import E2E.TestSuiteEnv (TestSuiteEnv)
 import GHC.Stack (prettySrcLoc)
 import System.FilePath ((</>))
 import qualified System.FilePath as FP
@@ -47,7 +47,7 @@ import UnliftIO (MonadUnliftIO, throwIO)
 import UnliftIO.Exception (Exception, SomeException, catchAny, displayException, fromException)
 
 data TestEnv = TestEnv
-  { runConfig :: RunConfig,
+  { testSuiteEnv :: TestSuiteEnv,
     -- | The test's groups and name, e.g. @wasp-start/fail-outside-project@.
     testName :: String,
     -- | The absolute directory relative paths are resolved against and

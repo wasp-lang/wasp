@@ -24,9 +24,9 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.RunConfig (RunConfig (..))
-import E2E.Test (TestPaths (..), TestTree, claimOutputDir, runTestSteps, withRunConfig)
+import E2E.Test (TestPaths (..), TestTree, claimOutputDir, runTestSteps, withTestSuiteEnv)
 import E2E.TestM (TestM)
+import E2E.TestSuiteEnv (TestSuiteEnv (..))
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
@@ -49,20 +49,20 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInst
 -- after its steps run.
 snapshotTest :: String -> TestM a -> TestTree
 snapshotTest name steps =
-  withRunConfig $ \runConfig ->
-    let goldenSnapshotDir = getSnapshotsDir runConfig </> snapshotDirName name Golden
+  withTestSuiteEnv $ \testSuiteEnv ->
+    let goldenSnapshotDir = getSnapshotsDir testSuiteEnv </> snapshotDirName name Golden
      in claimOutputDir [snapshotsDirInTestOutputsDir, snapshotDirName name Current] $
           goldenTest
             name
             (readGoldenSnapshot goldenSnapshotDir)
-            (runStepsAndReadCurrentSnapshot runConfig name steps)
+            (runStepsAndReadCurrentSnapshot testSuiteEnv name steps)
             compareSnapshots
             (`writeGoldenSnapshot` goldenSnapshotDir)
 
 -- | Contains the current and golden snapshot dirs, and the logs of the
 -- snapshot tests.
-getSnapshotsDir :: RunConfig -> FilePath
-getSnapshotsDir runConfig = runConfig.testOutputsDir </> snapshotsDirInTestOutputsDir
+getSnapshotsDir :: TestSuiteEnv -> FilePath
+getSnapshotsDir testSuiteEnv = testSuiteEnv.testOutputsDir </> snapshotsDirInTestOutputsDir
 
 snapshotsDirInTestOutputsDir :: FilePath
 snapshotsDirInTestOutputsDir = "snapshots"
@@ -82,13 +82,13 @@ snapshotDirName name snapshotType = name ++ "-" ++ suffix
 -- snapshot dir, sorted by path.
 type Snapshot = [(FilePath, BS.ByteString)]
 
-runStepsAndReadCurrentSnapshot :: RunConfig -> String -> TestM a -> IO Snapshot
-runStepsAndReadCurrentSnapshot runConfig name steps = do
-  let snapshotsDir = getSnapshotsDir runConfig
+runStepsAndReadCurrentSnapshot :: TestSuiteEnv -> String -> TestM a -> IO Snapshot
+runStepsAndReadCurrentSnapshot testSuiteEnv name steps = do
+  let snapshotsDir = getSnapshotsDir testSuiteEnv
       currentSnapshotDir = snapshotsDir </> snapshotDirName name Current
       -- The log is next to the snapshot dir, so it isn't part of the snapshot.
       testPaths = TestPaths {workingDir = currentSnapshotDir, logFile = snapshotsDir </> name ++ ".log"}
-  _ <- runTestSteps runConfig name testPaths steps
+  _ <- runTestSteps testSuiteEnv name testPaths steps
   writeManifest currentSnapshotDir
   normalizePackageJsonFiles currentSnapshotDir
   readSnapshot currentSnapshotDir

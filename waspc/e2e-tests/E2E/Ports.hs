@@ -13,8 +13,8 @@ import Control.Exception (bracket)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (asks)
 import qualified Data.Set as Set
-import E2E.RunConfig (RunConfig (..))
 import E2E.TestM (TestEnv (..), TestM, logLine)
+import E2E.TestSuiteEnv (TestSuiteEnv (..))
 import qualified Network.Socket as Socket
 
 data AppPorts = AppPorts
@@ -31,7 +31,7 @@ allocateAppPorts = do
   return ports
 
 -- | A port that nothing listens on, and that no other test of this run got
--- yet (see 'E2E.RunConfig.allocatedPorts').
+-- yet (see 'E2E.TestSuiteEnv.allocatedPorts').
 --
 -- We close the socket before the test's app opens the port, and the OS can
 -- hand a closed port out again, so we remember the ports we gave out to keep
@@ -44,7 +44,7 @@ allocateAppPorts = do
 -- "address in use" error in the test's log.
 allocateUnusedPort :: TestM Int
 allocateUnusedPort = do
-  allocatedPorts <- asks (.runConfig.allocatedPorts)
+  allocatedPorts <- asks (.testSuiteEnv.allocatedPorts)
   port <- liftIO findFreePort
   isNew <- liftIO . modifyMVar allocatedPorts $ \ports ->
     return (Set.insert port ports, port `Set.notMember` ports)

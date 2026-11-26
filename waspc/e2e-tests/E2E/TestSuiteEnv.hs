@@ -1,8 +1,9 @@
--- | Settings of a test run. We read them from the environment once, when the
--- run starts, and pass them to the tests.
-module E2E.RunConfig
-  ( RunConfig (..),
-    getRunConfig,
+-- | What all the tests of a run share: settings, which we read from the
+-- environment once, when the run starts, and state, e.g. the ports given out.
+-- 'E2E.TestM.TestEnv' has what's specific to each test.
+module E2E.TestSuiteEnv
+  ( TestSuiteEnv (..),
+    getTestSuiteEnv,
     skipDockerEnvVar,
   )
 where
@@ -16,7 +17,7 @@ import System.Environment (lookupEnv)
 import System.FilePath (isPathSeparator, takeDirectory, takeFileName, (</>))
 import Text.Read (readMaybe)
 
-data RunConfig = RunConfig
+data TestSuiteEnv = TestSuiteEnv
   { -- | The Wasp CLI under test: an absolute path, or a program name to look up
     -- in @PATH@.
     waspCliPath :: FilePath,
@@ -31,8 +32,8 @@ data RunConfig = RunConfig
   }
 
 -- | Must be run from the waspc dir (see 'getWaspcDir').
-getRunConfig :: IO RunConfig
-getRunConfig = do
+getTestSuiteEnv :: IO TestSuiteEnv
+getTestSuiteEnv = do
   waspcDir <- getWaspcDir
   waspCliPath <-
     lookupNonEmptyEnv waspCliCmdEnvVar >>= \case
@@ -47,7 +48,7 @@ getRunConfig = do
   maxJobs <- lookupNonEmptyEnv maxJobsEnvVar >>= traverse parseMaxJobs
   allocatedPorts <- newMVar Set.empty
   return
-    RunConfig
+    TestSuiteEnv
       { waspCliPath,
         gitRootDir = takeDirectory waspcDir,
         testOutputsDir = waspcDir </> "e2e-tests" </> "test-outputs",

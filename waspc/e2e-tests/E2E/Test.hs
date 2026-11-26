@@ -2,16 +2,16 @@
 --
 -- The tests are plain tasty 'TestTree's, so that tasty-discover can find them
 -- (see @TastyDiscoverDriver.hs@). What they need from the run, the
--- 'RunConfig' and the names of the e2e groups they are in, they get from
--- tasty's options (see 'setRunConfig' and 'testGroup').
+-- 'TestSuiteEnv' and the names of the e2e groups they are in, they get from
+-- tasty's options (see 'setTestSuiteEnv' and 'testGroup').
 module E2E.Test
   ( TestTree,
     test,
     skippedTest,
     testGroup,
     sequentialTestGroup,
-    setRunConfig,
-    withRunConfig,
+    setTestSuiteEnv,
+    withTestSuiteEnv,
     claimOutputDir,
     checkOutputDirs,
     TestPaths (..),
@@ -25,8 +25,8 @@ import Control.Exception (throwIO)
 import Control.Monad (unless)
 import Data.List (intercalate, isPrefixOf, nub)
 import Data.Tagged (Tagged (..))
-import E2E.RunConfig (RunConfig (..))
 import E2E.TestM (TestEnv (..), TestFailure (..), TestLog (..), TestM, failureMessage, runTestM)
+import E2E.TestSuiteEnv (TestSuiteEnv (..))
 import System.Directory (createDirectoryIfMissing, removePathForcibly)
 import System.FilePath (isPathSeparator, joinPath, takeDirectory, (</>))
 import System.IO (IOMode (WriteMode), hPutStrLn, withFile)
@@ -38,19 +38,19 @@ import Test.Tasty.Runners (TreeFold (..), foldTestTree, trivialFold)
 import UnliftIO.Exception (catch, tryAny)
 
 -- | Set for the whole test tree by the e2e tests' main.
-newtype RunConfigOption = RunConfigOption RunConfig
+newtype TestSuiteEnvOption = TestSuiteEnvOption TestSuiteEnv
 
-instance IsOption RunConfigOption where
-  defaultValue = error "The e2e tests need a run config. Run them with the e2e tests' main, which sets it."
+instance IsOption TestSuiteEnvOption where
+  defaultValue = error "The e2e tests need a test suite env. Run them with the e2e tests' main, which sets it."
   parseValue = const Nothing
-  optionName = Tagged "e2e-run-config"
-  optionHelp = Tagged "The settings of the e2e test run. Not a command line option."
+  optionName = Tagged "e2e-test-suite-env"
+  optionHelp = Tagged "What all the e2e tests of the run share. Not a command line option."
 
-setRunConfig :: RunConfig -> TestTree -> TestTree
-setRunConfig = localOption . RunConfigOption
+setTestSuiteEnv :: TestSuiteEnv -> TestTree -> TestTree
+setTestSuiteEnv = localOption . TestSuiteEnvOption
 
-withRunConfig :: (RunConfig -> TestTree) -> TestTree
-withRunConfig makeTestTree = askOption $ \(RunConfigOption runConfig) -> makeTestTree runConfig
+withTestSuiteEnv :: (TestSuiteEnv -> TestTree) -> TestTree
+withTestSuiteEnv makeTestTree = askOption $ \(TestSuiteEnvOption testSuiteEnv) -> makeTestTree testSuiteEnv
 
 -- | The names of the e2e groups a test is in, outermost first, which decide
 -- where it runs (see 'test').
@@ -111,10 +111,10 @@ checkOutputDirs testTree = do
 -- output of the commands it runs to @output.log@ in it.
 test :: String -> TestM a -> TestTree
 test name steps =
-  withRunConfig $ \runConfig -> inTestDir name $ \testPath -> TestSteps $ do
-    let testDir = runConfig.testOutputsDir </> joinPath testPath
+  withTestSuiteEnv $ \testSuiteEnv -> inTestDir name $ \testPath -> TestSteps $ do
+    let testDir = testSuiteEnv.testOutputsDir </> joinPath testPath
         testPaths = TestPaths {workingDir = testDir, logFile = testDir </> testLogFileName}
-    (runTestSteps runConfig (intercalate "/" testPath) testPaths steps >> return (testPassed ""))
+    (runTestSteps testSuiteEnv (intercalate "/" testPath) testPaths steps >> return (testPassed ""))
       `catch` (\(TestFailure message) -> return $ testFailed message)
 
 -- | A test that passes with the message, without running. It still claims the
@@ -164,8 +164,8 @@ data TestPaths = TestPaths
 -- | Runs the steps in a fresh working dir, with a new log file and cleanups.
 --
 -- Throws 'TestFailure' if a step fails (with a pointer to the log).
-runTestSteps :: RunConfig -> String -> TestPaths -> TestM a -> IO a
-runTestSteps runConfig testName TestPaths {workingDir, logFile} steps = do
+runTestSteps :: TestSuiteEnv -> String -> TestPaths -> TestM a -> IO a
+runTestSteps testSuiteEnv testName TestPaths {workingDir, logFile} steps = do
   removePathForcibly workingDir
   createDirectoryIfMissing True workingDir
   createDirectoryIfMissing True (takeDirectory logFile)
@@ -175,7 +175,7 @@ runTestSteps runConfig testName TestPaths {workingDir, logFile} steps = do
     let runStepsAndCleanups =
           runTestM
             TestEnv
-              { runConfig,
+              { testSuiteEnv,
                 testName,
                 workingDir,
                 testLog = TestLog {logFile, logHandle, logLock}
