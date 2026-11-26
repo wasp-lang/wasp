@@ -188,7 +188,24 @@ export default app({
 })
 ```
 
-For routes with dynamic segments (like `/blog/:slug`), pass an array of concrete paths to prerender instead of `true`. Prerendering can't be used on auth-required pages. You can read more in our prerendering documentation:
+For routes with dynamic segments, pass an array of the concrete paths you want to prerender instead of `true`:
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
+
+export default app({
+  // ...
+  decls: [
+    route("BlogPostRoute", "/blog/:slug", page(BlogPostPage), {
+      // highlight-next-line
+      prerender: ["/blog/hello-world", "/blog/launch-week"]
+    }),
+  ],
+})
+```
+
+Prerendering can't be used on auth-required pages. You can read more in our prerendering documentation:
 
 <CardLink
   kind="docs"
