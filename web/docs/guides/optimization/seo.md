@@ -191,12 +191,12 @@ export default app({
 For routes with dynamic segments, pass an array of the concrete paths you want to prerender instead of `true`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp/spec"
 import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("BlogPostRoute", "/blog/:slug", page(BlogPostPage), {
       // highlight-next-line
       prerender: ["/blog/hello-world", "/blog/launch-week"]
