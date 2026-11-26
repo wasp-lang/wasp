@@ -188,7 +188,7 @@ export default app({
 })
 ```
 
-Prerendering can't be used on routes with dynamic paths or on auth-required pages. You can read more in our prerendering documentation:
+For routes with dynamic segments (like `/blog/:slug`), pass an array of concrete paths to prerender instead of `true`. Prerendering can't be used on auth-required pages. You can read more in our prerendering documentation:
 
 <CardLink
   kind="docs"
