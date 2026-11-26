@@ -53,6 +53,15 @@ spec_PackageManager_Detection_ProjectFiles = do
           detectFromProjectFiles projectRoot
             `shouldReturn` found Pnpm (LockfileOrWorkspaceFile $ projectRoot </> [relfile|pnpm-lock.yaml|])
 
+      it "detects the yarn lockfile"
+        $ withProject
+          [ ".git/HEAD" ~> "",
+            "yarn.lock" ~> ""
+          ]
+        $ \projectRoot ->
+          detectFromProjectFiles projectRoot
+            `shouldReturn` found Yarn (LockfileOrWorkspaceFile $ projectRoot </> [relfile|yarn.lock|])
+
       it "detects the bun lockfile"
         $ withProject
           [ ".git/HEAD" ~> "",
@@ -134,15 +143,6 @@ spec_PackageManager_Detection_ProjectFiles = do
         $ \projectRoot ->
           detectFromProjectFiles projectRoot
             `shouldReturn` found Bun (LockfileOrWorkspaceFile $ projectRoot </> [relfile|bun.lock|])
-
-      it "finds nothing in a yarn project, which Wasp doesn't support"
-        $ withProject
-          [ ".git/HEAD" ~> "",
-            "package.json" ~> [trimming|{ "packageManager": "yarn@4.5.0" }|],
-            "yarn.lock" ~> ""
-          ]
-        $ \projectRoot ->
-          detectFromProjectFiles projectRoot `shouldReturn` foundNothing
 
     describe "in the workspace roots above the project directory" $ do
       it "finds the pnpm workspace root's lockfile from a package"

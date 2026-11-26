@@ -6,13 +6,11 @@ module Wasp.PackageManager
 where
 
 import Wasp.PackageManager.Detection
-  ( Detection (..),
-    DetectionSource (..),
+  ( DetectionWarning,
     detectInvokingPackageManager,
     detectProjectPackageManager,
   )
 import Wasp.PackageManager.PackageManager
   ( PackageManager (..),
     packageManagerName,
-    parsePackageManagerName,
   )

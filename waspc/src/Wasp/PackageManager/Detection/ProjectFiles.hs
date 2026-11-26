@@ -3,7 +3,7 @@ module Wasp.PackageManager.Detection.ProjectFiles
   )
 where
 
-import Control.Monad.Extra (findM, firstJustM)
+import Control.Monad.Extra (findM, firstJustM, ifM, (||^))
 import Data.Aeson (Value)
 import Data.Foldable (asum)
 import StrongPath (Abs, Dir, File', Path', relfile, (</>))
@@ -15,33 +15,34 @@ import Wasp.PackageManager.PackageJson (hasWorkspacesField, parseDevEnginesField
 import Wasp.Util.IO (doesFileExist)
 import Wasp.Util.Json (readJsonFile)
 
--- | Checks the given directory, and then the ancestors that are workspace
--- roots, so a package inside a monorepo finds the root's lockfile.
--- Never goes past the repository root.
+-- | Checks the given directory, and then the workspace roots above it, so a
+-- package inside a monorepo finds the root's lockfile.
 detectFromProjectFiles :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
-detectFromProjectFiles startDir = do
-  maybeStartPackageJson <- readPackageJsonIfValid startDir
-  firstJustM id [detectInDir startDir maybeStartPackageJson, detectInWorkspaceRootAbove startDir]
-  where
-    detectInWorkspaceRootAbove dir = do
-      isAtRepositoryRoot <- isRepositoryRoot dir
-      let parentDir = SP.parent dir
-      if isAtRepositoryRoot || parentDir == dir
-        then return Nothing
-        else do
-          maybeParentPackageJson <- readPackageJsonIfValid parentDir
-          isParentWorkspaceRoot <- isWorkspaceRoot parentDir maybeParentPackageJson
-          detectionInParent <-
-            if isParentWorkspaceRoot
-              then detectInDir parentDir maybeParentPackageJson
-              else return Nothing
-          maybe (detectInWorkspaceRootAbove parentDir) (return . Just) detectionInParent
+detectFromProjectFiles startDir =
+  firstJustM id [detectInDir startDir, detectInWorkspaceRootsAbove startDir]
 
-detectInDir :: Path' Abs (Dir PackageRootDir) -> Maybe Value -> IO (Maybe Detection)
-detectInDir dir maybePackageJson =
+detectInWorkspaceRootsAbove :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
+detectInWorkspaceRootsAbove dir = getAncestorDirsInRepository dir >>= firstJustM detectInWorkspaceRoot
+  where
+    detectInWorkspaceRoot ancestorDir =
+      ifM (isWorkspaceRoot ancestorDir) (detectInDir ancestorDir) (return Nothing)
+
+-- | The directories above the given one, nearest first, up to the repository
+-- root.
+getAncestorDirsInRepository :: Path' Abs (Dir PackageRootDir) -> IO [Path' Abs (Dir PackageRootDir)]
+getAncestorDirsInRepository dir = do
+  isAtRepositoryRoot <- isRepositoryRoot dir
+  if isAtRepositoryRoot || parentDir == dir
+    then return []
+    else (parentDir :) <$> getAncestorDirsInRepository parentDir
+  where
+    parentDir = SP.parent dir
+
+detectInDir :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Detection)
+detectInDir dir =
   firstJustM
     id
-    [ return $ maybePackageJson >>= detectFromPackageJson (packageJsonPathIn dir),
+    [ (>>= detectFromPackageJson (packageJsonPathIn dir)) <$> readPackageJsonIfValid dir,
       detectFromMarkerFiles LockfileOrWorkspaceFile lockfilesAndWorkspaceFiles dir,
       detectFromMarkerFiles InstallMetadata installMetadataFiles dir
     ]
@@ -78,7 +79,7 @@ readPackageJsonIfValid dir = do
 isRepositoryRoot :: Path' Abs (Dir PackageRootDir) -> IO Bool
 isRepositoryRoot dir = doesPathExist $ SP.fromAbsFile $ dir </> [relfile|.git|]
 
-isWorkspaceRoot :: Path' Abs (Dir PackageRootDir) -> Maybe Value -> IO Bool
-isWorkspaceRoot dir maybePackageJson = do
-  hasPnpmWorkspaceFile <- doesFileExist $ dir </> [relfile|pnpm-workspace.yaml|]
-  return $ hasPnpmWorkspaceFile || maybe False hasWorkspacesField maybePackageJson
+isWorkspaceRoot :: Path' Abs (Dir PackageRootDir) -> IO Bool
+isWorkspaceRoot dir =
+  doesFileExist (dir </> [relfile|pnpm-workspace.yaml|])
+    ||^ (maybe False hasWorkspacesField <$> readPackageJsonIfValid dir)

@@ -20,6 +20,4 @@ data DetectionSource
   | LockfileOrWorkspaceFile (Path' Abs File')
   | InstallMetadata (Path' Abs File')
   | UserAgent
-  | -- | Nothing told us, so this is 'defaultPackageManager'.
-    Default
   deriving (Eq, Show)

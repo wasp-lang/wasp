@@ -7,12 +7,14 @@ Import `Wasp.PackageManager`. The other modules are internal.
 Detects which package manager a project uses.
 
 ```haskell
-detectProjectPackageManager  :: Path' Abs (Dir d) -> IO Detection
-detectInvokingPackageManager :: IO Detection
+detectProjectPackageManager  :: Path' Abs (Dir d) -> IO (PackageManager, Maybe DetectionWarning)
+detectInvokingPackageManager :: IO (PackageManager, Maybe DetectionWarning)
 ```
 
 - `detectProjectPackageManager` is for commands that run in an existing project.
 - `detectInvokingPackageManager` is for scaffolding, when there are no project files yet. It only reads `npm_config_user_agent`.
+
+Both give the package manager to use, so the caller has nothing left to decide. The warning is there when the detected package manager isn't supported, and the caller should show it.
 
 ### Flow
 
@@ -22,10 +24,14 @@ flowchart LR
   checkStart -->|nothing| workspaceRoots["Check workspace roots above dir"]
   workspaceRoots -->|nothing| userAgent["Read npm_config_user_agent"]
   userAgent -->|nothing| npm(["npm"])
-  checkStart -->|found| found(["Detection"])
-  workspaceRoots -->|found| found
-  userAgent -->|found| found
+  checkStart -->|found| isSupported{"Supported?"}
+  workspaceRoots -->|found| isSupported
+  userAgent -->|found| isSupported
+  isSupported -->|yes| detected(["The detected one"])
+  isSupported -->|no| npmWithWarning(["npm, with a warning"])
 ```
+
+npm, pnpm, Yarn and Bun are all detected, but only the ones in `supportedPackageManagers` are used. For now that is npm.
 
 Checking the workspace roots above `dir`:
 

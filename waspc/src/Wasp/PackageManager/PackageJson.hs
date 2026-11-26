@@ -38,8 +38,8 @@ parseDevEnginesField packageJson = do
     nameParser :: Value -> Parser String
     nameParser = withObject "packageManager" (.: "name")
 
--- | Whether the package.json declares an npm or Bun workspace. That is a list
--- of globs, or an object like @{ "packages": [...] }@.
+-- | Whether the package.json declares an npm, Yarn or Bun workspace. That is
+-- a list of globs, or an object like @{ "packages": [...] }@.
 hasWorkspacesField :: Value -> Bool
 hasWorkspacesField = \case
   Object packageJson -> case KeyMap.lookup "workspaces" packageJson of

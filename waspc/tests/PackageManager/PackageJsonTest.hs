@@ -12,6 +12,7 @@ spec_PackageManager_PackageJson = do
   describe "parsePackageManagerField" $ do
     it "reads the name before the version" $ do
       packageManagerField "pnpm@9.12.1+sha512.abc" `shouldBe` Just Pnpm
+      packageManagerField "yarn@4.5.0" `shouldBe` Just Yarn
       packageManagerField "npm@11.0.0" `shouldBe` Just Npm
       packageManagerField "bun@1.3.2" `shouldBe` Just Bun
 
@@ -23,7 +24,6 @@ spec_PackageManager_PackageJson = do
       packageManagerField "pnpm@not a version " `shouldBe` Just Pnpm
 
     it "returns Nothing for package managers Wasp doesn't support" $ do
-      packageManagerField "yarn@4.5.0" `shouldBe` Nothing
       packageManagerField "deno@2.0.0" `shouldBe` Nothing
       packageManagerField "cnpm@9.0.0" `shouldBe` Nothing
 
@@ -64,7 +64,7 @@ spec_PackageManager_PackageJson = do
     it "skips alternatives Wasp doesn't support or can't read" $
       devEnginesField
         ( toJSONList
-            [ object ["name" .= ("yarn" :: String)],
+            [ object ["name" .= ("deno" :: String)],
               String "garbage",
               object ["version" .= ("1" :: String)],
               object ["name" .= ("bun" :: String)]

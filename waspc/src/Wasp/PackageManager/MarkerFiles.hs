@@ -28,6 +28,8 @@ lockfilesAndWorkspaceFiles :: [MarkerFile]
 lockfilesAndWorkspaceFiles =
   [ MarkerFile [relfile|pnpm-lock.yaml|] Pnpm,
     MarkerFile [relfile|pnpm-workspace.yaml|] Pnpm,
+    MarkerFile [relfile|yarn.lock|] Yarn,
+    MarkerFile [relfile|.yarnrc.yml|] Yarn,
     MarkerFile [relfile|bun.lock|] Bun,
     MarkerFile [relfile|bun.lockb|] Bun,
     MarkerFile [relfile|package-lock.json|] Npm,
@@ -39,5 +41,8 @@ lockfilesAndWorkspaceFiles =
 installMetadataFiles :: [MarkerFile]
 installMetadataFiles =
   [ MarkerFile [relfile|node_modules/.modules.yaml|] Pnpm,
+    MarkerFile [relfile|node_modules/.yarn-state.yml|] Yarn,
+    MarkerFile [relfile|node_modules/.yarn_integrity|] Yarn,
+    MarkerFile [relfile|.pnp.cjs|] Yarn,
     MarkerFile [relfile|node_modules/.package-lock.json|] Npm
   ]
