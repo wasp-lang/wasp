@@ -1,13 +1,13 @@
-module PackageManager.UserAgentTest where
+module PackageManager.Detection.UserAgentTest where
 
 import Test.Hspec
+import Wasp.PackageManager.Detection.UserAgent (parseUserAgent)
 import Wasp.PackageManager.PackageManager (PackageManager (..))
-import Wasp.PackageManager.UserAgent (parseUserAgent)
 
-{- HLINT ignore spec_PackageManager_UserAgent "Avoid npm and npx" -}
+{- HLINT ignore spec_PackageManager_Detection_UserAgent "Avoid npm and npx" -}
 
-spec_PackageManager_UserAgent :: Spec
-spec_PackageManager_UserAgent = do
+spec_PackageManager_Detection_UserAgent :: Spec
+spec_PackageManager_Detection_UserAgent = do
   describe "parseUserAgent" $ do
     it "reads the package manager from the first product" $ do
       parseUserAgent "npm/10.9.0 node/v22.11.0 darwin arm64 workspaces/false" `shouldBe` Just Npm

@@ -49,7 +49,7 @@ flowchart TD
 "Check" looks at one directory and stops at the first hit, in this order:
 
 1. `packageManager` field in `package.json`
-2. `devEngines.packageManager` in `package.json`
+2. `devEngines.packageManager` in `package.json`. When it is a list, only the first entry counts.
 3. The files in `lockfilesAndWorkspaceFiles`, in list order
 4. The files in `installMetadataFiles`, in list order
 

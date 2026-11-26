@@ -1,14 +1,14 @@
-module PackageManager.PackageJsonTest where
+module PackageManager.Detection.PackageJsonTest where
 
 import Data.Aeson (Value (..), object, toJSON, (.=))
 import Test.Hspec
-import Wasp.PackageManager.PackageJson (hasWorkspacesField, parseDevEnginesField, parsePackageManagerField)
+import Wasp.PackageManager.Detection.PackageJson (hasWorkspacesField, parseDevEnginesField, parsePackageManagerField)
 import Wasp.PackageManager.PackageManager (PackageManager (..))
 
-{- HLINT ignore spec_PackageManager_PackageJson "Avoid npm and npx" -}
+{- HLINT ignore spec_PackageManager_Detection_PackageJson "Avoid npm and npx" -}
 
-spec_PackageManager_PackageJson :: Spec
-spec_PackageManager_PackageJson = do
+spec_PackageManager_Detection_PackageJson :: Spec
+spec_PackageManager_Detection_PackageJson = do
   describe "parsePackageManagerField" $ do
     it "reads the name before the version" $ do
       packageManagerField "pnpm@9.12.1+sha512.abc" `shouldBe` Just Pnpm
@@ -51,46 +51,41 @@ spec_PackageManager_PackageJson = do
 
   describe "parseDevEnginesField" $ do
     it "reads a single package manager" $
-      devEnginesField (object ["name" .= ("bun" :: String)]) `shouldBe` [Bun]
+      devEnginesField (object ["name" .= ("bun" :: String)]) `shouldBe` Just Bun
 
     it "ignores the other fields of a package manager" $
       devEnginesField (object ["name" .= ("pnpm" :: String), "version" .= ("^10" :: String), "onFail" .= ("warn" :: String)])
-        `shouldBe` [Pnpm]
+        `shouldBe` Just Pnpm
 
-    it "reads all the alternatives in order" $
+    it "reads the first of several alternatives" $
       devEnginesField (toJSONList [object ["name" .= ("pnpm" :: String)], object ["name" .= ("npm" :: String)]])
-        `shouldBe` [Pnpm, Npm]
+        `shouldBe` Just Pnpm
 
-    it "skips alternatives Wasp doesn't support or can't read" $
-      devEnginesField
-        ( toJSONList
-            [ object ["name" .= ("deno" :: String)],
-              String "garbage",
-              object ["version" .= ("1" :: String)],
-              object ["name" .= ("bun" :: String)]
-            ]
-        )
-        `shouldBe` [Bun]
+    it "doesn't look past the first alternative" $ do
+      devEnginesField (toJSONList [object ["name" .= ("deno" :: String)], object ["name" .= ("npm" :: String)]])
+        `shouldBe` Nothing
+      devEnginesField (toJSONList [String "garbage", object ["name" .= ("npm" :: String)]])
+        `shouldBe` Nothing
 
-    it "returns nothing for package managers Wasp doesn't support" $
-      devEnginesField (object ["name" .= ("deno" :: String)]) `shouldBe` []
+    it "returns Nothing for package managers Wasp doesn't support" $
+      devEnginesField (object ["name" .= ("deno" :: String)]) `shouldBe` Nothing
 
-    it "returns nothing for names that aren't exact" $ do
-      devEnginesField (object ["name" .= (" pnpm" :: String)]) `shouldBe` []
-      devEnginesField (object ["name" .= ("pnpm@10" :: String)]) `shouldBe` []
-      devEnginesField (object ["name" .= ("Pnpm" :: String)]) `shouldBe` []
+    it "returns Nothing for names that aren't exact" $ do
+      devEnginesField (object ["name" .= (" pnpm" :: String)]) `shouldBe` Nothing
+      devEnginesField (object ["name" .= ("pnpm@10" :: String)]) `shouldBe` Nothing
+      devEnginesField (object ["name" .= ("Pnpm" :: String)]) `shouldBe` Nothing
 
-    it "returns nothing for garbage values" $ do
-      devEnginesField (object ["name" .= ("" :: String)]) `shouldBe` []
-      devEnginesField (object ["name" .= (10 :: Int)]) `shouldBe` []
-      devEnginesField (object []) `shouldBe` []
-      devEnginesField (String "pnpm") `shouldBe` []
-      devEnginesField (toJSONList []) `shouldBe` []
-      parseDevEnginesField (packageJson ["devEngines" .= ("pnpm" :: String)]) `shouldBe` []
+    it "returns Nothing for garbage values" $ do
+      devEnginesField (object ["name" .= ("" :: String)]) `shouldBe` Nothing
+      devEnginesField (object ["name" .= (10 :: Int)]) `shouldBe` Nothing
+      devEnginesField (object []) `shouldBe` Nothing
+      devEnginesField (String "pnpm") `shouldBe` Nothing
+      devEnginesField (toJSONList []) `shouldBe` Nothing
+      parseDevEnginesField (packageJson ["devEngines" .= ("pnpm" :: String)]) `shouldBe` Nothing
 
-    it "returns nothing without the field" $ do
-      parseDevEnginesField (packageJson []) `shouldBe` []
-      parseDevEnginesField (packageJson ["devEngines" .= object []]) `shouldBe` []
+    it "returns Nothing without the field" $ do
+      parseDevEnginesField (packageJson []) `shouldBe` Nothing
+      parseDevEnginesField (packageJson ["devEngines" .= object []]) `shouldBe` Nothing
 
   describe "hasWorkspacesField" $ do
     it "accepts the array and the object form" $ do

@@ -8,11 +8,10 @@ where
 import Control.Monad.Extra (firstJustM)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
-import System.Environment (lookupEnv)
 import Wasp.PackageManager.Detection.Common (Detection (..), DetectionSource (..))
 import Wasp.PackageManager.Detection.ProjectFiles (detectFromProjectFiles)
+import Wasp.PackageManager.Detection.UserAgent (detectFromUserAgent)
 import Wasp.PackageManager.PackageManager (PackageManager, defaultPackageManager, packageManagerName, supportedPackageManagers)
-import Wasp.PackageManager.UserAgent (parseUserAgent, userAgentEnvVarName)
 
 type DetectionWarning = String
 
@@ -38,10 +37,6 @@ detectProjectPackageManager dir =
 -- 'defaultPackageManager' and a warning to show to the user.
 detectInvokingPackageManager :: IO (PackageManager, Maybe DetectionWarning)
 detectInvokingPackageManager = choosePackageManagerToUse <$> detectFromUserAgent
-
-detectFromUserAgent :: IO (Maybe Detection)
-detectFromUserAgent =
-  fmap (`Detection` UserAgent) . (>>= parseUserAgent) <$> lookupEnv userAgentEnvVarName
 
 choosePackageManagerToUse :: Maybe Detection -> (PackageManager, Maybe DetectionWarning)
 choosePackageManagerToUse = \case

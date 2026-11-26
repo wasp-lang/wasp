@@ -11,9 +11,8 @@ import System.Directory (canonicalizePath, createDirectoryIfMissing)
 import qualified System.FilePath as FP
 import System.IO.Temp (withSystemTempDirectory)
 import Test.Hspec
-import Wasp.PackageManager.Detection.Common (Detection (..), DetectionSource (..))
+import Wasp.PackageManager.Detection.Common (Detection (..), DetectionSource (..), PackageRootDir)
 import Wasp.PackageManager.Detection.ProjectFiles (detectFromProjectFiles)
-import Wasp.PackageManager.MarkerFiles (PackageRootDir)
 import Wasp.PackageManager.PackageManager (PackageManager (..))
 
 {- HLINT ignore spec_PackageManager_Detection_ProjectFiles "Avoid npm and npx" -}
@@ -44,19 +43,11 @@ spec_PackageManager_Detection_ProjectFiles = do
           detectFromProjectFiles projectRoot
             `shouldReturn` found Bun (DevEnginesField $ projectRoot </> [relfile|package.json|])
 
-      it "picks the devEngines alternative that Wasp supports"
+      it "takes the first devEngines alternative as the project's preference"
         $ withProject
           [ ".git/HEAD" ~> "",
-            "package.json" ~> [trimming|{ "devEngines": { "packageManager": [{ "name": "yarn" }, { "name": "npm" }] } }|]
-          ]
-        $ \projectRoot ->
-          detectFromProjectFiles projectRoot
-            `shouldReturn` found Npm (DevEnginesField $ projectRoot </> [relfile|package.json|])
-
-      it "picks the first devEngines alternative when Wasp supports none of them"
-        $ withProject
-          [ ".git/HEAD" ~> "",
-            "package.json" ~> [trimming|{ "devEngines": { "packageManager": [{ "name": "yarn" }, { "name": "pnpm" }] } }|]
+            "package.json" ~> [trimming|{ "devEngines": { "packageManager": [{ "name": "yarn" }, { "name": "npm" }] } }|],
+            "package-lock.json" ~> "{}"
           ]
         $ \projectRoot ->
           detectFromProjectFiles projectRoot

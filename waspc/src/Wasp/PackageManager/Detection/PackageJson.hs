@@ -1,17 +1,31 @@
-module Wasp.PackageManager.PackageJson
+module Wasp.PackageManager.Detection.PackageJson
   ( hasWorkspacesField,
     parseDevEnginesField,
     parsePackageManagerField,
+    readPackageJsonIfValid,
   )
 where
 
 import Control.Monad ((>=>))
+import Control.Monad.Extra (ifM)
 import Data.Aeson (Value (..), withObject, (.:))
 import qualified Data.Aeson.KeyMap as KeyMap
 import Data.Aeson.Types (Parser, parseMaybe)
 import Data.Foldable (toList)
-import Data.Maybe (fromMaybe, mapMaybe)
+import Data.Maybe (listToMaybe)
+import StrongPath (Abs, Dir, Path', relfile, (</>))
+import Wasp.PackageManager.Detection.Common (PackageRootDir)
 import Wasp.PackageManager.PackageManager (PackageManager, parsePackageManagerName)
+import Wasp.Util.IO (doesFileExist)
+import Wasp.Util.Json (readJsonFile)
+
+-- | 'Nothing' for an invalid package.json too, so the other files in the
+-- directory still get checked.
+readPackageJsonIfValid :: Path' Abs (Dir PackageRootDir) -> IO (Maybe Value)
+readPackageJsonIfValid dir =
+  ifM (doesFileExist packageJsonPath) (readJsonFile packageJsonPath) (return Nothing)
+  where
+    packageJsonPath = dir </> [relfile|package.json|]
 
 -- | Reads Corepack's @"packageManager": "pnpm\@9.12.1+sha512..."@.
 parsePackageManagerField :: Value -> Maybe PackageManager
@@ -20,22 +34,20 @@ parsePackageManagerField =
     >=> parsePackageManagerName . takeWhile (/= '@')
 
 -- | Reads @"devEngines": { "packageManager": { "name": "pnpm" } }@. The spec
--- also allows a list of alternatives, any of which the project accepts, so
--- this gives all of them in the order they are listed.
-parseDevEnginesField :: Value -> [PackageManager]
-parseDevEnginesField packageJson =
-  mapMaybe (parseMaybe nameParser >=> parsePackageManagerName) alternatives
+-- also allows a list of alternatives. We take the first one as the project's
+-- preference and ignore the rest.
+parseDevEnginesField :: Value -> Maybe PackageManager
+parseDevEnginesField =
+  parseMaybe preferredPackageManagerNameParser >=> parsePackageManagerName
   where
-    alternatives = fromMaybe [] $ parseMaybe devEnginesPackageManagerParser packageJson
-
-    devEnginesPackageManagerParser :: Value -> Parser [Value]
-    devEnginesPackageManagerParser =
+    preferredPackageManagerNameParser :: Value -> Parser String
+    preferredPackageManagerNameParser =
       withObject "package.json" $
         (.: "devEngines")
           >=> withObject "devEngines" (.: "packageManager")
           >=> \case
-            Array listedAlternatives -> return $ toList listedAlternatives
-            single -> return [single]
+            Array alternatives -> maybe (fail "no alternatives") nameParser (listToMaybe $ toList alternatives)
+            single -> nameParser single
 
     nameParser :: Value -> Parser String
     nameParser = withObject "packageManager" (.: "name")

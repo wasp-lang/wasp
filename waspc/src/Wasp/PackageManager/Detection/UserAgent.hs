@@ -1,10 +1,19 @@
-module Wasp.PackageManager.UserAgent
-  ( parseUserAgent,
-    userAgentEnvVarName,
+module Wasp.PackageManager.Detection.UserAgent
+  ( detectFromUserAgent,
+
+    -- * Exported for testing only
+    parseUserAgent,
   )
 where
 
+import System.Environment (lookupEnv)
+import Wasp.PackageManager.Detection.Common (Detection (..), DetectionSource (..))
 import Wasp.PackageManager.PackageManager (PackageManager, parsePackageManagerName)
+
+-- | The package manager that launched Wasp, if any.
+detectFromUserAgent :: IO (Maybe Detection)
+detectFromUserAgent =
+  fmap (`Detection` UserAgent) . (>>= parseUserAgent) <$> lookupEnv userAgentEnvVarName
 
 -- | Package managers set this for every process they spawn, such as package
 -- scripts, @npx@, @pnpm dlx@ and @npm create@.

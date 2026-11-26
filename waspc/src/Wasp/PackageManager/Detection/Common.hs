@@ -1,11 +1,17 @@
 module Wasp.PackageManager.Detection.Common
   ( Detection (..),
     DetectionSource (..),
+    PackageRootDir,
   )
 where
 
 import StrongPath (Abs, File', Path')
 import Wasp.PackageManager.PackageManager (PackageManager)
+
+-- | The root directory of a package, where its package.json lives. That is
+-- the directory detection starts in, or, when it starts in a package inside a
+-- monorepo, the workspace root above it.
+data PackageRootDir
 
 data Detection = Detection
   { packageManager :: PackageManager,

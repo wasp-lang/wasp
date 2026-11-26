@@ -1,18 +1,13 @@
-module Wasp.PackageManager.MarkerFiles
+module Wasp.PackageManager.Detection.MarkerFiles
   ( MarkerFile (..),
-    PackageRootDir,
     lockfilesAndWorkspaceFiles,
     installMetadataFiles,
   )
 where
 
 import StrongPath (File', Path', Rel, relfile)
+import Wasp.PackageManager.Detection.Common (PackageRootDir)
 import Wasp.PackageManager.PackageManager (PackageManager (..))
-
--- | The root directory of a package, where its package.json lives. That is
--- the directory detection starts in, or, when it starts in a package inside a
--- monorepo, the workspace root above it.
-data PackageRootDir
 
 -- | A file whose presence in a package root tells which package manager
 -- the project uses.
