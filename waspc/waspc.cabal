@@ -327,6 +327,14 @@ library
     Wasp.Node.Internal
     Wasp.Node.Version
     Wasp.NodePackageFFI
+    Wasp.PackageManager
+    Wasp.PackageManager.Detection
+    Wasp.PackageManager.Detection.Common
+    Wasp.PackageManager.Detection.ProjectFiles
+    Wasp.PackageManager.MarkerFiles
+    Wasp.PackageManager.PackageJson
+    Wasp.PackageManager.PackageManager
+    Wasp.PackageManager.UserAgent
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.BuildType
@@ -616,6 +624,10 @@ test-suite waspc-tests
     JsImportTest
     Node.InternalTest
     Node.VersionTest
+    PackageManager.Detection.ProjectFilesTest
+    PackageManager.DetectionTest
+    PackageManager.PackageJsonTest
+    PackageManager.UserAgentTest
     Paths_waspc
     Project.Db.DevTest
     Project.DbTest
