@@ -39,7 +39,7 @@
             "file",
             "libs/test-utils/wasp-lib-test-utils-0.27.0.tgz"
         ],
-        "f34e265ab908f4780e6290882eb0a47b8f5025fa2eaf09b33c56a2bdf425ccdc"
+        "95706687c0c5e31bae496d0ebb1a2ededa91a353c8d8e2783d64ac38e84c1eca"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "sdk/wasp/client/test/index.ts"
         ],
-        "1e11ec499f6ced0883b05c13691eb9a1623e7e86d96351fb9ad1e59dff9573ba"
+        "7079e91a21fe877afde43af64b6a318f16f3dca8e32993ad41c03a934cdee96a"
     ],
     [
         [

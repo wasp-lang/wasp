@@ -1,4 +1,5 @@
 import type { ViteUserConfig } from "vitest/config";
+import { apiUrlEnvVarName } from "./apiUrl.js";
 
 export type TestConfig = NonNullable<ViteUserConfig["test"]>;
 
@@ -9,7 +10,7 @@ const defaultTestConfig = {
     // Tests mock the server, so they get a URL that never resolves (`.invalid`
     // is a reserved domain). A request the test didn't mock fails instead of
     // reaching a server that happens to run on the machine.
-    REACT_APP_API_URL: "http://fake-testing-server.invalid",
+    [apiUrlEnvVarName]: "http://fake-testing-server.invalid",
   },
 } satisfies TestConfig;
 
