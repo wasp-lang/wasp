@@ -34,6 +34,7 @@ Create a directory in this folder with a `build` script in `package.json` that c
 - `pnpm-workspace.yaml`
 - the `dependencies` of `wasp/package.json`. The repo's TS tooling reads the package list from
   there (see `waspc/tools/packages/utils.ts`).
+- the `overrides` of the example apps
 
 Give `@wasp/wasp` a run script for the package in `wasp/scripts/` (see `run-deploy.js`), export
 it from `wasp/package.json`, and add it to `WaspNpmPackageScript` in `Wasp.Project.WaspNpmPackage`.
