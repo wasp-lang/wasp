@@ -9,4 +9,4 @@ export {
   reportFatalServerError,
   reportUnexpectedServerError,
   sendErrorResponse,
-} from "@wasp/lib-sdk-core/node";
+} from "@wasp/sdk-core/node";

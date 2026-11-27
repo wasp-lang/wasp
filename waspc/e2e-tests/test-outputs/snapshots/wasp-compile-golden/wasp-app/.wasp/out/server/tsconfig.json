@@ -1,5 +1,4 @@
 {
-  "extends": "@tsconfig/node26/tsconfig.json",
   "compilerOptions": {
     /* Strictness and type checking */
     // TODO: Enable `strict` once the server code is typed for it.
@@ -35,8 +34,6 @@
     // transpilers can drop them without having to know what they refer to.
     "verbatimModuleSyntax": true,
     "moduleDetection": "force", // Assume all files are modules
-    // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
-    // them here to be explicit.
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "dist",
