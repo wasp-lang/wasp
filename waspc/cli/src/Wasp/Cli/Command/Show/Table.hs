@@ -8,10 +8,9 @@ where
 import Data.List (intercalate, nub, sortOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe, mapMaybe)
-import Wasp.Cli.Terminal (title)
 import Wasp.Inspectable (InspectionDatapoint, InspectionEntry (..))
 import Wasp.Util (alignColumns)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 -- | Renders inspection entries as per-category tables: entries are grouped by
 -- their heading, and each group becomes a table with one row per entry.
@@ -28,7 +27,7 @@ renderEntriesAsTables entries =
 
     renderCategory (title', datapointLists) =
       unlines $
-        title title'
+        TextStyle.styleTitle title'
           : ( ("  " ++)
                 <$>
                 -- We run the "underline" _after_ aligning columns, as the
@@ -61,4 +60,4 @@ orderedGroupWith fk fv xs =
 underlineFirstRow :: [String] -> [String]
 underlineFirstRow [] = []
 underlineFirstRow (firstRow : rest) =
-  Term.applyStyles [Term.Underline] firstRow : rest
+  TextStyle.applyStyles [TextStyle.Underline] firstRow : rest

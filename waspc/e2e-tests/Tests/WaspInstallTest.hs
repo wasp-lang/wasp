@@ -2,7 +2,7 @@ module Tests.WaspInstallTest (waspInstallTest) where
 
 import ShellCommands (assertCommandOutputContains)
 import Test (Test (..), TestCase (..))
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 
 waspInstallTest :: Test
 waspInstallTest =

@@ -45,6 +45,8 @@ module ShellCommands
     useDevWaspNpmPackages,
     assertCommandOutputContains,
     assertCommandOutputContainsAll,
+    assertCommandFails,
+    assertCommandFailsWith,
     skipIfDockerDisabled,
     createSeedFile,
     replaceMainWaspTsFile,
@@ -428,6 +430,20 @@ assertCommandOutputContainsAll commandBuilder markers = do
     escapeSingleQuote '\'' = "'\\''"
     escapeSingleQuote c = [c]
 
+assertCommandFails ::
+  ShellCommandBuilder context ShellCommand ->
+  ShellCommandBuilder context ShellCommand
+assertCommandFails = fmap negateCommand
+  where
+    negateCommand command = "! { " ++ command ++ "; }"
+
+assertCommandFailsWith ::
+  String ->
+  ShellCommandBuilder context ShellCommand ->
+  ShellCommandBuilder context ShellCommand
+assertCommandFailsWith marker commandBuilder =
+  assertCommandOutputContains (assertCommandFails commandBuilder) marker
+
 -- | Asserts that a command that needs to prompt fails when stdin is not an
 -- interactive terminal, and prints its usage so the user can pass the answers
 -- as arguments instead.
@@ -437,7 +453,7 @@ assertCommandFailsWithoutInteractiveTerminal ::
   ShellCommandBuilder context ShellCommand
 assertCommandFailsWithoutInteractiveTerminal commandName commandBuilder =
   assertCommandOutputContainsAll
-    (("! " ++) <$> commandBuilder)
+    (assertCommandFails commandBuilder)
     ["stdin is not an interactive terminal", "Usage: " ++ commandName]
 
 -- 'SnapshotTest' specific commands

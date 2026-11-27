@@ -5,7 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 
 -- | TODO: Remove this stub in Wasp 0.28.
 --

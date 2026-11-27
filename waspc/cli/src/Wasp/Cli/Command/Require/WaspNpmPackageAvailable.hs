@@ -24,7 +24,7 @@ import Wasp.Project.WaspNpmPackage
     tryGettingInstalledWaspNpmPackageVersion,
   )
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 import Wasp.Version (getWaspCliNpmPackageVersion, isRunByWaspCliNpmPackage)
 
 -- | Requires that the project's \@wasp/wasp npm package is installed in

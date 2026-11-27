@@ -7,16 +7,16 @@ module Wasp.Cli.Common
 where
 
 import System.IO (hPutStrLn, stderr)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 waspSays :: String -> IO ()
-waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
+waspSays what = putStrLn $ TextStyle.applyStyles [TextStyle.Yellow] what
 
 waspWarns :: String -> IO ()
-waspWarns what = putStrLn $ Term.applyStyles [Term.Magenta] what
+waspWarns what = putStrLn $ TextStyle.applyStyles [TextStyle.Magenta] what
 
 waspWarnsOnStderr :: String -> IO ()
-waspWarnsOnStderr what = hPutStrLn stderr $ Term.applyStyles [Term.Magenta] what
+waspWarnsOnStderr what = hPutStrLn stderr $ TextStyle.applyStyles [TextStyle.Magenta] what
 
 waspScreams :: String -> IO ()
-waspScreams what = putStrLn $ Term.applyStyles [Term.Red] what
+waspScreams what = putStrLn $ TextStyle.applyStyles [TextStyle.Red] what

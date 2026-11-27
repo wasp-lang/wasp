@@ -9,6 +9,7 @@ import ShellCommands
     TestContext,
     WaspProjectContext (..),
     appendToFile,
+    assertCommandFails,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
@@ -28,7 +29,7 @@ viteBuildTest =
     "vite-build"
     [ TestCase
         "fail-on-missing-required-env-vars"
-        (createViteBuildTestCase [expectCommandFailure <$> viteBuild]),
+        (createViteBuildTestCase [assertCommandFails viteBuild]),
       TestCase
         "success-with-required-env-vars"
         (createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]),
@@ -36,7 +37,7 @@ viteBuildTest =
         "fail-missing-inline-env-var"
         ( createViteBuildTestCase
             [ appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild,
-              expectCommandFailure <$> assertBuildOutputContains inlineEnvVarValue
+              assertCommandFails (assertBuildOutputContains inlineEnvVarValue)
             ]
         ),
       TestCase
@@ -52,7 +53,7 @@ viteBuildTest =
         ( createViteBuildTestCase
             [ writeDotEnvClientFile dotEnvFileValue,
               appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild,
-              expectCommandFailure <$> assertBuildOutputContains dotEnvFileValue
+              assertCommandFails (assertBuildOutputContains dotEnvFileValue)
             ]
         ),
       TestCase
@@ -67,7 +68,7 @@ viteBuildTest =
         "fail-on-user-code-type-error"
         ( createViteBuildTestCase
             [ addTypeErrorToSrcFile,
-              expectCommandFailure <$> viteBuildWithApiUrl
+              assertCommandFails viteBuildWithApiUrl
             ]
         ),
       TestCase
@@ -81,7 +82,7 @@ viteBuildTest =
         "fail-on-user-defined-client-port"
         ( createViteBuildTestCase
             [ writeViteConfigWithServerPort,
-              expectCommandFailure <$> viteBuildWithApiUrl
+              assertCommandFails viteBuildWithApiUrl
             ]
         )
     ]
@@ -164,6 +165,3 @@ viteBuildTest =
 
     dotEnvFileValue :: String
     dotEnvFileValue = "DotEnvFileValue"
-
-    expectCommandFailure :: ShellCommand -> ShellCommand
-    expectCommandFailure command = "! " ++ command

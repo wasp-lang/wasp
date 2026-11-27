@@ -28,7 +28,7 @@ import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Project.RunConfig (ProjectRunConfig)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 
 data BuildStartConfig = BuildStartConfig
   { appUniqueId :: String,

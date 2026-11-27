@@ -30,7 +30,7 @@ import System.IO (Handle, hFlush, hGetLine, hIsTerminalDevice, hPutStr, hPutStrL
 import System.IO.Error (ioeGetHandle, isEOFError)
 import System.Timeout (timeout)
 import Text.Read (readMaybe)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 -- This is the only way to get an interactive terminal.
 -- The caller can decide what to do if they can't get one: fail with a way to
@@ -107,7 +107,7 @@ askForConfirmation terminal question = do
 askToChoose :: forall o. (IsOption o) => InteractiveTerminal -> String -> NonEmpty o -> IO o
 askToChoose _ _ (singleOption :| []) = return singleOption
 askToChoose terminal question options = do
-  hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Bold] question
+  hPutStrLn terminal.outputHandle $ TextStyle.applyStyles [TextStyle.Bold] question
   hPutStrLn terminal.outputHandle showIndexedOptions
   answer <- prompt terminal
   getOptionMatchingAnswer answer & maybe printErrorAndAskAgain return
@@ -128,7 +128,7 @@ askToChoose terminal question options = do
 
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
-      hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Red] "Invalid selection. Type the name or the index of the option."
+      hPutStrLn terminal.outputHandle $ TextStyle.applyStyles [TextStyle.Red] "Invalid selection. Type the name or the index of the option."
       askToChoose terminal question options
 
     showIndexedOptions :: String
@@ -142,9 +142,9 @@ askToChoose terminal question options = do
               optionDescription
             ]
           where
-            indexPrefix = Term.applyStyles [Term.Yellow] (showIndex idx) <> " "
-            optionName = Term.applyStyles [Term.Bold] (showOption option)
-            tags = whenDefault (Term.applyStyles [Term.Yellow] " (default)")
+            indexPrefix = TextStyle.applyStyles [TextStyle.Yellow] (showIndex idx) <> " "
+            optionName = TextStyle.applyStyles [TextStyle.Bold] (showOption option)
+            tags = whenDefault (TextStyle.applyStyles [TextStyle.Yellow] " (default)")
             optionDescription = showDescription (idx, option)
             whenDefault xs = if isDefaultOption option then xs else mempty
 
@@ -164,7 +164,7 @@ askToChoose terminal question options = do
 
 askForInput :: InteractiveTerminal -> String -> IO String
 askForInput terminal question = do
-  hPutStr terminal.outputHandle $ Term.applyStyles [Term.Bold] question
+  hPutStr terminal.outputHandle $ TextStyle.applyStyles [TextStyle.Bold] question
   prompt terminal
 
 tryGettingConfirmation :: InteractiveTerminal -> String -> String -> IO (Either ConfirmationError ())
@@ -191,7 +191,7 @@ repeatUntil terminal predicate errorMessage action = do
   result <- action
   if predicate result
     then do
-      hPutStrLn terminal.outputHandle $ Term.applyStyles [Term.Red] errorMessage
+      hPutStrLn terminal.outputHandle $ TextStyle.applyStyles [TextStyle.Red] errorMessage
       repeatUntil terminal predicate errorMessage action
     else return result
 
@@ -200,7 +200,7 @@ repeatUntil terminal predicate errorMessage action = do
 -- recognizes.
 prompt :: InteractiveTerminal -> IO String
 prompt terminal = do
-  putStrFlush terminal $ Term.applyStyles [Term.Yellow] " ▸ "
+  putStrFlush terminal $ TextStyle.applyStyles [TextStyle.Yellow] " ▸ "
   T.unpack . T.strip . T.pack <$> hGetLine terminal.inputHandle
 
 -- Explicit flush ensures prompt messages are printed immediately on all systems.

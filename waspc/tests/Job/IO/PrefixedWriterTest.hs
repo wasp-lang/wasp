@@ -5,7 +5,8 @@ import qualified Data.Text as T
 import Test.Hspec
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (Output (..), formatOutput, initialPrefixedWriterState)
-import qualified Wasp.Util.Terminal as Term
+import Wasp.Util.IO.Process (OutputStream (..))
+import qualified Wasp.Util.TextStyle as TextStyle
 
 spec_prefixedOutput :: Spec
 spec_prefixedOutput = do
@@ -24,7 +25,7 @@ spec_prefixedOutput = do
   it "does not add a second newline when the job changes" $
     formatMessages
       [ dbOutput "first\n",
-        (Output J.Server J.Stdout, "second\n"),
+        (Output J.Server Stdout, "second\n"),
         dbOutput "third\n"
       ]
       `shouldBe` "\n" <> dbPrefix <> "first\n" <> serverPrefix <> "second\n" <> dbPrefix <> "third\n"
@@ -37,10 +38,10 @@ formatMessages :: [(Output, T.Text)] -> T.Text
 formatMessages = T.concat . snd . mapAccumL (uncurry . formatOutput) initialPrefixedWriterState
 
 dbOutput :: T.Text -> (Output, T.Text)
-dbOutput text = (Output J.Db J.Stdout, text)
+dbOutput text = (Output J.Db Stdout, text)
 
 dbPrefix :: T.Text
-dbPrefix = T.pack $ Term.applyStyles [Term.Blue] "[" <> "   " <> Term.applyStyles [Term.Blue] "Db" <> "   " <> Term.applyStyles [Term.Blue] "]" <> " "
+dbPrefix = T.pack $ TextStyle.applyStyles [TextStyle.Blue] "[" <> "   " <> TextStyle.applyStyles [TextStyle.Blue] "Db" <> "   " <> TextStyle.applyStyles [TextStyle.Blue] "]" <> " "
 
 serverPrefix :: T.Text
-serverPrefix = T.pack $ Term.applyStyles [Term.Magenta] "[" <> " " <> Term.applyStyles [Term.Magenta] "Server" <> " " <> Term.applyStyles [Term.Magenta] "]" <> " "
+serverPrefix = T.pack $ TextStyle.applyStyles [TextStyle.Magenta] "[" <> " " <> TextStyle.applyStyles [TextStyle.Magenta] "Server" <> " " <> TextStyle.applyStyles [TextStyle.Magenta] "]" <> " "

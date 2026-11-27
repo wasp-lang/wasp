@@ -8,7 +8,8 @@ import ShellCommands
     ShellCommandBuilder,
     WaspProjectContext (..),
     appendToFile,
-    assertCommandOutputContains,
+    assertCommandFails,
+    assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
     replaceMainWaspTsFile,
@@ -38,10 +39,10 @@ incrementalTypeCheckingTest =
                   -- Editing a file makes TypeScript report the initial error.
                   appendToFile "src/MainPage.tsx" "",
                   -- Compile rejects the type error, but still generates the new types.
-                  ("! " ++) <$> waspCliCompile,
-                  assertCommandOutputContains
-                    (("! " ++) <$> typeCheckApp)
-                    "Property 'id' does not exist on type 'never'.",
+                  assertCommandFails waspCliCompile,
+                  assertCommandFailsWith
+                    "Property 'id' does not exist on type 'never'."
+                    typeCheckApp,
                   writeQuery "[{ id: 1 }]",
                   waspCliCompile,
                   typeCheckApp

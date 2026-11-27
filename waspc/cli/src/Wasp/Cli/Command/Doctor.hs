@@ -18,7 +18,7 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (trim)
 import qualified Wasp.Util.Docker as Docker
 import Wasp.Util.GitRev (gitRevDescription)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 import Wasp.Version (getWaspCliNpmPackageVersion)
 
 type Check a = ExceptT String IO a
@@ -31,7 +31,7 @@ type Check a = ExceptT String IO a
 -- process: each check just reports its own result.
 doctor :: IO ()
 doctor = do
-  putStrLn $ Term.applyStyles [Term.Bold] "Checking your environment...\n"
+  putStrLn $ TextStyle.applyStyles [TextStyle.Bold] "Checking your environment...\n"
 
   forM_ checks $ \(title, check) -> do
     result <- runExceptT check
@@ -61,8 +61,8 @@ renderCheckResult title result =
   where
     detail = either id id result
     symbol = case result of
-      Right _ -> Term.applyStyles [Term.Green] "[✓]"
-      Left _ -> Term.applyStyles [Term.Red] "[✗]"
+      Right _ -> TextStyle.applyStyles [TextStyle.Green] "[✓]"
+      Left _ -> TextStyle.applyStyles [TextStyle.Red] "[✗]"
 
 checkWasp :: Check String
 checkWasp = liftIO $ (++ gitInfo) . show <$> getWaspCliNpmPackageVersion

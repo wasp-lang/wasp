@@ -5,6 +5,7 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext (..),
+    assertCommandFailsWith,
     assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
@@ -30,7 +31,7 @@ import ShellCommands
 import StrongPath (fromAbsDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 import Wasp.Version (waspVersion)
 
 waspNpmPackageAvailableTest :: Test
@@ -179,12 +180,3 @@ waspNpmPackageAvailableTest =
 
     staleInstallError :: String
     staleInstallError = "The package.json asks for"
-
-    -- Negates the command, so the assertion holds when it fails (exits non-zero)
-    -- and its output contains the expected text.
-    assertCommandFailsWith ::
-      String ->
-      ShellCommandBuilder WaspProjectContext ShellCommand ->
-      ShellCommandBuilder WaspProjectContext ShellCommand
-    assertCommandFailsWith expectedOutput commandBuilder =
-      assertCommandOutputContains (("! " ++) <$> commandBuilder) expectedOutput
