@@ -6,7 +6,7 @@ where
 import Control.Monad.Except (throwError)
 import System.Exit (ExitCode)
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, CommandError (CommandError), getConsole, require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig (..), makeBuildStartConfig)
@@ -18,6 +18,7 @@ import Wasp.Cli.Command.Require.GeneratedApp (GeneratedAppIsProduction (Generate
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Job as Job
@@ -46,13 +47,15 @@ buildStart = withArguments buildStartArgsParser $ \args -> do
 
 buildAndStartServerAndClient :: AppSpec -> BuildStartConfig -> Command ()
 buildAndStartServerAndClient appSpec config = do
+  writeRawOutput <- (.writeRawOutput) <$> getConsole
+
   cliSendMessageC $ Msg.Start "Building client..."
-  Job.run (Job.prefixWith Job.WebApp $ buildClient config)
+  Job.run writeRawOutput (Job.prefixWith Job.WebApp $ buildClient config)
     >>= throwOnExitFailure "Building client failed." "Building the client"
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
-  Job.run (Job.prefixWith Job.Server $ buildServer config)
+  Job.run writeRawOutput (Job.prefixWith Job.Server $ buildServer config)
     >>= throwOnExitFailure "Building server failed." "Building the server"
   cliSendMessageC $ Msg.Success "Server built."
 
@@ -62,7 +65,7 @@ buildAndStartServerAndClient appSpec config = do
     $ showRunConfigUrls appSpec config.projectRunConfig
 
   clientOrServerExitCode <-
-    Job.run $
+    Job.run writeRawOutput $
       Job.race
         (Job.prefixWith Job.WebApp $ startClient config)
         (Job.prefixWith Job.Server $ startServer config)

@@ -13,9 +13,10 @@ import Network.Socket (PortNumber)
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Exit (ExitCode, exitFailure)
 import Text.Printf (printf)
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, CommandError (CommandError), getConsole)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.DevDb.ArgumentsParser (DevDbOptions (..))
 import Wasp.Cli.Port (resolvePort)
 import Wasp.Db.Postgres (defaultPostgresPort)
@@ -28,6 +29,7 @@ import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (checkExitSuccess)
 import qualified Wasp.Util.Docker as Docker
+import Wasp.Util.IO.Process (WriteOutput)
 
 startPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> Command ()
 startPostgresDevDb waspProjectDir appName devDbOptions =
@@ -75,6 +77,7 @@ withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
 
     startDbOnPort :: PortNumber -> Command a
     startDbOnPort port = do
+      console <- getConsole
       let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName port
       cliSendMessageC . Msg.Info . unlines $
         "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
@@ -83,7 +86,7 @@ withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
       cliSendMessageC $ Msg.Info "..."
       -- Cancelling the database job stops the container, which `docker run --rm`
       -- then removes.
-      bracket (liftIO $ async $ runDbJob devDbSpec) (liftIO . cancel) $ \dbJob -> do
+      bracket (liftIO $ async $ runDbJob console.writeRawOutput devDbSpec) (liftIO . cancel) $ \dbJob -> do
         let waitForDbExit = do
               exitCode <- liftIO $ wait dbJob
               throwIfDbFailed exitCode
@@ -93,9 +96,9 @@ withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
             action waitForDbExit
           Left _exitCode -> throwDbError "The database stopped before accepting connections."
 
-    runDbJob :: Dev.Postgres.DevDbSpec -> IO ExitCode
-    runDbJob devDbSpec =
-      Job.run
+    runDbJob :: WriteOutput -> Dev.Postgres.DevDbSpec -> IO ExitCode
+    runDbJob writeOutput devDbSpec =
+      Job.run writeOutput
         $ Job.prefixWith Job.Db
         $ Dev.Postgres.runDevPostgresDb devDbSpec devDbOptions.dbImage devDbOptions.dbVolumeMountPath
 

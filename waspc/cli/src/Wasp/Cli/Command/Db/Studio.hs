@@ -8,11 +8,12 @@ where
 import Network.Socket (PortNumber)
 import qualified Options.Applicative as Opt
 import StrongPath ((</>))
-import Wasp.Cli.Command (Command, require)
+import Wasp.Cli.Command (Command, getConsole, require)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (ArgsParser (..))
 import Wasp.Cli.Util.PortArgument (portParser)
@@ -49,7 +50,8 @@ studio args = makeDbCommand [PrismaCliReady] $ \_appSpec projectRunConfig -> do
 
   cliSendMessageC $ Msg.Start "Running studio..."
 
-  _ <- Job.run $ Job.prefixWith Job.Db $ runStudio (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir studioPort
+  console <- getConsole
+  _ <- Job.run console.writeRawOutput $ Job.prefixWith Job.Db $ runStudio (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir studioPort
 
   error "This should never happen, studio should never stop."
 

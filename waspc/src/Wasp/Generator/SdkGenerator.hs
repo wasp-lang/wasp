@@ -81,11 +81,12 @@ import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
 import Wasp.Util (checkExitSuccess, (<++>))
+import Wasp.Util.IO.Process (WriteOutput)
 
-buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
-buildSdk generatedAppDir = do
+buildSdk :: WriteOutput -> Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+buildSdk writeOutput generatedAppDir = do
   exitCode <-
-    Job.run . Job.prefixWith Job.Wasp $
+    Job.run writeOutput . Job.prefixWith Job.Wasp $
       Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.compileSdk)
         `Job.andThen` Job.fromProc (NodeCommand.proc sdkRootDir SdkNodeCommands.copySdkAssets)
 

@@ -16,6 +16,7 @@ import System.IO.Temp (withSystemTempDirectory)
 import qualified System.Info
 import System.Timeout (timeout)
 import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shouldBe, shouldReturn, shouldThrow)
+import Test.Job.Util (writeOutputToStdout)
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
@@ -29,7 +30,7 @@ spec_Job = do
             Job.emitOutput Stdout "first "
             Job.emitOutput Stderr "second "
             Job.emitOutput Stdout "last"
-      Job.run (Job.captureOutput job) `shouldReturn` ((), "first second last")
+      Job.run writeOutputToStdout (Job.captureOutput job) `shouldReturn` ((), "first second last")
 
     it "doesn't pass the output on" $ do
       outputCount <- newIORef (0 :: Int)
@@ -37,7 +38,7 @@ spec_Job = do
             Job.observeOutput (\_ _ -> modifyIORef' outputCount (+ 1))
               $ Job.captureOutput
               $ Job.emitOutput Stdout "captured"
-      _ <- Job.run job
+      _ <- Job.run writeOutputToStdout job
       readIORef outputCount `shouldReturn` 0
 
   describe "observeOutput" $ do
@@ -48,13 +49,13 @@ spec_Job = do
               Job.observeOutput (\outputStream output -> modifyIORef' tappedOutputs ((outputStream, output) :)) $ do
                 Job.emitOutput Stdout "first"
                 Job.emitOutput Stderr "second"
-      Job.run job `shouldReturn` ((), "firstsecond")
+      Job.run writeOutputToStdout job `shouldReturn` ((), "firstsecond")
       reverse <$> readIORef tappedOutputs `shouldReturn` [(Stdout, "first"), (Stderr, "second")]
 
   describe "race" $ do
     it "returns the result of the job that finishes first" $ do
       let slowJob = liftIO $ threadDelay $ secondsToMicroSeconds 10
-      timeout (secondsToMicroSeconds 5) (Job.run $ Job.race slowJob (return ("fast" :: String)))
+      timeout (secondsToMicroSeconds 5) (Job.run writeOutputToStdout $ Job.race slowJob (return ("fast" :: String)))
         `shouldReturn` Just (Right "fast")
 
     -- On Windows, stopping a job waits for its process to exit by itself,
@@ -69,7 +70,7 @@ spec_Job = do
         ( do
             result <-
               timeout (secondsToMicroSeconds 5)
-                $ Job.run
+                $ Job.run writeOutputToStdout
                 $ Job.race (Job.fromProc slowProcess) jobThatFinishesOnceProcessStarts
             case result of
               Just (Right ()) -> do
@@ -84,13 +85,13 @@ spec_Job = do
       let job =
             (Job.emitOutput Stdout "first " >> return ExitSuccess)
               `Job.andThen` (Job.emitOutput Stdout "second" >> return (ExitFailure 2))
-      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 2, "first second")
+      Job.run writeOutputToStdout (Job.captureOutput job) `shouldReturn` (ExitFailure 2, "first second")
 
     it "doesn't run the second job if the first one fails" $ do
       let job =
             (Job.emitOutput Stdout "first" >> return (ExitFailure 1))
               `Job.andThen` (Job.emitOutput Stdout " second" >> return ExitSuccess)
-      Job.run (Job.captureOutput job) `shouldReturn` (ExitFailure 1, "first")
+      Job.run writeOutputToStdout (Job.captureOutput job) `shouldReturn` (ExitFailure 1, "first")
 
   describe "fromProc" $ do
     it "returns the exit code of the process" $ do
@@ -133,7 +134,7 @@ spec_Job = do
         ( do
             result <-
               timeout (secondsToMicroSeconds 10)
-                $ Job.run
+                $ Job.run writeOutputToStdout
                 $ Job.captureOutput
                 $ Job.race (passOutputOnSlowly $ Job.fromProc process) (liftIO waitForProcessExit)
             T.length . snd <$> result `shouldBe` Just 200000
@@ -170,7 +171,7 @@ spec_Job = do
         let process = nodeWithArgs (writePidFileScript <> "process.stdout.write('out'); setTimeout(() => {}, 10000);") [pidPath]
             failOnOutput = Job.observeOutput $ \_ _ -> throwIO $ userError "Emitting output failed"
         ( do
-            result <- timeout (secondsToMicroSeconds 5) $ tryIOException $ Job.run $ failOnOutput $ Job.fromProc process
+            result <- timeout (secondsToMicroSeconds 5) $ tryIOException $ Job.run writeOutputToStdout $ failOnOutput $ Job.fromProc process
             case result of
               Just (Left _) -> do
                 pid <- readProcessId pidPath
@@ -211,12 +212,12 @@ spec_Job = do
     it "fails if the executable isn't in any node_modules/.bin directory or the PATH" $
       withSystemTempDirectory "wasp-job-test" $ \tempDir -> do
         let dir = fromJust $ SP.parseAbsDir tempDir
-        Job.run (Job.fromProc $ Job.setCwd dir $ Job.proc "missing-tool" [])
+        Job.run writeOutputToStdout (Job.fromProc $ Job.setCwd dir $ Job.proc "missing-tool" [])
           `shouldThrow` anyIOException
 
 -- | Fails the test instead of hanging it if the process doesn't finish.
 runProcessJob :: Job.Job a -> IO (Maybe a)
-runProcessJob = timeout (secondsToMicroSeconds 10) . Job.run
+runProcessJob = timeout (secondsToMicroSeconds 10) . Job.run writeOutputToStdout
 
 node :: String -> Job.CreateJobProcess
 node script = nodeWithArgs script []
@@ -240,7 +241,7 @@ withRunningProcess script action = do
           )
           [pidPath]
   Async.withAsync
-    (Job.run $ Job.fromProc process)
+    (Job.run writeOutputToStdout $ Job.fromProc process)
     ( \running -> do
         waitUntil "the process starts" $ doesFileExist pidPath
         pid <- readProcessId pidPath

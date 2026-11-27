@@ -4,6 +4,7 @@
 module Wasp.Cli.Command
   ( Command,
     runCommand,
+    getConsole,
     CommandError (..),
 
     -- * Requirements
@@ -32,24 +33,26 @@ import Control.Monad.Catch (MonadCatch, MonadMask, MonadThrow)
 import Control.Monad.Error.Class (MonadError)
 import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
+import Wasp.Cli.Console (Console)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 import Wasp.Util.IO.Retry (MonadRetry (..))
 import qualified Wasp.Util.Interactive as Interactive
 
-newtype Command a = Command {_runCommand :: StateT [Requirement] (ExceptT CommandError IO) a}
+newtype Command a = Command {_runCommand :: ReaderT Console (StateT [Requirement] (ExceptT CommandError IO)) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadThrow, MonadCatch, MonadMask)
 
 instance MonadRetry Command where
   rThreadDelay = liftIO . threadDelay
 
-runCommand :: Command a -> IO ()
-runCommand cmd =
-  E.tryJust (guard . Interactive.isPromptInputEOF) (runExceptT (flip evalStateT [] $ _runCommand cmd)) >>= \case
+runCommand :: Console -> Command a -> IO ()
+runCommand console cmd =
+  E.tryJust (guard . Interactive.isPromptInputEOF) (runExceptT (flip evalStateT [] $ flip runReaderT console $ _runCommand cmd)) >>= \case
     Left () -> do
       -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
       putStrLn "Aborted."
@@ -58,6 +61,9 @@ runCommand cmd =
       cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
       exitFailure
     Right (Right _) -> return ()
+
+getConsole :: Command Console
+getConsole = Command ask
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?

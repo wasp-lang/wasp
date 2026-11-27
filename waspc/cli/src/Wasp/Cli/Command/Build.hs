@@ -13,12 +13,13 @@ import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import Wasp.Cli.Command (Command, CommandError (..), require)
+import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
@@ -40,6 +41,7 @@ import Wasp.Project.Common
     userPackageJsonInWaspProjectDir,
   )
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
+import Wasp.Util.IO.Process (WriteOutput)
 import Wasp.Util.Json (updateJsonFile)
 
 -- | Builds Wasp project that the current working directory is part of.
@@ -69,7 +71,8 @@ build = ProjectLock.acquireExclusive $ do
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
-  (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
+  console <- getConsole
+  (warnings, errors) <- liftIO $ buildIO console.writeRawOutput waspProjectDir buildDir
   liftIO $ printCompilationResult (warnings, errors)
   unless (null errors)
     $ throwError
@@ -147,15 +150,17 @@ build = ProjectLock.acquireExclusive $ do
     waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 buildIO ::
+  WriteOutput ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
-buildIO waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
+buildIO writeJobOutput waspProjectDir buildDir = compileResultWarningsAndErrors <$> compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
         { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
+          writeJobOutput,
           setupGoals = allSetupGoals
         }

@@ -4,7 +4,7 @@
 module Wasp.Job.IO.PrefixedWriter
   ( PrefixedWriter,
     newPrefixedWriter,
-    printOutput,
+    prefixOutput,
     Output (..),
     formatOutput,
     PrefixedWriterState,
@@ -20,26 +20,24 @@ import Data.List (maximumBy)
 import Data.Ord (comparing)
 import qualified Data.Set as S
 import qualified Data.Text as T
-import qualified Data.Text.IO as T.IO
-import System.IO (Handle, hFlush, stderr, stdout)
 import qualified Wasp.Job.Common as J
-import Wasp.Util.IO.Process (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 import qualified Wasp.Util.TextStyle as TextStyle
 
--- | Prints job output to Wasp's own stdout and stderr. Jobs can print from
--- several threads at once, so it prints one message at a time.
+-- | Writes job output out, prefixed with the job's type. Jobs can emit
+-- output from several threads at once, so it writes one message at a time.
 newtype PrefixedWriter = PrefixedWriter (MVar PrefixedWriterState)
 
 newPrefixedWriter :: IO PrefixedWriter
 newPrefixedWriter = PrefixedWriter <$> newMVar initialPrefixedWriterState
 
--- | Prints the output as is if it has no job type, or prefixed with the job
--- type otherwise.
-printOutput :: PrefixedWriter -> Maybe J.JobType -> OutputStream -> T.Text -> IO ()
-printOutput (PrefixedWriter stateVar) maybeJobType outputStream content =
+-- | Writes the output out as is if it has no job type, or prefixed
+-- with the job type otherwise.
+prefixOutput :: PrefixedWriter -> WriteOutput -> J.Sink
+prefixOutput (PrefixedWriter stateVar) writeOutput maybeJobType outputStream content =
   modifyMVar_ stateVar $ execStateT $ _runPrefixedWriterM $ case maybeJobType of
-    Nothing -> liftIO $ printMessageContent outputStream content
-    Just jobType -> printJobMessagePrefixed (Output jobType outputStream) content
+    Nothing -> liftIO $ writeOutput outputStream content
+    Just jobType -> writeJobMessagePrefixed writeOutput (Output jobType outputStream) content
 
 -- |
 -- Imagine you have a job sending following two messages:
@@ -52,7 +50,7 @@ printOutput (PrefixedWriter stateVar) maybeJobType outputStream content =
 --   Server: First line
 --   Server: Second line
 --
--- This is what this function does, it properly prefixes the given message and then prints it.
+-- This is what this function does, it properly prefixes the given message and then writes it.
 -- Prefixes include job type name, and optional indication that output is stderr, e.g.:
 -- "Server:", "Web app:", "Db(stderr):"
 --
@@ -82,12 +80,12 @@ printOutput (PrefixedWriter stateVar) maybeJobType outputStream content =
 -- If not, or there was no previous message, then we ensure there is prefix at the start of
 -- the message. This helps with situations where output from one job was interrupted by the
 -- output from another job, or when message is the very first message.
-printJobMessagePrefixed :: Output -> T.Text -> PrefixedWriterM ()
-printJobMessagePrefixed output content = do
+writeJobMessagePrefixed :: WriteOutput -> Output -> T.Text -> PrefixedWriterM ()
+writeJobMessagePrefixed writeOutput output content = do
   writerState <- get
   let (writerState', prefixedContent) = formatOutput writerState output content
   put writerState'
-  liftIO $ printMessageContent (_outputStream output) prefixedContent
+  liftIO $ writeOutput (_outputStream output) prefixedContent
 
 formatOutput :: PrefixedWriterState -> Output -> T.Text -> (PrefixedWriterState, T.Text)
 formatOutput (PrefixedWriterState outputsWithPendingPrefix lastOutput) output content =
@@ -213,12 +211,3 @@ makeJobMessagePrefix output =
     unstyled = (,[])
 
 type StyledText = (String, [TextStyle.Style])
-
-printMessageContent :: OutputStream -> T.Text -> IO ()
-printMessageContent outputStream content = T.IO.hPutStr outHandle content >> hFlush outHandle
-  where
-    outHandle = getOutputStreamHandle outputStream
-
-getOutputStreamHandle :: OutputStream -> Handle
-getOutputStreamHandle Stdout = stdout
-getOutputStreamHandle Stderr = stderr

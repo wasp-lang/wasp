@@ -26,6 +26,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Util.IO.Process (WriteOutput)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -47,6 +48,7 @@ import Wasp.Project.RunConfig (ProjectRunConfig)
 -- it starts as 'UpToDate', and from then on it uses the given @projectLock@ to
 -- keep other Wasp processes posted about the state of the generated app.
 watch ::
+  WriteOutput ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   ProjectLock ->
@@ -54,7 +56,7 @@ watch ::
   (AppSpec -> IO ProjectRunConfig) ->
   (ServerEvent -> IO ()) ->
   IO ()
-watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig onServerEvent = do
+watch writeJobOutput waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig onServerEvent = do
   -- fsnotify reports paths under the canonical path of the watched dirs, which
   -- differs from the project dir's path if that goes through a symlink.
   canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
@@ -149,7 +151,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compileResult <- compileIO waspProjectDir outDir
+      compileResult <- compileIO writeJobOutput waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)

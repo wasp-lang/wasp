@@ -31,6 +31,7 @@ import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
 import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
+import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Something a command needs from the generated app, after code generation.
 data SetupGoal
@@ -76,10 +77,10 @@ type Setup = ExceptT [GeneratorError] (WriterT [GeneratorWarning] IO)
 
 -- | Runs the setup steps the goals need, each after its prerequisites.
 -- Stops at the first step that fails.
-setUpGeneratedApp :: [SetupGoal] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-setUpGeneratedApp goals spec generatedAppDir sendMessage =
+setUpGeneratedApp :: [SetupGoal] -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
+setUpGeneratedApp goals spec generatedAppDir sendMessage writeOutput =
   forM_ (resolveSetupSteps goals) $ \step ->
-    runSetupStep step spec generatedAppDir sendMessage
+    runSetupStep step spec generatedAppDir sendMessage writeOutput
 
 runSetup :: Setup a -> IO ([GeneratorWarning], [GeneratorError])
 runSetup setupAction = do
@@ -103,31 +104,31 @@ withPrerequisites = nub . concatMap prerequisitesThenStep
   where
     prerequisitesThenStep step = concatMap prerequisitesThenStep (prerequisites step) ++ [step]
 
-runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-runSetupStep step spec generatedAppDir sendMessage = case step of
-  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
+runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
+runSetupStep step spec generatedAppDir sendMessage writeOutput = case step of
+  InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage writeOutput
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir
   -- A production build is deployed elsewhere, so there is no local database
   -- to check for pending migrations.
-  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
-  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
+  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir writeOutput
+  GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage writeOutput
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
-  BuildSdk -> buildSdk generatedAppDir sendMessage
-  TypeCheckUserCode -> typeCheckUserCode spec sendMessage
+  BuildSdk -> buildSdk generatedAppDir sendMessage writeOutput
+  TypeCheckUserCode -> typeCheckUserCode spec sendMessage writeOutput
 
-installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-installDependencies spec generatedAppDir sendMessage = do
-  result <- liftIO $ installNpmDependenciesWithInstallRecord spec generatedAppDir
+installDependencies :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
+installDependencies spec generatedAppDir sendMessage writeOutput = do
+  result <- liftIO $ installNpmDependenciesWithInstallRecord writeOutput spec generatedAppDir
   case result of
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
 
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir = do
+warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> WriteOutput -> Setup ()
+warnIfDbNeedsMigration spec generatedAppDir writeOutput = do
   warning <- liftIO $ do
     envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
-    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
+    DbGenerator.warnIfDbNeedsMigration writeOutput envVars spec generatedAppDir
   tell $ maybeToList warning
 
 formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
@@ -137,29 +138,29 @@ formatPrismaSchema generatedAppDir = do
     Just generatorError -> throwError [generatorError]
     Nothing -> return ()
 
-generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-generatePrismaClient spec generatedAppDir sendMessage = do
+generatePrismaClient :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
+generatePrismaClient spec generatedAppDir sendMessage writeOutput = do
   result <- liftIO $ do
     sendMessage $ Msg.Start "Generating Prisma client..."
-    DbGenerator.generatePrismaClient spec generatedAppDir
+    DbGenerator.generatePrismaClient writeOutput spec generatedAppDir
   case result of
     Just generatorError -> throwError [generatorError]
     Nothing -> liftIO $ sendMessage $ Msg.Success "Prisma client is up to date."
 
-buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> Setup ()
-buildSdk generatedAppDir sendMessage = do
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> Msg.SendMessage -> WriteOutput -> Setup ()
+buildSdk generatedAppDir sendMessage writeOutput = do
   result <- liftIO $ do
     sendMessage $ Msg.Start "Building SDK..."
-    SdkGenerator.buildSdk generatedAppDir
+    SdkGenerator.buildSdk writeOutput generatedAppDir
   case result of
     Left errorMessage -> throwError [GenericGeneratorError errorMessage]
     Right () -> liftIO $ sendMessage $ Msg.Success "SDK built successfully."
 
-typeCheckUserCode :: AppSpec -> Msg.SendMessage -> Setup ()
-typeCheckUserCode spec sendMessage = do
+typeCheckUserCode :: AppSpec -> Msg.SendMessage -> WriteOutput -> Setup ()
+typeCheckUserCode spec sendMessage writeOutput = do
   exitCode <- liftIO $ do
     sendMessage $ Msg.Start "Type-checking user code..."
-    J.run $ J.prefixWith J.Wasp typeCheck
+    J.run writeOutput $ J.prefixWith J.Wasp typeCheck
   case exitCode of
     ExitSuccess -> liftIO $ sendMessage $ Msg.Success "User code type-checked successfully."
     ExitFailure code ->

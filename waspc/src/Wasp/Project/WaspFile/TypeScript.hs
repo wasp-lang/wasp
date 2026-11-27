@@ -102,7 +102,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   -- `npx` requires the bin file to be executable, and `cabal install`
   -- strips executable permissions from data files.
   runExitCode <-
-    Job.run
+    Job.run compileOptions.writeJobOutput
       $ Job.prefixWith Job.Wasp
       $ Job.fromProc
       $ Job.addEnvVarsOverride
