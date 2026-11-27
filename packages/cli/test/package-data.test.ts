@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
+import type { CliPackageData } from "wasp-cli-package-data-types";
 import {
-  type CliPackageData,
   findSubPackageInfo,
   UNDEFINED_LIBC_NAME,
 } from "../src/package-data.js";

@@ -9,7 +9,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import type { CliSubPackageAPI } from "../../packages/cli/src/package-data.ts";
+import type { CliSubPackageAPI } from "wasp-cli-package-data-types";
 
 // Keep in sync with `DEV_PACKAGES_MANIFEST_FILE_NAME` in `mise-tasks/build/dev-packages.ts`.
 const DEV_PACKAGES_MANIFEST_FILE_NAME = "dev-packages.json";

@@ -1,42 +1,20 @@
-// The format of `data.json`, which lists the sub-packages that hold the Wasp
-// binary (one per platform), the API each sub-package exports, and how we
-// pick ours.
+// Picks the sub-package that holds the Wasp binary for a platform.
 //
 // `scripts/make-cli-npm-packages` and `mise-tasks/build/dev-packages.ts` run this
 // file with Node's type stripping, so it can only import types and Node.js
 // built-ins.
 
 import { report as processReport } from "node:process";
-
-export interface CliSubPackageInfo {
-  packageName: string;
-}
+import type {
+  CliPackageData,
+  CliSubPackageInfo,
+  PlatformTarget,
+} from "wasp-cli-package-data-types";
 
 // This can be any string representing a lack of a defined libc for the build
 // (e.g. macOS or Windows don't use libc in the same way Linux does).
 // The usual convention is to call it "unknown".
 export const UNDEFINED_LIBC_NAME = "unknown" as const;
-
-export interface CliPackageData {
-  subPackages: {
-    [os: string]: {
-      [arch: string]: {
-        [libc: string | typeof UNDEFINED_LIBC_NAME]: CliSubPackageInfo;
-      };
-    };
-  };
-}
-
-export interface CliSubPackageAPI {
-  waspBinPath: string;
-  dataDirPath: string;
-}
-
-export interface PlatformTarget {
-  os: string;
-  cpu: string;
-  libc: string;
-}
 
 /** `undefined` if there is no sub-package for the platform. */
 export function findSubPackageInfo(

@@ -2,6 +2,11 @@
 // process runs on.
 
 import packageJson from "#/package.json" with { type: "json" };
+import type {
+  CliPackageData,
+  CliSubPackageAPI,
+  PlatformTarget,
+} from "wasp-cli-package-data-types";
 import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
 import { assertNodeVersionIsSupported } from "./node-version.js";
@@ -9,9 +14,6 @@ import {
   findSubPackageInfo,
   getCurrentPlatformTarget,
   UNDEFINED_LIBC_NAME,
-  type CliPackageData,
-  type CliSubPackageAPI,
-  type PlatformTarget,
 } from "./package-data.js";
 
 export async function loadSubPackageForCurrentPlatform(): Promise<CliSubPackageAPI> {

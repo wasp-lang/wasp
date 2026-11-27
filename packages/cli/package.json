@@ -44,7 +44,8 @@
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "wasp-cli-package-data-types": "workspace:*"
   },
   "//": [
     "Other Wasp CLI versions hand over to this one through the `./internal/run-wasp-cli` and `./package.json` exports (see src/installed-wasp-cli.ts and src/find-project-wasp-cli.ts), so renaming or removing them breaks the hand-over."
