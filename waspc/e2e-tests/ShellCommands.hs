@@ -403,11 +403,8 @@ assertCommandFails ::
   ShellCommandBuilder context ShellCommand
 assertCommandFails = fmap negateCommand
   where
-    -- The braces make `!` negate the whole command, also when it is a list
-    -- like `a && b`, where `!` alone would only negate `a`.
     negateCommand command = "! { " ++ command ++ "; }"
 
--- | Asserts that the command fails and that its output contains the marker.
 assertCommandFailsWith ::
   String ->
   ShellCommandBuilder context ShellCommand ->
