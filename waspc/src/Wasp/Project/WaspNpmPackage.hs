@@ -40,7 +40,7 @@ data InstalledWaspNpmPackageError
 
 tryGettingInstalledWaspNpmPackageVersion :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError SV.Version)
 tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
-  (>>= parseVersion) <$> evaluateOnInstalledWaspNpmPackageJson waspProjectDir (++ ".version")
+  (>>= parseVersion) <$> readInstalledWaspNpmPackageJson waspProjectDir (++ ".version")
   where
     parseVersion = \case
       "undefined" -> Left $ BrokenWaspNpmPackage "Its package.json has no `version` field."
@@ -50,7 +50,7 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
 -- package.json of \@wasp/wasp lists them.
 tryGettingInstalledWaspNpmPackagePeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
 tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
-  (>>= parsePeerDeps) <$> evaluateOnInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
+  (>>= parsePeerDeps) <$> readInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
   where
     peerDepsAsJson packageJson = "JSON.stringify(" ++ packageJson ++ ".peerDependencies ?? {})"
     parsePeerDeps =
@@ -62,8 +62,8 @@ tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
 -- | Reads the project's installed \@wasp/wasp's package.json through Node, so
 -- the CLI sees the same \@wasp/wasp as the project's code. Keep in sync with
 -- `findProjectWaspCli` in @packages/cli/src/find-project-wasp-cli.ts@.
-evaluateOnInstalledWaspNpmPackageJson :: Path' Abs (Dir WaspProjectDir) -> (String -> String) -> IO (Either InstalledWaspNpmPackageError String)
-evaluateOnInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
+readInstalledWaspNpmPackageJson :: Path' Abs (Dir WaspProjectDir) -> (String -> String) -> IO (Either InstalledWaspNpmPackageError String)
+readInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
   (exitCode, stdout, stderr) <- P.readCreateProcessWithExitCode evaluateProcess ""
   return $ case exitCode of
     ExitSuccess -> Right $ trim stdout
@@ -86,8 +86,7 @@ doesVersionMatchDeclaredVersion declaredVersion version =
 
 -- | Where the user's package.json lists \@wasp/wasp, if anywhere.
 data WaspNpmPackageDeclaration
-  = -- | Listed in `dependencies`, with this version.
-    DeclaredInDependencies String
+  = DeclaredInDependencies String
   | DeclaredInDevDependencies String
   | NotDeclared
 

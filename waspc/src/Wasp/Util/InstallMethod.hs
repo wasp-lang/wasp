@@ -2,7 +2,7 @@ module Wasp.Util.InstallMethod
   ( getGlobalInstallationCommand,
     getProjectInstallationCommand,
     legacyVersionsNote,
-    uninstallationCommand,
+    globalUninstallationCommand,
   )
 where
 
@@ -15,7 +15,6 @@ getGlobalInstallationCommand version =
   where
     versionString = fromMaybe "latest" version
 
--- | Sets a project's Wasp version.
 getProjectInstallationCommand :: String -> String
 getProjectInstallationCommand version =
   "npm install --save-exact " ++ waspNpmPackageName ++ "@" ++ version
@@ -23,6 +22,6 @@ getProjectInstallationCommand version =
 legacyVersionsNote :: String
 legacyVersionsNote = "Wasp versions before 0.27 are published under \"@wasp.sh/wasp-cli\" instead."
 
-uninstallationCommand :: String
-uninstallationCommand =
+globalUninstallationCommand :: String
+globalUninstallationCommand =
   "npm uninstall -g " ++ waspCliNpmPackageName

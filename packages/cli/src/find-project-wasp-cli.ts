@@ -62,7 +62,7 @@ function findWaspProjectDir(startDir: string): string | undefined {
 }
 
 /**
- * Resolves from the project dir, like `evaluateOnInstalledWaspNpmPackageJson`
+ * Resolves from the project dir, like `readInstalledWaspNpmPackageJson`
  * in `waspc/src/Wasp/Project/WaspNpmPackage.hs`.
  */
 function resolveWaspPackageJsonPath(
