@@ -1,6 +1,5 @@
 module Wasp.Cli.DevDb
   ( startPostgresDevDb,
-    withRunningPostgresDevDb,
     throwCustomDatabaseInUseError,
   )
 where
@@ -34,7 +33,7 @@ startPostgresDevDb waspProjectDir appName devDbOptions =
   liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
     Just runningDb -> noteDbIsAlreadyRunningAndExit runningDb
     Nothing ->
-      withStartedPostgresDevDb waspProjectDir appName devDbOptions $ \waitForDbExit -> do
+      withNewPostgresDevDbContainer waspProjectDir appName devDbOptions $ \waitForDbExit -> do
         cliSendMessageC $ Msg.Info "PostgreSQL dev database is ready. Press Ctrl+C to stop it."
         waitForDbExit
   where
@@ -45,24 +44,29 @@ startPostgresDevDb waspProjectDir appName devDbOptions =
           : additionalInfoLines devDbSpec
       liftIO exitFailure
 
--- | Runs the action with the project's PostgreSQL dev database: the one that's
--- already running, or a new one that is stopped and removed when the action
--- finishes.
-withRunningPostgresDevDb :: Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> Command a -> Command a
-withRunningPostgresDevDb waspProjectDir appName devDbOptions action =
-  liftIO (Dev.Postgres.discoverProjectsRunningDevDb waspProjectDir appName) >>= \case
-    Just runningDb -> do
-      throwUnlessDevDbAcceptsConnections =<< liftIO (Dev.Postgres.waitUntilDevDbAcceptsConnections runningDb)
-      action
-    Nothing -> withStartedPostgresDevDb waspProjectDir appName devDbOptions $ const action
-
 -- | Starts the project's PostgreSQL dev database, and runs the action once the
 -- database accepts connections. The action gets a way to wait for the database
 -- to exit. The database is stopped and removed when the action finishes.
-withStartedPostgresDevDb :: forall a. Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> (Command () -> Command a) -> Command a
-withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
+withNewPostgresDevDbContainer :: Path' Abs (Dir WaspProjectDir) -> String -> DevDbOptions -> (Command () -> Command a) -> Command a
+withNewPostgresDevDbContainer waspProjectDir appName devDbOptions action = do
   throwIfDockerIsNotAvailable
-  startDbOnPort =<< resolveDevDbPort
+  devDbSpec <- Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName <$> resolveDevDbPort
+  cliSendMessageC . Msg.Info . unlines $
+    "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
+      : additionalInfoLines devDbSpec
+        <> dockerRunInfoLines
+  cliSendMessageC $ Msg.Info "..."
+  -- Cancelling the database job stops the container, which `docker run --rm`
+  -- then removes.
+  bracket (liftIO $ async $ runDbJob devDbSpec) (liftIO . cancel) $ \dbJob -> do
+    let waitForDbExit = do
+          exitCode <- liftIO $ wait dbJob
+          throwIfDbFailed exitCode
+    liftIO (race (wait dbJob) (Dev.Postgres.waitUntilDevDbAcceptsConnections devDbSpec)) >>= \case
+      Right connectionCheck -> do
+        throwUnlessDevDbAcceptsConnections connectionCheck
+        action waitForDbExit
+      Left _exitCode -> throwDbError "The database stopped before accepting connections."
   where
     resolveDevDbPort :: Command PortNumber
     resolveDevDbPort =
@@ -72,26 +76,6 @@ withStartedPostgresDevDb waspProjectDir appName devDbOptions action = do
         []
         "Choose a different port with --db-port, or free up this one."
         "Free at least one of those ports by exiting the program listening on it, or choose the port yourself with --db-port."
-
-    startDbOnPort :: PortNumber -> Command a
-    startDbOnPort port = do
-      let devDbSpec = Dev.Postgres.makeDevPostgresDbSpec waspProjectDir appName port
-      cliSendMessageC . Msg.Info . unlines $
-        "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨"
-          : additionalInfoLines devDbSpec
-            <> dockerRunInfoLines
-      cliSendMessageC $ Msg.Info "..."
-      -- Cancelling the database job stops the container, which `docker run --rm`
-      -- then removes.
-      bracket (liftIO $ async $ runDbJob devDbSpec) (liftIO . cancel) $ \dbJob -> do
-        let waitForDbExit = do
-              exitCode <- liftIO $ wait dbJob
-              throwIfDbFailed exitCode
-        liftIO (race (wait dbJob) (Dev.Postgres.waitUntilDevDbAcceptsConnections devDbSpec)) >>= \case
-          Right connectionCheck -> do
-            throwUnlessDevDbAcceptsConnections connectionCheck
-            action waitForDbExit
-          Left _exitCode -> throwDbError "The database stopped before accepting connections."
 
     runDbJob :: Dev.Postgres.DevDbSpec -> IO ExitCode
     runDbJob devDbSpec =
