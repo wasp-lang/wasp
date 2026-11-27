@@ -721,12 +721,12 @@ test-suite waspc-e2e-tests
     stm,
     strong-path,
     tagged ^>=0.8.10,
-    tasty ^>=1.5.4,
+    tasty,
     tasty-golden,
     text,
     time,
     typed-process ^>=0.2.13,
-    unliftio ^>=0.2.25,
+    unliftio,
     waspc,
 
   if !os(windows)
