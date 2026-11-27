@@ -15,12 +15,16 @@ below do it for you.
 
 ## Build outputs
 
-`waspc` expects the libs under `waspc/data/Generator/libs/`. They are a build output
-(gitignored):
+`waspc` expects the libs under `waspc/data/Generator/libs/`, and Wasp projects in this repo
+depend on the dev tarballs under `waspc/.dev-packages/`. Both are build outputs (gitignored):
 
 - `mise run build:libs` builds each lib and packs it into `waspc/data/Generator/libs/<name>/`.
+- `mise run build:dev-packages` builds and packs `spec`, `deploy`, `studio`, `cli` and `wasp`
+  into `waspc/.dev-packages/`.
 
-Then use `mise run wasp-cli` as normal, or `mise run install` and then `wasp-cli`.
+Then use `mise run wasp-cli` as normal, or `mise run install` and then `wasp-cli`. A globally
+installed `wasp-cli` needs `WASP_DEV_PACKAGES_DIR=<repo>/waspc/.dev-packages` only for `wasp-cli new`,
+so that the new project depends on the dev packages. `mise run install` prints the exact command.
 
 ### Adding a new package that `waspc` runs
 

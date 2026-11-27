@@ -4,6 +4,7 @@
   "private": true,
   "devDependencies": {
     "@types/node": "catalog:",
-    "execa": "catalog:"
+    "execa": "catalog:",
+    "wasp-cli-package-data-types": "workspace:*"
   }
 }

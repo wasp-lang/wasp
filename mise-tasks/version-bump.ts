@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-//MISE description="Bumps the Wasp version across waspc.cabal, libs, and example projects, then rebuilds libs and busts each project's libs cache."
+//MISE description="Bumps the Wasp version across waspc.cabal, libs, and example projects, then rebuilds the libs and the dev Wasp npm packages and busts each project's libs cache."
 //USAGE arg "<level>" { choices "major" "minor" "patch" }
 /// <reference types="node" />
 
 import assert from "node:assert";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import semver from "semver";
 import {
@@ -44,6 +44,7 @@ function bumpWaspVersion(bumpType: BumpType): void {
   rebuildLibs();
 
   bumpPackagesVersion(nextVersion);
+  rebuildDevPackages();
 
   bumpWaspProjectsVersion(nextVersion);
   bustWaspProjectsLibsCache();
@@ -118,32 +119,44 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   );
 }
 
+// TODO(#2262): Once the Wasp projects in this repo join the pnpm workspace,
+// they depend on `@wasp/wasp` through `workspace:*`, so this and
+// `rebuildDevPackages` go away.
+//
+// The Wasp projects in this repo depend on the dev Wasp npm package tarballs
+// (see `tasks/build/dev-packages.ts`), whose file names carry the version.
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
-  const waspFilePath = findWaspFilePath(projectDir);
-  const waspFileContent = readFileSync(waspFilePath, "utf-8");
+  const packageJsonPath = join(projectDir, "package.json");
+  const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
 
-  // A bit unstable, but it should be good enough for our "controlled environment".
-  const updatedWaspFileContent = waspFileContent.replace(
-    /(wasp:\s*\{[^}]*version:\s*)["'`][^"'`]+["'`]/,
-    `$1"${nextVersion}"`,
+  // Matches every tarball in `.dev-packages/`, named `wasp-<package>-<version>.tgz`.
+  const devTarballRegex =
+    /(file:[^"]*\/\.dev-packages\/wasp-[a-z-]+-)\d+\.\d+\.\d+(\.tgz)/g;
+  const updatedPackageJsonContent = packageJsonContent.replace(
+    devTarballRegex,
+    `$1${nextVersion}$2`,
   );
-  if (waspFileContent === updatedWaspFileContent) {
-    throw new Error(`Failed to update the ${waspFilePath} Wasp version`);
+  if (packageJsonContent === updatedPackageJsonContent) {
+    throw new Error(
+      `Failed to update the dev Wasp npm package tarball paths in ${packageJsonPath}`,
+    );
   }
 
-  writeFileSync(waspFilePath, updatedWaspFileContent);
-}
-
-function findWaspFilePath(projectDir: string): string {
-  const path = join(projectDir, "main.wasp.ts");
-  if (existsSync(path)) {
-    return path;
-  }
-  throw new Error(`No main.wasp.ts file in ${projectDir}`);
+  writeFileSync(packageJsonPath, updatedPackageJsonContent);
 }
 
 function rebuildLibs(): void {
   runCmd("mise", ["run", "build:libs"], {
+    cwd: waspcDirPath,
+    stdio: "inherit",
+  });
+}
+
+// The Wasp projects in this repo depend on the dev tarballs by version (see
+// `bumpWaspProjectVersion`), so the tarballs must exist at the new version
+// before `bustWaspProjectsLibsCache` reinstalls the projects.
+function rebuildDevPackages(): void {
+  runCmd("mise", ["run", "build:dev-packages"], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });

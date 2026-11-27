@@ -7,6 +7,7 @@ import ShellCommands
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
     inSnapshotWaspProjectDir,
     npmInstall,
+    useDevWaspNpmPackages,
     waspCliCompile,
   )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
@@ -20,6 +21,7 @@ kitchenSinkSnapshotTest =
       inSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           normalizePostgresConnectionString,
+          useDevWaspNpmPackages,
           npmInstall,
           waspCliCompile
         ]
