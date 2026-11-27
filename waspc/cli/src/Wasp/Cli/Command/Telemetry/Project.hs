@@ -19,10 +19,8 @@ import Data.Functor ((<&>))
 import Data.List (intercalate, intersect)
 import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Time as T
-import Data.Version (showVersion)
 import GHC.Generics
 import qualified Network.HTTP.Simple as HTTP
-import Paths_waspc (version)
 import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import qualified System.Environment as ENV
@@ -33,8 +31,10 @@ import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (checkIfOnCi, ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
 considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
@@ -57,7 +57,8 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
     projectCache' <- newProjectCache projectCache
     writeProjectTelemetryFile telemetryCacheDirPath projectHash projectCache'
     telemetryContext <- getTelemetryContext
-    sendTelemetryData $ getProjectTelemetryData userSignature projectHash cmdCall telemetryContext
+    waspVersion <- getWaspCliNpmPackageVersion
+    sendTelemetryData $ getProjectTelemetryData userSignature projectHash waspVersion cmdCall telemetryContext
   where
     newProjectCache :: ProjectTelemetryCache -> IO ProjectTelemetryCache
     newProjectCache currentProjectCache = do
@@ -164,12 +165,12 @@ data ProjectTelemetryData = ProjectTelemetryData
   }
   deriving (Show)
 
-getProjectTelemetryData :: UserSignature -> ProjectHash -> Command.Call.Call -> String -> ProjectTelemetryData
-getProjectTelemetryData userSignature projectHash cmdCall context =
+getProjectTelemetryData :: UserSignature -> ProjectHash -> SV.Version -> Command.Call.Call -> String -> ProjectTelemetryData
+getProjectTelemetryData userSignature projectHash waspVersion cmdCall context =
   ProjectTelemetryData
     { _userSignature = userSignature,
       _projectHash = projectHash,
-      _waspVersion = showVersion version,
+      _waspVersion = show waspVersion,
       _os = System.Info.os,
       _arch = System.Info.arch,
       _isBuild = case cmdCall of
