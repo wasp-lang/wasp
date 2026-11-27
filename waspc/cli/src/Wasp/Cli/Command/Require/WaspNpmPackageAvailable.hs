@@ -61,7 +61,6 @@ instance Requirable WaspNpmPackageAvailable where
             ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
             ++ "."
 
-      -- When \@wasp/wasp and \@wasp/cli don't match, e.g. after a partial install.
       waspNpmPackageVersionMismatchError :: SV.Version -> SV.Version -> CommandError
       waspNpmPackageVersionMismatchError installedVersion cliVersion =
         outOfDateError $
