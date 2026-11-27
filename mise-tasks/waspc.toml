@@ -48,15 +48,20 @@ run = 'cabal test waspc-tests --test-option=--hide-successes --test-option=--pat
 
 ["test:waspc:e2e"]
 description = "Executes only cli e2e tests. Builds the project first if needed."
+usage = '''
+flag "--accept" help="Replace the golden snapshots that differ from the current ones, and create the missing ones"
+arg "[pattern]" help="If provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+'''
 dir = "waspc"
 env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-run = "cabal test waspc-e2e-tests --test-option=--hide-successes"
+run = '''
+#!/usr/bin/env bash
+cabal test waspc-e2e-tests --test-option=--hide-successes --test-option=$([ "${usage_accept:-}" = true ] && echo --accept || echo --no-create) --test-option=--pattern="$usage_pattern"
+'''
 
 ["test:waspc:e2e:accept-all"]
-description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
-dir = "waspc"
-shell = "bash -c"
-run = ["rm -rf e2e-tests/test-outputs/snapshots/*-golden", { task = "test:waspc:e2e" }]
+description = "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by running the e2e tests, replacing the golden snapshots that differ with the current ones, and creating the missing ones."
+run = [{ task = "test:waspc:e2e --accept" }]
 
 ["test:cli"]
 description = "Executes only cli tests. Builds the project first if needed."

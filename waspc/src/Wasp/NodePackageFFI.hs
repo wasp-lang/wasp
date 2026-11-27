@@ -10,6 +10,7 @@ module Wasp.NodePackageFFI
     getPackageJsonSpecifierForPackage,
     tryGettingInstalledPackageVersion,
     ensurePackageIsAtInstallationPathInProject,
+    getPackageInstallationPathInProject,
     getInstallablePackageScriptInProject,
   )
 where

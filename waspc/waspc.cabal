@@ -693,37 +693,64 @@ test-suite wasp-cli-tests
 test-suite waspc-e2e-tests
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: e2e-tests
+  hs-source-dirs: e2e-tests/src
   main-is: Main.hs
-  build-tool-depends: waspc:wasp-cli
+  -- Test steps often run commands only for their side effects.
+  ghc-options: -Wno-unused-do-bind
+  build-tool-depends:
+    tasty-discover:tasty-discover,
+    waspc:wasp-cli,
+
   build-depends:
     aeson,
     aeson-pretty,
     base,
-    base64-bytestring,
     bytestring,
     cli-lib,
+    containers,
+    Diff ^>=1.0.2,
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
-    hspec,
+    hspec-expectations-lifted ^>=0.10.0,
+    HUnit ^>=1.6.2,
     mtl,
     neat-interpolation,
+    network,
     process,
+    resourcet ^>=1.3.0,
+    stm,
     strong-path,
+    tagged ^>=0.8.10,
     tasty,
     tasty-golden,
-    tasty-hspec,
     text,
-    unliftio ^>=0.2.25,
+    time,
+    typed-process ^>=0.2.13,
+    unliftio,
     waspc,
 
+  if !os(windows)
+    build-depends: unix
   other-modules:
-    FileSystem
-    ShellCommands
-    SnapshotTest
-    Test
-    TestLogging
+    E2E
+    E2E.Assertions
+    E2E.Command
+    E2E.Docker
+    E2E.Files
+    E2E.Net
+    E2E.Ports
+    E2E.Process
+    E2E.Process.Output
+    E2E.Signals
+    E2E.Snapshot
+    E2E.SuiteEnv
+    E2E.TestM
+    E2E.TestTree
+    E2E.Wait
+    E2E.Wasp
+    SnapshotTestsDiscoverDriver
+    Tests.Fixtures
     Tests.IncrementalTypeCheckingTest
     Tests.SdkPackageExportsTest
     Tests.ServerTypeCheckingTest
@@ -758,3 +785,4 @@ test-suite waspc-e2e-tests
     Tests.WaspTelemetryTest
     Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest
+    TestsDiscoverDriver
