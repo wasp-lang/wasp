@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { writeFileSync } from "fs";
 import { Decl } from "./appSpec.js";
 import { makeCli } from "./cli.js";

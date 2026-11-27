@@ -18,7 +18,6 @@ import ShellCommands
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Version (waspVersion)
 
 -- | Type checks the generated server for app configurations that
 -- kitchen-sink doesn't cover.
@@ -111,7 +110,6 @@ serverTypeCheckingTest =
         export default app({
           name: "serverFeaturesWithoutAuth",
           title: "Server features without auth",
-          wasp: { version: "$textWaspVersion" },
           server: { setupFn: serverSetup, middlewareConfigFn },
           webSocket: { fn: webSocketFn },
           db: { seeds: [seedTasks] },
@@ -132,6 +130,3 @@ serverTypeCheckingTest =
           ],
         });
       |]
-
-    textWaspVersion :: T.Text
-    textWaspVersion = T.pack . show $ waspVersion

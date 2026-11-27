@@ -5,7 +5,14 @@
     ".wasp/out/*",
     ".wasp/out/sdk/wasp"
   ],
+  "scripts": {
+    "wasp": "wasp",
+    "dev": "wasp start",
+    "build": "wasp build",
+    "preview": "wasp build start"
+  },
   "dependencies": {
+    "@wasp/wasp": "__waspNpmPackageVersion__",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.69.0",
@@ -28,8 +35,7 @@
     "prisma": "6.19.3",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.32.1",
-    "vite": "^8.1.0",
-    "@wasp/spec": "__waspSpecPackageSpecifier__"
+    "vite": "^8.1.0"
   },
   "allowScripts": {
     "prisma": true,

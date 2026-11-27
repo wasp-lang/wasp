@@ -1,0 +1,11 @@
+{
+  "name": "wasp-cli-package-data-types",
+  "type": "module",
+  "description": "The types that `@wasp/cli` and the scripts that package it share.",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts"
+    }
+  }
+}

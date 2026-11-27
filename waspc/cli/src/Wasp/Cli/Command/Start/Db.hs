@@ -11,7 +11,7 @@ import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.DevDb (startPostgresDevDb, throwCustomDatabaseInUseError)
 import Wasp.Cli.DevDb.ArgumentsParser (DevDbOptions, devDbOptionsParser)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
@@ -25,7 +25,7 @@ import Wasp.Project.Db.Dev (DevDatabase (..), findDevDatabase)
 start :: Arguments -> Command ()
 start = withArguments startDbArgsParser $ \devDbOptions -> do
   InWaspProject waspProjectDir <- require
-  WaspSpecAvailable <- require
+  WaspNpmPackageAvailable <- require
   appSpec <- analyze waspProjectDir
 
   let app = ASV.getApp appSpec

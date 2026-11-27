@@ -30,7 +30,7 @@ import Wasp.Util.IO
     doesDirectoryExist,
     doesFileExist,
   )
-import Wasp.Util.InstallMethod (uninstallationCommand)
+import Wasp.Util.InstallMethod (globalUninstallationCommand)
 import Wasp.Util.Interactive (InteractiveTerminal)
 import qualified Wasp.Util.Interactive as Interactive
 
@@ -52,7 +52,7 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
 
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"
-  cliSendMessageC $ Msg.Info $ indent 2 uninstallationCommand
+  cliSendMessageC $ Msg.Info $ indent 2 globalUninstallationCommand
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC dockerVolumeMsg
 

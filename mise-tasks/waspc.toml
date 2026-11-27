@@ -5,7 +5,7 @@
 
 [build]
 description = "Builds the Haskell project + all sub-projects (i.e. TS packages). Run with the `BUILD_STATIC=1` env to build statically."
-run = [{ task = "build:packages" }, { task = "build:libs" }, { task = "build:hs" }]
+run = [{ task = "build:libs" }, { task = "build:dev-packages" }, { task = "build:hs" }]
 
 ["build:hs"]
 description = "Builds the Haskell project only. Run with the `BUILD_STATIC=1` env to build statically."
@@ -16,7 +16,15 @@ run = "cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 [install]
 description = "Installs the wasp executable as 'wasp-cli' globally on the machine."
 dir = "waspc"
-run = [{ task = "build:packages" }, { task = "build:libs" }, "cabal install --overwrite-policy=always"]
+run = [
+  { task = "build:libs" },
+  { task = "build:dev-packages" },
+  "cabal install --overwrite-policy=always",
+  # `wasp-cli new` creates projects that depend on the dev Wasp npm packages,
+  # which it finds through this env var. `mise run wasp-cli` sets it for you.
+  "echo 'To create projects with the installed `wasp-cli`, point it at the dev Wasp npm packages:'",
+  "echo 'WASP_DEV_PACKAGES_DIR=\"{{vars.wasp_dev_packages_dir}}\" wasp-cli new'",
+]
 
 # Wasp CLI
 
@@ -77,7 +85,7 @@ depends = ["build-wasp-app-runner"]
 dir = "examples/kitchen-sink"
 env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
 env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
-run = ["{{vars.wasp_cli_dev}} install", "npm run test"]
+run = ["node {{vars.reinstall_dev_wasp_app_deps}}", "npm run test"]
 
 ["test:starters"]
 description = "Executes only starter templates e2e tests. Installs deps first if needed."

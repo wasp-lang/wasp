@@ -28,7 +28,6 @@ import qualified Wasp.Util.IO as IOUtil
 
 data PackageJson = PackageJson
   { name :: !String,
-    version :: !(Maybe String),
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap,
     workspaces :: !(Maybe [String]),
@@ -40,7 +39,6 @@ instance FromJSON PackageJson where
   parseJSON = Aeson.withObject "PackageJson" $ \v ->
     PackageJson
       <$> v .: "name"
-      <*> v .:? "version"
       -- `dependencies` and `devDependencies` are both optional, so a missing
       -- field is read as an empty map rather than a parse error. This saves us
       -- from dealing with two "empty" states (Nothing + an empty map).

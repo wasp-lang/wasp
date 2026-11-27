@@ -2,7 +2,7 @@ The Wasp Spec, as an npm package.
 
 ## For Wasp users
 
-If you are creating a Wasp app, you don't need to install this package yourself. The Wasp CLI will install and manage it for you.
+If you are creating a Wasp app, you don't need to install this package yourself. It comes with `@wasp/wasp`, which your app depends on.
 
 - Learn more about Wasp: https://wasp.sh/
 - Read the docs: https://wasp.sh/docs

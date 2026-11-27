@@ -1,20 +1,22 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { copyStaticFiles } from "../common.ts";
+import {
+  CLI_PACKAGE_SOURCE_DIR,
+  CLI_PACKAGE_STATIC_FILES,
+  copyStaticFiles,
+} from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
 import {
   UNDEFINED_LIBC_NAME,
   type CliPackageData,
 } from "../schema/output-data.ts";
 
-// The CLI package (`@wasp/cli`) is a workspace package. This script turns it
-// into the published one: it copies these files as they are and adds the
-// version and the platform sub-packages to the package.json.
-const CLI_PACKAGE_SOURCE_DIR = path.resolve(import.meta.dirname, "../../../..");
-const COPIED_FILES = ["dist", "readme.md"];
-
-const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
+/** A platform package and the platform it holds the Wasp binary for. */
+export interface CliSubPackage {
+  packageName: string;
+  target: { os: string; cpu: string; libc?: string };
+}
 
 export function makeCliPackage({
   packageName,
@@ -32,7 +34,11 @@ export function makeCliPackage({
   console.log(`Preparing CLI package directory: ${outputDirPath}`);
   fs.emptyDirSync(outputDirPath);
 
-  copyStaticFiles(COPIED_FILES, CLI_PACKAGE_SOURCE_DIR, outputDirPath);
+  copyStaticFiles(
+    CLI_PACKAGE_STATIC_FILES,
+    CLI_PACKAGE_SOURCE_DIR,
+    outputDirPath,
+  );
 
   const pkgJson = generatePackageJson(packageName, packageVersion, subPackages);
   const outPkgFilePath = path.join(outputDirPath, "package.json");
@@ -53,26 +59,33 @@ function generatePackageJson(
 ) {
   console.group("Generating package.json...");
 
-  const pkgSourceFilePath = path.join(CLI_PACKAGE_SOURCE_DIR, "package.json");
-  const pkg = fs.readJsonSync(pkgSourceFilePath) as PackageJson;
-  console.log(`Read package.json source: ${pkgSourceFilePath}`);
+  const pkg = readCliPackageJsonForPublishing();
 
   pkg.name = packageName;
   pkg.version = packageVersion;
-  // Only needed to build the package from source.
-  delete pkg.scripts;
-  delete pkg.devDependencies;
 
   pkg.optionalDependencies = {};
   for (const subPkgName of subPackages) {
     pkg.optionalDependencies[subPkgName.packageName] = packageVersion;
   }
 
-  pkg.os = unique(subPackages.map((subPackage) => subPackage.data.target.os));
-  pkg.cpu = unique(subPackages.map((subPackage) => subPackage.data.target.cpu));
+  // `os` and `cpu` stay on the platform sub-packages, or npm would refuse to
+  // install any Wasp project on other platforms.
 
   console.log("Filled out package.json fields");
   console.groupEnd();
+
+  return pkg;
+}
+
+/** The source `package.json`, without what only building from source needs. */
+export function readCliPackageJsonForPublishing(): PackageJson {
+  const pkgSourceFilePath = path.join(CLI_PACKAGE_SOURCE_DIR, "package.json");
+  const pkg = fs.readJsonSync(pkgSourceFilePath) as PackageJson;
+  console.log(`Read package.json source: ${pkgSourceFilePath}`);
+
+  delete pkg.scripts;
+  delete pkg.devDependencies;
 
   return pkg;
 }
@@ -83,18 +96,29 @@ function writeDataFile(
 ) {
   console.group("Writing data file for CLI package...");
 
-  const pkgPaths = { subPackages: {} } as CliPackageData;
-  for (const subPackage of subPackages) {
-    const { os, cpu, libc = UNDEFINED_LIBC_NAME } = subPackage.data.target;
-    pkgPaths.subPackages[os] ??= {};
-    pkgPaths.subPackages[os][cpu] ??= {};
-    pkgPaths.subPackages[os][cpu][libc] = {
-      packageName: subPackage.packageName,
-    };
-  }
+  const cliPackageData = makeCliPackageData(
+    subPackages.map(({ packageName, data }) => ({
+      packageName,
+      target: data.target,
+    })),
+  );
 
-  fs.writeJsonSync(path.join(outputDirPath, "data.json"), pkgPaths);
+  fs.writeJsonSync(path.join(outputDirPath, "data.json"), cliPackageData);
   console.log("Wrote data.json");
 
   console.groupEnd();
+}
+
+/** The `data.json` content, which tells the CLI the sub-package of each platform. */
+export function makeCliPackageData(
+  subPackages: CliSubPackage[],
+): CliPackageData {
+  const cliPackageData: CliPackageData = { subPackages: {} };
+  for (const { packageName, target } of subPackages) {
+    const { os, cpu, libc = UNDEFINED_LIBC_NAME } = target;
+    cliPackageData.subPackages[os] ??= {};
+    cliPackageData.subPackages[os][cpu] ??= {};
+    cliPackageData.subPackages[os][cpu][libc] = { packageName };
+  }
+  return cliPackageData;
 }
