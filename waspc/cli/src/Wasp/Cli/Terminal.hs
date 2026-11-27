@@ -7,8 +7,6 @@ module Wasp.Cli.Terminal
   )
 where
 
--- DELETED-IMPORT--
-
 asWaspMessage :: String -> String
 asWaspMessage = waspMessageWithEmoji ""
 
