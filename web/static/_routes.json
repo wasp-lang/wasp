@@ -1,7 +1,13 @@
 {
   "version": 1,
-  "//": "Keep in sync with `src/plugins/llm-files/markdown-docs/markdown-routes.ts`.",
-  "include": ["/docs", "/docs/*", "/blog/*", "/resources/*"],
+  "//": "Keep the docs, blog and resources routes in sync with `src/plugins/llm-files/markdown-docs/markdown-routes.ts`. `/api/requires-consent` is the cookie banner region check (`functions/api/requires-consent.ts`).",
+  "include": [
+    "/docs",
+    "/docs/*",
+    "/blog/*",
+    "/resources/*",
+    "/api/requires-consent"
+  ],
   "//": "We ignore any explicit file type routes. Since they already define the file type, we don't need to negotiate for it.",
   "exclude": [
     "/*.css",
