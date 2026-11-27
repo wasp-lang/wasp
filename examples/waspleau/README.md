@@ -10,9 +10,10 @@ The deployed version of this example can be found at https://waspleau-app-client
 ## Running in development
 
 1. `wasp install` to install the project dependencies.
-2. `wasp start db` to run the development database.
-3. `wasp db migrate-dev` to migrate the database.
-4. `wasp start` to run the app.
+2. `wasp db migrate-dev` to migrate the database.
+3. `wasp start` to run the app.
+
+Wasp starts the development database automatically.
 
 This will start your background workers as Wasp Jobs and present a dashboard UI that will auto-refresh every minute.
 
