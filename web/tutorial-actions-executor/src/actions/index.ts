@@ -7,6 +7,7 @@ import type {
   ApplyPatchAction,
   BaseAction,
   InitAppAction,
+  InstallPackagesAction,
   MdxFilePath,
   MigrateDbAction,
   PatchFilePath,
@@ -27,6 +28,17 @@ export function createMigrateDbAction(commonData: BaseAction): MigrateDbAction {
   return {
     ...commonData,
     kind: "MIGRATE_DB",
+  };
+}
+
+export function createInstallPackagesAction(
+  commonData: BaseAction,
+  packageSpecifiers: string[],
+): InstallPackagesAction {
+  return {
+    ...commonData,
+    kind: "INSTALL_PACKAGES",
+    packageSpecifiers,
   };
 }
 

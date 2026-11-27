@@ -91,6 +91,13 @@ export default app({
 
 ### Using the SMTP Provider {#smtp}
 
+The SMTP provider needs the `nodemailer` and `@types/nodemailer` packages in your project:
+
+<PackageManagerCommand>{`
+npm install nodemailer@8
+npm install --save-dev @types/nodemailer@8
+`}</PackageManagerCommand>
+
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
@@ -122,6 +129,10 @@ If you run into issues, check their documentation for a solution, or consider us
 :::
 
 ### Using the Mailgun Provider {#mailgun}
+
+The Mailgun provider needs the `mailgun.js` package in your project:
+
+<PackageManagerCommand npm="npm install mailgun.js@10" />
 
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
@@ -166,6 +177,10 @@ MAILGUN_API_URL=https://api.eu.mailgun.net
 As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com/en-us/changelog/sendgrid-free-plan). A paid SendGrid plan is now required to send emails. Consider using [Mailgun](#mailgun) or [SMTP](#smtp) with another provider if you need a free tier option.
 :::
 
+The SendGrid provider needs the `@sendgrid/mail` package in your project:
+
+<PackageManagerCommand npm="npm install @sendgrid/mail@7" />
+
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
@@ -193,6 +208,10 @@ SENDGRID_API_KEY=
 ```
 
 ### Using the Resend Provider {#resend}
+
+The Resend provider needs the `resend` package in your project:
+
+<PackageManagerCommand npm="npm install resend@6" />
 
 Set the provider field to `Resend` in your `main.wasp.ts` file.
 

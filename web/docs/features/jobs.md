@@ -27,6 +27,10 @@ Wasp supports background jobs that can help you with this:
 
 Let's write an example Job that will print a message to the console and return a list of tasks from the database.
 
+Jobs need the `pg-boss` package in your project, so install it first:
+
+<PackageManagerCommand npm="npm install pg-boss@8" />
+
 1. Start by creating a Job spec in your Wasp file:
 
 ```ts title="main.wasp.ts"
@@ -168,6 +172,8 @@ Currently, Wasp only has support for one job executor, `PgBoss`.
 #### Requirements
 
 `PgBoss` requires that your database provider is set to `"postgresql"` in your `schema.prisma` file. Read more about setting the provider in [the Databases guide](./data/databases.md#postgresql).
+
+`PgBoss` also needs the [`pg-boss` package](#job-spec-and-usage) in your project.
 
 #### Limitations
 
