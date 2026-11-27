@@ -33,7 +33,7 @@ import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
-import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
+import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable))
 import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.Util.Parser (ArgsParser (..), withArguments)
 import Wasp.Cli.Util.PortArgument (portParser)
@@ -55,7 +55,7 @@ studio :: Arguments -> Command ()
 studio = withArguments studioArgsParser $ \args -> do
   ValidNodeAndNpm <- require
   InWaspProject waspDir <- require
-  WaspSpecAvailable <- require
+  WaspNpmPackageAvailable <- require
 
   appSpec <- analyze waspDir
   let app = ASV.getApp appSpec

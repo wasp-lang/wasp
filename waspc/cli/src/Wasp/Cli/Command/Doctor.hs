@@ -19,7 +19,7 @@ import Wasp.Util (trim)
 import qualified Wasp.Util.Docker as Docker
 import Wasp.Util.GitRev (gitRevDescription)
 import qualified Wasp.Util.TextStyle as TextStyle
-import Wasp.Version (waspVersion)
+import Wasp.Version (getWaspCliNpmPackageVersion)
 
 type Check a = ExceptT String IO a
 
@@ -65,7 +65,7 @@ renderCheckResult title result =
       Left _ -> TextStyle.applyStyles [TextStyle.Red] "[✗]"
 
 checkWasp :: Check String
-checkWasp = return $ show waspVersion ++ gitInfo
+checkWasp = liftIO $ (++ gitInfo) . show <$> getWaspCliNpmPackageVersion
   where
     gitInfo = maybe "" (\description -> " (git " ++ description ++ ")") gitRevDescription
 

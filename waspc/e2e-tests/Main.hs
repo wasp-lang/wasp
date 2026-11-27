@@ -31,9 +31,9 @@ import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
+import Tests.WaspNpmPackageAvailableTest (waspNpmPackageAvailableTest)
 import Tests.WaspProjectLockTest (waspProjectLockTest)
 import Tests.WaspShowTest (waspShowTest)
-import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspStartTest (waspStartTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
@@ -113,7 +113,7 @@ e2eTests = do
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspProjectLockTest,
-        waspSpecAvailableTest,
+        waspNpmPackageAvailableTest,
         waspShowTest,
         waspInstallTest,
         waspDepsTest,

@@ -2,6 +2,7 @@ module Wasp.Generator.NpmInstall.InstalledNpmDepsLog
   ( loadInstalledNpmDepsLog,
     saveInstalledNpmDepsLog,
     forgetInstalledNpmDepsLog,
+    installedNpmDepsLogFileInGeneratedAppDir,
   )
 where
 
