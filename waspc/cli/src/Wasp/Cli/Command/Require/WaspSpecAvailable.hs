@@ -15,7 +15,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 import qualified Wasp.Version as WV
 
 -- | Require that the @wasp/spec package is available in node_modules and that

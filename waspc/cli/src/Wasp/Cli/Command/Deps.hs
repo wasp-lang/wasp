@@ -18,7 +18,7 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Project (analyzeWaspProject)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 deps :: Command ()
 deps = do
@@ -58,6 +58,6 @@ printDeps dependenciesTitle dependencies =
 
 printDep :: Npm.Dependency.Dependency -> String
 printDep dep =
-  Term.applyStyles [Term.Cyan] (Npm.Dependency.name dep)
+  TextStyle.applyStyles [TextStyle.Cyan] (Npm.Dependency.name dep)
     ++ "@"
-    ++ Term.applyStyles [Term.Yellow] (Npm.Dependency.version dep)
+    ++ TextStyle.applyStyles [TextStyle.Yellow] (Npm.Dependency.version dep)

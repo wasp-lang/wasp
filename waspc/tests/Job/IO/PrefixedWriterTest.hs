@@ -6,7 +6,7 @@ import Test.Hspec
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (Output (..), formatOutput, initialPrefixedWriterState)
 import Wasp.Util.IO.Process (OutputStream (..))
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 spec_prefixedOutput :: Spec
 spec_prefixedOutput = do
@@ -41,7 +41,7 @@ dbOutput :: T.Text -> (Output, T.Text)
 dbOutput text = (Output J.Db Stdout, text)
 
 dbPrefix :: T.Text
-dbPrefix = T.pack $ Term.applyStyles [Term.Blue] "[" <> "   " <> Term.applyStyles [Term.Blue] "Db" <> "   " <> Term.applyStyles [Term.Blue] "]" <> " "
+dbPrefix = T.pack $ TextStyle.applyStyles [TextStyle.Blue] "[" <> "   " <> TextStyle.applyStyles [TextStyle.Blue] "Db" <> "   " <> TextStyle.applyStyles [TextStyle.Blue] "]" <> " "
 
 serverPrefix :: T.Text
-serverPrefix = T.pack $ Term.applyStyles [Term.Magenta] "[" <> " " <> Term.applyStyles [Term.Magenta] "Server" <> " " <> Term.applyStyles [Term.Magenta] "]" <> " "
+serverPrefix = T.pack $ TextStyle.applyStyles [TextStyle.Magenta] "[" <> " " <> TextStyle.applyStyles [TextStyle.Magenta] "Server" <> " " <> TextStyle.applyStyles [TextStyle.Magenta] "]" <> " "

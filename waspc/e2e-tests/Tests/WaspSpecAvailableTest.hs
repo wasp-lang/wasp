@@ -31,7 +31,7 @@ import ShellCommands
 import StrongPath (fromAbsDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 
 waspSpecAvailableTest :: Test
 waspSpecAvailableTest =

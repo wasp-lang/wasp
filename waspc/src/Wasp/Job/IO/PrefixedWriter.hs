@@ -24,7 +24,7 @@ import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
 import qualified Wasp.Job.Common as J
 import Wasp.Util.IO.Process (OutputStream (..))
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 -- | Prints job output to Wasp's own stdout and stderr. Jobs can print from
 -- several threads at once, so it prints one message at a time.
@@ -172,7 +172,7 @@ applyPendingPrefix outputsWithPendingPrefix output content = (outputsWithPending
 
 makeJobMessagePrefix :: Output -> T.Text
 makeJobMessagePrefix output =
-  T.pack . concatMap (\(text, styles) -> Term.applyStyles styles text) . concat $
+  T.pack . concatMap (\(text, styles) -> TextStyle.applyStyles styles text) . concat $
     [ [(startDelimiter, jobStyles)],
       [unstyled namePaddingFront],
       [(jobName, jobStyles)],
@@ -200,19 +200,19 @@ makeJobMessagePrefix output =
 
     styledFlags :: [StyledText]
     styledFlags =
-      [("!", [Term.Red, Term.Bold]) | _outputStream output == Stderr]
+      [("!", [TextStyle.Red, TextStyle.Bold]) | _outputStream output == Stderr]
 
     (jobName, jobStyles) = getJobNameAndStyles $ _outputJobType output
 
     getJobNameAndStyles = \case
-      J.Wasp -> ("Wasp", [Term.Yellow])
-      J.Server -> ("Server", [Term.Magenta])
-      J.WebApp -> ("Client", [Term.Cyan])
-      J.Db -> ("Db", [Term.Blue])
+      J.Wasp -> ("Wasp", [TextStyle.Yellow])
+      J.Server -> ("Server", [TextStyle.Magenta])
+      J.WebApp -> ("Client", [TextStyle.Cyan])
+      J.Db -> ("Db", [TextStyle.Blue])
 
     unstyled = (,[])
 
-type StyledText = (String, [Term.Style])
+type StyledText = (String, [TextStyle.Style])
 
 printMessageContent :: OutputStream -> T.Text -> IO ()
 printMessageContent outputStream content = T.IO.hPutStr outHandle content >> hFlush outHandle

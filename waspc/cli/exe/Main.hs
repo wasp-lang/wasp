@@ -41,7 +41,7 @@ import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 import Wasp.Version (waspVersion)
 
 main :: IO ()
@@ -193,9 +193,9 @@ printUsage =
               "  wasp start",
               "  wasp db migrate-dev",
               "",
-        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp.sh/docs",
-        Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
-        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
+        TextStyle.applyStyles [TextStyle.Green]   "Docs:" ++ " https://wasp.sh/docs",
+        TextStyle.applyStyles [TextStyle.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
+        TextStyle.applyStyles [TextStyle.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
       ]
 {- ORMOLU_ENABLE -}
 
@@ -272,7 +272,7 @@ printDbUsage =
 {- ORMOLU_ENABLE -}
 
 cmd :: String -> String
-cmd = mapFirstWord (Term.applyStyles [Term.Yellow, Term.Bold])
+cmd = mapFirstWord (TextStyle.applyStyles [TextStyle.Yellow, TextStyle.Bold])
 
 mapFirstWord :: (String -> String) -> String -> String
 mapFirstWord f s = beforeFirstWord ++ f firstWord ++ afterFirstWord
