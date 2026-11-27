@@ -94,10 +94,12 @@ test_waspNewSnapshot = snapshotTest "wasp-new" $ createWaspProject minimalStarte
 ```
 
 - Tests are found with [tasty-discover](https://github.com/haskell-works/tasty-discover): every `test_<name> :: TestTree` in a `Tests/*Test.hs` module is a test, and in a `Tests/SnapshotTests/*Test.hs` one a snapshot test, so there's no list to add a new one to. The cabal file still lists the module.
+
   - The Haskell sources live in `src/` because tasty-discover walks the whole directory of its driver module on every build, and `test-outputs/` can hold hundreds of thousands of files.
 
 - Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
 - When a step fails, the test's failure message says which command failed and shows the last lines of its output.
+- JSON that a command prints or a file holds is decoded with `decodeStdoutJson` or `readJsonFile` into a data type that derives `Generic` and `FromJSON` and has only the fields the test checks. The checks are then expectations on its fields.
 - Long tests label their phases with `step "<what it checks>" $ do ...`. The label is logged as a header, and a failure in the phase starts with it.
 - Processes started with `startInBackground` are stopped when the test ends, however it ends.
 - Tests that run an app get free ports from `allocateAppPorts` (or `allocatePort`, for a command that takes a single port), so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.

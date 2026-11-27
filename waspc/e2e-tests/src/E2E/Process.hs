@@ -243,7 +243,7 @@ firstStdoutLine result = case stdoutLines result of
   firstLine : _ -> return firstLine
   [] -> failWithResult result "printed nothing to stdout"
 
--- | Stdout decoded as JSON, e.g. into an 'Aeson.Object' to check its fields.
+-- | Stdout decoded as JSON, into a data type with the fields to check.
 -- Fails the test if it doesn't decode.
 decodeStdoutJson :: (Aeson.FromJSON a) => ProcessResult -> TestM a
 decodeStdoutJson result =
