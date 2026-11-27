@@ -24,8 +24,9 @@ module E2E.Process
     waitForExit,
     waitUntilExited,
     stopTimeoutSeconds,
-    assertExitsSuccessfully,
-    assertExitsWithFailure,
+    readResult,
+    ExpectedExit (..),
+    failOnUnexpectedExit,
     signalPid,
     signalProcessGroupOf,
     processGroupOfExists,
@@ -95,7 +96,7 @@ runExpectingFailure = runExpecting ExpectFailure
 runExpecting :: ExpectedExit -> Command -> TestM ProcessResult
 runExpecting expectedExit cmd = do
   result <- runAllowingFailure cmd
-  mapM_ (failWithResult result) $ unexpectedExitProblem expectedExit result.exitCode
+  failOnUnexpectedExit expectedExit result
   return result
 
 runAllowingFailure :: Command -> TestM ProcessResult
@@ -278,24 +279,14 @@ waitUntilExited runningProcess = void $ waitForExit runningProcess stopTimeoutSe
 stopTimeoutSeconds :: Int
 stopTimeoutSeconds = 60
 
--- | Waits for the process to exit, but at most for the given number of
--- seconds, and fails the test with its output if it doesn't exit in time or
--- doesn't succeed.
-assertExitsSuccessfully :: RunningProcess -> Int -> TestM ProcessResult
-assertExitsSuccessfully = assertExits ExpectSuccess
-
--- | Like 'assertExitsSuccessfully', but the process must exit with an error,
--- and not be stopped by a signal (e.g. when it crashes).
-assertExitsWithFailure :: RunningProcess -> Int -> TestM ProcessResult
-assertExitsWithFailure = assertExits ExpectFailure
-
-assertExits :: ExpectedExit -> RunningProcess -> Int -> TestM ProcessResult
-assertExits expectedExit runningProcess seconds = do
-  result <- waitForExit runningProcess seconds >>= readResult runningProcess
-  mapM_ (failWithResult result) $ unexpectedExitProblem expectedExit result.exitCode
-  return result
-
+-- | 'ExpectFailure' means exiting with an error, and not being stopped by
+-- a signal (e.g. when it crashes).
 data ExpectedExit = ExpectSuccess | ExpectFailure
+
+-- | Fails the test with the process's output if it didn't exit as expected.
+failOnUnexpectedExit :: ExpectedExit -> ProcessResult -> TestM ()
+failOnUnexpectedExit expectedExit result =
+  mapM_ (failWithResult result) $ unexpectedExitProblem expectedExit result.exitCode
 
 -- | What's wrong with the exit code, if anything, for a failure message.
 unexpectedExitProblem :: ExpectedExit -> ExitCode -> Maybe String

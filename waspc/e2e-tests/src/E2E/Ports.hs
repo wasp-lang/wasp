@@ -1,9 +1,8 @@
 -- | Ports of the tests that run Wasp apps and other servers.
 module E2E.Ports
-  ( AppPorts,
+  ( AppPorts (..),
     allocateAppPorts,
     appPortList,
-    appPortArgs,
     allocatePort,
   )
 where
@@ -61,10 +60,6 @@ findFreePort =
 
 appPortList :: AppPorts -> [Int]
 appPortList ports = [ports.clientPort, ports.serverPort]
-
--- | For `wasp start` and `wasp build start`.
-appPortArgs :: AppPorts -> [String]
-appPortArgs ports = ["--client-port", show ports.clientPort, "--server-port", show ports.serverPort]
 
 -- | Like 'allocateAppPorts', for a command that takes a single port, e.g.
 -- `wasp studio --port <port>`.

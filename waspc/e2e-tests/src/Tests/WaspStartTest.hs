@@ -71,6 +71,6 @@ runWaspStartAndStopIt sig = do
 startWaspInBackground :: TestM (RunningProcess, AppPorts)
 startWaspInBackground = do
   ports <- allocateAppPorts
-  app <- startInBackground $ waspCli ("start" : appPortArgs ports)
+  app <- startInBackground $ waspCli ["start", "--client-port", show ports.clientPort, "--server-port", show ports.serverPort]
   waitUntilListening app (appPortList ports) appStartTimeoutSeconds
   return (app, ports)

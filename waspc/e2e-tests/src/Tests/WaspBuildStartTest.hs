@@ -26,7 +26,7 @@ test_waspBuildStart =
           serverDockerNames <- getServerDockerNames
           registerCleanupStep $ removeServerImageAndContainer serverDockerNames
           ports <- allocateAppPorts
-          app <- startInBackground $ waspCli (["build", "start", "-s", databaseUrlEnvVarName ++ "=none"] ++ appPortArgs ports)
+          app <- startInBackground $ waspCli ["build", "start", "-s", databaseUrlEnvVarName ++ "=none", "--client-port", show ports.clientPort, "--server-port", show ports.serverPort]
           waitUntilListening app (appPortList ports) buildStartTimeoutSeconds
           assertServerRunsInContainer serverDockerNames
           interruptProcessGroupAndWaitUntilStopped app (appPortList ports)
