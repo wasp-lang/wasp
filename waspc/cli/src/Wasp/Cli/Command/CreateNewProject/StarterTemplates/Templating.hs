@@ -9,10 +9,6 @@ import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path')
 import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName (..), NewProjectName)
-import Wasp.NodePackageFFI
-  ( InstallablePackage (WaspSpecPackage),
-    getPackageJsonSpecifierForPackage,
-  )
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
@@ -50,10 +46,8 @@ replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
 
 replaceTemplatePlaceholdersInFileOnDisk :: NewProjectAppName -> NewProjectName -> Path' Abs (File f) -> IO ()
 replaceTemplatePlaceholdersInFileOnDisk appName projectName file = do
-  let waspSpecPackageSpecifier = getPackageJsonSpecifierForPackage WaspSpecPackage
   let waspTemplateReplacements =
-        [ ("__waspSpecPackageSpecifier__", waspSpecPackageSpecifier),
-          ("__waspAppName__", show appName),
+        [ ("__waspAppName__", show appName),
           ("__waspProjectName__", show projectName),
           ("__waspVersion__", defaultWaspVersionBounds)
         ]

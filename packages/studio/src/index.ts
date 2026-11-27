@@ -16,7 +16,7 @@ const program = new Command();
 program
   .requiredOption("-d, --data-file <path>", "Path to data file")
   .requiredOption("-p, --port <port>", "Port to listen on", Number)
-  .parse(process.argv);
+  .parse();
 
 const options = program.opts<{
   dataFile: string;
