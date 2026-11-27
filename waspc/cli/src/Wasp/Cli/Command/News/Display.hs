@@ -22,9 +22,9 @@ showNewsEntry newsEntry =
   |]
   where
     title = T.pack $ TextStyle.applyStyles [TextStyle.Bold] newsEntry.title
-    publishedAt = T.pack $ TextStyle.applyStyles [TextStyle.Bold, TextStyle.Yellow] date
+    publishedAt = T.pack $ TextStyle.styleDate date
     level = T.pack $ showNewsLevel newsEntry.level
-    body = T.pack $ TextStyle.applyStyles [TextStyle.Grey] $ indent indentSize $ wrapString (maxColumns - indentSize) newsEntry.body
+    body = T.pack $ TextStyle.styleSubtle $ indent indentSize $ wrapString (maxColumns - indentSize) newsEntry.body
     separator =
       T.pack $
         " "
@@ -39,6 +39,6 @@ showNewsEntry newsEntry =
 
 showNewsLevel :: NewsLevel -> String
 showNewsLevel newsLevel = case newsLevel of
-  Critical -> TextStyle.applyStyles [TextStyle.Red] "Critical"
-  Important -> TextStyle.applyStyles [TextStyle.Yellow] "Important"
-  Info -> TextStyle.applyStyles [TextStyle.Blue] "Info"
+  Critical -> TextStyle.styleError "Critical"
+  Important -> TextStyle.styleWarning "Important"
+  Info -> TextStyle.styleInfo "Info"

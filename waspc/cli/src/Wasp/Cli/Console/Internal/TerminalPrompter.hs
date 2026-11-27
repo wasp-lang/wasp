@@ -19,8 +19,8 @@ import Wasp.Cli.Console.Prompter (IsOption (..), Prompter (Prompter))
 import qualified Wasp.Cli.Console.Prompter as Prompter
 import qualified Wasp.Util.TextStyle as TextStyle
 
-makeTerminalPrompter :: Prompter
-makeTerminalPrompter =
+makeTerminalPrompter :: (String -> String) -> Prompter
+makeTerminalPrompter filterText =
   Prompter
     { Prompter.askForInput = askForInput interactiveTerminal,
       Prompter.askForRequiredInput = askForRequiredInput interactiveTerminal,
@@ -30,7 +30,7 @@ makeTerminalPrompter =
   where
     interactiveTerminal =
       InteractiveTerminal
-        { write = Terminal.writePrompt,
+        { write = Terminal.writePrompt . filterText,
           readLine = Terminal.readLine
         }
 
@@ -75,7 +75,7 @@ askToChoose terminal question options = do
 
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
-      terminal.write $ TextStyle.applyStyles [TextStyle.Red] "Invalid selection. Type the name or the index of the option." <> "\n"
+      terminal.write $ TextStyle.styleError "Invalid selection. Type the name or the index of the option." <> "\n"
       askToChoose terminal question options
 
     showIndexedOptions :: String
@@ -89,9 +89,9 @@ askToChoose terminal question options = do
               optionDescription
             ]
           where
-            indexPrefix = TextStyle.applyStyles [TextStyle.Yellow] (showIndex idx) <> " "
+            indexPrefix = TextStyle.styleAccent (showIndex idx) <> " "
             optionName = TextStyle.applyStyles [TextStyle.Bold] (showOption option)
-            tags = whenDefault (TextStyle.applyStyles [TextStyle.Yellow] " (default)")
+            tags = whenDefault (TextStyle.styleAccent " (default)")
             optionDescription = showDescription (idx, option)
             whenDefault xs = if isDefaultOption option then xs else mempty
 
@@ -122,12 +122,12 @@ repeatUntil terminal predicate errorMessage action = do
   result <- action
   if predicate result
     then do
-      terminal.write $ TextStyle.applyStyles [TextStyle.Red] errorMessage <> "\n"
+      terminal.write $ TextStyle.styleError errorMessage <> "\n"
       repeatUntil terminal predicate errorMessage action
     else return result
 
 -- | Prompts for the user's answer and reads it.
 prompt :: InteractiveTerminal -> IO String
 prompt terminal = do
-  terminal.write $ TextStyle.applyStyles [TextStyle.Yellow] " ▸ "
+  terminal.write $ TextStyle.styleAccent " ▸ "
   T.unpack . T.strip . T.pack <$> terminal.readLine

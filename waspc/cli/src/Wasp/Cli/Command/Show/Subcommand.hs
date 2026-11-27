@@ -10,7 +10,7 @@ import Data.Aeson (ToJSON)
 import Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Message (cliWriteRawOutputC)
+import Wasp.Cli.Command.Message (cliWriteDataC, cliWriteRawOutputC)
 import Wasp.Cli.Command.Show.Table (renderEntriesAsTables)
 import Wasp.Inspectable (Inspectable, inspect)
 import Wasp.Util.IO.Process (OutputStream (..))
@@ -24,11 +24,8 @@ data ShowSubcommand where
     ShowSubcommand
 
 runShowSubcommand :: ShowSubcommand -> Bool -> Command ()
-runShowSubcommand (ShowSubcommand {getData}) asJson =
-  cliWriteRawOutputC Stdout . render =<< getData
+runShowSubcommand (ShowSubcommand {getData}) asJson
+  | asJson = cliWriteDataC . renderJson =<< getData
+  | otherwise = cliWriteRawOutputC Stdout . renderEntriesAsTables . inspect =<< getData
   where
-    render
-      | asJson = renderJson
-      | otherwise = renderEntriesAsTables . inspect
-
     renderJson value = BSL8.unpack $ encodePretty value <> "\n"

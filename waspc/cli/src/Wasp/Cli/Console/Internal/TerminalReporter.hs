@@ -12,14 +12,14 @@ import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.TextStyle as TextStyle
 
-makeTerminalReporter :: Reporter
-makeTerminalReporter =
+makeTerminalReporter :: (String -> String) -> Reporter
+makeTerminalReporter filterText =
   Reporter
     { send = sendMessage,
       runTaskWithStatusReport = runTaskBySendingMessages sendMessage
     }
   where
-    sendMessage = Terminal.writeLine . renderMessage
+    sendMessage = Terminal.writeLine . filterText . renderMessage
 
 -- | Reports a task with a start message and a success message. An empty
 -- running text means that there is no start message.
@@ -43,13 +43,13 @@ renderMessage (Msg.Warning title msg) =
   waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
 
 waspSays :: String -> String
-waspSays what = TextStyle.applyStyles [TextStyle.Yellow] what
+waspSays what = TextStyle.styleMessage what
 
 waspWarns :: String -> String
-waspWarns what = TextStyle.applyStyles [TextStyle.Magenta] what
+waspWarns what = TextStyle.styleNotice what
 
 waspScreams :: String -> String
-waspScreams what = TextStyle.applyStyles [TextStyle.Red] what
+waspScreams what = TextStyle.styleError what
 
 asWaspStartMessage :: String -> String
 asWaspStartMessage = waspMessageWithEmoji "🐝"

@@ -1,5 +1,5 @@
 [stdout]
-<ESC>[31m
+
 
 ❌ --- [Error] Interactive terminal required: -------------------------------------
 
@@ -13,7 +13,7 @@ Available options:
                            non-interactively
   -t,--template TEMPLATE_NAME
                            Template to use for the new project
-  -h,--help                Show this help text<ESC>[0m
+  -h,--help                Show this help text
 [stderr]
 [exit code]
 1

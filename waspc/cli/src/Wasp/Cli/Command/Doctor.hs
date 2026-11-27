@@ -64,8 +64,8 @@ renderCheckResult title result =
   where
     detail = either id id result
     symbol = case result of
-      Right _ -> TextStyle.applyStyles [TextStyle.Green] "[✓]"
-      Left _ -> TextStyle.applyStyles [TextStyle.Red] "[✗]"
+      Right _ -> TextStyle.styleSuccess "[✓]"
+      Left _ -> TextStyle.styleError "[✗]"
 
 checkWasp :: Check String
 checkWasp = return $ show waspVersion ++ gitInfo

@@ -1,5 +1,5 @@
 [stdout]
-<ESC>[31m
+
 
 ❌ --- [Error] Interactive terminal required: -------------------------------------
 
@@ -10,7 +10,7 @@ Usage: wasp uninstall [--force]
 
 Available options:
   --force                  Skip the confirmation prompt
-  -h,--help                Show this help text<ESC>[0m
+  -h,--help                Show this help text
 [stderr]
 [exit code]
 1

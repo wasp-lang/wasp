@@ -8,7 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Message (cliWriteRawOutputC)
+import Wasp.Cli.Command.Message (cliWriteDataC, cliWriteRawOutputC)
 import qualified Wasp.Cli.Command.Show as Command.Show
 import qualified Wasp.Cli.Command.Show.Subcommand as Command.Show.Subcommand
 import Wasp.Util.IO.Process (OutputStream (..))
@@ -30,7 +30,7 @@ bashCompletion = do
     [cmdPrefix] -> listMatchingCommands cmdPrefix commands
     ["db", cmdPrefix] -> listMatchingCommands cmdPrefix dbSubCommands
     ["show", cmdPrefix] -> listMatchingCommands cmdPrefix showSubCommands
-    _ -> cliWriteRawOutputC Stdout "\n"
+    _ -> cliWriteDataC "\n"
   where
     commands =
       [ "new",
@@ -56,7 +56,7 @@ bashCompletion = do
     listMatchingCommands :: String -> [String] -> Command ()
     listMatchingCommands cmdPrefix cmdList = listCommands $ filter (cmdPrefix `isPrefixOf`) cmdList
     listCommands :: [String] -> Command ()
-    listCommands cmdList = cliWriteRawOutputC Stdout $ unlines cmdList ++ "\n"
+    listCommands cmdList = cliWriteDataC $ unlines cmdList ++ "\n"
 
 printBashCompletionInstruction :: Command ()
 printBashCompletionInstruction =

@@ -31,7 +31,6 @@ import ShellCommands
 import StrongPath (fromAbsDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
-import Wasp.Util.TextStyle (styleCode)
 
 waspSpecAvailableTest :: Test
 waspSpecAvailableTest =
@@ -119,4 +118,4 @@ waspSpecAvailableTest =
       ShellCommandBuilder WaspProjectContext ShellCommand ->
       ShellCommandBuilder WaspProjectContext ShellCommand
     assertCommandFailsWithInstallHint =
-      assertCommandFailsWith ("Run " ++ styleCode "wasp install")
+      assertCommandFailsWith "Run wasp install"

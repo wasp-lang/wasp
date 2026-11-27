@@ -1,18 +1,18 @@
 [stdout]
-<ESC>[33m
+
 🐝 --- Deleting the node_modules/ directory... ------------------------------------
-<ESC>[0m
-<ESC>[33m
+
+
 ✅ --- Deleted the node_modules/ directory. ---------------------------------------
-<ESC>[0m
-<ESC>[33m
+
+
 🐝 --- Deleting the .wasp/ directory... -------------------------------------------
-<ESC>[0m
-<ESC>[33m
+
+
 ✅ --- Deleted the .wasp/ directory. ----------------------------------------------
-<ESC>[0m
-<ESC>[33m
-Run <ESC>[1mwasp install<ESC>[22m to reinstall dependencies.<ESC>[0m
+
+
+Run wasp install to reinstall dependencies.
 [stderr]
 [exit code]
 0
