@@ -21,6 +21,7 @@ import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (CommandError (..), reportCommandError, reportCompileErrors, reportCompileWarnings)
 import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, makeCompileError)
+import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
