@@ -71,14 +71,6 @@ run = "cabal test wasp-cli-tests --test-option=--hide-successes"
 hide = true
 run = "pnpm --filter @wasp/wasp-app-runner run build"
 
-["test:kitchen-sink"]
-description = "Executes only kitchen-sink e2e tests. Installs deps first if needed."
-depends = ["build-wasp-app-runner"]
-dir = "examples/kitchen-sink"
-env.WASP_CLI_CMD = "{{vars.wasp_cli_dev}}"
-env.WASP_APP_RUNNER_CLI_CMD = "{{vars.wasp_app_runner_cli}}"
-run = ["{{vars.wasp_cli_dev}} install", "npm run test"]
-
 ["test:starters"]
 description = "Executes only starter templates e2e tests. Installs deps first if needed."
 depends = ["build-wasp-app-runner"]

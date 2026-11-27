@@ -321,8 +321,9 @@ To run tests:
 - To run individual unit test, you can do `mise run test:waspc:unit "Some test description to match"`.
 - To run `waspc` e2e tests only, you can do `mise run test:waspc:e2e`.
 - To run Wasp CLI tests only, you can do `mise run test:cli`.
-- To run `kitchen-sink` e2e tests, you can do `mise run test:kitchen-sink`.
 - To run examples e2e tests, you can do `mise run test:examples`.
+  - You can specify subset of examples to test: `mise run test:examples kitchen-sink tutorials/TodoAppTs`
+  - If you set `WASP_RUN_MODE=build` to run them against the built app, it will respect that + skip examples using SQLite.
 - To run starter templates e2e tests, you can do `mise run test:starters`.
 
 ### Waspc e2e tests
