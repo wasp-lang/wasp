@@ -1,7 +1,7 @@
 // Finds the sub-package that holds the Wasp binary for the platform this
 // process runs on.
 
-import packageJson from "#package.json" with { type: "json" };
+import packageJson from "#/package.json" with { type: "json" };
 import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
 import { assertNodeVersionIsSupported } from "./node-version.js";
@@ -53,7 +53,7 @@ export async function loadSubPackageForCurrentPlatform(): Promise<CliSubPackageA
 async function readPackageData(): Promise<CliPackageData> {
   // Only the published package has `data.json`, so TypeScript must see a
   // `string` instead of the path.
-  const { default: packageData } = await import("#data.json" as string, {
+  const { default: packageData } = await import("#/data.json" as string, {
     with: { type: "json" },
   });
   return packageData as CliPackageData;

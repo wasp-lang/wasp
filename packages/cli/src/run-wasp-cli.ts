@@ -1,7 +1,7 @@
 // Runs the Wasp binary of this `@wasp/cli`. Other `@wasp/cli` versions hand
 // over to this one through `runWaspCli` (see the note in `package.json`).
 
-import packageJson from "#package.json" with { type: "json" };
+import packageJson from "#/package.json" with { type: "json" };
 import { execFileSync } from "node:child_process";
 import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";

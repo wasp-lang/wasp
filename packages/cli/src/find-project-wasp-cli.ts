@@ -8,6 +8,9 @@ import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
 import type { InstalledWaspCli } from "./installed-wasp-cli.js";
 
+const WASP_PACKAGE_NAME = "@wasp/wasp";
+const WASP_CLI_PACKAGE_NAME = "@wasp/cli";
+
 /**
  * Finds the CLI the project's `@wasp/wasp` pins with Node's resolution
  * algorithm. `undefined` when the dir is outside of a project, and in a
@@ -25,7 +28,11 @@ export async function findProjectWaspCli(
 
   const waspPackageJsonPath = resolveWaspPackageJsonPath(waspProjectDir);
   if (waspPackageJsonPath === undefined) {
-    debug("No @wasp/wasp installed for the project in %s", waspProjectDir);
+    debug(
+      "No %s installed for the project in %s",
+      WASP_PACKAGE_NAME,
+      waspProjectDir,
+    );
     return undefined;
   }
 
@@ -61,10 +68,9 @@ function findWaspProjectDir(startDir: string): string | undefined {
 function resolveWaspPackageJsonPath(
   waspProjectDir: string,
 ): string | undefined {
-  const requireFromProject = createRequire(
-    path.join(waspProjectDir, "package.json"),
-  );
-  return tryResolving(requireFromProject, "@wasp/wasp/package.json");
+  // Without the trailing separator, Node resolves from the parent dir.
+  const requireFromProject = createRequire(waspProjectDir + path.sep);
+  return tryResolving(requireFromProject, `${WASP_PACKAGE_NAME}/package.json`);
 }
 
 /** Reads the `@wasp/cli` that the `@wasp/wasp` with this `package.json` depends on. */
@@ -78,11 +84,11 @@ async function readWaspCliOf(
 
   const waspCliPackageJsonPath = tryResolving(
     requireFromWasp,
-    "@wasp/cli/package.json",
+    `${WASP_CLI_PACKAGE_NAME}/package.json`,
   );
   if (waspCliPackageJsonPath === undefined) {
     throw new CLIError(
-      `The project's \`@wasp/wasp\` is missing its \`@wasp/cli\`. Run \`npm install\` in the project.`,
+      `Missing \`${WASP_CLI_PACKAGE_NAME}\`. Run \`npm install\` in the project.`,
     );
   }
 
@@ -92,13 +98,12 @@ async function readWaspCliOf(
   return {
     runModulePath: await fs.realpath(
       // See the note in `package.json` about this export.
-      requireFromWasp.resolve("@wasp/cli/internal/run-wasp-cli"),
+      requireFromWasp.resolve(`${WASP_CLI_PACKAGE_NAME}/internal/run-wasp-cli`),
     ),
     version,
   };
 }
 
-/** `undefined` if no installed package has `request`. */
 function tryResolving(
   require: NodeJS.Require,
   request: string,

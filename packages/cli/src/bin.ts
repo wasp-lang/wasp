@@ -7,7 +7,6 @@ import {
   getThisWaspCli,
   handOverTo,
   isSameWaspCli,
-  notifyIfVersionsDiffer,
 } from "./installed-wasp-cli.js";
 import { runWaspCli } from "./run-wasp-cli.js";
 
@@ -39,7 +38,11 @@ async function main(): Promise<number> {
     return runWaspCli();
   }
 
-  notifyIfVersionsDiffer(projectWaspCli, thisWaspCli, process.argv.slice(2));
+  debug(
+    "Started by Wasp CLI %s, running the project's Wasp CLI %s.",
+    thisWaspCli.version,
+    projectWaspCli.version,
+  );
   return handOverTo(projectWaspCli).catch(
     CLIError.rethrowWith("Failed to run the project's Wasp CLI."),
   );

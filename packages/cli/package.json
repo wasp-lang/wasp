@@ -24,9 +24,9 @@
     "wasp": "dist/bin.js"
   },
   "imports": {
-    "#package.json": "./package.json",
-    "#data.json": "./data.json",
-    "#run-wasp-cli": "./dist/run-wasp-cli.js"
+    "#/package.json": "./package.json",
+    "#/data.json": "./data.json",
+    "#/run-wasp-cli": "./dist/run-wasp-cli.js"
   },
   "exports": {
     "./bin": "./dist/bin.js",
@@ -38,8 +38,12 @@
     "remove:dist": "node -e \"require('fs').rmSync('./dist', { recursive: true, force: true });\"",
     "test": "vitest run"
   },
+  "dependencies": {
+    "semver": "catalog:"
+  },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/semver": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

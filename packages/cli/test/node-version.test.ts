@@ -27,7 +27,9 @@ describe("assertNodeVersionIsSupported", () => {
     );
   });
 
-  test("passes when the range has no full version to compare with", () => {
-    expect(() => assertNodeVersionIsSupported("24.22.1", ">=26")).not.toThrow();
+  test("understands a range without a full version", () => {
+    expect(() => assertNodeVersionIsSupported("24.22.1", ">=26")).toThrow(
+      "Please upgrade to Node.js 26.0.0 or later",
+    );
   });
 });
