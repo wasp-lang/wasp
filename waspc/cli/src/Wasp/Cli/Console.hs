@@ -4,11 +4,10 @@ module Wasp.Cli.Console
   )
 where
 
-import qualified Data.Text.IO as T.IO
-import System.IO (Handle, hFlush, stderr, stdout)
+import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Internal.TerminalReporter (makeTerminalReporter)
 import Wasp.Cli.Console.Reporter (Reporter (..))
-import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
+import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Everything the CLI uses to talk to the user. There is a single one, created
 -- at startup and handed down to the code that needs it.
@@ -23,14 +22,5 @@ initConsole =
   return
     Console
       { reporter = makeTerminalReporter,
-        writeRawOutput = writeToOutputStream
+        writeRawOutput = Terminal.writeRawOutput
       }
-
-writeToOutputStream :: WriteOutput
-writeToOutputStream outputStream output = T.IO.hPutStr outputHandle output >> hFlush outputHandle
-  where
-    outputHandle = getOutputStreamHandle outputStream
-
-getOutputStreamHandle :: OutputStream -> Handle
-getOutputStreamHandle Stdout = stdout
-getOutputStreamHandle Stderr = stderr

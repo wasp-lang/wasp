@@ -5,34 +5,34 @@ module Wasp.Cli.Console.Internal.TerminalReporter
   )
 where
 
+import qualified Wasp.Cli.Console.Internal.Terminal as Terminal
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.TextStyle as TextStyle
 
 makeTerminalReporter :: Reporter
-makeTerminalReporter = Reporter {send = cliSendMessage}
+makeTerminalReporter = Reporter {send = Terminal.writeLine . renderMessage}
 
--- | Send a message using the CLI
-cliSendMessage :: Msg.SendMessage
-cliSendMessage (Msg.Info msg) =
+renderMessage :: Msg.Message -> String
+renderMessage (Msg.Info msg) =
   waspSays msg
-cliSendMessage (Msg.Start msg) =
+renderMessage (Msg.Start msg) =
   waspSays $ asWaspStartMessage msg
-cliSendMessage (Msg.Success msg) =
+renderMessage (Msg.Success msg) =
   waspSays $ asWaspSuccessMessage msg
-cliSendMessage (Msg.Failure title msg) =
+renderMessage (Msg.Failure title msg) =
   waspScreams $ asWaspFailureMessage (title ++ ":") ++ msg
-cliSendMessage (Msg.Warning title msg) =
+renderMessage (Msg.Warning title msg) =
   waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
 
-waspSays :: String -> IO ()
-waspSays what = putStrLn $ TextStyle.applyStyles [TextStyle.Yellow] what
+waspSays :: String -> String
+waspSays what = TextStyle.applyStyles [TextStyle.Yellow] what
 
-waspWarns :: String -> IO ()
-waspWarns what = putStrLn $ TextStyle.applyStyles [TextStyle.Magenta] what
+waspWarns :: String -> String
+waspWarns what = TextStyle.applyStyles [TextStyle.Magenta] what
 
-waspScreams :: String -> IO ()
-waspScreams what = putStrLn $ TextStyle.applyStyles [TextStyle.Red] what
+waspScreams :: String -> String
+waspScreams what = TextStyle.applyStyles [TextStyle.Red] what
 
 asWaspStartMessage :: String -> String
 asWaspStartMessage = waspMessageWithEmoji "🐝"
