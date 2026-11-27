@@ -1,12 +1,17 @@
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
--- | The monad test steps run in, and what every step can do: fail, label a
--- phase, run in a directory, register cleanups, log, and wait.
-module E2E.TestM
+-- | What runs inside a test: its steps, built with 'E2E.Test.test' and run
+-- when tasty starts the test. Has the monad they run in, and what every step
+-- can do: fail, label a phase, run in a directory, register cleanups, log, and
+-- wait.
+module E2E.Steps
   ( TestM,
     TestEnv (..),
     TestLog (..),
     TestFailure (..),
+    TestPaths (..),
+    runTestSteps,
     runTestM,
     failTest,
     failureMessage,
@@ -26,7 +31,7 @@ module E2E.TestM
 where
 
 import Control.Concurrent (threadDelay)
-import Control.Concurrent.MVar (MVar, withMVar)
+import Control.Concurrent.MVar (MVar, newMVar, withMVar)
 import Control.Monad (unless, void)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT)
@@ -37,14 +42,15 @@ import qualified Data.Text.Encoding as TE
 import Data.Time.Clock (addUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.Unique (hashUnique, newUnique)
-import E2E.TestSuiteEnv (TestSuiteEnv)
+import E2E.Suite (TestSuiteEnv)
 import GHC.Stack (prettySrcLoc)
-import System.FilePath ((</>))
+import System.Directory (createDirectoryIfMissing, removePathForcibly)
+import System.FilePath (takeDirectory, (</>))
 import qualified System.FilePath as FP
-import System.IO (Handle, hFlush, stderr)
+import System.IO (Handle, IOMode (WriteMode), hFlush, hPutStrLn, stderr, withFile)
 import Test.HUnit.Lang (HUnitFailure (..), formatFailureReason)
 import UnliftIO (MonadUnliftIO, throwIO)
-import UnliftIO.Exception (Exception, SomeException, catchAny, displayException, fromException)
+import UnliftIO.Exception (Exception, SomeException, catchAny, displayException, fromException, tryAny)
 
 data TestEnv = TestEnv
   { testSuiteEnv :: TestSuiteEnv,
@@ -75,6 +81,41 @@ instance Show TestFailure where
   show (TestFailure message) = message
 
 instance Exception TestFailure
+
+-- | Where a test's steps run, and where they log to. A record, so that the
+-- two paths can't be swapped: the working dir is deleted.
+data TestPaths = TestPaths
+  { -- | Deleted and created again, empty, before the steps run.
+    workingDir :: FilePath,
+    logFile :: FilePath
+  }
+
+-- | Runs the steps in a fresh working dir, with a new log file and cleanups.
+--
+-- Throws 'TestFailure' if a step fails (with a pointer to the log).
+runTestSteps :: TestSuiteEnv -> String -> TestPaths -> TestM a -> IO a
+runTestSteps testSuiteEnv testName TestPaths {workingDir, logFile} steps = do
+  removePathForcibly workingDir
+  createDirectoryIfMissing True workingDir
+  createDirectoryIfMissing True (takeDirectory logFile)
+  withFile logFile WriteMode $ \logHandle -> do
+    hPutStrLn logHandle $ "=== " ++ testName ++ " ==="
+    logLock <- newMVar ()
+    let runStepsAndCleanups =
+          runTestM
+            TestEnv
+              { testSuiteEnv,
+                testName,
+                workingDir,
+                testLog = TestLog {logFile, logHandle, logLock}
+              }
+            steps
+
+    tryAny runStepsAndCleanups >>= \case
+      Right result -> return result
+      Left err -> throwIO . TestFailure . withLogPointer $ failureMessage err
+  where
+    withLogPointer message = message ++ "\nFull log: " ++ logFile
 
 -- | Runs the steps in a cleanup scope of their own, which runs the cleanups
 -- they registered once they end.
@@ -112,7 +153,8 @@ step label steps = do
 inDirectory :: FilePath -> TestM a -> TestM a
 inDirectory dir steps = do
   absDir <- resolvePath dir
-  local (\testEnv -> testEnv {workingDir = absDir}) steps
+  -- Built again, not updated, since 'TestPaths' has a 'workingDir' field too.
+  local (\TestEnv {testSuiteEnv, testName, testLog} -> TestEnv {testSuiteEnv, testName, workingDir = absDir, testLog}) steps
 
 getWorkingDir :: TestM FilePath
 getWorkingDir = asks (.workingDir)

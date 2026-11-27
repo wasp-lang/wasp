@@ -1,56 +1,24 @@
--- | Turns test steps into tasty tests.
---
--- The tests are plain tasty 'TestTree's, so that tasty-discover can find them
--- (see @TastyDiscoverDriver.hs@). What they need from the run, the
--- 'TestSuiteEnv' and the names of the e2e groups they are in, they get from
--- tasty's options (see 'setTestSuiteEnv' and 'testGroup').
+-- | Declares tests: names them, puts them in groups, and decides where they
+-- run. What a test does when it runs is its steps (see "E2E.Steps").
 module E2E.Test
   ( TestTree,
     test,
     skippedTest,
     testGroup,
     sequentialTestGroup,
-    setTestSuiteEnv,
-    withTestSuiteEnv,
-    claimOutputDir,
-    checkOutputDirs,
-    TestPaths (..),
-    runTestSteps,
-    TestSteps (..),
   )
 where
 
-import Control.Concurrent.MVar (newMVar)
-import Control.Exception (throwIO)
-import Control.Monad (unless)
-import Data.List (intercalate, isPrefixOf, nub)
+import Data.List (intercalate)
 import Data.Tagged (Tagged (..))
-import E2E.TestM (TestEnv (..), TestFailure (..), TestLog (..), TestM, failureMessage, runTestM)
-import E2E.TestSuiteEnv (TestSuiteEnv (..))
-import System.Directory (createDirectoryIfMissing, removePathForcibly)
-import System.FilePath (isPathSeparator, joinPath, takeDirectory, (</>))
-import System.IO (IOMode (WriteMode), hPutStrLn, withFile)
-import Test.Tasty (TestTree, adjustOption, askOption, localOption)
+import E2E.Steps (TestFailure (..), TestM, TestPaths (..), runTestSteps)
+import E2E.Suite (TestSuiteEnv (..), claimOutputDir, withTestSuiteEnv)
+import System.FilePath (joinPath, (</>))
+import Test.Tasty (TestTree, adjustOption, askOption)
 import qualified Test.Tasty as Tasty
-import Test.Tasty.Options (IsOption (..), lookupOption)
+import Test.Tasty.Options (IsOption (..))
 import Test.Tasty.Providers (IsTest (..), Result, singleTest, testFailed, testPassed)
-import Test.Tasty.Runners (TreeFold (..), foldTestTree, trivialFold)
-import UnliftIO.Exception (catch, tryAny)
-
--- | Set for the whole test tree by the e2e tests' main.
-newtype TestSuiteEnvOption = TestSuiteEnvOption TestSuiteEnv
-
-instance IsOption TestSuiteEnvOption where
-  defaultValue = error "The e2e tests need a test suite env. Run them with the e2e tests' main, which sets it."
-  parseValue = const Nothing
-  optionName = Tagged "e2e-test-suite-env"
-  optionHelp = Tagged "What all the e2e tests of the run share. Not a command line option."
-
-setTestSuiteEnv :: TestSuiteEnv -> TestTree -> TestTree
-setTestSuiteEnv = localOption . TestSuiteEnvOption
-
-withTestSuiteEnv :: (TestSuiteEnv -> TestTree) -> TestTree
-withTestSuiteEnv makeTestTree = askOption $ \(TestSuiteEnvOption testSuiteEnv) -> makeTestTree testSuiteEnv
+import UnliftIO.Exception (catch)
 
 -- | The names of the e2e groups a test is in, outermost first, which decide
 -- where it runs (see 'test').
@@ -61,49 +29,6 @@ instance IsOption GroupNames where
   parseValue = const Nothing
   optionName = Tagged "e2e-group-names"
   optionHelp = Tagged "The e2e groups a test is in. Not a command line option."
-
--- | The dir a test runs in, relative to the test outputs dir, as the names of
--- the dirs on the way, e.g. @["wasp-start", "stop-on-sigint"]@. Tests delete
--- their dirs, so no two tests may share one (see 'checkOutputDirs').
-newtype OutputDir = OutputDir (Maybe [String])
-
-instance IsOption OutputDir where
-  defaultValue = OutputDir Nothing
-  parseValue = const Nothing
-  optionName = Tagged "e2e-output-dir"
-  optionHelp = Tagged "The dir an e2e test runs in. Not a command line option."
-
--- | Declares the dir the test runs in, so that the run can check that no
--- other test uses it.
-claimOutputDir :: [String] -> TestTree -> TestTree
-claimOutputDir = localOption . OutputDir . Just
-
--- | Fails if a test or group name isn't a single dir name (e.g. it's empty or
--- has a slash), so that a test could run in another's dir or outside of the
--- test outputs dir, or if two tests would run in the same dir, or one in
--- another's dir.
---
--- Checks all of the tests, also the ones a pattern leaves out.
-checkOutputDirs :: TestTree -> IO ()
-checkOutputDirs testTree = do
-  unless (null invalidNames)
-    $ fail
-    $ "Some e2e test or group names aren't a single directory name, e.g. they're empty or have a slash: " ++ intercalate ", " (map show invalidNames)
-  unless (null clashingDirs)
-    $ fail
-    $ "Some e2e tests would run in the same directory, so their names must change: " ++ intercalate ", " clashingDirs
-  where
-    dirs = foldTestTree trivialFold {foldSingle = \options _ _ -> [dir | OutputDir (Just dir) <- [lookupOption options]]} mempty testTree
-    invalidNames = nub [name | dir <- dirs, name <- dir, not (isSingleDirName name)]
-    isSingleDirName name = name `notElem` ["", ".", ".."] && not (any isPathSeparator name)
-    clashingDirs =
-      nub
-        [ joinPath dir
-        | (index, dir) <- zip [0 :: Int ..] dirs,
-          (otherIndex, otherDir) <- zip [0 ..] dirs,
-          index /= otherIndex,
-          dir `isPrefixOf` otherDir
-        ]
 
 -- | A test that passes when all of its steps succeed.
 --
@@ -152,38 +77,3 @@ newtype TestSteps = TestSteps (IO Result)
 instance IsTest TestSteps where
   run _ (TestSteps steps) _ = steps
   testOptions = pure []
-
--- | Where a test's steps run, and where they log to. A record, so that the
--- two paths can't be swapped: the working dir is deleted.
-data TestPaths = TestPaths
-  { -- | Deleted and created again, empty, before the steps run.
-    workingDir :: FilePath,
-    logFile :: FilePath
-  }
-
--- | Runs the steps in a fresh working dir, with a new log file and cleanups.
---
--- Throws 'TestFailure' if a step fails (with a pointer to the log).
-runTestSteps :: TestSuiteEnv -> String -> TestPaths -> TestM a -> IO a
-runTestSteps testSuiteEnv testName TestPaths {workingDir, logFile} steps = do
-  removePathForcibly workingDir
-  createDirectoryIfMissing True workingDir
-  createDirectoryIfMissing True (takeDirectory logFile)
-  withFile logFile WriteMode $ \logHandle -> do
-    hPutStrLn logHandle $ "=== " ++ testName ++ " ==="
-    logLock <- newMVar ()
-    let runStepsAndCleanups =
-          runTestM
-            TestEnv
-              { testSuiteEnv,
-                testName,
-                workingDir,
-                testLog = TestLog {logFile, logHandle, logLock}
-              }
-            steps
-
-    tryAny runStepsAndCleanups >>= \case
-      Right result -> return result
-      Left err -> throwIO . TestFailure . withLogPointer $ failureMessage err
-  where
-    withLogPointer message = message ++ "\nFull log: " ++ logFile

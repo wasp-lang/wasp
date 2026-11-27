@@ -743,9 +743,9 @@ test-suite waspc-e2e-tests
     E2E.Process.Output
     E2E.Signals
     E2E.Snapshot
+    E2E.Steps
+    E2E.Suite
     E2E.Test
-    E2E.TestM
-    E2E.TestSuiteEnv
     E2E.Wasp
     SnapshotTestsDiscoverDriver
     Tests.Fixtures

@@ -109,7 +109,9 @@ test_waspNewSnapshot = snapshotTest "wasp-new" $ createWaspProject minimalStarte
 
 A helper that isn't specific to one test goes in `E2E/`, in the module for what it's about:
 
-- `E2E/TestM.hs`: the test monad and what every step can do: fail, label a phase (`step`), log, run in a directory, register cleanups, make unique names, and poll.
+- `E2E/Test.hs`: declaring tests: `test`, `skippedTest`, and the groups they go in.
+- `E2E/Steps.hs`: what runs inside a test: the test monad, `TestM`, and what every step can do: fail, label a phase (`step`), log, run in a directory, register cleanups, make unique names, and poll.
+- `E2E/Suite.hs`: what all the tests of a run share (settings from env vars, allocated ports), and the checks the run makes before they start.
 - `E2E/Command.hs`: describing commands, and the timeouts commands run with (e.g. `cleanupCommandTimeoutSeconds`). Timeouts of waits sit next to the wait they're for.
 - `E2E/Process.hs`: running commands and everything about a process's life (output, exit, signals).
 - `E2E/Ports.hs`, `E2E/Net.hs`: allocating ports, and waiting for a process to listen on them or to stop listening (`waitUntilStopped`).

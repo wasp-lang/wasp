@@ -24,14 +24,14 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Test (TestPaths (..), TestTree, claimOutputDir, runTestSteps, withTestSuiteEnv)
-import E2E.TestM (TestM)
-import E2E.TestSuiteEnv (TestSuiteEnv (..))
+import E2E.Steps (TestM, TestPaths (..), runTestSteps)
+import E2E.Suite (TestSuiteEnv (..), claimOutputDir, withTestSuiteEnv)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (isExtensionOf, makeRelative, splitDirectories, takeDirectory, takeFileName, (</>))
 import System.IO.Error (doesNotExistErrorType, mkIOError)
+import Test.Tasty (TestTree)
 import Test.Tasty.Golden.Advanced (goldenTest)
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInstallationPathInProject)

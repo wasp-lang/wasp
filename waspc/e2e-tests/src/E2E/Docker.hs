@@ -1,5 +1,5 @@
 -- | Tests and steps that need Docker, which a run can disable (see
--- 'E2E.TestSuiteEnv.skipDockerEnvVar').
+-- 'E2E.Suite.skipDockerEnvVar').
 module E2E.Docker
   ( dockerTest,
     whenDockerEnabled,
@@ -13,9 +13,9 @@ import Control.Monad (void)
 import Control.Monad.Reader (asks)
 import E2E.Command (Command (..), cleanupCommandTimeoutSeconds, program)
 import E2E.Process (ProcessResult, run, runAllowingFailure)
-import E2E.Test (TestTree, skippedTest, test, withTestSuiteEnv)
-import E2E.TestM (TestEnv (..), TestM, logLine)
-import E2E.TestSuiteEnv (TestSuiteEnv (..), skipDockerEnvVar)
+import E2E.Steps (TestEnv (..), TestM, logLine)
+import E2E.Suite (TestSuiteEnv (..), skipDockerEnvVar, withTestSuiteEnv)
+import E2E.Test (TestTree, skippedTest, test)
 
 -- | A test that needs Docker. When Docker is disabled, it passes without
 -- running any of its steps.

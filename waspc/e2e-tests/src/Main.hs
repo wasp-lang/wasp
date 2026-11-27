@@ -1,7 +1,6 @@
 import Control.Monad (unless, when)
 import E2E.Signals (stopOnFirstCtrlC)
-import E2E.Test (checkOutputDirs, setTestSuiteEnv)
-import E2E.TestSuiteEnv (TestSuiteEnv (..), getTestSuiteEnv, skipDockerEnvVar)
+import E2E.Suite (TestSuiteEnv (..), checkOutputDirs, getTestSuiteEnv, setTestSuiteEnv, skipDockerEnvVar)
 import qualified SnapshotTestsDiscoverDriver
 import System.Exit (ExitCode (..))
 import System.Info (os)
