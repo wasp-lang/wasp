@@ -14,6 +14,7 @@ packages:
   - web
   - web/sdk-api-docs
   - web/tutorial-actions-executor
+  - packages/cli/package-data-types
   - packages/cli/scripts/make-cli-npm-packages
   - waspc/starters-e2e-tests
   - waspc/tools

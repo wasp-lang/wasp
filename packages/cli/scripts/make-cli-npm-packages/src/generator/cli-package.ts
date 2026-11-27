@@ -1,20 +1,16 @@
 import fs from "fs-extra";
 import * as path from "node:path";
 import type { PackageJson } from "type-fest";
-import { copyStaticFiles } from "../common.ts";
+import {
+  CLI_PACKAGE_SOURCE_DIR,
+  CLI_PACKAGE_STATIC_FILES,
+  copyStaticFiles,
+} from "../common.ts";
 import type { TarballData } from "../schema/input-data.ts";
 import {
   UNDEFINED_LIBC_NAME,
   type CliPackageData,
 } from "../schema/output-data.ts";
-
-// The CLI package (`@wasp/cli`) is a workspace package. This script turns it
-// into the published one: it copies these files as they are and adds the
-// version and the platform sub-packages to the package.json.
-const CLI_PACKAGE_SOURCE_DIR = path.resolve(import.meta.dirname, "../../../..");
-const COPIED_FILES = ["dist", "readme.md"];
-
-const unique = <T>(array: Iterable<T>): T[] => Array.from(new Set(array));
 
 export function makeCliPackage({
   packageName,
@@ -32,7 +28,11 @@ export function makeCliPackage({
   console.log(`Preparing CLI package directory: ${outputDirPath}`);
   fs.emptyDirSync(outputDirPath);
 
-  copyStaticFiles(COPIED_FILES, CLI_PACKAGE_SOURCE_DIR, outputDirPath);
+  copyStaticFiles(
+    CLI_PACKAGE_STATIC_FILES,
+    CLI_PACKAGE_SOURCE_DIR,
+    outputDirPath,
+  );
 
   const pkgJson = generatePackageJson(packageName, packageVersion, subPackages);
   const outPkgFilePath = path.join(outputDirPath, "package.json");
@@ -68,8 +68,8 @@ function generatePackageJson(
     pkg.optionalDependencies[subPkgName.packageName] = packageVersion;
   }
 
-  pkg.os = unique(subPackages.map((subPackage) => subPackage.data.target.os));
-  pkg.cpu = unique(subPackages.map((subPackage) => subPackage.data.target.cpu));
+  // `os` and `cpu` stay on the platform sub-packages, or npm would refuse to
+  // install any Wasp project on other platforms.
 
   console.log("Filled out package.json fields");
   console.groupEnd();

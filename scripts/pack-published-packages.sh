@@ -5,9 +5,25 @@ set -euxo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 packages_dir="$repo_root/packages"
 
-publish_packages=(
-  spec
+# The packages this script packs, by their dir in `packages/`.
+# It packs all the `@wasp/*` packages published at the Wasp version, except
+# `@wasp/cli`, which `packages/cli/scripts/make-cli-npm-packages` packs.
+# Keep in sync with `waspc/tools/packages/utils.ts`.
+publish_packages=()
+while IFS= read -r package; do publish_packages+=("$package"); done < <(
+  jq -r '
+    [
+      .name,
+      (.dependencies // {} | keys[]),
+      (.peerDependenciesMeta // {} | to_entries[] | select(.value.optional) | .key)
+    ]
+    | map(select(startswith("@wasp/") and . != "@wasp/cli") | ltrimstr("@wasp/"))
+    | unique[]
+  ' "$packages_dir/wasp/package.json"
 )
+
+# The packages that get the publish version, which also includes `cli`.
+versioned_packages=(cli "${publish_packages[@]}")
 
 publish_version="$1"
 if [ -z "$publish_version" ]; then
@@ -23,19 +39,24 @@ fi
 
 (cd "$repo_root" && pnpm install)
 
+# Override the package versions with the one from the workflow.
+for package in "${versioned_packages[@]}"; do
+  (cd "$packages_dir/$package" && pnpm pkg set version="$publish_version")
+done
+
+# pnpm builds them in dependency order, so each package finds the build output
+# of its dependencies.
+(cd "$repo_root" && pnpm --filter "@wasp/wasp..." run build)
+
 for package in "${publish_packages[@]}"; do
-  echo "Building $package"
+  echo "Packing $package"
 
   pack_dir=$(mktemp -d)
   package_output_dir="$output_dir/$(basename "$package")"
 
   cd "$packages_dir/$package"
 
-  # Override the package version with the one from the workflow.
-  pnpm pkg set version="$publish_version"
-
   # `pnpm pack` puts only the published files in the tarball.
-  pnpm run build
   pnpm pack --pack-destination "$pack_dir"
 
   # We extract the tarball back into a folder, because `pkg-pr-new` only accepts
