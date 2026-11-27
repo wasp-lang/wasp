@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, abortCommand, getConsole)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Message (cliSendMessageC, runTaskC)
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Prompter (Prompter)
 import qualified Wasp.Cli.Console.Prompter as Prompter
@@ -48,10 +48,10 @@ uninstall = withArguments uninstallArgsParser $ \UninstallArgs {force = skipConf
         if skipConfirmation
           then return Nothing
           else Just <$> requirePrompter uninstallArgsParser
-      cliSendMessageC $ Msg.Start "Removing Wasp data..."
       console <- getConsole
-      liftIO $ removeWaspPaths console.writeRawOutput confirmationPrompter waspPathsToRemove
-      cliSendMessageC $ Msg.Success "Removed Wasp data."
+      runTaskC "Removing Wasp data..." "Removed Wasp data."
+        $ liftIO
+        $ removeWaspPaths console.writeRawOutput confirmationPrompter waspPathsToRemove
 
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"

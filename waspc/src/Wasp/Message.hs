@@ -1,4 +1,4 @@
-module Wasp.Message (Message (..), SendMessage) where
+module Wasp.Message (Message (..)) where
 
 -- This module defines a simple protocol for sending progress messages to a
 -- UI (like the CLI).
@@ -10,5 +10,3 @@ module Wasp.Message (Message (..), SendMessage) where
 -- If you need success or failure another purpose use return values.
 
 data Message = Info String | Start String | Success String | Failure String String | Warning String String
-
-type SendMessage = Message -> IO ()

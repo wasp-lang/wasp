@@ -5,9 +5,9 @@ where
 
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Setup (SetupGoal)
-import Wasp.Message (SendMessage)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
+import Wasp.TaskRunner (TaskRunner)
 import Wasp.Util.IO.Process (WriteOutput)
 
 -- TODO(martin): Should these be merged with Wasp data? Is it really a separate thing or not?
@@ -16,10 +16,10 @@ import Wasp.Util.IO.Process (WriteOutput)
 data CompileOptions = CompileOptions
   { waspProjectDir :: !(Path' Abs (Dir WaspProjectDir)),
     buildType :: !BuildType.BuildType,
-    -- We give the compiler the ability to send messages. The code that
-    -- invokes the compiler (such as the CLI) can then implement a way
-    -- to display these messages.
-    sendMessage :: SendMessage,
+    -- We give the compiler the ability to report the progress of its steps.
+    -- The code that invokes the compiler (such as the CLI) can then implement
+    -- a way to display it.
+    taskRunner :: TaskRunner,
     -- Where the jobs that the compiler runs (npm install, Prisma, the type
     -- check, ...) write their output.
     --
