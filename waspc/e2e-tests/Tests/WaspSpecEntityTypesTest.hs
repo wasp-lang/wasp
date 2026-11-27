@@ -7,7 +7,7 @@ import ShellCommands
     ShellCommandBuilder,
     WaspProjectContext,
     appendToPrismaFile,
-    assertCommandOutputContains,
+    assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
     replaceMainWaspTsFile,
@@ -42,9 +42,9 @@ waspSpecEntityTypesTest =
       --         inTestWaspProjectDir
       --           [ appendToPrismaFile prismaUserModel,
       --             replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
-      --             assertCommandOutputContains
-      --               (("! " ++) <$> compileWaspMainTsFiles)
+      --             assertCommandFailsWith
       --               ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
+      --               compileWaspMainTsFiles
       --           ]
       --       ]
       --   ),
@@ -57,9 +57,9 @@ waspSpecEntityTypesTest =
                   replaceMainWaspTsFile $ mainWaspTs validEntityName,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
                   replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
-                  assertCommandOutputContains
-                    (("! " ++) <$> compileWaspMainTsFiles)
+                  assertCommandFailsWith
                     ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
+                    compileWaspMainTsFiles
                 ]
             ]
         )

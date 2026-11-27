@@ -3,7 +3,7 @@ module Tests.WaspBuildTest (waspBuildTest) where
 import ShellCommands
   ( ShellCommand,
     appendToFile,
-    assertCommandOutputContains,
+    assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
@@ -45,9 +45,9 @@ waspBuildTest =
               inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   appendToFile "src/MainPage.tsx" "export const shouldBeNumber: number = 'wrong'",
-                  assertCommandOutputContains
-                    (("! " ++) <$> waspCliBuild)
+                  assertCommandFailsWith
                     "error TS2322: Type 'string' is not assignable to type 'number'."
+                    waspCliBuild
                 ]
             ]
         )

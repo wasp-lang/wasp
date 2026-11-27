@@ -6,7 +6,8 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext (..),
-    assertCommandOutputContains,
+    assertCommandFails,
+    assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliCompile,
@@ -26,7 +27,7 @@ viteConfigTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ deleteViteConfig,
-                  expectCommandFailure <$> waspCliCompile
+                  assertCommandFails waspCliCompile
                 ]
             ]
         ),
@@ -36,7 +37,7 @@ viteConfigTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ writeViteConfigWithoutPlugin,
-                  expectCommandFailure <$> waspCliCompile
+                  assertCommandFails waspCliCompile
                 ]
             ]
         ),
@@ -47,9 +48,9 @@ viteConfigTest =
               inTestWaspProjectDir
                 [ writeViteConfigOverridingForcedOptions,
                   waspCliCompile,
-                  assertCommandOutputContains
-                    (expectCommandFailure <$> viteBuild)
+                  assertCommandFailsWith
                     "To serve your app from a subdirectory, set `client.baseDir` in your Wasp config."
+                    viteBuild
                 ]
             ]
         )
@@ -90,6 +91,3 @@ writeViteConfigOverridingForcedOptions = do
 
 viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 viteBuild = return "npx vite build"
-
-expectCommandFailure :: ShellCommand -> ShellCommand
-expectCommandFailure command = "! " ++ command
