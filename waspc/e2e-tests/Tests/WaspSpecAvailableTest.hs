@@ -5,7 +5,7 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext (..),
-    assertCommandOutputContains,
+    assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
@@ -118,7 +118,5 @@ waspSpecAvailableTest =
     assertCommandFailsWithInstallHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->
       ShellCommandBuilder WaspProjectContext ShellCommand
-    assertCommandFailsWithInstallHint commandBuilder =
-      -- Negate the wrapped command so the assertion holds when it fails (exit non-zero)
-      -- AND the output contains the "Run `wasp install`" hint.
-      assertCommandOutputContains (("! " ++) <$> commandBuilder) ("Run " ++ styleCode "wasp install")
+    assertCommandFailsWithInstallHint =
+      assertCommandFailsWith ("Run " ++ styleCode "wasp install")

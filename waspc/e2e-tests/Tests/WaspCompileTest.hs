@@ -8,7 +8,7 @@ import ShellCommands
     ShellCommandBuilder,
     WaspProjectContext (..),
     appendToFile,
-    assertCommandOutputContains,
+    assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
     replaceMainWaspTsFile,
@@ -57,9 +57,9 @@ waspCompileTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToFile "src/MainPage.tsx" "import './missing-side-effect-import'",
-                  assertCommandOutputContains
-                    (("! " ++) <$> waspCliCompile)
+                  assertCommandFailsWith
                     "Cannot find module or type declarations for side-effect import of './missing-side-effect-import'."
+                    waspCliCompile
                 ]
             ]
         ),
@@ -69,9 +69,9 @@ waspCompileTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ writeUtilsFile "export const shouldBeNumber: number = 'wrong'",
-                  assertCommandOutputContains
-                    (("! " ++) <$> waspCliCompile)
+                  assertCommandFailsWith
                     "src/utils.ts(1,14): error TS2322: Type 'string' is not assignable to type 'number'."
+                    waspCliCompile
                 ]
             ]
         ),
@@ -86,9 +86,9 @@ waspCompileTest =
                   writeMainPageUsingQuery,
                   waspCliCompile,
                   writeQuery "[]",
-                  assertCommandOutputContains
-                    (("! " ++) <$> waspCliCompile)
-                    "Property 'id' does not exist on type 'never'.",
+                  assertCommandFailsWith
+                    "Property 'id' does not exist on type 'never'."
+                    waspCliCompile,
                   writeQuery "[{ id: 1 }]",
                   waspCliCompile
                 ]
