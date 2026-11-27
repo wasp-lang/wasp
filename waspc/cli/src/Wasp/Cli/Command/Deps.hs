@@ -11,7 +11,6 @@ import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Console (Console (..))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
@@ -26,7 +25,7 @@ deps = do
   WaspSpecAvailable <- require
   console <- getConsole
   (appSpecOrAnalyzerErrors, _analyzerWarnings) <-
-    liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions console.writeRawOutput waspProjectDir)
+    liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions console waspProjectDir)
   appSpec <-
     either
       (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)

@@ -16,8 +16,9 @@ import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, printCompilationResult)
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, reportCompilationResult)
+import Wasp.Cli.Console (Console (..))
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
@@ -26,7 +27,6 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
-import Wasp.Util.IO.Process (WriteOutput)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -48,7 +48,7 @@ import Wasp.Util.IO.Process (WriteOutput)
 -- it starts as 'UpToDate', and from then on it uses the given @projectLock@ to
 -- keep other Wasp processes posted about the state of the generated app.
 watch ::
-  WriteOutput ->
+  Console ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   ProjectLock ->
@@ -56,7 +56,7 @@ watch ::
   (AppSpec -> IO ProjectRunConfig) ->
   (ServerEvent -> IO ()) ->
   IO ()
-watch writeJobOutput waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig onServerEvent = do
+watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig onServerEvent = do
   -- fsnotify reports paths under the canonical path of the watched dirs, which
   -- differs from the project dir's path if that goes through a symlink.
   canonicalWaspProjectDir <- canonicalizePath $ SP.fromAbsDir waspProjectDir
@@ -150,14 +150,14 @@ watch writeJobOutput waspProjectDir outDir projectLock ongoingCompilationResultM
 
     recompile :: UTCTime -> [Path' (Rel WaspProjectDir) File'] -> IO ()
     recompile compileStartTime changedProjectFiles = do
-      cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compileResult <- compileIO writeJobOutput waspProjectDir outDir
+      console.reporter.send $ Msg.Start "Recompiling on file change..."
+      compileResult <- compileIO console waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-      printCompilationResult (warnings, errors)
+      reportCompilationResult console.reporter (warnings, errors)
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
-          cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
+          console.reporter.send $ Msg.Success "Recompilation on file change succeeded."
           projectRunConfig <- makeProjectRunConfig appSpec
           return $
             SuccessfulCompile
@@ -168,7 +168,7 @@ watch writeJobOutput waspProjectDir outDir projectLock ongoingCompilationResultM
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
         Left _ -> do
-          cliSendMessage (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
+          console.reporter.send (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
           return FailedCompile
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)

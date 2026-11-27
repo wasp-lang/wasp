@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Compile (compile, reportWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Db (throwIfDbConnectionNotEstablished)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
@@ -19,6 +19,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
 import Wasp.Cli.Console (Console (..))
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -80,8 +81,8 @@ start = withArguments startArgsParser $ \args ->
       -- 'watch') once jobs from 'start' quiet down a bit.
       ongoingCompilationResultMVar <- newMVar (warnings, [])
       serverInbox <- ServerGenerator.Start.newServerInbox
-      let watchWaspProjectSource = watch console.writeRawOutput waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
-      let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown ongoingCompilationResultMVar)
+      let watchWaspProjectSource = watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProjectRunConfig $ ServerGenerator.Start.notifyServer serverInbox
+      let startGeneratedWebApp = Wasp.Generator.start console.writeRawOutput projectRunConfig waspProjectDir outDir serverInbox (onJobsQuietDown console.reporter ongoingCompilationResultMVar)
       -- In parallel:
       -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
       --    code. On any change, Wasp is recompiled (and generated app is re-generated).
@@ -96,8 +97,8 @@ start = withArguments startArgsParser $ \args ->
         Left startError -> throwError $ CommandError "Start failed" startError
         Right () -> error "This should never happen, start should never end but it did."
   where
-    onJobsQuietDown :: MVar ([CompileWarning], [CompileError]) -> IO ()
-    onJobsQuietDown ongoingCompilationResultMVar = do
+    onJobsQuietDown :: Reporter -> MVar ([CompileWarning], [CompileError]) -> IO ()
+    onJobsQuietDown reporter ongoingCompilationResultMVar = do
       -- Once jobs from generated web app quiet down a bit, we print any warnings / errors from the
       -- latest (re)compile that haven't yet been printed in this situation.
       -- This way we ensure that even if web app jobs print a lot of output, users
@@ -109,7 +110,7 @@ start = withArguments startArgsParser $ \args ->
         Just ([], []) -> return ()
         Just (warnings, errors) -> do
           putStrLn ""
-          printWarningsAndErrorsIfAny (warnings, errors)
+          reportWarningsAndErrorsIfAny reporter (warnings, errors)
           putStrLn ""
 
 -- | The web app and server have their own logic for reading environment

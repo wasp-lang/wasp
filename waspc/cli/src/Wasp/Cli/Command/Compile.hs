@@ -9,8 +9,8 @@ module Wasp.Cli.Command.Compile
     compileIOWithOptions,
     defaultCompileOptions,
     withSetupGoals,
-    printCompilationResult,
-    printWarningsAndErrorsIfAny,
+    reportCompilationResult,
+    reportWarningsAndErrorsIfAny,
     analyze,
     analyzeWithOptions,
     analyzeWithDiagnosticsOnStderr,
@@ -32,7 +32,7 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.Console (Console (..))
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -44,7 +44,6 @@ import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
-import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
@@ -60,7 +59,7 @@ compile = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   console <- getConsole
-  compileWithOptions $ defaultCompileOptions console.writeRawOutput waspProjectDir
+  compileWithOptions $ defaultCompileOptions console waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -94,7 +93,8 @@ compileWithOptions options = do
   compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
   let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-  liftIO $ printCompilationResult (warnings, errors)
+  console <- getConsole
+  liftIO $ reportCompilationResult console.reporter (warnings, errors)
   case _compileOutcome compileResult of
     Right appSpec -> return (warnings, appSpec)
     Left compileErrors ->
@@ -107,29 +107,29 @@ compileWithOptions options = do
 -- also shows any warnings (and errors), ... .
 -- Normally you will want to call this function after compile step is done and you want
 -- to report to user how it went.
-printCompilationResult :: ([CompileWarning], [CompileError]) -> IO ()
-printCompilationResult (warns, errs) = do
+reportCompilationResult :: Reporter -> ([CompileWarning], [CompileError]) -> IO ()
+reportCompilationResult reporter (warns, errs) = do
   if null errs
-    then cliSendMessage $ Msg.Success "Your wasp project has successfully compiled."
-    else printErrorsIfAny errs
-  printWarningsIfAny warns
+    then reporter.send $ Msg.Success "Your wasp project has successfully compiled."
+    else reportErrorsIfAny reporter errs
+  reportWarningsIfAny reporter warns
 
-printWarningsAndErrorsIfAny :: ([CompileWarning], [CompileError]) -> IO ()
-printWarningsAndErrorsIfAny (warns, errs) = do
-  printWarningsIfAny warns
-  printErrorsIfAny errs
+reportWarningsAndErrorsIfAny :: Reporter -> ([CompileWarning], [CompileError]) -> IO ()
+reportWarningsAndErrorsIfAny reporter (warns, errs) = do
+  reportWarningsIfAny reporter warns
+  reportErrorsIfAny reporter errs
 
-printWarningsIfAny :: [CompileWarning] -> IO ()
-printWarningsIfAny warns = do
+reportWarningsIfAny :: Reporter -> [CompileWarning] -> IO ()
+reportWarningsIfAny reporter warns = do
   unless (null warns)
-    $ cliSendMessage
+    $ reporter.send
     $ Msg.Warning compilationWarningsTitle
     $ formatErrorOrWarningMessages warns
 
-printErrorsIfAny :: [CompileError] -> IO ()
-printErrorsIfAny errs = do
+reportErrorsIfAny :: Reporter -> [CompileError] -> IO ()
+reportErrorsIfAny reporter errs = do
   unless (null errs)
-    $ cliSendMessage
+    $ reporter.send
     $ Msg.Failure "Your wasp project failed to compile"
     $ formatErrorOrWarningMessages errs
 
@@ -145,12 +145,12 @@ analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length e
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
 compileIO ::
-  WriteOutput ->
+  Console ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO CompileResult
-compileIO writeJobOutput waspProjectDir outDir =
-  compileIOWithOptions (defaultCompileOptions writeJobOutput waspProjectDir) waspProjectDir outDir
+compileIO console waspProjectDir outDir =
+  compileIOWithOptions (defaultCompileOptions console waspProjectDir) waspProjectDir outDir
 
 compileIOWithOptions ::
   CompileOptions ->
@@ -160,13 +160,13 @@ compileIOWithOptions ::
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
 
-defaultCompileOptions :: WriteOutput -> Path' Abs (Dir WaspProjectDir) -> CompileOptions
-defaultCompileOptions writeJobOutput waspProjectDir =
+defaultCompileOptions :: Console -> Path' Abs (Dir WaspProjectDir) -> CompileOptions
+defaultCompileOptions console waspProjectDir =
   CompileOptions
     { waspProjectDir,
       buildType = BuildType.Development,
-      sendMessage = cliSendMessage,
-      writeJobOutput,
+      sendMessage = console.reporter.send,
+      writeJobOutput = console.writeRawOutput,
       setupGoals = allSetupGoals
     }
 
@@ -176,7 +176,7 @@ withSetupGoals goals options = options {setupGoals = goals}
 analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyze waspProjectDir = do
   console <- getConsole
-  analyzeWithOptions waspProjectDir $ defaultCompileOptions console.writeRawOutput waspProjectDir
+  analyzeWithOptions waspProjectDir $ defaultCompileOptions console waspProjectDir
 
 -- | Analyzes Wasp project that the current working directory is a part of and returns
 -- AppSpec. So same like compilation, but it stops before any code generation.
@@ -184,7 +184,8 @@ analyze waspProjectDir = do
 analyzeWithOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> Command AS.AppSpec
 analyzeWithOptions waspProjectDir options = do
   (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
-  liftIO $ printWarningsIfAny warnings
+  console <- getConsole
+  liftIO $ reportWarningsIfAny console.reporter warnings
   case appSpecOrErrors of
     Left errors ->
       throwError $
@@ -192,14 +193,14 @@ analyzeWithOptions waspProjectDir options = do
     Right spec -> return spec
 
 -- | Like 'analyze', but keeps stdout free for machine-readable output:
--- compile warnings and errors go to stderr instead ('analyze' prints
--- everything to stdout, via 'cliSendMessage'). Exits with a failure code on
+-- compile warnings and errors go to stderr instead ('analyze'
+-- sends them as messages, through the reporter). Exits with a failure code on
 -- compile errors, bypassing 'CommandError' for the same reason.
 analyzeWithDiagnosticsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyzeWithDiagnosticsOnStderr waspProjectDir = do
   console <- getConsole
   (appSpecOrErrors, warnings) <-
-    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions console.writeRawOutput waspProjectDir
+    liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions console waspProjectDir
   liftIO
     $ unless (null warnings)
     $ printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)

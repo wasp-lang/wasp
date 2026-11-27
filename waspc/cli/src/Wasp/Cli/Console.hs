@@ -6,17 +6,25 @@ where
 
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
+import Wasp.Cli.Console.Internal.TerminalReporter (makeTerminalReporter)
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
 -- | Everything the CLI uses to talk to the user. There is a single one, created
 -- at startup and handed down to the code that needs it.
-newtype Console = Console
-  { -- | Where the jobs write the output that the user should see.
+data Console = Console
+  { reporter :: Reporter,
+    -- | Where the jobs write the output that the user should see.
     writeRawOutput :: WriteOutput
   }
 
 initConsole :: IO Console
-initConsole = return Console {writeRawOutput = writeToOutputStream}
+initConsole =
+  return
+    Console
+      { reporter = makeTerminalReporter,
+        writeRawOutput = writeToOutputStream
+      }
 
 writeToOutputStream :: WriteOutput
 writeToOutputStream outputStream output = T.IO.hPutStr outputHandle output >> hFlush outputHandle

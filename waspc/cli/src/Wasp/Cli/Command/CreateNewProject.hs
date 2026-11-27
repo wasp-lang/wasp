@@ -33,7 +33,7 @@ import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
-import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Message as Msg
@@ -62,7 +62,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
       then migrateDbForNewProject absWaspProjectDir
       else return False
 
-  liftIO $ printGettingStartedInstructionsForProject newProjectDescription
+  liftIO $ printGettingStartedInstructionsForProject console.reporter newProjectDescription
 
   liftIO
     $ printExtraInstructionsForProject
@@ -132,11 +132,11 @@ migrateDbForNewProject absWaspProjectDir =
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
-printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
-printGettingStartedInstructionsForProject projectDescription = do
+printGettingStartedInstructionsForProject :: Reporter -> NewProjectDescription -> IO ()
+printGettingStartedInstructionsForProject reporter projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
   let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
-  cliSendMessage $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
+  reporter.send $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
   putStrLn instructions
 
 printExtraInstructionsForProject :: [String] -> IO ()

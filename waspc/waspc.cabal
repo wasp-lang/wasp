@@ -515,22 +515,21 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Watch
-    Wasp.Cli.Common
     Wasp.Cli.Compile
     Wasp.Cli.Console
+    Wasp.Cli.Console.Internal.TerminalReporter
+    Wasp.Cli.Console.Reporter
     Wasp.Cli.DevDb
     Wasp.Cli.DevDb.ArgumentsParser
     Wasp.Cli.EnvVarWithCtx
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
-    Wasp.Cli.Message
     Wasp.Cli.Port
     Wasp.Cli.ProjectLock
     Wasp.Cli.ProjectLock.Data
     Wasp.Cli.ProjectLock.Handle
     Wasp.Cli.ProjectPorts
     Wasp.Cli.ProjectRunConfig
-    Wasp.Cli.Terminal
     Wasp.Cli.TerminationSignals
     Wasp.Cli.Util.EnvVarArgument
     Wasp.Cli.Util.HttpUrlArgument
@@ -684,7 +683,6 @@ test-suite wasp-cli-tests
 
   other-modules:
     Paths_waspc
-    TerminalTest
     Wasp.Cli.Command.CreateNewProject.ProjectDescriptionTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
