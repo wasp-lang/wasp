@@ -46,7 +46,7 @@ import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checkExitSuccess, checksumFromFilePath, hexToString)
 import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 
 data DbConnectionTestResult
   = DbConnectionSuccess

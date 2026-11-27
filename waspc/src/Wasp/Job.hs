@@ -28,7 +28,7 @@ import Wasp.Job.Common (Job (..), JobType (..), runWithSink, withSink)
 import Wasp.Job.CreateProcess (CreateJobProcess, addEnvVarsOverride, markInteractive, proc, setCwd)
 import qualified Wasp.Job.IO.PrefixedWriter as PrefixedWriter
 import Wasp.Job.Process (fromProc)
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- | Runs the job, printing its output to Wasp's own stdout and stderr, and
 -- returns once it has finished.

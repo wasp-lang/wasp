@@ -20,7 +20,7 @@ import System.Timeout (timeout)
 import Wasp.Job.Common (Job (..))
 import Wasp.Job.CreateProcess (CreateJobProcess, asCreateProcess)
 import Wasp.Util (secondsToMicroSeconds)
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- | Runs the process to completion, emitting its stdout and stderr as the job's
 -- output, and returns its exit code once all of it has been emitted.

@@ -31,7 +31,7 @@ import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import qualified Wasp.Job as J
 import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedAppDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- We disable this lint because we use it for clarity here, because it is
 -- complex code:

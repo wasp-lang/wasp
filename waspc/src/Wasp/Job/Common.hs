@@ -13,7 +13,7 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (..), local)
 import Data.Text (Text)
 import UnliftIO (MonadUnliftIO)
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- | An action that runs processes and emits their output.
 newtype Job a = Job (ReaderT Sink IO a)

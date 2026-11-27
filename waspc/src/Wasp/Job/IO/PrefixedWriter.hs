@@ -23,7 +23,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
 import qualified Wasp.Job.Common as J
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 import qualified Wasp.Util.Terminal as Term
 
 -- | Prints job output to Wasp's own stdout and stderr. Jobs can print from

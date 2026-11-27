@@ -5,7 +5,7 @@ import qualified Data.Text as T
 import Test.Hspec
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (Output (..), formatOutput, initialPrefixedWriterState)
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 import qualified Wasp.Util.Terminal as Term
 
 spec_prefixedOutput :: Spec
