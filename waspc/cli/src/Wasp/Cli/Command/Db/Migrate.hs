@@ -8,7 +8,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
+import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -45,7 +45,7 @@ migrateDatabase envVars migrateArgs generatedAppDir dbMigrationsDir = do
   console <- getConsole
   cliSendMessageC $ Msg.Start "Starting database migration..."
   liftIO (DbOps.migrateDevAndCopyToSource console.writeRawOutput envVars dbMigrationsDir generatedAppDir migrateArgs) >>= \case
-    Left err -> throwError $ CommandError "Migrate dev failed" err
+    Left err -> throwError $ commandError "Migrate dev failed" err
     Right () -> cliSendMessageC $ Msg.Success "Database successfully migrated."
 
 migrateArgsParser :: ArgsParser MigrateArgs

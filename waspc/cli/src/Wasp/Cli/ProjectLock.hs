@@ -12,7 +12,7 @@ where
 import Control.Monad.Catch (bracket)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command (Command, CommandError, commandError, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.ProjectLock.Data (ProjectLockData (..), WaspProcessId, WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle
@@ -59,7 +59,7 @@ acquire initialWatcherStatus action = do
 
 makeLockedProjectError :: Maybe ProjectLockData -> CommandError
 makeLockedProjectError maybeProjectLockData =
-  CommandError "Wasp project is already in use" $
+  commandError "Wasp project is already in use" $
     describeLockHolder ((.pid) <$> maybeProjectLockData)
       ++ " is already running for this project. Wait for it, or stop it and try again."
 

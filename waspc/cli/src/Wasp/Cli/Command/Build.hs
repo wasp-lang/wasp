@@ -13,8 +13,8 @@ import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
-import Wasp.Cli.Command.Compile (compileIOWithOptions, reportCompilationResult)
+import Wasp.Cli.Command (Command, commandError, compileCommandError, getConsole, require)
+import Wasp.Cli.Command.Compile (compileIOWithOptions, reportSuccessfulCompile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -72,14 +72,17 @@ build = ProjectLock.acquireExclusive $ do
 
   console <- getConsole
   (warnings, errors) <- liftIO $ buildIO console waspProjectDir buildDir
-  liftIO $ reportCompilationResult console.reporter (warnings, errors)
   unless (null errors)
     $ throwError
-    $ CommandError "Building of wasp project failed"
-    $ show (length errors) ++ " errors found."
+    $ compileCommandError
+      "Building of wasp project failed"
+      (show (length errors) ++ " errors found.")
+      errors
+      warnings
+  liftIO $ reportSuccessfulCompile console.reporter warnings
 
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
-    Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
+    Left err -> throwError $ commandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
 
   cliSendMessageC

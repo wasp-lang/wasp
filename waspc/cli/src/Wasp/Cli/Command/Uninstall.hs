@@ -9,8 +9,7 @@ import qualified Data.Text as T
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
-import System.Exit (die)
-import Wasp.Cli.Command (Command, getConsole)
+import Wasp.Cli.Command (Command, abortCommand, getConsole)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Console (Console (..))
@@ -114,7 +113,7 @@ removeWaspPaths writeRawOutput confirmationPrompter pathsToRemove = do
 
   forM_ confirmationPrompter $ \prompter -> do
     confirmed <- Prompter.askForConfirmation prompter "Are you sure you want to continue?"
-    unless confirmed $ die "Aborted."
+    unless confirmed abortCommand
 
   mapM_ deleteDirectoryIfExists $ fst pathsToRemove
   mapM_ deleteFileIfExists $ snd pathsToRemove

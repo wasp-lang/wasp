@@ -16,7 +16,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, CommandError (CommandError), getConsole, require)
+import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Db (makeDbCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
@@ -43,7 +43,7 @@ seed SeedArgs {_seedName = maybeUserProvidedSeedName} = makeDbCommand [PrismaCli
 
   console <- getConsole
   liftIO (dbSeed console.writeRawOutput (ServerGenerator.makeEnvVars projectRunConfig) genProjectDir nameOfSeedToRun) >>= \case
-    Left errorMsg -> E.throwError $ CommandError "Database seeding failed" errorMsg
+    Left errorMsg -> E.throwError $ commandError "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 
 newtype SeedArgs = SeedArgs
@@ -80,7 +80,7 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
       if userProvidedSeedName `elem` seedNames
         then return userProvidedSeedName
         else
-          (E.throwError . CommandError "Invalid seed name") $
+          (E.throwError . commandError "Invalid seed name") $
             "There is no seed with the name "
               <> userProvidedSeedName
               <> "."
@@ -90,7 +90,7 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     getSeedsFromAppSpecOrThrowIfNone = case getDbSeeds spec of
       Just seeds@(_ : _) -> return $ NE.fromList seeds
       _noSeeds ->
-        (E.throwError . CommandError "No seeds defined") $
+        (E.throwError . commandError "No seeds defined") $
           "You haven't defined any database seeding functions, so there is nothing to run!\n"
             <> "To do so, define seeding functions via app.db.seeds in your Wasp spec."
 

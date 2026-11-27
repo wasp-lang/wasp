@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Watch
   ( watch,
+    reportLatestCompileResultAgain,
   )
 where
 
@@ -16,7 +17,8 @@ import System.Directory (canonicalizePath)
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, reportCompilationResult)
+import Wasp.Cli.Command (compileCommandError, reportCommandError, reportCompileErrors, reportCompileWarnings)
+import Wasp.Cli.Command.Compile (CompileResult (..), compileIO, reportSuccessfulCompile)
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
@@ -27,6 +29,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -154,9 +157,9 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
       compileResult <- compileIO console waspProjectDir outDir
       let (warnings, errors) = compileResultWarningsAndErrors compileResult
 
-      reportCompilationResult console.reporter (warnings, errors)
       compileOutcome <- case _compileOutcome compileResult of
         Right appSpec -> do
+          reportSuccessfulCompile console.reporter warnings
           console.reporter.send $ Msg.Success "Recompilation on file change succeeded."
           projectRunConfig <- makeProjectRunConfig appSpec
           return $
@@ -168,7 +171,13 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
                   _changedGeneratedAppPaths = _compileChangedGeneratedAppPaths compileResult
                 }
         Left _ -> do
-          console.reporter.send (Msg.Failure "Recompilation on file change failed." $ show (length errors) ++ " errors found")
+          -- The command carries on, so the error is reported here and not thrown.
+          reportCommandError console.reporter $
+            compileCommandError
+              "Recompilation on file change failed."
+              (show (length errors) ++ " errors found")
+              errors
+              warnings
           return FailedCompile
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
@@ -187,3 +196,19 @@ watch console waspProjectDir outDir projectLock ongoingCompilationResultMVar mak
           "." `isPrefixOf` filename && ".swp" `isSuffixOf` filename, -- Vim swp files.
           "." `isPrefixOf` filename && ".un~" `isSuffixOf` filename -- Vim undo files.
         ]
+
+-- | Reports the warnings and errors of the latest (re)compile again, if they
+-- haven't been reported again yet. Meant to be called once the output of the
+-- running app quiets down, so that the user doesn't miss them even if the app
+-- printed a lot in the meantime.
+reportLatestCompileResultAgain :: Console -> MVar ([CompileWarning], [CompileError]) -> IO ()
+reportLatestCompileResultAgain console ongoingCompilationResultMVar = do
+  maybeOngoingCompilationResult <- tryTakeMVar ongoingCompilationResultMVar
+  case maybeOngoingCompilationResult of
+    Nothing -> return ()
+    Just ([], []) -> return ()
+    Just (warnings, errors) -> do
+      console.writeRawOutput Stdout "\n"
+      reportCompileWarnings console.reporter warnings
+      reportCompileErrors console.reporter errors
+      console.writeRawOutput Stdout "\n"

@@ -2,16 +2,14 @@ module Main where
 
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
-import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (intercalate)
-import Data.String (fromString)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
-import Wasp.Cli.Command (Command, runCommand)
+import Wasp.Cli.Command (Command, runCommand, runCommandSilently)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
@@ -49,10 +47,7 @@ import Wasp.Version (waspVersion)
 main :: IO ()
 main = withUtf8 $ do
   console <- initConsole
-  runMain console `E.catch` handleInternalErrors console
 
-runMain :: Console -> IO ()
-runMain console = do
   -- So that Wasp also cleans up after itself (e.g. stops the processes it
   -- started) when it's stopped with SIGTERM (process managers, `kill`) or
   -- SIGHUP (closed terminal), and not only with Ctrl+C.
@@ -84,7 +79,7 @@ runMain console = do
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         _unknownCommand -> Command.Call.Unknown args
 
-  telemetryThread <- Async.async $ runCommand console $ Telemetry.considerSendingData commandCall
+  telemetryThread <- Async.async $ runCommandSilently console $ Telemetry.considerSendingData commandCall
 
   setDefaultCliEnvVars
 
@@ -119,11 +114,6 @@ runMain console = do
     threadDelaySeconds =
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
-
-handleInternalErrors :: Console -> E.ErrorCall -> IO ()
-handleInternalErrors console e = do
-  console.writeRawOutput Stdout . fromString $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e) ++ "\n"
-  exitFailure
 
 isHelpArg :: String -> Bool
 isHelpArg arg = arg `elem` ["help", "--help", "-h"]

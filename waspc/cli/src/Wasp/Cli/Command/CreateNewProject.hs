@@ -13,7 +13,7 @@ import qualified Data.Text as T
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
+import Wasp.Cli.Command (Command, CommandError (..), commandError, errorMessage, getConsole, require)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
@@ -108,7 +108,7 @@ migrateDbForNewProject absWaspProjectDir =
       isDbUrlInEnvironment <- liftIO $ isJust <$> lookupEnv databaseUrlEnvVarName
       when isDbUrlInEnvironment
         $ throwError
-        $ CommandError
+        $ commandError
           "Migration skipped"
           (databaseUrlEnvVarName ++ " is set in your environment, and that database might not be a throwaway dev database.")
 
@@ -121,14 +121,14 @@ migrateDbForNewProject absWaspProjectDir =
         (liftIO $ setCurrentDirectory originalDir)
         action
 
-    warnAboutFailedMigration commandError = do
+    warnAboutFailedMigration migrationError = do
       cliWriteRawOutputC Stdout
         $ (++ "\n")
         $ TextStyle.applyStyles [TextStyle.Yellow]
         $ "Warning: The project was created, but its database wasn't migrated.\n"
-          ++ _errorTitle commandError
+          ++ _headline migrationError
           ++ ": "
-          ++ _errorMsg commandError
+          ++ errorMessage migrationError
           ++ "\n"
       return False
 

@@ -7,7 +7,7 @@ import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Data.Maybe (catMaybes, isJust)
 import Network.Socket (PortNumber)
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, commandError)
 import Wasp.Cli.Port (resolvePort)
 import Wasp.Cli.ProjectRunConfig (defaultDevClientPort)
 
@@ -40,4 +40,4 @@ findProjectPorts (requestedClientPort, requestedServerPort) = do
   where
     noFreePortRemediation = "Free up some ports, or choose them yourself with --client-port and --server-port."
 
-    throwResolvingError = throwError . CommandError "Failed to find ports"
+    throwResolvingError = throwError . commandError "Failed to find ports"

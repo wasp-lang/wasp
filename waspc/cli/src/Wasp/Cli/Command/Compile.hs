@@ -9,8 +9,7 @@ module Wasp.Cli.Command.Compile
     compileIOWithOptions,
     defaultCompileOptions,
     withSetupGoals,
-    reportCompilationResult,
-    reportWarningsAndErrorsIfAny,
+    reportSuccessfulCompile,
     analyze,
     analyzeWithOptions,
     analyzeWithDiagnosticsOnStderr,
@@ -20,13 +19,11 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.List (intercalate)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import System.Exit (exitFailure)
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
+import Wasp.Cli.Command (Command, commandError, compilationWarningsTitle, compileCommandError, failCommandWithoutError, formatErrorOrWarningMessages, getConsole, reportCompileWarnings, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
@@ -92,53 +89,25 @@ compileWithOptions options = do
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   compileResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
-  let (warnings, errors) = compileResultWarningsAndErrors compileResult
-
-  console <- getConsole
-  liftIO $ reportCompilationResult console.reporter (warnings, errors)
+  let (warnings, _errors) = compileResultWarningsAndErrors compileResult
   case _compileOutcome compileResult of
-    Right appSpec -> return (warnings, appSpec)
+    Right appSpec -> do
+      console <- getConsole
+      liftIO $ reportSuccessfulCompile console.reporter warnings
+      return (warnings, appSpec)
     Left compileErrors ->
-      throwError
-        $ CommandError "Compilation of wasp project failed"
-        $ show (length compileErrors) ++ " errors found"
+      throwError $
+        compileCommandError
+          "Compilation of wasp project failed"
+          (show (length compileErrors) ++ " errors found")
+          compileErrors
+          warnings
 
--- | Given any compile warnings and errors, prints information about how compilation went:
--- reports it as success if there was no errors, or if a failure if there were errors,
--- also shows any warnings (and errors), ... .
--- Normally you will want to call this function after compile step is done and you want
--- to report to user how it went.
-reportCompilationResult :: Reporter -> ([CompileWarning], [CompileError]) -> IO ()
-reportCompilationResult reporter (warns, errs) = do
-  if null errs
-    then reporter.send $ Msg.Success "Your wasp project has successfully compiled."
-    else reportErrorsIfAny reporter errs
-  reportWarningsIfAny reporter warns
-
-reportWarningsAndErrorsIfAny :: Reporter -> ([CompileWarning], [CompileError]) -> IO ()
-reportWarningsAndErrorsIfAny reporter (warns, errs) = do
-  reportWarningsIfAny reporter warns
-  reportErrorsIfAny reporter errs
-
-reportWarningsIfAny :: Reporter -> [CompileWarning] -> IO ()
-reportWarningsIfAny reporter warns = do
-  unless (null warns)
-    $ reporter.send
-    $ Msg.Warning compilationWarningsTitle
-    $ formatErrorOrWarningMessages warns
-
-reportErrorsIfAny :: Reporter -> [CompileError] -> IO ()
-reportErrorsIfAny reporter errs = do
-  unless (null errs)
-    $ reporter.send
-    $ Msg.Failure "Your wasp project failed to compile"
-    $ formatErrorOrWarningMessages errs
-
-formatErrorOrWarningMessages :: [String] -> String
-formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
-
-compilationWarningsTitle :: String
-compilationWarningsTitle = "Your wasp project reported following warnings during compilation"
+-- | Reports that the compilation went well, followed by any warnings it had.
+reportSuccessfulCompile :: Reporter -> [CompileWarning] -> IO ()
+reportSuccessfulCompile reporter warnings = do
+  reporter.send $ Msg.Success "Your wasp project has successfully compiled."
+  reportCompileWarnings reporter warnings
 
 analysisErrorsTitle :: [CompileError] -> String
 analysisErrorsTitle errors = "Analyzing wasp project failed, " <> show (length errors) <> " errors found"
@@ -186,17 +155,17 @@ analyzeWithOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> Comman
 analyzeWithOptions waspProjectDir options = do
   (appSpecOrErrors, warnings) <- liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir options
   console <- getConsole
-  liftIO $ reportWarningsIfAny console.reporter warnings
+  liftIO $ reportCompileWarnings console.reporter warnings
   case appSpecOrErrors of
     Left errors ->
       throwError $
-        CommandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+        commandError (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
     Right spec -> return spec
 
 -- | Like 'analyze', but keeps stdout free for machine-readable output:
 -- compile warnings and errors go to stderr instead ('analyze'
--- sends them as messages, through the reporter). Exits with a failure code on
--- compile errors, bypassing 'CommandError' for the same reason.
+-- sends them as messages, through the reporter). Fails without a 'CommandError' on
+-- compile errors, for the same reason.
 analyzeWithDiagnosticsOnStderr :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
 analyzeWithDiagnosticsOnStderr waspProjectDir = do
   console <- getConsole
@@ -210,7 +179,7 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
     Left errors ->
       liftIO $ do
         printDiagnosticToStderr console.writeRawOutput (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
-        exitFailure
+        failCommandWithoutError
 
 printDiagnosticToStderr :: WriteOutput -> String -> String -> IO ()
 printDiagnosticToStderr writeRawOutput diagnosticTitle body =

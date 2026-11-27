@@ -7,7 +7,7 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
-import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
+import Wasp.Cli.Command (Command, commandError, getConsole, require)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
@@ -25,7 +25,7 @@ install = ProjectLock.acquireExclusive $ do
   console <- getConsole
   liftIO (installIO console.writeRawOutput waspProjectDir)
     >>= either
-      (throwError . CommandError "Couldn't install npm dependencies")
+      (throwError . commandError "Couldn't install npm dependencies")
       return
 
 installIO :: WriteOutput -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())

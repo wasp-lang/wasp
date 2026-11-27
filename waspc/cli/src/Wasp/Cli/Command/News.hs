@@ -21,7 +21,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command, CommandError (..), getConsole)
+import Wasp.Cli.Command (Command, commandError, getConsole)
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Listing
   ( NewsListing (..),
@@ -34,7 +34,7 @@ import Wasp.Util (checkIfOnCi, whenM)
 
 news :: Command ()
 news = do
-  newsEntries <- either (throwError . CommandError "Getting Wasp news failed") pure =<< liftIO fetchNews
+  newsEntries <- either (throwError . commandError "Getting Wasp news failed") pure =<< liftIO fetchNews
   console <- getConsole
   liftIO $ do
     localNewsState <- loadLocalNewsState

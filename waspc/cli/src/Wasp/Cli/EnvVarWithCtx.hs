@@ -18,7 +18,7 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import StrongPath (Abs, File, Path')
 import System.Environment (getEnvironment)
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, commandError)
 import Wasp.Cli.Util.EnvVarArgument (EnvVarArgument (..))
 import Wasp.Cli.Util.PathArgument (getFilePath)
 import Wasp.Env (EnvVar, EnvVarName, addEnvVarsUnique, parseDotEnvFile)
@@ -59,7 +59,7 @@ addEnvVarsUniqueC incomingEnvVarSources existing =
 throwOverriddenVarsError :: [EnvVarWithCtx] -> Set EnvVarName -> Command a
 throwOverriddenVarsError envVarsWithCtx overriddenNames =
   throwError
-    $ CommandError "Can't override managed environment variables"
+    $ commandError "Can't override managed environment variables"
     $ "You specified the following environment variables, but Wasp sets them: "
       ++ intercalate ", " (showEnvVarWithCtx <$> overriddenEnvVars)
       ++ ". Please remove them so they don't cause conflicts when running."
