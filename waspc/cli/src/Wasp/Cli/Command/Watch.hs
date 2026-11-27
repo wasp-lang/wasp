@@ -22,7 +22,6 @@ import Wasp.Cli.ProjectLock.Data (WatcherStatus (..))
 import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
-import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import Wasp.Project.Common (srcDirInWaspProjectDir)

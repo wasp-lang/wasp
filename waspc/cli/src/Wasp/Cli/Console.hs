@@ -6,7 +6,6 @@ where
 
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
-import qualified Wasp.Job as Job
 import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
 -- | Everything the CLI uses to talk to the user. There is a single one, created

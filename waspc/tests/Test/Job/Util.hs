@@ -4,7 +4,6 @@ module Test.Job.Util
 where
 
 import qualified Data.Text.IO as T.IO
-import qualified Wasp.Job as Job
 import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Writes all of the jobs' output to the test's stdout.

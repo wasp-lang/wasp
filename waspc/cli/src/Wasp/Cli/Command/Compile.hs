@@ -38,7 +38,6 @@ import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
-import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileResult (..), CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
 import qualified Wasp.Project

@@ -13,7 +13,6 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Console (Console (..))
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
-import qualified Wasp.Job as Job
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.IO.Process (WriteOutput)

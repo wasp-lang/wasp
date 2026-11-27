@@ -46,7 +46,6 @@ import Wasp.Generator.Monad
     GeneratorWarning (GeneratorNeedsMigrationWarning),
     logAndThrowGeneratorError,
   )
-import qualified Wasp.Job as Job
 import Wasp.Project.Db (validDbUrlExprForPrismaSchema)
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.ConfigBlock as Psl.Ast.ConfigBlock
