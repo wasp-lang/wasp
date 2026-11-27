@@ -92,7 +92,7 @@ export function mapQuerySpec(
   query: WaspSpec.Query,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Query"> {
-  const { fn, entities, auth } = query;
+  const { fn, entities, auth, expose } = query;
   return {
     declType: "Query",
     declValue: {
@@ -100,6 +100,7 @@ export function mapQuerySpec(
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
       auth,
+      expose: expose && mapExpose(expose),
     },
   };
 }
@@ -108,7 +109,7 @@ export function mapActionSpec(
   action: WaspSpec.Action,
   ctx: AppMapperContext,
 ): AppSpec.GetDeclForType<"Action"> {
-  const { fn, entities, auth } = action;
+  const { fn, entities, auth, expose } = action;
   return {
     declType: "Action",
     declValue: {
@@ -116,8 +117,14 @@ export function mapActionSpec(
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
       auth,
+      expose: expose && mapExpose(expose),
     },
   };
+}
+
+export function mapExpose(expose: WaspSpec.Expose): AppSpec.Expose {
+  const { client } = expose;
+  return { client };
 }
 
 export function mapApiSpec(

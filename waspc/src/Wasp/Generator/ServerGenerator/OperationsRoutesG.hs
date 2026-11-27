@@ -34,8 +34,8 @@ import qualified Wasp.Util as U
 genOperationsRoutes :: AppSpec -> Generator [FileDraft]
 genOperationsRoutes spec =
   sequence . concat $
-    [ map genActionRoute (AS.getActions spec),
-      map genQueryRoute (AS.getQueries spec),
+    [ map genActionRoute (filter (AS.Operation.isExposedToClient . AS.Operation.ActionOp) $ AS.getActions spec),
+      map genQueryRoute (filter (AS.Operation.isExposedToClient . AS.Operation.QueryOp) $ AS.getQueries spec),
       [genOperationsRouter spec]
     ]
 
@@ -103,9 +103,11 @@ genOperationsRouter spec
   where
     tmplFile = C.asTmplFile [relfile|src/routes/operations/index.js|]
     dstFile = operationsRoutesDirInServerRootDir </> [relfile|index.js|]
+    -- `expose.client: false` operations get no route: only server code calls them.
     operations =
-      map AS.Operation.ActionOp (AS.getActions spec)
-        ++ map AS.Operation.QueryOp (AS.getQueries spec)
+      filter AS.Operation.isExposedToClient $
+        map AS.Operation.ActionOp (AS.getActions spec)
+          ++ map AS.Operation.QueryOp (AS.getQueries spec)
     tmplData =
       object
         [ "operationRoutes" .= map makeOperationRoute operations,

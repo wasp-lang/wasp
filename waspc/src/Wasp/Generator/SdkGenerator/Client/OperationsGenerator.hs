@@ -56,7 +56,7 @@ genQueriesIndex spec =
   where
     tmplData =
       object
-        [ "queries" .= map getQueryData (AS.getQueries spec)
+        [ "queries" .= map getQueryData (filter (AS.Operation.isExposedToClient . AS.Operation.QueryOp) $ AS.getQueries spec)
         ]
 
 genActionsIndex :: AppSpec -> Generator FileDraft
@@ -68,7 +68,7 @@ genActionsIndex spec =
   where
     tmplData =
       object
-        [ "actions" .= map getActionData (AS.getActions spec)
+        [ "actions" .= map getActionData (filter (AS.Operation.isExposedToClient . AS.Operation.ActionOp) $ AS.getActions spec)
         ]
 
 getQueryData :: AS.Query.Query -> Aeson.Value

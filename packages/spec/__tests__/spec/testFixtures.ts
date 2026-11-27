@@ -110,6 +110,7 @@ export function getQuery(scope: ConfigScope): Config<WaspSpec.Query> {
       return query(getRefObject("full", "named"), {
         entities: ["Task"],
         auth: true,
+        expose: getExposeConfig("full"),
       });
     default:
       assertUnreachable(scope);
@@ -127,7 +128,22 @@ export function getAction(scope: ConfigScope): Config<WaspSpec.Action> {
       return action(getRefObject("full", "named"), {
         entities: ["Task"],
         auth: true,
+        expose: getExposeConfig("full"),
       });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getExposeConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, WaspSpec.Expose>;
+export function getExposeConfig(scope: ConfigScope): Config<WaspSpec.Expose> {
+  switch (scope) {
+    case "minimal":
+      return {} satisfies MinimalConfig<WaspSpec.Expose>;
+    case "full":
+      return { client: false } satisfies FullConfig<WaspSpec.Expose>;
     default:
       assertUnreachable(scope);
   }

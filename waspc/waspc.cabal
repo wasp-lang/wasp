@@ -180,6 +180,7 @@ library
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Crud
     Wasp.AppSpec.Entity
+    Wasp.AppSpec.Expose
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Identifier
     Wasp.AppSpec.Inspectable
