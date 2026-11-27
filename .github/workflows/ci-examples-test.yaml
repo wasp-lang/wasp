@@ -30,6 +30,10 @@ jobs:
           persist-credentials: false
       - uses: $/.github/actions/setup-tools
 
+      - name: Check Wasp library entries in the example lockfile
+        working-directory: examples/${{ matrix.example }}
+        run: node "$GITHUB_WORKSPACE/scripts/check-example-lockfile.mjs"
+
       - uses: $/.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
