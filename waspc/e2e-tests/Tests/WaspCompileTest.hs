@@ -8,6 +8,7 @@ import ShellCommands
     ShellCommandBuilder,
     WaspProjectContext (..),
     appendToFile,
+    appendToPrismaFile,
     assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
@@ -18,6 +19,9 @@ import ShellCommands
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.OptionalFeatureNpmDeps.Common (OptionalFeatureNpmDeps (..))
+import Wasp.Generator.SdkGenerator.Server.AuthG (authNpmDeps)
 
 waspCompileTest :: Test
 waspCompileTest =
@@ -92,9 +96,32 @@ waspCompileTest =
                   waspCliCompile
                 ]
             ]
+        ),
+      TestCase
+        "fail-until-feature-packages-are-installed"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile prismaUserModel,
+                  replaceMainWaspTsFile mainWaspTsWithAuth,
+                  assertCommandFailsWith
+                    "npm install \"lucia@"
+                    waspCliCompile,
+                  -- Lists the auth packages without installing them.
+                  return $ unwords $ "npm pkg set" : map listInDependencies (dependencies authNpmDeps),
+                  assertCommandFailsWith
+                    "not installed: lucia"
+                    waspCliCompile,
+                  return "npm install",
+                  waspCliCompile
+                ]
+            ]
         )
     ]
   where
+    listInDependencies :: Npm.Dependency.Dependency -> String
+    listInDependencies dep = "'dependencies." ++ Npm.Dependency.name dep ++ "=" ++ Npm.Dependency.version dep ++ "'"
+
     waspCliCompileFails :: ShellCommand
     waspCliCompileFails = "! $WASP_CLI_CMD compile"
 
@@ -132,6 +159,34 @@ waspCompileTest =
             return <div>{tasks?.map((task) => <p key={task.id}>{task.id}</p>)}</div>;
           }
         |]
+
+    prismaUserModel :: T.Text
+    prismaUserModel =
+      [trimming|
+        model User {
+          id Int @id @default(autoincrement())
+        }
+      |]
+
+    mainWaspTsWithAuth :: T.Text
+    mainWaspTsWithAuth =
+      [trimming|
+        import { app, page, route } from "@wasp/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+
+        export default app({
+          name: "featurePackages",
+          title: "Feature packages",
+          auth: {
+            userEntity: "User",
+            methods: {
+              usernameAndPassword: {},
+            },
+            onAuthFailedRedirectTo: "/",
+          },
+          spec: [route("RootRoute", "/", page(MainPage))],
+        });
+      |]
 
     mainWaspTsWithQuery :: T.Text
     mainWaspTsWithQuery =
