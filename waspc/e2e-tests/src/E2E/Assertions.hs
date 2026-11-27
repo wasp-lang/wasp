@@ -8,6 +8,7 @@ module E2E.Assertions
   ( module Test.Hspec.Expectations.Lifted,
     assertOutputContains,
     assertStdoutContains,
+    assertFailsWithoutInteractiveTerminal,
     assertExitsSuccessfully,
     assertExitsWithFailure,
     assertDirectoryExists,
@@ -20,7 +21,8 @@ where
 import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
-import E2E.Process (ExpectedExit (..), ProcessResult (..), RunningProcess, failOnUnexpectedExit, failWithResult, readResult, waitForExit)
+import E2E.Command (Command)
+import E2E.Process (ExpectedExit (..), ProcessResult (..), RunningProcess, failOnUnexpectedExit, failWithResult, readResult, runExpectingFailure, waitForExit)
 import E2E.TestM (TestM, failTest, resolvePath)
 import System.Directory (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
 import Test.Hspec.Expectations.Lifted hiding (HasCallStack)
@@ -38,6 +40,15 @@ assertStdoutContains :: T.Text -> ProcessResult -> TestM ()
 assertStdoutContains expectedText result =
   unless (expectedText `T.isInfixOf` result.stdout) $
     failWithResult result ("didn't print " ++ show expectedText ++ " to stdout")
+
+-- | Asserts that a command that needs to prompt fails when stdin is not an
+-- interactive terminal, and prints its usage so the user can pass the answers
+-- as arguments instead.
+assertFailsWithoutInteractiveTerminal :: String -> Command -> TestM ()
+assertFailsWithoutInteractiveTerminal commandName cmd = do
+  result <- runExpectingFailure cmd
+  assertOutputContains "stdin is not an interactive terminal" result
+  assertOutputContains (T.pack $ "Usage: " ++ commandName) result
 
 -- | Waits for the process to exit, but at most for the given number of
 -- seconds, and fails the test with its output if it doesn't exit in time or

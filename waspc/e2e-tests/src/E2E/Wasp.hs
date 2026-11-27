@@ -4,7 +4,6 @@ module E2E.Wasp
     wasp,
     waspFails,
     waspFailsOutsideProject,
-    assertFailsWithoutInteractiveTerminal,
     waspCliNew,
     createWaspProject,
     withNewWaspProject,
@@ -67,15 +66,6 @@ waspFails = runExpectingFailure . waspCli
 waspFailsOutsideProject :: [String] -> TestM ()
 waspFailsOutsideProject arguments =
   waspFails arguments >>= assertOutputContains "Couldn't find wasp project root"
-
--- | Asserts that a command that needs to prompt fails when stdin is not an
--- interactive terminal, and prints its usage so the user can pass the answers
--- as arguments instead.
-assertFailsWithoutInteractiveTerminal :: String -> Command -> TestM ()
-assertFailsWithoutInteractiveTerminal commandName cmd = do
-  result <- runExpectingFailure cmd
-  assertOutputContains "stdin is not an interactive terminal" result
-  assertOutputContains (T.pack $ "Usage: " ++ commandName) result
 
 -- | Creates the Wasp project in 'waspAppDirName'.
 waspCliNew :: StarterTemplate -> Command
