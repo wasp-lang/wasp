@@ -1,0 +1,4 @@
+[terminal]
+wasp-cli: COMP_LINE: getEnv: does not exist (no environment variable)
+[exit code]
+1

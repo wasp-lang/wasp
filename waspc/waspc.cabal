@@ -732,6 +732,7 @@ test-suite waspc-e2e-tests
     Tests.SnapshotTests.WaspCompileSnapshotTest
     Tests.SnapshotTests.WaspMigrateSnapshotTest
     Tests.SnapshotTests.WaspNewSnapshotTest
+    Tests.TranscriptTests
     Tests.ViteBuildTest
     Tests.ViteConfigTest
     Tests.VitestTest
@@ -758,3 +759,6 @@ test-suite waspc-e2e-tests
     Tests.WaspTelemetryTest
     Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest
+    TranscriptTest
+    TranscriptTest.Normalization
+    TranscriptTest.Recording

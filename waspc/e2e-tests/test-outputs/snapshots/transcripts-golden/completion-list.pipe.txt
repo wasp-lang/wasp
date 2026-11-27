@@ -1,0 +1,22 @@
+[stdout]
+new
+help
+version
+doctor
+completion
+uninstall
+start
+db
+clean
+compile
+build
+deploy
+telemetry
+deps
+dockerfile
+show
+studio
+
+[stderr]
+[exit code]
+0

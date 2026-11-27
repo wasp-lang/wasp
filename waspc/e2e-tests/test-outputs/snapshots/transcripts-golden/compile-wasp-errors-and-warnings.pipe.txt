@@ -1,0 +1,22 @@
+[stdout]
+<ESC>[33m
+🐝 --- Compiling wasp project... --------------------------------------------------
+<ESC>[0m
+<ESC>[31m
+
+❌ --- [Error] Your wasp project failed to compile: -------------------------------
+
+- You must have at least one route in your app. You can add it using the 'route' declaration.<ESC>[0m
+<ESC>[35m
+
+👀 --- [Warning] Your wasp project reported following warnings during compilation: ---
+
+- Wasp .env files should be named .env.server or .env.client, depending on their use.<ESC>[0m
+<ESC>[31m
+
+❌ --- [Error] Compilation of wasp project failed: --------------------------------
+
+1 errors found<ESC>[0m
+[stderr]
+[exit code]
+1

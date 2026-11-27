@@ -1,0 +1,39 @@
+[terminal]
+<ESC>[33m
+🐝 --- Compiling wasp project... --------------------------------------------------
+<ESC>[0m
+
+<ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
+<ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m <ESC>[1m<ESC>[31m!<ESC>[0m<ESC>[33m]<ESC>[0m <output>
+<ESC>[33m
+✅ --- Successfully completed npm install. ----------------------------------------
+<ESC>[0m
+<ESC>[33m
+🐝 --- Generating Prisma client... ------------------------------------------------
+<ESC>[0m
+<ESC>[33m
+✅ --- Prisma client is up to date. -----------------------------------------------
+<ESC>[0m
+<ESC>[33m
+🐝 --- Building SDK... ------------------------------------------------------------
+<ESC>[0m
+<ESC>[33m
+✅ --- SDK built successfully. ----------------------------------------------------
+<ESC>[0m
+<ESC>[33m
+🐝 --- Type-checking user code... -------------------------------------------------
+<ESC>[0m
+
+<ESC>[33m[<ESC>[0m  <ESC>[33mWasp<ESC>[0m  <ESC>[33m]<ESC>[0m <output>
+<ESC>[31m
+
+❌ --- [Error] Your wasp project failed to compile: -------------------------------
+
+- User code type-check failed with exit code: 2<ESC>[0m
+<ESC>[31m
+
+❌ --- [Error] Compilation of wasp project failed: --------------------------------
+
+1 errors found<ESC>[0m
+[exit code]
+1
