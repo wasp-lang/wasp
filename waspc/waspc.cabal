@@ -397,7 +397,6 @@ library
     Wasp.Util.GitRev
     Wasp.Util.Glob
     Wasp.Util.InstallMethod
-    Wasp.Util.Interactive
     Wasp.Util.IO
     Wasp.Util.IO.Process
     Wasp.Util.IO.Retry
