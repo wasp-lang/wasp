@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RankNTypes #-}
 
 module Wasp.Cli.Console.Prompter
@@ -14,7 +15,46 @@ import Data.Functor ((<&>))
 import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe (fromMaybe)
 import System.Timeout (timeout)
-import Wasp.Util.Interactive (IsOption (..), Option (..))
+
+{-
+  Why are we doing this?
+  Using a list of Strings for options results in the Strings being wrapped in quotes
+  when printed.
+
+  What we want to avoid:
+    Choose an option:
+    - "one"
+    - "two"
+
+  What we want:
+    Choose an option:
+    - one
+    - two
+
+  We want to avoid this so users can type the name of the option when answering
+  without having to type the quotes as well.
+
+  We introduced the IsOption class to get different "show" behavior for Strings and other
+  types. If we are using something other then String, an instance of IsOption needs to be defined,
+  but for Strings it just returns the String itself.
+-}
+class IsOption o where
+  showOption :: o -> String
+  showOptionDescription :: o -> Maybe String
+
+instance IsOption [Char] where
+  showOption = id
+  showOptionDescription = const Nothing
+
+data Option o = Option
+  { oDisplayName :: !String,
+    oDescription :: !(Maybe String),
+    oValue :: !o
+  }
+
+instance IsOption (Option o) where
+  showOption = oDisplayName
+  showOptionDescription = oDescription
 
 -- | Asks the user questions and reads the answers. It exists only when there
 -- is a user to answer them.
