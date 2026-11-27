@@ -38,7 +38,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "semver": "catalog:"
+    "semver": "^7.7.3"
   },
   "devDependencies": {
     "@types/node": "catalog:",
