@@ -22,5 +22,5 @@ initConsole =
   return
     Console
       { reporter = makeTerminalReporter,
-        writeRawOutput = Terminal.writeJobOutput
+        writeRawOutput = Terminal.writeRawOutput
       }

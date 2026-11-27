@@ -3,7 +3,7 @@
 -- to build what the console hands out to the rest of the code.
 module Wasp.Cli.Console.Internal.Terminal
   ( writeLine,
-    writeJobOutput,
+    writeRawOutput,
   )
 where
 
@@ -15,8 +15,8 @@ import Wasp.Util.IO.Process (OutputStream (..))
 writeLine :: String -> IO ()
 writeLine = putStrLn
 
-writeJobOutput :: OutputStream -> T.Text -> IO ()
-writeJobOutput outputStream output = T.IO.hPutStr outputHandle output >> hFlush outputHandle
+writeRawOutput :: OutputStream -> T.Text -> IO ()
+writeRawOutput outputStream output = T.IO.hPutStr outputHandle output >> hFlush outputHandle
   where
     outputHandle = getOutputStreamHandle outputStream
 
