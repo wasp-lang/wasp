@@ -71,7 +71,7 @@ e2e-tests/
 
 ## Writing tests
 
-Tests are written in plain Haskell with the `E2E` module, which runs commands as processes (no shell) and checks their results:
+Tests are written in Haskell using the `E2E` module (`src/E2E.hs`):
 
 ```haskell
 test_waspStart :: TestTree
@@ -83,7 +83,7 @@ test_waspStart =
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
           ports <- allocateAppPorts
-          app <- startInBackground $ waspCli ("start" : appPortArgs ports)
+          app <- startInBackground $ waspCli ["start", "--client-port", show ports.clientPort, "--server-port", show ports.serverPort]
           waitUntilListening app (appPortList ports) appStartTimeoutSeconds
           getWaspPidFromLockFile >>= signalPid SIGINT
           waitUntilStopped app (appPortList ports)
@@ -93,45 +93,21 @@ test_waspNewSnapshot :: TestTree
 test_waspNewSnapshot = snapshotTest "wasp-new" $ createWaspProject minimalStarterTemplate
 ```
 
-- Tests are found with [tasty-discover](https://github.com/haskell-works/tasty-discover): every `test_<name> :: TestTree` in a `Tests/*Test.hs` module is a test, and in a `Tests/SnapshotTests/*Test.hs` one a snapshot test, so there's no list to add a new one to. The cabal file still lists the module.
-
-  - The Haskell sources live in `src/` because tasty-discover walks the whole directory of its driver module on every build, and `test-outputs/` can hold hundreds of thousands of files.
-
-- Each test runs in its own directory, `test-outputs/<group>/<test>/`, and logs every command it runs and its output to `output.log` there. Snapshot tests log to `test-outputs/snapshots/<name>.log`. The run fails at the start if two tests would share a directory, or if a test or group name isn't a single directory name.
-- When a step fails, the test's failure message says which command failed and shows the last lines of its output.
-- JSON that a command prints or a file holds is decoded with `decodeStdoutJson` or `readJsonFile` into a data type that derives `Generic` and `FromJSON` and has only the fields the test checks. The checks are then expectations on its fields.
-- Long tests label their phases with `step "<what it checks>" $ do ...`. The label is logged as a header, and a failure in the phase starts with it.
-- Processes started with `startInBackground` are stopped when the test ends, however it ends.
-- Tests that run an app get free ports from `allocateAppPorts` (or `allocatePort`, for a command that takes a single port), so they can run in parallel, also with the tests of other checkouts. Tests that can't run at the same time go in a `sequentialTestGroup`.
-- Tests that need Docker are made with `dockerTest` instead of `test`, and pass without running when Docker is disabled. Snapshot tests must produce a snapshot, so they use `whenDockerEnabled` for their Docker steps.
-- Resources outside the test directory, like Docker images, get a name from `makeUniqueName`, so tests of other checkouts can't use the same one, and a `registerCleanupStep` that removes them, registered before the step that creates them. Cleanup steps run when the test ends and can't fail it: a failing one is reported in the log and on stderr, so make them tolerate resources that are already gone. Nothing can cut a hung cleanup short, so give their commands the short `cleanupCommandTimeoutSeconds` (`dockerCleanup` does).
-- The names of a Wasp project's files and dirs come from `E2E/Wasp.hs` (e.g. `mainWaspTsFile`, `prismaSchemaFile`, `nodeModulesDir`), and the starter's from `Tests/Fixtures.hs` (e.g. `starterMainPageFile`). A name a test makes up and uses more than once (e.g. an env var, a migration) is a named value too.
-- Timeouts and other tuning numbers are named constants (e.g. `failFastTimeoutSeconds`, `settleTimeoutSeconds`), defined once in `E2E/` when more than one module uses them for the same reason.
-
-### Where helpers go
-
-A helper that isn't specific to one test goes in `E2E/`, in the module for what it's about:
-
-- `E2E/TestTree.hs`: the tasty tree, built before any test runs: declaring tests (`test`, `skippedTest`) and the groups they go in, the directory each one runs in, and the checks the run makes on them before they start.
-- `E2E/TestM.hs`: what runs inside a test: the test monad, `TestM`, and what every step can do: fail, label a phase (`step`), log, run in a directory, register cleanups, and make unique names.
-- `E2E/Wait.hs`: waiting until something holds (`waitUntil`), and how long waits take.
-- `E2E/SuiteEnv.hs`: what all the tests of a run share: settings from env vars, and allocated ports.
-- `E2E/Command.hs`: describing commands, and the timeouts commands run with (e.g. `cleanupCommandTimeoutSeconds`). Timeouts of waits sit next to the wait they're for.
-- `E2E/Process.hs`: running commands and everything about a process's life (output, exit, signals).
-- `E2E/Ports.hs`, `E2E/Net.hs`: allocating ports, and waiting for a process to listen on them or to stop listening (`waitUntilStopped`).
-- `E2E/Docker.hs`: Docker commands, and tests and steps that need Docker.
-- `E2E/Wasp.hs`: wrappers around Wasp CLI commands and the tools a Wasp project runs (e.g. `viteBuildCommand`), and facts about Wasp projects (e.g. their migrations dirs).
-- `E2E/Assertions.hs`, `E2E/Files.hs`: generic checks and file system steps. `shouldBe` and `expectationFailure` are hspec's expectations, the ones the unit tests use. Any other hspec expectation or HUnit assertion works in a step too (with `liftIO`): its failure says where it failed.
-
-A helper that only makes sense for one test's scenario stays in that test's module, even if it's built from generic steps. A generic helper goes in `E2E/` even if only one test uses it so far. Steps that write app content (models, TS files) shared by several tests go in `Tests/Fixtures.hs`.
+- To add a test, export `test_<name> :: TestTree` from a `src/Tests/*Test.hs` module (or `src/Tests/SnapshotTests/*Test.hs` for snapshot tests) and list the module in `waspc/waspc.cabal`.
+- Tests run in parallel by default. Allocate free ports with `allocateAppPorts` / `allocatePort`, or wrap tests that can't overlap in `sequentialTestGroup`.
+- Processes started with `startInBackground` are stopped automatically when a test ends. For external resources (like Docker containers or images), use `makeUniqueName` and register teardown before creation with `registerCleanupStep` (use `dockerCleanup` for Docker).
+- Use `dockerTest` instead of `test` for tests that require Docker, or `whenDockerEnabled` inside snapshot tests.
+- Use `E2E`'s assertions (`shouldBe`, `assertOutputContains`, `assertFileExists`, etc.) for checks, and `step` to label phases in longer tests.
+- Put reusable helpers in `src/E2E/` (and re-export them from `src/E2E.hs`), shared test app fixtures in `src/Tests/Fixtures.hs`, and test-specific helpers in the test module.
 
 ## Running tests
 
-- `mise run test:waspc:e2e` runs all of the tests.
-- `mise run test:waspc:e2e "<pattern>"` runs only the tests that match the [tasty pattern](https://github.com/UnkindPartition/tasty#patterns), e.g. `"/wasp-start/"`.
-- `mise run test:waspc:e2e:accept-all` runs all of the tests, replaces the golden snapshots that differ from the current ones, and creates the missing ones. Pass `--accept` to `test:waspc:e2e` to do that only for the tests that match a pattern.
-  - It doesn't delete golden snapshots that no test uses anymore (e.g. of a removed test), or files that became ignored in the golden snapshots. Delete those by hand.
-- Without `--accept`, a missing golden snapshot fails the test (the task passes tasty-golden's `--no-create`), so a new snapshot test needs `--accept` once to create its golden snapshot.
-- `WASP_CLI_CMD` sets the Wasp CLI under test. It must be a single executable (a path, or a program in `PATH`), since tests run it without a shell. By default, it's `tools/wasp-cli-dev`, which runs the current waspc source.
-- `WASP_E2E_TEST_MAX_JOBS` (a positive integer) limits how many tests run at once.
-- `WASP_E2E_TESTS_SKIP_DOCKER=1` skips the tests that need Docker (they pass, and the run says so when it starts). Unset, empty, or `0` runs them. Any other value fails the run.
+- `mise run test:waspc:e2e` runs all tests.
+- `mise run test:waspc:e2e "<pattern>"` runs tests matching a [pattern](https://github.com/UnkindPartition/tasty#patterns), e.g. `"/wasp-start/"`.
+- `mise run test:waspc:e2e:accept-all` creates or updates all golden snapshots (pass `--accept` to `test:waspc:e2e` to update a subset). Removed snapshots and newly ignored files must be deleted manually.
+
+Environment variables:
+
+- `WASP_CLI_CMD`: overrides the Wasp CLI executable under test (must be a single executable; defaults to `tools/wasp-cli-dev`).
+- `WASP_E2E_TEST_MAX_JOBS`: limits how many tests run in parallel.
+- `WASP_E2E_TESTS_SKIP_DOCKER=1`: skips tests that require Docker.

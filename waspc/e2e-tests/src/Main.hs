@@ -27,7 +27,6 @@ main = do
             setTestSuiteEnv testSuiteEnv . maybe id (localOption . NumThreads) testSuiteEnv.maxJobs $
               testGroup
                 "E2E tests"
-                -- Tasty starts the tests in order, so the slowest ones go first.
                 [renameGroup "Snapshot Tests" snapshotTests, renameGroup "Tests" tests]
       checkOutputDirs testTree
       -- Runs before tasty parses its options, so also for e.g. `--list-tests`.
