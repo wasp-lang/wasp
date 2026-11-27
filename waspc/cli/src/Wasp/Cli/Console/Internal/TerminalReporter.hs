@@ -43,13 +43,13 @@ renderMessage (Msg.Warning title msg) =
   waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
 
 waspSays :: String -> String
-waspSays = TextStyle.styleMessage
+waspSays what = TextStyle.styleMessage what
 
 waspWarns :: String -> String
-waspWarns = TextStyle.styleNotice
+waspWarns what = TextStyle.styleNotice what
 
 waspScreams :: String -> String
-waspScreams = TextStyle.styleError
+waspScreams what = TextStyle.styleError what
 
 asWaspStartMessage :: String -> String
 asWaspStartMessage = waspMessageWithEmoji "🐝"
