@@ -39,8 +39,8 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Util (indent)
-import Wasp.Util.Terminal (styleCode)
-import qualified Wasp.Util.Terminal as Term
+import Wasp.Util.TextStyle (styleCode)
+import qualified Wasp.Util.TextStyle as TextStyle
 
 -- | It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
@@ -83,7 +83,7 @@ installDepsForNewProject absWaspProjectDir =
     Right () -> return True
     Left _err -> do
       putStrLn $
-        Term.applyStyles [Term.Yellow] "Warning: The project was created, but dependency installation failed.\n"
+        TextStyle.applyStyles [TextStyle.Yellow] "Warning: The project was created, but dependency installation failed.\n"
       return False
 
 -- | Creates and applies the project's initial migration, so users can run the
@@ -120,7 +120,7 @@ migrateDbForNewProject absWaspProjectDir =
     warnAboutFailedMigration commandError = do
       liftIO
         $ putStrLn
-        $ Term.applyStyles [Term.Yellow]
+        $ TextStyle.applyStyles [TextStyle.Yellow]
         $ "Warning: The project was created, but its database wasn't migrated.\n"
           ++ _errorTitle commandError
           ++ ": "
@@ -140,6 +140,6 @@ printExtraInstructionsForProject :: [String] -> IO ()
 printExtraInstructionsForProject [] = return ()
 printExtraInstructionsForProject steps =
   putStrLn
-    $ Term.applyStyles [Term.Yellow]
+    $ TextStyle.applyStyles [TextStyle.Yellow]
     $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
       ++ concatMap (\step -> indent 4 (styleCode step) ++ "\n") steps

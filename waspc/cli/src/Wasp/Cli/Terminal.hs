@@ -8,10 +8,10 @@ module Wasp.Cli.Terminal
   )
 where
 
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 title :: String -> String
-title = Term.applyStyles [Term.Bold]
+title = TextStyle.applyStyles [TextStyle.Bold]
 
 asWaspMessage :: String -> String
 asWaspMessage = waspMessageWithEmoji ""

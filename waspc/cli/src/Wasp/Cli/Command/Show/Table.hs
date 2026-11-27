@@ -11,7 +11,7 @@ import Data.Maybe (fromMaybe, mapMaybe)
 import Wasp.Cli.Terminal (title)
 import Wasp.Inspectable (InspectionDatapoint, InspectionEntry (..))
 import Wasp.Util (alignColumns)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 -- | Renders inspection entries as per-category tables: entries are grouped by
 -- their heading, and each group becomes a table with one row per entry.
@@ -61,4 +61,4 @@ orderedGroupWith fk fv xs =
 underlineFirstRow :: [String] -> [String]
 underlineFirstRow [] = []
 underlineFirstRow (firstRow : rest) =
-  Term.applyStyles [Term.Underline] firstRow : rest
+  TextStyle.applyStyles [TextStyle.Underline] firstRow : rest

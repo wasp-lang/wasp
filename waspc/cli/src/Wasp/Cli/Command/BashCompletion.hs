@@ -10,7 +10,7 @@ import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.Show as Command.Show
 import qualified Wasp.Cli.Command.Show.Subcommand as Command.Show.Subcommand
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 
 -- generate bash completion depending on commands input
 bashCompletion :: Command ()

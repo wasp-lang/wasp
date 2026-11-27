@@ -1,4 +1,4 @@
-module Wasp.Util.Terminal
+module Wasp.Util.TextStyle
   ( Style (..),
     styleCode,
     applyStyles,
