@@ -3,8 +3,6 @@ module Wasp.ExternalConfig.Npm.PackageJson
     DependenciesMap,
     PackageName,
     PackageVersion,
-    getDependencies,
-    getDevDependencies,
     PackageJsonFile,
     parsePackageJsonFile,
   )
@@ -16,8 +14,6 @@ import Data.Either.Extra (maybeToEither)
 import Data.Map (Map)
 import qualified Data.Map as M
 import StrongPath (Abs, File, Path')
-import Wasp.ExternalConfig.Npm.Dependency (Dependency)
-import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.Util.IO as IOUtil
 
 data PackageJson = PackageJson
@@ -42,12 +38,6 @@ type DependenciesMap = Map PackageName PackageVersion
 type PackageName = String
 
 type PackageVersion = String
-
-getDependencies :: PackageJson -> [Dependency]
-getDependencies packageJson = D.fromList . M.toList $ dependencies packageJson
-
-getDevDependencies :: PackageJson -> [Dependency]
-getDevDependencies packageJson = D.fromList . M.toList $ devDependencies packageJson
 
 class PackageJsonFile f
 

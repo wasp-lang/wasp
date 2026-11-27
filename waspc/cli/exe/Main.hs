@@ -153,6 +153,8 @@ printUsage =
               "      OPTIONS:",
               "        -t|--template <template-name>",
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
+              "        --install|--no-install",
+              "           Installs the project's dependencies, or doesn't, without asking.",
               "",
         cmd   "    help                  Prints this help message.",
         cmd   "    version               Prints current version of CLI.",
