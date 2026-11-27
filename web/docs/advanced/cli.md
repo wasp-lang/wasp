@@ -7,9 +7,58 @@ sidebar_label: CLI reference
 
 This guide provides an overview of the Wasp CLI commands, arguments, and options.
 
-## Overview
+## Running Wasp commands
 
-Once [installed](../quick-start), you can use the wasp command from your command line.
+Once you've [set up Wasp](../getting-started/quick-start.md), you can run Wasp commands through your project's [npm scripts](#npm-scripts), or through the [global Wasp CLI](#global-cli). The docs show each Wasp command both ways. Pick a tab once, and the docs remember your choice:
+
+<WaspCommand command="wasp db migrate-dev --name init" />
+
+### npm scripts {#npm-scripts}
+
+Each Wasp project has `@wasp/wasp` as a dependency, which brings the Wasp CLI.
+
+Each project also comes with npm scripts to run its Wasp CLI:
+
+| Script | Runs |
+| --- | --- |
+| `npm run dev` | `wasp start` |
+| `npm run build` | `wasp build` |
+| `npm run preview` | `wasp build start` (run `npm run build` first) |
+| `npm run wasp -- <command>` | any other Wasp command |
+
+:::info
+npm reads the arguments after the script name as its own. Use `--` to pass the rest to Wasp:
+
+`npm run wasp -- db migrate-dev --name init`
+:::
+
+:::caution Don't run `npx wasp`
+
+The `wasp` package on npm is not Wasp. In a project with installed dependencies, `npx wasp` happens to run the project's Wasp, but in a fresh clone npx downloads that unrelated package instead. Use `npm run wasp --` instead.
+
+:::
+
+### Global CLI {#global-cli}
+
+The global Wasp CLI is optional. Install it if you prefer typing `wasp <command>` directly, from any directory:
+
+<PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
+
+Inside a project, the global CLI hands each command over to the project's own Wasp, so it always runs the `@wasp/wasp` version from your `package.json`.
+
+Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. Update the global CLI at any time to run these commands with the latest Wasp.
+
+To run a command outside of a project without installing the global CLI, run it through npx with the latest version, e.g. creating a new project:
+
+<PackageManagerCommand npm="npx @wasp/cli@latest new" />
+
+:::note Looking for the old installer script?
+
+Check out the **[Legacy installer guide](../guides/legacy/installer.md)** for instructions on how to migrate to npm-based installation.
+
+:::
+
+## Overview
 
 If you run `wasp help` (or `wasp` without any arguments), it will show you a list of available commands and their descriptions:
 
@@ -41,7 +90,6 @@ COMMANDS
                           Optionally specify a custom port, Docker image, or Docker volume mount path.
                           If the port is not specified, Wasp picks the first free port when the default one is taken.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db help' for more info.
-    install               Sets up all internal Wasp npm dependencies and runs npm install.
     clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
     compile               Compiles your Wasp project and reports any errors, without running it.
@@ -97,7 +145,7 @@ Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
     cd MyFirstProject
-    wasp start
+    npm run dev
 ```
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
@@ -110,14 +158,16 @@ $ wasp new MyFirstProject
 Created a new Wasp app in `./MyFirstProject`.
 
 To run your new app, do:
-cd MyFirstProject
-wasp db start
+    cd MyFirstProject
+    npm run dev
 ```
+
+- `wasp new` runs `npm install` for you, which installs Wasp itself through the `@wasp/wasp` package. In a fresh clone, run `npm install` yourself. Until you do, the global Wasp CLI tells you to run it. Without a global Wasp CLI, the npm scripts fail with `wasp: command not found`.
 
 ### Project Commands
 - `wasp start` launches the Wasp app in development mode. It watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr. By default, the client runs on port 3000 and the server on 3001, and if those are taken Wasp picks the next free ones. Wasp prints the client and server URLs when it starts your app. Use `--client-port <port>` and `--server-port <port>` to choose the ports yourself. If your app needs to be reachable at a different URL (e.g. from other devices on your network, or through an HTTPS tunnel), use `--client-url <url>` and `--server-url <url>`. Wasp passes these URLs to both the client and the server, so API requests, CORS, and OAuth redirects all use the same addresses. The URLs don't change the ports Wasp runs on, so a tunnel or a proxy can forward a different public address to them. Wasp prints both the custom URL and the local one when it starts your app.
 - `wasp start db` starts the database for you. This can be very handy since you don't need to spin up your own database or provide its connection URL to the Wasp app. By default, it runs on port 5432, or the next free port if that one is taken. Use `--db-port <port>` to choose the port yourself; if you do, Wasp won't look for an alternative when it's taken.
-- `wasp clean` removes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
+- `wasp clean` removes all generated code and other cached artifacts, including the `node_modules` directory, so run `npm install` afterwards. If using SQlite, it also deletes the SQlite database. Think of this as the Wasp version of the classic "turn it off and on again" solution.
 
 ```
 
@@ -184,19 +234,19 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
 
 
 ### Miscellaneous commands
-- `wasp version` displays the current version of the CLI.
+- `wasp version` displays the Wasp version. Inside a project, that's the project's version.
 
 ```
 
 $ wasp version
 
-0.14.0
+0.27.0
 
-If you wish to install/switch to the latest version of Wasp, do:
-npm i -g @wasp/cli@latest
+Each project runs the Wasp version of its `@wasp/wasp` dependency. To switch a project to Wasp x.y.z, run this in the project directory:
+  npm install --save-exact @wasp/wasp@x.y.z
 
-If you want specific x.y.z version of Wasp, do:
-npm i -g @wasp/cli@x.y.z
+To instead install the latest Wasp CLI globally, run:
+  npm i -g @wasp/cli@latest
 Wasp versions before 0.27 are published under "@wasp.sh/wasp-cli" instead.
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.

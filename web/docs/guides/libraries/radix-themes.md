@@ -9,7 +9,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Radix Themes
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", "Radix Themes": 3 }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", "Radix Themes": 3 }} />
 
 This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.com/themes) component library into your Wasp application.
 
@@ -19,9 +19,7 @@ This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.co
 
 Install the Radix Themes package:
 
-```bash
-npm install @radix-ui/themes
-```
+<PackageManagerCommand npm="npm install @radix-ui/themes" />
 
 ### 2. Create a Root Component if it doesn't exist
 
@@ -33,7 +31,6 @@ import { Layout } from "./src/Layout" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   client: {

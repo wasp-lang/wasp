@@ -8,7 +8,7 @@ import LastCheckedWithVersionsNotice from "@site/src/components/LastCheckedWithV
 
 # Tailwind CSS
 
-<LastCheckedWithVersionsNotice versions={{ Wasp: "0.24", Tailwind: 4 }} />
+<LastCheckedWithVersionsNotice versions={{ Wasp: "0.27", Tailwind: 4 }} />
 
 Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework. You can use Tailwind CSS by setting it up through their [Vite installation method](https://tailwindcss.com/docs/installation/using-vite), as with any other project.
 
@@ -16,10 +16,10 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 
 1. Install Tailwind and its Vite plugin.
 
-    ```bash
+    <PackageManagerCommand>{`
     npm install tailwindcss
     npm install -D @tailwindcss/vite
-    ```
+    `}</PackageManagerCommand>
 
 1. Add the Tailwind CSS Vite plugin to your `vite.config.ts` file:
 
@@ -64,10 +64,10 @@ Wasp doesn't require any special configuration to use Tailwind plugins. You can 
 
 For example, to add the [Tailwind Forms](https://github.com/tailwindlabs/tailwindcss-forms) and [Tailwind Typography](https://github.com/tailwindlabs/tailwindcss-typography) plugins, we can check the installation instructions on their respective documentation pages and follow them as usual:
 
-```shell
+<PackageManagerCommand>{`
 npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
-```
+`}</PackageManagerCommand>
 
 ```css title="src/Main.css" {3-4}
 @import "tailwindcss";
