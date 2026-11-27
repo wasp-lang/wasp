@@ -34,7 +34,6 @@ import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliWriteRawOutputC, runTaskC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
-import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import Wasp.Project.Common (WaspProjectDir)
@@ -69,7 +68,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
 
         return (areDepsInstalled, isDbMigrated)
 
-  liftIO $ printGettingStartedInstructionsForProject console newProjectDescription
+  liftIO $ printGettingStartedInstructionsForProject console.writeRawOutput newProjectDescription
 
   liftIO
     $ printExtraInstructionsForProject console.writeRawOutput
