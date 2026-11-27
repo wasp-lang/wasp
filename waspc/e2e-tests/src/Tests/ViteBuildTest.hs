@@ -12,7 +12,7 @@ import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirRecursive)
 import System.FilePath (makeRelative)
-import Tests.Fixtures (userCodeTypeError, userCodeTypeErrorMessage)
+import Tests.Fixtures (starterMainPageFile, userCodeTypeError, userCodeTypeErrorMessage)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
@@ -43,14 +43,14 @@ test_viteBuild =
         run $ withEnv [(testEnvVarKey, inlineEnvVarValue)] viteBuildWithApiUrlCommand
         assertBuildDirContains inlineEnvVarValue,
       viteBuildTestCase "fail-on-user-code-type-error" $ do
-        appendToFile "src/MainPage.tsx" userCodeTypeError
+        appendToFile starterMainPageFile userCodeTypeError
         runExpectingFailure viteBuildWithApiUrlCommand >>= assertOutputContains userCodeTypeErrorMessage,
       viteBuildTestCase "ignore-wasp-ts-type-errors" $ do
-        appendToFile "main.wasp.ts" userCodeTypeError
+        appendToFile mainWaspTsFile userCodeTypeError
         run viteBuildWithApiUrlCommand,
       viteBuildTestCase "fail-on-user-defined-client-port" $ do
         writeToFile
-          "vite.config.ts"
+          viteConfigFile
           [trimming|
             import { wasp } from "wasp/client/vite";
             import { defineConfig } from "vite";
@@ -72,7 +72,7 @@ test_viteBuild =
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres
           writeToFile
-            "src/MainPage.tsx"
+            starterMainPageFile
             [trimming|
               export function MainPage() {
                 return <h2>${mainPageMarkerText}{import.meta.env.${testEnvVarKeyText}}</h2>

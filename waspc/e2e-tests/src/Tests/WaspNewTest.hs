@@ -17,7 +17,7 @@ test_waspNew =
     "wasp-new"
     [ test "create-minimal" $
         withNewWaspProject minimalStarterTemplate $ do
-          assertFileExists "main.wasp.ts"
+          assertFileExists mainWaspTsFile
           assertDirectoryDoesNotExist migrationsDir,
       test "create-minimal-with-piped-answers-fails" $ assertWaspNewFailsWithPipedAnswers minimalStarterTemplate,
       test "create-basic" $
@@ -29,7 +29,7 @@ test_waspNew =
         assertOutputContains "Migration skipped" result
         assertOutputContains "wasp db migrate-dev" result
         inDirectory waspAppDirName $ do
-          assertFileExists "main.wasp.ts"
+          assertFileExists mainWaspTsFile
           assertDirectoryDoesNotExist migrationsDir,
       test "create-basic-with-piped-answers-fails" $ assertWaspNewFailsWithPipedAnswers basicStarterTemplate
       -- NOTE: We can't test the `saas` template here, since its "dev" tag doesn't exist.

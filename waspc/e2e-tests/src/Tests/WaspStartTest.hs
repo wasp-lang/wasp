@@ -16,7 +16,7 @@ test_waspStart =
           runWaspStartAndStopIt SIGINT
           -- `wasp start` compiled the project and installed its dependencies.
           assertDirectoryExists $ SP.fromRelDir generatedAppDirInWaspProjectDir
-          assertDirectoryExists "node_modules",
+          assertDirectoryExists nodeModulesDir,
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]

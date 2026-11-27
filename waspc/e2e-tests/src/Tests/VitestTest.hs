@@ -3,7 +3,7 @@ module Tests.VitestTest (test_vitest) where
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
-import Tests.Fixtures (addTasksQueryToMainWaspTs)
+import Tests.Fixtures (addTasksQueryToMainWaspTs, tasksQueryFile)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | Sets up Vitest in a Wasp app the way the testing docs describe, and runs
@@ -15,9 +15,9 @@ test_vitest =
     [ test "runs-client-tests" $
         withNewWaspProject minimalStarterTemplate $ do
           addTasksQueryToMainWaspTs
-          writeToFile "src/queries.ts" queriesTs
+          writeToFile tasksQueryFile queriesTs
           writeToFile "src/TaskList.tsx" taskListTsx
-          writeToFile "vite.config.ts" viteConfigTs
+          writeToFile viteConfigFile viteConfigTs
           -- The SDK must compile without the testing libraries.
           wasp ["compile"]
           run installTestingLibrariesCommand

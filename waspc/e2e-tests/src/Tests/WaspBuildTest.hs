@@ -2,7 +2,7 @@ module Tests.WaspBuildTest (test_waspBuild) where
 
 import E2E
 import qualified StrongPath as SP
-import Tests.Fixtures (userCodeTypeError, userCodeTypeErrorMessage)
+import Tests.Fixtures (starterMainPageFile, userCodeTypeError, userCodeTypeErrorMessage)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
@@ -24,6 +24,6 @@ test_waspBuild =
       test "fail-type-error" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres
-          appendToFile "src/MainPage.tsx" userCodeTypeError
+          appendToFile starterMainPageFile userCodeTypeError
           waspFails ["build"] >>= assertOutputContains userCodeTypeErrorMessage
     ]

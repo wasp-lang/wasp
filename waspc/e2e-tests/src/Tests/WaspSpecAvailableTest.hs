@@ -67,7 +67,7 @@ test_waspSpecAvailable =
   where
     -- Puts the project in a "wasp-spec missing" state without invoking any wasp command.
     removeNodeModules :: TestM ()
-    removeNodeModules = deleteDirectory "node_modules"
+    removeNodeModules = deleteDirectory nodeModulesDir
 
     corruptWaspSpecVersion :: TestM ()
     corruptWaspSpecVersion =

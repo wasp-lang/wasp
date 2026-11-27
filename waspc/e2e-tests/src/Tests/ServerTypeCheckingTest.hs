@@ -18,9 +18,9 @@ test_serverTypeChecking =
     [ test "type-checks-server-features-without-auth" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres -- Jobs need PostgreSQL.
-          appendToFile "schema.prisma" taskPrismaModel
+          appendToFile prismaSchemaFile taskPrismaModel
           writeToFile "src/serverFeatures.ts" serverFeaturesTs
-          writeToFile "main.wasp.ts" serverFeaturesWithoutAuthMainWaspTs
+          writeToFile mainWaspTsFile serverFeaturesWithoutAuthMainWaspTs
           wasp ["compile"]
           run $ nodeModulesBin "tsc" ["--build", SP.fromRelDir $ generatedAppDirInWaspProjectDir SP.</> serverRootDirInGeneratedAppDir]
     ]

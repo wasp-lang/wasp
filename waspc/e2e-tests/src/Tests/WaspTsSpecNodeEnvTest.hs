@@ -1,5 +1,6 @@
 module Tests.WaspTsSpecNodeEnvTest (test_waspTsSpecNodeEnv) where
 
+import qualified Data.Text as T
 import E2E
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -10,13 +11,16 @@ test_waspTsSpecNodeEnv =
     [ test "node-env-is-development-on-compile" $
         withNewWaspProject minimalStarterTemplate $ do
           logNodeEnvInMainWaspTs
-          wasp ["compile"] >>= assertOutputContains "E2E-NODE-ENV=development",
+          wasp ["compile"] >>= assertOutputContains (nodeEnvLogPrefix <> "development"),
       test "node-env-is-production-on-build" $
         withNewWaspProject minimalStarterTemplate $ do
           setDbToPostgres
           logNodeEnvInMainWaspTs
-          wasp ["build"] >>= assertOutputContains "E2E-NODE-ENV=production"
+          wasp ["build"] >>= assertOutputContains (nodeEnvLogPrefix <> "production")
     ]
   where
     logNodeEnvInMainWaspTs :: TestM ()
-    logNodeEnvInMainWaspTs = appendToFile "main.wasp.ts" "console.log(`E2E-NODE-ENV=${process.env.NODE_ENV}`);"
+    logNodeEnvInMainWaspTs = appendToFile mainWaspTsFile ("console.log(`" <> nodeEnvLogPrefix <> "${process.env.NODE_ENV}`);")
+
+    nodeEnvLogPrefix :: T.Text
+    nodeEnvLogPrefix = "E2E-NODE-ENV="

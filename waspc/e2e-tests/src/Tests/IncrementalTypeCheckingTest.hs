@@ -1,7 +1,7 @@
 module Tests.IncrementalTypeCheckingTest (test_incrementalTypeChecking) where
 
 import E2E
-import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, tasksQueryTypeError, writeTasksQueryApp)
+import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, starterMainPageFile, tasksQueryTypeError, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 test_incrementalTypeChecking :: TestTree
@@ -18,7 +18,7 @@ test_incrementalTypeChecking =
           -- Touches MainPage.tsx by appending an empty line, like saving it in
           -- an editor. Editing a file is what made TypeScript report the
           -- initial error.
-          appendToFile "src/MainPage.tsx" ""
+          appendToFile starterMainPageFile ""
           -- Compile rejects the type error, but still generates the new types.
           waspFails ["compile"] >>= assertOutputContains tasksQueryTypeError
           runExpectingFailure typeCheckAppCommand >>= assertOutputContains tasksQueryTypeError

@@ -37,16 +37,18 @@ test_waspShow =
       -- its own.
       test "concurrent-spec-analyses-read-their-own-results" $
         withNewWaspProject minimalStarterTemplate $ do
-          setRootRoutePath "`/${process.env.E2E_ROUTE}`"
+          setRootRoutePath $ "`/${process.env." <> T.pack routeEnvVarName <> "}`"
           let routes = ["e2e-route-" ++ show index | index <- [1 .. 8 :: Int]]
           results <-
             mapConcurrently
-              (\route -> run $ withEnv [("E2E_ROUTE", route)] $ waspCli ["show", "spec", "--json"])
+              (\route -> run $ withEnv [(routeEnvVarName, route)] $ waspCli ["show", "spec", "--json"])
               routes
           forM_ (zip routes results) $ \(route, result) -> do
             spec :: ShowSpecJson <- decodeStdoutJson result
             [declValue.path | DeclJson {declType = "Route", declValue} <- spec.decls] `shouldBe` [Just ("/" ++ route)]
     ]
+  where
+    routeEnvVarName = "E2E_ROUTE"
 
 -- | What the tests check of what `wasp show spec --json` prints.
 data ShowSpecJson = ShowSpecJson

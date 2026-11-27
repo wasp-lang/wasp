@@ -9,5 +9,5 @@ test_waspMigrateSnapshot =
   snapshotTest "wasp-migrate" $
     withNewWaspProject minimalStarterTemplate $ do
       wasp ["compile"]
-      appendToFile "schema.prisma" taskPrismaModel
+      appendToFile prismaSchemaFile taskPrismaModel
       waspDbMigrateDev "foo"

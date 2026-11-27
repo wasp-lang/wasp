@@ -14,13 +14,13 @@ test_waspClean =
         withNewWaspProject minimalStarterTemplate $ do
           waspCleanDeletesBothDirs
           assertDirectoryDoesNotExist dotWaspDir
-          assertDirectoryDoesNotExist "node_modules",
+          assertDirectoryDoesNotExist nodeModulesDir,
       test "succeed-compiled-project" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["compile"]
           waspCleanDeletesBothDirs
           assertDirectoryDoesNotExist dotWaspDir
-          assertDirectoryDoesNotExist "node_modules"
+          assertDirectoryDoesNotExist nodeModulesDir
     ]
   where
     -- Checks that Wasp deleted both dirs, instead of finding nothing to

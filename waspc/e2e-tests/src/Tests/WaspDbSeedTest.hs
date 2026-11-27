@@ -49,8 +49,8 @@ test_waspDbSeed =
           -- The seed doesn't use the Task model, but without a model, the
           -- seed runner Wasp generates doesn't type check (`prisma` can be
           -- null).
-          appendToFile "schema.prisma" taskPrismaModel
-          writeToFile ".env.server" "SEED_TEST_VAR=fromEnvServer"
+          appendToFile prismaSchemaFile taskPrismaModel
+          writeToFile dotEnvServerFile "SEED_TEST_VAR=fromEnvServer"
           addSeeds [serverEnvSeed]
           -- `wasp db seed` compiles too, but we need the server's dependencies
           -- (with `dotenv`) installed before we replace it. The seed doesn't

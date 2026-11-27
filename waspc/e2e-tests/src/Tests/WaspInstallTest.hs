@@ -11,7 +11,7 @@ test_waspInstall =
       test "succeed-restore-wasp-spec-after-clean" $
         withNewWaspProject minimalStarterTemplate $ do
           wasp ["clean"]
-          assertDirectoryDoesNotExist "node_modules"
+          assertDirectoryDoesNotExist nodeModulesDir
           wasp ["install"]
           assertSymlinkExists "node_modules/@wasp/spec"
           wasp ["compile"]

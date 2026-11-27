@@ -4,6 +4,8 @@
 -- keep up with the starter. An edit fails loudly when the starter changes.
 module Tests.Fixtures
   ( withKitchenSinkProject,
+    starterMainPageFile,
+    tasksQueryFile,
     taskPrismaModel,
     userCodeTypeError,
     userCodeTypeErrorMessage,
@@ -37,9 +39,17 @@ withKitchenSinkProject :: TestM a -> TestM a
 withKitchenSinkProject steps = do
   copyGitTrackedDir "examples/kitchen-sink" waspAppDirName
   inDirectory waspAppDirName $ do
-    copyFile ".env.server.example" ".env.server"
-    appendToFile ".env.server" ("\n" <> T.pack databaseUrlEnvVarName <> "=mock-database-url")
+    copyFile ".env.server.example" dotEnvServerFile
+    appendToFile dotEnvServerFile ("\n" <> T.pack databaseUrlEnvVarName <> "=mock-database-url")
     steps
+
+-- | The file of the starter's only page.
+starterMainPageFile :: FilePath
+starterMainPageFile = "src/MainPage.tsx"
+
+-- | Where 'addTasksQueryToMainWaspTs' expects the @getTasks@ query.
+tasksQueryFile :: FilePath
+tasksQueryFile = "src/queries.ts"
 
 taskPrismaModel :: T.Text
 taskPrismaModel =
@@ -64,7 +74,7 @@ userCodeTypeErrorMessage = "error TS2322: Type 'string' is not assignable to typ
 -- expression.
 setRootRoutePath :: T.Text -> TestM ()
 setRootRoutePath pathExpression =
-  replaceInFile "main.wasp.ts" starterRootRoute ("    route(\"RootRoute\", " <> pathExpression <> ", page(MainPage)),")
+  replaceInFile mainWaspTsFile starterRootRoute ("    route(\"RootRoute\", " <> pathExpression <> ", page(MainPage)),")
 
 -- | Declares the @getTasks@ query from @src/queries.ts@ in the starter's
 -- @main.wasp.ts@.
@@ -84,7 +94,7 @@ writeTasksQueryApp = do
   addTasksQueryToMainWaspTs
   writeTasksQuery "[{ id: 1 }]"
   writeToFile
-    "src/MainPage.tsx"
+    starterMainPageFile
     [trimming|
       import { getTasks, useQuery } from "wasp/client/operations";
 
@@ -110,7 +120,7 @@ tasksQueryTypeError = "Property 'id' does not exist on type 'never'."
 writeTasksQuery :: T.Text -> TestM ()
 writeTasksQuery result =
   writeToFile
-    "src/queries.ts"
+    tasksQueryFile
     [trimming|
       import type { GetTasks } from "wasp/server/operations";
 
@@ -187,7 +197,7 @@ makeTaskSeed seedName = makeSeed seedName "import { prisma } from 'wasp/server'"
 setUpProjectWithTaskSeeds :: [Seed] -> TestM ()
 setUpProjectWithTaskSeeds seeds = do
   wasp ["compile"]
-  appendToFile "schema.prisma" taskPrismaModel
+  appendToFile prismaSchemaFile taskPrismaModel
   waspDbMigrateDev "add_task_model"
   addSeeds seeds
 
@@ -210,17 +220,17 @@ addSeeds seeds = do
 
 addMainWaspTsImports :: [T.Text] -> TestM ()
 addMainWaspTsImports imports =
-  replaceInFile "main.wasp.ts" starterLastImport (T.intercalate "\n" $ starterLastImport : imports)
+  replaceInFile mainWaspTsFile starterLastImport (T.intercalate "\n" $ starterLastImport : imports)
   where
     starterLastImport = "import { MainPage } from \"./src/MainPage\" with { type: \"ref\" };"
 
 -- | Adds a field to the object passed to @app()@, before @spec@.
 addMainWaspTsAppField :: T.Text -> TestM ()
-addMainWaspTsAppField field = replaceInFile "main.wasp.ts" "  spec: [" ("  " <> field <> ",\n  spec: [")
+addMainWaspTsAppField field = replaceInFile mainWaspTsFile "  spec: [" ("  " <> field <> ",\n  spec: [")
 
 addMainWaspTsSpecDeclaration :: T.Text -> TestM ()
 addMainWaspTsSpecDeclaration declaration =
-  replaceInFile "main.wasp.ts" starterRootRoute (starterRootRoute <> "\n    " <> declaration <> ",")
+  replaceInFile mainWaspTsFile starterRootRoute (starterRootRoute <> "\n    " <> declaration <> ",")
 
 starterRootRoute :: T.Text
 starterRootRoute = "    route(\"RootRoute\", \"/\", page(MainPage)),"

@@ -10,12 +10,12 @@ test_viteConfig =
     "vite-config-validation"
     [ test "fail-on-missing-vite-config" $
         withNewWaspProject minimalStarterTemplate $ do
-          deleteFile "vite.config.ts"
+          deleteFile viteConfigFile
           waspFails ["compile"] >>= assertOutputContains "Couldn't find `vite.config.ts`",
       test "fail-on-missing-wasp-plugin-import" $
         withNewWaspProject minimalStarterTemplate $ do
           writeToFile
-            "vite.config.ts"
+            viteConfigFile
             [trimming|
               import { defineConfig } from "vite";
 
@@ -25,7 +25,7 @@ test_viteConfig =
       test "fail-on-overriding-forced-options" $
         withNewWaspProject minimalStarterTemplate $ do
           writeToFile
-            "vite.config.ts"
+            viteConfigFile
             [trimming|
               import { defineConfig } from "vite";
               import { wasp } from "wasp/client/vite";

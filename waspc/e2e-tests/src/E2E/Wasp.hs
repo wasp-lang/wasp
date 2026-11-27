@@ -14,6 +14,11 @@ module E2E.Wasp
     waspDbSeed,
     viteBuildCommand,
     withApiUrl,
+    mainWaspTsFile,
+    prismaSchemaFile,
+    viteConfigFile,
+    dotEnvServerFile,
+    nodeModulesDir,
     dbMigrationsDirs,
     listDbMigrations,
     setDbToPostgres,
@@ -45,8 +50,9 @@ import Wasp.Cli.ProjectLock.Data (ProjectLockData (..))
 import Wasp.Cli.ProjectLock.Handle (projectLockFileInWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Generator.WebAppGenerator.Common (serverUrlEnvVarName)
-import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, mainWaspTsFileInWaspProjectDir, nodeModulesDirInWaspProjectDir, prismaSchemaFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
+import Wasp.Project.Env (dotEnvServer)
 import Wasp.Version (waspVersion)
 
 -- | The directory (and the name) of the Wasp project a test creates.
@@ -163,8 +169,16 @@ viteBuildCommand arguments = withoutEnv [serverUrlEnvVarName] $ nodeModulesBin "
 withApiUrl :: Command -> Command
 withApiUrl = withEnv [(serverUrlEnvVarName, "http://localhost:3001")]
 
+-- | Files and dirs of a Wasp project, relative to it.
+mainWaspTsFile, prismaSchemaFile, viteConfigFile, dotEnvServerFile, nodeModulesDir :: FilePath
+mainWaspTsFile = SP.fromRelFile mainWaspTsFileInWaspProjectDir
+prismaSchemaFile = SP.fromRelFile prismaSchemaFileInWaspProjectDir
+viteConfigFile = "vite.config.ts"
+dotEnvServerFile = SP.fromRelFile dotEnvServer
+nodeModulesDir = SP.fromRelDir nodeModulesDirInWaspProjectDir
+
 setDbToPostgres :: TestM ()
-setDbToPostgres = replaceInFile "schema.prisma" "provider = \"sqlite\"" "provider = \"postgresql\""
+setDbToPostgres = replaceInFile prismaSchemaFile "provider = \"sqlite\"" "provider = \"postgresql\""
 
 -- | The PID of the Wasp process that holds the project lock (or held it last).
 --

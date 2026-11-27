@@ -2,7 +2,7 @@ module Tests.WaspCompileTest (test_waspCompile) where
 
 import E2E
 import qualified StrongPath as SP
-import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, tasksQueryTypeError, userCodeTypeError, userCodeTypeErrorMessage, writeTasksQueryApp)
+import Tests.Fixtures (breakTasksQueryType, fixTasksQueryType, starterMainPageFile, tasksQueryTypeError, userCodeTypeError, userCodeTypeErrorMessage, writeTasksQueryApp)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
@@ -23,7 +23,7 @@ test_waspCompile =
       -- Regression test for https://github.com/wasp-lang/wasp/issues/2001
       test "fail-missing-side-effect-import" $
         withNewWaspProject minimalStarterTemplate $ do
-          appendToFile "src/MainPage.tsx" "import './missing-side-effect-import'"
+          appendToFile starterMainPageFile "import './missing-side-effect-import'"
           waspFails ["compile"]
             >>= assertOutputContains "Cannot find module or type declarations for side-effect import of './missing-side-effect-import'.",
       test "fail-type-error" $

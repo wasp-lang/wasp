@@ -11,8 +11,8 @@ test_waspSpecEntityTypes =
     "wasp-spec-entity-types"
     [ test "accepts-valid-entity-before-and-after-compile" $
         withNewWaspProject minimalStarterTemplate $ do
-          appendToFile "schema.prisma" prismaUserModel
-          writeToFile "main.wasp.ts" $ mainWaspTs validEntityName
+          appendToFile prismaSchemaFile prismaUserModel
+          writeToFile mainWaspTsFile $ mainWaspTs validEntityName
           run compileWaspMainTsFilesCommand
           wasp ["compile"] -- Necessary to generate the spec's Entity types.
           run compileWaspMainTsFilesCommand,
@@ -20,10 +20,10 @@ test_waspSpecEntityTypes =
       -- rejected before compiling. See: https://github.com/wasp-lang/wasp/issues/4186
       test "rejects-invalid-entity-after-compile" $
         withNewWaspProject minimalStarterTemplate $ do
-          appendToFile "schema.prisma" prismaUserModel
-          writeToFile "main.wasp.ts" $ mainWaspTs validEntityName
+          appendToFile prismaSchemaFile prismaUserModel
+          writeToFile mainWaspTsFile $ mainWaspTs validEntityName
           wasp ["compile"] -- Necessary to generate the spec's Entity types.
-          writeToFile "main.wasp.ts" $ mainWaspTs invalidEntityName
+          writeToFile mainWaspTsFile $ mainWaspTs invalidEntityName
           runExpectingFailure compileWaspMainTsFilesCommand
             >>= assertOutputContains ("Type '\"" <> invalidEntityName <> "\"' is not assignable to type '\"" <> validEntityName <> "\"'.")
     ]
