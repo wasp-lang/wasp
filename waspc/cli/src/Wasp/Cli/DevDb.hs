@@ -1,6 +1,6 @@
 module Wasp.Cli.DevDb
   ( startPostgresDevDb,
-    withDevDb,
+    withDevDbIfNeeded,
     throwCustomDatabaseInUseError,
   )
 where
@@ -50,8 +50,8 @@ startPostgresDevDb waspProjectDir appName devDbOptions =
 
 -- | Runs the action with the database the app uses in development available:
 -- Wasp starts its managed PostgreSQL database if it isn't running yet.
-withDevDb :: AS.AppSpec -> DevDbOptions -> Command a -> Command a
-withDevDb appSpec devDbOptions action =
+withDevDbIfNeeded :: AS.AppSpec -> DevDbOptions -> Command a -> Command a
+withDevDbIfNeeded appSpec devDbOptions action =
   liftIO (findDevDatabase appSpec) >>= \case
     CustomDatabase _ -> action
     ManagedSqliteDatabase -> action

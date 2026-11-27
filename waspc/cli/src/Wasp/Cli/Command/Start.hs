@@ -18,7 +18,7 @@ import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Start.ArgumentsParser (StartArgs (..), startArgsParser)
 import Wasp.Cli.Command.Watch (watch)
-import Wasp.Cli.DevDb (withDevDb)
+import Wasp.Cli.DevDb (withDevDbIfNeeded)
 import Wasp.Cli.EnvVarWithCtx (addEnvVarsUniqueC)
 import qualified Wasp.Cli.EnvVarWithCtx as EnvVarWithCtx
 import qualified Wasp.Cli.ProjectLock as ProjectLock
@@ -58,7 +58,7 @@ start = withArguments startArgsParser $ \args ->
 
     (compileWarnings, appSpec) <- compile
 
-    withDevDb appSpec args.devDbOptions $ do
+    withDevDbIfNeeded appSpec args.devDbOptions $ do
       ports <- findProjectPorts (args.clientPort, args.serverPort)
       -- The ports and custom URLs stay the same for the whole session, while the
       -- rest of the run config follows the latest compile.
