@@ -1,4 +1,4 @@
-name: "Test - E2E Example apps"
+name: "Test - Example apps"
 
 on:
   workflow_call:
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        example:
+        example-path:
           - tutorials/TodoApp
           - tutorials/TodoAppTs
           - waspello
@@ -32,58 +32,23 @@ jobs:
 
       - uses: $/.github/actions/install-wasp-cli-artifact
 
-      - name: Install app dependencies
-        working-directory: examples/${{ matrix.example }}
-        run: wasp-cli install
-
-      # We must compile the project to generate the Wasp libs before installing deps
-      - name: Compile project and install deps for ${{ matrix.example }}
-        working-directory: examples/${{ matrix.example }}
-        run: wasp-cli compile
-
-      - name: Run unit tests for ${{ matrix.example }}
-        working-directory: examples/${{ matrix.example }}
-        run: npm run test:unit --if-present
-
-      - name: Setup project environment for ${{ matrix.example }}
-        working-directory: examples/${{ matrix.example }}
-        run: |
-          if [ -f ".env.server.example" ]; then
-            cp .env.server.example .env.server
-          fi
-
-      # Waspleau calls the GitHub API, which rate limits shared runner IPs.
-      - name: Provide GitHub token to waspleau
-        if: matrix.example == 'waspleau'
-        working-directory: examples/${{ matrix.example }}
+      - name: Provide GitHub token to waspleau example app
+        if: matrix.example-path == 'waspleau'
+        working-directory: examples/${{ matrix.example-path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "GITHUB_TOKEN=$GITHUB_TOKEN" >> .env.server
-
-      - name: Extract Database Provider
-        id: extract-db-provider
-        working-directory: examples/${{ matrix.example }}
         run: |
-          DATABASE_PROVIDER=$($GITHUB_WORKSPACE/scripts/get-wasp-database-provider.sh wasp-cli)
-          echo "provider=$DATABASE_PROVIDER" >> $GITHUB_OUTPUT
+          [ ! -f .env.server.example ] || cp .env.server.example .env.server
+          echo "GITHUB_TOKEN=$GITHUB_TOKEN" >> .env.server
 
-      - name: Prepare wasp-app-runner
-        run: pnpm install --filter @wasp/wasp-app-runner && pnpm --filter @wasp/wasp-app-runner run build
+      - name: Install wasp-app-runner dependencies
+        run: pnpm install --filter @wasp/wasp-app-runner
 
-      - name: Run DEV e2e tests for ${{ matrix.example }}
-        working-directory: examples/${{ matrix.example }}
+      - name: Run tests for example app "${{ matrix.example-path }}"
         env:
-          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
+          EXAMPLE_PATH: ${{ matrix.example-path }}
           WASP_CLI_CMD: wasp-cli
-          WASP_RUN_MODE: dev
-        run: npm run test:e2e
-
-      - name: Run BUILD e2e tests for ${{ matrix.example }}
-        # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
-        if: steps.extract-db-provider.outputs.provider != 'sqlite'
-        working-directory: examples/${{ matrix.example }}
-        env:
-          WASP_APP_RUNNER_CLI_CMD: ${{ github.workspace }}/packages/wasp-app-runner/bin/index.js
-          WASP_CLI_CMD: wasp-cli
-          WASP_RUN_MODE: build
-        run: npm run test:e2e
+        run: |
+          for wasp_run_mode in dev build; do
+            WASP_RUN_MODE=$wasp_run_mode mise run test:examples "$EXAMPLE_PATH"
+          done
