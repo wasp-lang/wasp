@@ -12,6 +12,8 @@ import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Console.Internal.TerminalPrompter (InteractiveTerminal)
+import qualified Wasp.Cli.Console.Internal.TerminalPrompter as Interactive
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -31,8 +33,6 @@ import Wasp.Util.IO
     doesFileExist,
   )
 import Wasp.Util.InstallMethod (uninstallationCommand)
-import Wasp.Util.Interactive (InteractiveTerminal)
-import qualified Wasp.Util.Interactive as Interactive
 
 -- | Removes Wasp from the system.
 uninstall :: Arguments -> Command ()

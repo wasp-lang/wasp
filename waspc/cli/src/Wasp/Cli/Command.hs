@@ -39,10 +39,10 @@ import Data.Data (Typeable, cast)
 import Data.Maybe (mapMaybe)
 import System.Exit (exitFailure)
 import Wasp.Cli.Console (Console (..))
+import qualified Wasp.Cli.Console.Internal.TerminalPrompter as Interactive
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
 import Wasp.Util.IO.Retry (MonadRetry (..))
-import qualified Wasp.Util.Interactive as Interactive
 
 newtype Command a = Command {_runCommand :: ReaderT Console (StateT [Requirement] (ExceptT CommandError IO)) a}
   deriving (Functor, Applicative, Monad, MonadIO, MonadError CommandError, MonadThrow, MonadCatch, MonadMask)

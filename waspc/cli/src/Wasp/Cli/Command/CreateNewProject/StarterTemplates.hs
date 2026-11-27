@@ -11,9 +11,9 @@ where
 import Data.Foldable (find)
 import StrongPath (Dir, Dir', Path', Rel, Rel', reldir)
 import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir)
+import qualified Wasp.Cli.Console.Internal.TerminalPrompter as Interactive
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import Wasp.Project (WaspProjectDir)
-import qualified Wasp.Util.Interactive as Interactive
 
 -- More on how starter templates work in Wasp, including the development process,
 -- can be found in the `waspc/data/Cli/starters/README.md` file.
