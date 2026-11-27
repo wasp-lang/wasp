@@ -2,21 +2,20 @@ module Wasp.Cli.Util.Parser
   ( ArgsParser (..),
     withArguments,
     getParserHelpMessage,
-    requireInteractiveTerminal,
+    requirePrompter,
   )
 where
 
 import Control.Applicative ((<**>))
 import Control.Monad.Except (throwError)
-import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import qualified System.Exit as EC
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, CommandError (CommandError), getConsole)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Console (Console (..))
+import Wasp.Cli.Console.Prompter (Prompter)
 import qualified Wasp.Message as Msg
-import Wasp.Util.Interactive (InteractiveTerminal)
-import qualified Wasp.Util.Interactive as Interactive
 
 data ArgsParser a = ArgsParser
   { commandName :: String,
@@ -42,10 +41,11 @@ getParserHelpMessage argsParser =
 -- | Call this before prompting the user.
 -- If stdin is not an interactive terminal, the command fails with its full
 -- usage, showing how to call it non-interactively.
-requireInteractiveTerminal :: ArgsParser a -> Command InteractiveTerminal
-requireInteractiveTerminal argsParser =
-  liftIO Interactive.getInteractiveTerminal >>= \case
-    Just terminal -> return terminal
+requirePrompter :: ArgsParser a -> Command Prompter
+requirePrompter argsParser = do
+  console <- getConsole
+  case console.prompter of
+    Just prompter -> return prompter
     Nothing ->
       throwError
         $ CommandError "Interactive terminal required"

@@ -51,7 +51,7 @@ start = withArguments startArgsParser $ \args ->
     -- Therefore, it's best to keep the periodic news check contained and
     -- expected. This way we know exactly which workflows it could possibly
     -- interrupt (LLMs, CIs, people...).
-    liftIO fetchAndListMustSeeNewsIfDue
+    liftIO . fetchAndListMustSeeNewsIfDue . (.prompter) =<< getConsole
     InWaspProject waspProjectDir <- require
     let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

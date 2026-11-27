@@ -11,9 +11,9 @@ where
 import Data.Foldable (find)
 import StrongPath (Dir, Dir', Path', Rel, Rel', reldir)
 import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir)
+import qualified Wasp.Cli.Console.Prompter as Prompter
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import Wasp.Project (WaspProjectDir)
-import qualified Wasp.Util.Interactive as Interactive
 
 -- More on how starter templates work in Wasp, including the development process,
 -- can be found in the `waspc/data/Cli/starters/README.md` file.
@@ -59,7 +59,7 @@ instance Show StarterTemplate where
   show (GhRepoReleaseArchiveTemplate {metadata = metadata'}) = _name metadata'
   show (BundledStarterTemplate {metadata = metadata'}) = _name metadata'
 
-instance Interactive.IsOption StarterTemplate where
+instance Prompter.IsOption StarterTemplate where
   showOption = show
 
   showOptionDescription (GhRepoReleaseArchiveTemplate {metadata = metadata'}) = Just $ _description metadata'

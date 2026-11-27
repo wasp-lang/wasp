@@ -29,12 +29,12 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
     findTemplateByString,
     waspProjectDirFromTemplateOutputDir,
   )
+import Wasp.Cli.Console.Prompter (Prompter)
+import qualified Wasp.Cli.Console.Prompter as Prompter
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
-import Wasp.Cli.Util.Parser (requireInteractiveTerminal)
+import Wasp.Cli.Util.Parser (requirePrompter)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
-import Wasp.Util.Interactive (InteractiveTerminal)
-import qualified Wasp.Util.Interactive as Interactive
 
 data NewProjectDescription = NewProjectDescription
   { _projectName :: NewProjectName,
@@ -87,19 +87,19 @@ obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _temp
       return (projectName, appName, template)
 
     obtainArgumentsInteractively = do
-      terminal <- requireInteractiveTerminal newProjectArgsParser
-      projectName <- askForName terminal
+      prompter <- requirePrompter newProjectArgsParser
+      projectName <- askForName prompter
       appName <- either throwProjectCreationError pure $ parseWaspProjectNameIntoAppName projectName
-      template <- maybe (askForTemplate terminal starterTemplates) (findTemplateOrThrow starterTemplates) templateNameArg
+      template <- maybe (askForTemplate prompter starterTemplates) (findTemplateOrThrow starterTemplates) templateNameArg
       return (projectName, appName, template)
 
-askForName :: InteractiveTerminal -> Command String
-askForName terminal =
-  liftIO $ Interactive.askForRequiredInput terminal "Enter the project name (e.g. my-project)"
+askForName :: Prompter -> Command String
+askForName prompter =
+  liftIO $ Prompter.askForRequiredInput prompter "Enter the project name (e.g. my-project)"
 
-askForTemplate :: InteractiveTerminal -> [StarterTemplate] -> Command StarterTemplate
-askForTemplate terminal starterTemplates =
-  liftIO $ Interactive.askToChoose terminal "Choose a starter template" $ fromList starterTemplates
+askForTemplate :: Prompter -> [StarterTemplate] -> Command StarterTemplate
+askForTemplate prompter starterTemplates =
+  liftIO $ Prompter.askToChoose prompter "Choose a starter template" $ fromList starterTemplates
 
 parseWaspProjectNameIntoAppName :: String -> Either String NewProjectAppName
 parseWaspProjectNameIntoAppName projectName

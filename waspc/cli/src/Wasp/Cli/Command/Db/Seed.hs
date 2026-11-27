@@ -22,13 +22,13 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
-import Wasp.Cli.Util.Parser (ArgsParser (..), requireInteractiveTerminal)
+import qualified Wasp.Cli.Console.Prompter as Prompter
+import Wasp.Cli.Util.Parser (ArgsParser (..), requirePrompter)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import Wasp.Generator.Setup (SetupGoal (PrismaCliReady, SdkReady))
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
-import qualified Wasp.Util.Interactive as Interactive
 
 -- | Seed functions import the SDK.
 seed :: SeedArgs -> Command ()
@@ -72,8 +72,8 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     Nothing -> case seedNames of
       seedName :| [] -> return seedName
       _seedNames -> do
-        terminal <- requireInteractiveTerminal seedArgsParser
-        liftIO $ Interactive.askToChoose terminal "Choose a seed to run" seedNames
+        prompter <- requirePrompter seedArgsParser
+        liftIO $ Prompter.askToChoose prompter "Choose a seed to run" seedNames
   where
     parseUserProvidedSeedName :: String -> NE.NonEmpty String -> Command String
     parseUserProvidedSeedName userProvidedSeedName seedNames =
