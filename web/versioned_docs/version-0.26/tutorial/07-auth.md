@@ -239,7 +239,7 @@ You'll notice that we now have a `User` entity in the database alongside the `Ta
 However, you will notice that if you try logging in as different users and creating some tasks, all users share the same tasks. That's because you haven't yet updated the queries and actions to have per-user tasks. Let's do that next.
 
 <small>
-  You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them [here](../features/auth/entities.md).
+  You might notice some extra Prisma models like `Auth`, `AuthIdentity` and `Session` that Wasp created for you. You don't need to care about these right now, but if you are curious, you can read more about them in [the data entities guide](../features/auth/entities.md).
 </small>
 
 ## Defining a User-Task Relation
@@ -406,11 +406,11 @@ This is it, we have a working authentication system, and our Todo app is multi-u
 We did it 🎉 You've followed along with this tutorial to create a basic Todo app with Wasp.
 
 <ShowForJs>
-  You can find the complete code for the JS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
+  You can find the complete code for the JS version of the tutorial in [the TodoApp example on GitHub](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 </ShowForJs>
 
 <ShowForTs>
-  You can find the complete code for the TS version of the tutorial [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
+  You can find the complete code for the TS version of the tutorial in [the TodoAppTs example on GitHub](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoAppTs).
 </ShowForTs>
 
 You should be ready to learn about more complicated features and go more in-depth with the features already covered. Scroll through the sidebar on the left side of the page to see every feature Wasp has to offer. Or, let your imagination run wild and start building your app! ✨
@@ -424,7 +424,7 @@ Looking for inspiration?
 :::note
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next 🙏
 
-If you would like to contribute or help to build a feature, let us know! You can find more details on contributing [here](contributing.md).
+If you would like to contribute or help to build a feature, let us know! You can find more details on [contributing to Wasp](contributing.md).
 :::
 
 Oh, and do [**subscribe to our newsletter**](/#signup)! We usually send one per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

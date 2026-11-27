@@ -10,4 +10,5 @@ web/build/
 web/**/*.md
 web/**/*.mdx
 web/static/img/
+web/functions/types.d.ts
 waspc/data/packages/studio/public/assets/

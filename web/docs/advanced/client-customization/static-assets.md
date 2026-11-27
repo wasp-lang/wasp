@@ -38,7 +38,7 @@ For example, `imgUrl` will be `/img.png` during development, and become `/assets
 
 This is what you want to use most of the time, as it ensures that the asset file exists and is included in the bundle.
 
-We are using Vite under the hood, read more about importing static assets in Vite's [docs](https://vitejs.dev/guide/assets.html#importing-asset-as-url).
+We are using Vite under the hood, read more about importing static assets in [Vite's guide to importing assets as URLs](https://vitejs.dev/guide/assets.html#importing-asset-as-url).
 
 ## The `public` Directory
 
