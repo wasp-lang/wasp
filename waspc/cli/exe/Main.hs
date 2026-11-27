@@ -6,7 +6,7 @@ import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (intercalate)
-import qualified Data.Text as T
+import Data.String (fromString)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
@@ -39,7 +39,6 @@ import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Console (Console (..), initConsole)
-import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Util (indent)
@@ -129,7 +128,7 @@ runMain console = do
 
 handleInternalErrors :: Console -> E.ErrorCall -> IO ()
 handleInternalErrors console e = do
-  console.writeRawOutput Stdout . T.pack $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e) ++ "\n"
+  console.writeRawOutput Stdout . fromString $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e) ++ "\n"
   exitFailure
 
 isHelpArg :: String -> Bool

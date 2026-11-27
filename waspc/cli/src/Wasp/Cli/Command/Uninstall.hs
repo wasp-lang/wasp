@@ -16,7 +16,6 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Prompter (Prompter)
 import qualified Wasp.Cli.Console.Prompter as Prompter
-import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,

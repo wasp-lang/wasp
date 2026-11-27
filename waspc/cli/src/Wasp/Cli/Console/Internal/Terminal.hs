@@ -17,7 +17,7 @@ where
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import System.IO (Handle, hFlush, hIsTerminalDevice, hPutStr, stderr, stdin, stdout)
+import System.IO (Handle, hFlush, hIsTerminalDevice, stderr, stdin, stdout)
 import System.IO.Error (ioeGetHandle, isEOFError)
 import Wasp.Util.IO.Process (OutputStream (..))
 

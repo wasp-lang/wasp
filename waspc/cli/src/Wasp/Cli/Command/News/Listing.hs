@@ -35,7 +35,6 @@ import Wasp.Cli.Command.News.LocalNewsState
   )
 import Wasp.Cli.Console (Console (..))
 import qualified Wasp.Cli.Console.Prompter as Prompter
-import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.TextStyle (styleCode)
 

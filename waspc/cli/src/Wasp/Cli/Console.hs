@@ -10,8 +10,7 @@ import Wasp.Cli.Console.Internal.TerminalPrompter (makeTerminalPrompter)
 import Wasp.Cli.Console.Internal.TerminalReporter (makeTerminalReporter)
 import Wasp.Cli.Console.Prompter (Prompter)
 import Wasp.Cli.Console.Reporter (Reporter (..))
-import qualified Wasp.Job as Job
-import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
+import Wasp.Util.IO.Process (WriteOutput)
 
 -- | Everything the CLI uses to talk to the user. There is a single one, created
 -- at startup and handed down to the code that needs it.

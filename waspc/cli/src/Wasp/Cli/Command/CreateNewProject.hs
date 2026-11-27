@@ -63,7 +63,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
       then migrateDbForNewProject absWaspProjectDir
       else return False
 
-  liftIO $ printGettingStartedInstructionsForProject console.writeRawOutput newProjectDescription
+  liftIO $ printGettingStartedInstructionsForProject console newProjectDescription
 
   liftIO
     $ printExtraInstructionsForProject console.writeRawOutput
@@ -133,12 +133,12 @@ migrateDbForNewProject absWaspProjectDir =
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
-printGettingStartedInstructionsForProject :: WriteOutput -> NewProjectDescription -> IO ()
-printGettingStartedInstructionsForProject writeRawOutput projectDescription = do
+printGettingStartedInstructionsForProject :: Console -> NewProjectDescription -> IO ()
+printGettingStartedInstructionsForProject console projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
   let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
-  reporter.send $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
-  writeRawOutput Stdout . T.pack $ instructions ++ "\n"
+  console.reporter.send $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
+  console.writeRawOutput Stdout . T.pack $ instructions ++ "\n"
 
 printExtraInstructionsForProject :: WriteOutput -> [String] -> IO ()
 printExtraInstructionsForProject _ [] = return ()
