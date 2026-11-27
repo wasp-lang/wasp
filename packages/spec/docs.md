@@ -9,7 +9,6 @@ import { app } from "@wasp/spec";
 
 export default app({
   name: "todoApp",
-  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
   spec: [],
 });
