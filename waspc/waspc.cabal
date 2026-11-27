@@ -431,7 +431,7 @@ library cli-lib
     filepath,
     fsnotify ^>=0.4.2,
     http-conduit,
-    lens,
+    lens ^>=5.3.6,
     lens-aeson ^>=1.2.3,
     lukko ^>=0.1.2,
     mtl,
@@ -452,7 +452,7 @@ library cli-lib
     zlib ^>=0.7.1,
 
   if !os(windows)
-    build-depends: unix
+    build-depends: unix ^>=2.8.8
   other-modules:
     Paths_waspc
 
@@ -564,11 +564,11 @@ test-suite waspc-tests
     async,
     base,
     containers,
-    deepseq,
+    deepseq ^>=1.4.8,
     directory,
     filepath,
     Glob,
-    hspec >=2.11,
+    hspec ^>=2.11.17,
     megaparsec,
     mtl,
     neat-interpolation,
@@ -576,7 +576,7 @@ test-suite waspc-tests
     process,
     strong-path,
     tasty ^>=1.5.3,
-    tasty-hspec >=1.2,
+    tasty-hspec ^>=1.2.0,
     tasty-quickcheck ^>=0.10.3,
     temporary,
     text,
@@ -674,7 +674,7 @@ test-suite wasp-cli-tests
     hspec,
     network,
     network-uri,
-    QuickCheck,
+    QuickCheck ^>=2.15.0,
     tasty,
     tasty-hspec,
     time,
@@ -712,7 +712,7 @@ test-suite waspc-e2e-tests
     process,
     strong-path,
     tasty,
-    tasty-golden,
+    tasty-golden ^>=2.3.6,
     tasty-hspec,
     text,
     unliftio ^>=0.2.25,
