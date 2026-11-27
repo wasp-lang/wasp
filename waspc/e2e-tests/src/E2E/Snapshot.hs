@@ -24,8 +24,9 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import E2E.Steps (TestM, TestPaths (..), runTestSteps)
-import E2E.Suite (TestSuiteEnv (..), claimOutputDir, withTestSuiteEnv)
+import E2E.SuiteEnv (TestSuiteEnv (..))
+import E2E.TestM (TestM, TestPaths (..), runTestSteps)
+import E2E.TestTree (claimOutputDir, withTestSuiteEnv)
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesDirectoryExist, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)

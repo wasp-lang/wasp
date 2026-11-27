@@ -49,8 +49,8 @@ import qualified Data.Text.Encoding as TE
 import E2E.Command (Command (..), Executable (..), StdinMode (..), showCommand)
 import E2E.Process.Output (Output, Stream (..), captureStream, isFullyRead, newOutput, readCombinedOutput, readStdout)
 import E2E.Signals (Signal (..), processGroupExists, signalProcess, signalProcessGroup)
-import E2E.Steps (TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
-import E2E.Suite (TestSuiteEnv (..))
+import E2E.SuiteEnv (TestSuiteEnv (..))
+import E2E.TestM (TestEnv (..), TestM, allocateWithCleanup, failTest, getWorkingDir, logLine, resolvePath, runTestM)
 import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP

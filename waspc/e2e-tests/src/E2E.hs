@@ -9,8 +9,9 @@ module E2E
     module E2E.Process,
     module E2E.Signals,
     module E2E.Snapshot,
-    module E2E.Test,
-    module E2E.Steps,
+    module E2E.TestM,
+    module E2E.TestTree,
+    module E2E.Wait,
     module E2E.Wasp,
     ExitCode (..),
   )
@@ -25,7 +26,8 @@ import E2E.Ports
 import E2E.Process
 import E2E.Signals (Signal (..))
 import E2E.Snapshot
-import E2E.Steps (TestM, failTest, inDirectory, logLine, makeUniqueName, registerCleanupStep, resolvePath, settleTimeoutSeconds, step, waitUntil)
-import E2E.Test (TestTree, sequentialTestGroup, test, testGroup)
+import E2E.TestM (TestM, failTest, inDirectory, logLine, makeUniqueName, registerCleanupStep, resolvePath, step)
+import E2E.TestTree (TestTree, sequentialTestGroup, test, testGroup)
+import E2E.Wait (settleTimeoutSeconds, waitUntil)
 import E2E.Wasp
 import System.Exit (ExitCode (..))

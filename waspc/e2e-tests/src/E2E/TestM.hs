@@ -1,11 +1,10 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
--- | What runs inside a test: its steps, built with 'E2E.Test.test' and run
+-- | What runs inside a test: its steps, built with 'E2E.TestTree.test' and run
 -- when tasty starts the test. Has the monad they run in, and what every step
--- can do: fail, label a phase, run in a directory, register cleanups, log, and
--- wait.
-module E2E.Steps
+-- can do: fail, label a phase, run in a directory, register cleanups, and log.
+module E2E.TestM
   ( TestM,
     TestEnv (..),
     TestLog (..),
@@ -24,25 +23,20 @@ module E2E.Steps
     makeUniqueName,
     writeToLog,
     logLine,
-    waitUntil,
-    pollUntil,
-    settleTimeoutSeconds,
   )
 where
 
-import Control.Concurrent (threadDelay)
 import Control.Concurrent.MVar (MVar, newMVar, withMVar)
-import Control.Monad (unless, void)
+import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, ask, asks, local, runReaderT)
 import Control.Monad.Trans.Resource (MonadResource, ReleaseKey, ResourceT, allocate, runResourceT)
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
-import Data.Time.Clock (addUTCTime, getCurrentTime)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.Unique (hashUnique, newUnique)
-import E2E.Suite (TestSuiteEnv)
+import E2E.SuiteEnv (TestSuiteEnv)
 import GHC.Stack (prettySrcLoc)
 import System.Directory (createDirectoryIfMissing, removePathForcibly)
 import System.FilePath (takeDirectory, (</>))
@@ -219,36 +213,3 @@ logLine :: String -> TestM ()
 logLine line = do
   testLog <- asks (.testLog)
   liftIO $ writeToLog testLog (TE.encodeUtf8 . T.pack $ line ++ "\n")
-
--- | Checks the condition right away, and then every 'pollIntervalMicroseconds'
--- until it holds. Fails the test if it still doesn't hold after the given
--- number of seconds.
---
--- The deadline is only checked between checks, so a condition that runs a
--- command should give it a timeout no longer than the wait.
-waitUntil :: String -> Int -> TestM Bool -> TestM ()
-waitUntil description seconds condition = do
-  holds <- pollUntil seconds condition
-  unless holds $ failTest $ "Timed out after " ++ show seconds ++ "s waiting until " ++ description ++ "."
-
--- | Like 'waitUntil', but returns whether the condition held in time instead
--- of failing, for waits that fail with more context.
-pollUntil :: Int -> TestM Bool -> TestM Bool
-pollUntil seconds condition = do
-  deadline <- liftIO $ addUTCTime (fromIntegral seconds) <$> getCurrentTime
-  let poll = do
-        holds <- condition
-        now <- liftIO getCurrentTime
-        if holds || now > deadline
-          then return holds
-          else liftIO (threadDelay pollIntervalMicroseconds) >> poll
-  poll
-
--- | Short enough not to slow tests down, long enough not to keep a core busy.
-pollIntervalMicroseconds :: Int
-pollIntervalMicroseconds = 500000
-
--- | For a wait on something that follows an event we already waited for, e.g.
--- a process's children stopping after it exited.
-settleTimeoutSeconds :: Int
-settleTimeoutSeconds = 30

@@ -19,8 +19,9 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Command (program)
 import E2E.Process (ProcessResult (..), RunningProcess, failIfExited, failWithOutput, run)
-import E2E.Steps (TestEnv (..), TestM, failTest, inDirectory, pollUntil, resolvePath)
-import E2E.Suite (TestSuiteEnv (..))
+import E2E.SuiteEnv (TestSuiteEnv (..))
+import E2E.TestM (TestEnv (..), TestM, failTest, inDirectory, resolvePath)
+import E2E.Wait (pollUntil)
 import System.Directory (createDirectoryIfMissing, doesFileExist, removeFile, removePathForcibly)
 import qualified System.Directory as Directory
 import System.FilePath (takeDirectory, (</>))

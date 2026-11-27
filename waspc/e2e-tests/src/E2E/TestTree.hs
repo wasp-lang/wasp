@@ -1,0 +1,151 @@
+-- | The tasty tree of the e2e tests, which is built before any test runs:
+-- declaring tests and the groups they go in, deciding which dir each one runs
+-- in, and handing them what the whole run shares.
+--
+-- The tests are plain tasty 'TestTree's, so that tasty-discover can find them
+-- (see @TestsDiscoverDriver.hs@). What they need to know about the tree comes
+-- from tasty's options, which aren't command line options here: a group sets
+-- them for the tests in it.
+--
+-- What a test does when it runs is its steps (see "E2E.TestM").
+module E2E.TestTree
+  ( TestTree,
+    test,
+    skippedTest,
+    testGroup,
+    sequentialTestGroup,
+    setTestSuiteEnv,
+    withTestSuiteEnv,
+    claimOutputDir,
+    checkOutputDirs,
+  )
+where
+
+import Control.Monad (unless)
+import Data.List (intercalate, isPrefixOf, nub)
+import Data.Tagged (Tagged (..))
+import E2E.SuiteEnv (TestSuiteEnv (..))
+import E2E.TestM (TestFailure (..), TestM, TestPaths (..), runTestSteps)
+import System.FilePath (isPathSeparator, joinPath, (</>))
+import Test.Tasty (TestTree, adjustOption, askOption, localOption)
+import qualified Test.Tasty as Tasty
+import Test.Tasty.Options (IsOption (..), lookupOption)
+import Test.Tasty.Providers (IsTest (..), Result, singleTest, testFailed, testPassed)
+import Test.Tasty.Runners (TreeFold (..), foldTestTree, trivialFold)
+import UnliftIO.Exception (catch)
+
+-- | The names of the e2e groups a test is in, outermost first, which decide
+-- where it runs (see 'test').
+newtype GroupNames = GroupNames [String]
+
+instance IsOption GroupNames where
+  defaultValue = GroupNames []
+  parseValue = const Nothing
+  optionName = Tagged "e2e-group-names"
+  optionHelp = Tagged "The e2e groups a test is in. Not a command line option."
+
+-- | A test that passes when all of its steps succeed.
+--
+-- It runs in a fresh @test-outputs/<groups>/<name>/@ dir, and writes the
+-- output of the commands it runs to @output.log@ in it.
+test :: String -> TestM a -> TestTree
+test name steps =
+  withTestSuiteEnv $ \testSuiteEnv -> inTestDir name $ \testPath -> IOTest $ do
+    let testDir = testSuiteEnv.testOutputsDir </> joinPath testPath
+        testPaths = TestPaths {workingDir = testDir, logFile = testDir </> testLogFileName}
+    (runTestSteps testSuiteEnv (intercalate "/" testPath) testPaths steps >> return (testPassed ""))
+      `catch` (\(TestFailure message) -> return $ testFailed message)
+
+-- | A test that passes with the message, without running. It still claims the
+-- dir it would run in, so that the dir check doesn't depend on which tests a
+-- run skips.
+skippedTest :: String -> String -> TestTree
+skippedTest name message = inTestDir name . const . IOTest . return $ testPassed message
+
+-- | A single test that runs in @test-outputs/<groups>/<name>/@. Gets the
+-- names of the dirs on the way.
+inTestDir :: String -> ([String] -> IOTest) -> TestTree
+inTestDir name makeIOTest =
+  askOption $ \(GroupNames groupNames) ->
+    let testPath = groupNames ++ [name]
+     in claimOutputDir testPath . singleTest name $ makeIOTest testPath
+
+testLogFileName :: FilePath
+testLogFileName = "output.log"
+
+-- | Tests in the group run in parallel.
+testGroup :: String -> [TestTree] -> TestTree
+testGroup name = inGroup name . Tasty.testGroup name
+
+-- | Tests in the group run one after another, in order. For tests that can't
+-- run at the same time, e.g. because they use the same port.
+sequentialTestGroup :: String -> [TestTree] -> TestTree
+sequentialTestGroup name = inGroup name . Tasty.inOrderTestGroup name
+
+inGroup :: String -> TestTree -> TestTree
+inGroup name = adjustOption $ \(GroupNames groupNames) -> GroupNames (groupNames ++ [name])
+
+-- | A tasty test that runs the IO action to get its result.
+newtype IOTest = IOTest (IO Result)
+
+instance IsTest IOTest where
+  run _ (IOTest getResult) _ = getResult
+  testOptions = pure []
+
+-- | Set for the whole test tree by the e2e tests' main (see 'setTestSuiteEnv').
+newtype TestSuiteEnvOption = TestSuiteEnvOption TestSuiteEnv
+
+instance IsOption TestSuiteEnvOption where
+  defaultValue = error "The e2e tests need a test suite env. Run them with the e2e tests' main, which sets it."
+  parseValue = const Nothing
+  optionName = Tagged "e2e-test-suite-env"
+  optionHelp = Tagged "What all the e2e tests of the run share. Not a command line option."
+
+setTestSuiteEnv :: TestSuiteEnv -> TestTree -> TestTree
+setTestSuiteEnv = localOption . TestSuiteEnvOption
+
+withTestSuiteEnv :: (TestSuiteEnv -> TestTree) -> TestTree
+withTestSuiteEnv makeTestTree = askOption $ \(TestSuiteEnvOption testSuiteEnv) -> makeTestTree testSuiteEnv
+
+-- | The dir a test runs in, relative to the test outputs dir, as the names of
+-- the dirs on the way, e.g. @["wasp-start", "stop-on-sigint"]@. Tests delete
+-- their dirs, so no two tests may share one (see 'checkOutputDirs').
+newtype OutputDir = OutputDir (Maybe [String])
+
+instance IsOption OutputDir where
+  defaultValue = OutputDir Nothing
+  parseValue = const Nothing
+  optionName = Tagged "e2e-output-dir"
+  optionHelp = Tagged "The dir an e2e test runs in. Not a command line option."
+
+-- | Declares the dir the test runs in, so that the run can check that no
+-- other test uses it.
+claimOutputDir :: [String] -> TestTree -> TestTree
+claimOutputDir = localOption . OutputDir . Just
+
+-- | Fails if a test or group name isn't a single dir name (e.g. it's empty or
+-- has a slash), so that a test could run in another's dir or outside of the
+-- test outputs dir, or if two tests would run in the same dir, or one in
+-- another's dir.
+--
+-- Checks all of the tests, also the ones a pattern leaves out.
+checkOutputDirs :: TestTree -> IO ()
+checkOutputDirs testTree = do
+  unless (null invalidNames)
+    $ fail
+    $ "Some e2e test or group names aren't a single directory name, e.g. they're empty or have a slash: " ++ intercalate ", " (map show invalidNames)
+  unless (null clashingDirs)
+    $ fail
+    $ "Some e2e tests would run in the same directory, so their names must change: " ++ intercalate ", " clashingDirs
+  where
+    dirs = foldTestTree trivialFold {foldSingle = \options _ _ -> [dir | OutputDir (Just dir) <- [lookupOption options]]} mempty testTree
+    invalidNames = nub [name | dir <- dirs, name <- dir, not (isSingleDirName name)]
+    isSingleDirName name = name `notElem` ["", ".", ".."] && not (any isPathSeparator name)
+    clashingDirs =
+      nub
+        [ joinPath dir
+        | (index, dir) <- zip [0 :: Int ..] dirs,
+          (otherIndex, otherDir) <- zip [0 ..] dirs,
+          index /= otherIndex,
+          dir `isPrefixOf` otherDir
+        ]

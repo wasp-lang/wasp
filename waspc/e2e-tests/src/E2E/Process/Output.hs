@@ -18,7 +18,7 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.Encoding.Error as TE
-import E2E.Steps (TestLog, writeToLog)
+import E2E.TestM (TestLog, writeToLog)
 import System.IO (BufferMode (NoBuffering), Handle, hClose, hSetBuffering)
 import qualified System.Process.Typed as TP
 import UnliftIO.Exception (catchAny)

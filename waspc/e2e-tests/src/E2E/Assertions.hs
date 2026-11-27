@@ -2,7 +2,7 @@
 --
 -- The general ones are hspec's expectations, in their
 -- 'Control.Monad.IO.Class.MonadIO' version. Their failures say where they
--- failed (see 'E2E.Steps.failureMessage'). The rest are for checks that hspec's
+-- failed (see 'E2E.TestM.failureMessage'). The rest are for checks that hspec's
 -- expectations don't fail with a useful message.
 module E2E.Assertions
   ( module Test.Hspec.Expectations.Lifted,
@@ -21,7 +21,7 @@ import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import E2E.Process (ExpectedExit (..), ProcessResult (..), RunningProcess, failOnUnexpectedExit, failWithResult, readResult, waitForExit)
-import E2E.Steps (TestM, failTest, resolvePath)
+import E2E.TestM (TestM, failTest, resolvePath)
 import System.Directory (doesDirectoryExist, doesFileExist, pathIsSymbolicLink)
 import Test.Hspec.Expectations.Lifted hiding (HasCallStack)
 import UnliftIO.Exception (catchAny)

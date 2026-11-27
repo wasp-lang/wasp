@@ -36,7 +36,7 @@ import E2E.Assertions (assertOutputContains)
 import E2E.Command (Command, nodeModulesBin, waspCli, withEnv, withoutEnv)
 import E2E.Files (replaceInFile, writeToFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
-import E2E.Steps (TestM, failTest, getWorkingDir, inDirectory, resolvePath)
+import E2E.TestM (TestM, failTest, getWorkingDir, inDirectory, resolvePath)
 import qualified StrongPath as SP
 import System.Directory (canonicalizePath, doesDirectoryExist, listDirectory, renameDirectory)
 import System.FilePath ((</>))
