@@ -33,7 +33,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import E2E.Assertions (assertOutputContains)
 import E2E.Command (Command, nodeModulesBin, waspCli, withEnv, withoutEnv)
-import E2E.Files (replaceInFile, writeToFile)
+import E2E.Files (readJsonFile, replaceInFile, writeToFile)
 import E2E.Process (ProcessResult, run, runExpectingFailure)
 import E2E.TestM (TestM, failTest, getWorkingDir, inDirectory, resolvePath)
 import qualified StrongPath as SP
@@ -176,11 +176,7 @@ getWaspPidFromLockFile = (\lockData -> fromIntegral lockData.pid) <$> readLockFi
 -- | What the Wasp process that holds the project lock (or held it last) wrote
 -- into the lock file.
 readLockFile :: TestM ProjectLockData
-readLockFile = do
-  absLockFile <- resolvePath lockFile
-  liftIO (Aeson.eitherDecodeFileStrict absLockFile) >>= \case
-    Right lockData -> return lockData
-    Left err -> failTest $ "Couldn't read the project lock file " ++ absLockFile ++ ": " ++ err
+readLockFile = readJsonFile lockFile
 
 -- | Overwrites the lock file in place, instead of replacing it with a new
 -- one, since the OS-level lock is tied to the file itself.

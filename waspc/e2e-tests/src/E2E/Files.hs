@@ -3,6 +3,7 @@ module E2E.Files
   ( writeToFile,
     appendToFile,
     replaceInFile,
+    readJsonFile,
     copyFile,
     deleteFile,
     deleteDirectory,
@@ -14,6 +15,7 @@ where
 import Control.Monad (forM_, unless)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (asks)
+import qualified Data.Aeson as Aeson
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -60,6 +62,14 @@ readFromFile path = do
   liftIO (TE.decodeUtf8' <$> BS.readFile absPath) >>= \case
     Right content -> return content
     Left err -> failTest $ "Expected " ++ absPath ++ " to be UTF-8 text: " ++ show err
+
+-- | The file decoded as JSON, into a data type with the fields to check.
+-- Fails the test if it doesn't decode.
+readJsonFile :: (Aeson.FromJSON a) => FilePath -> TestM a
+readJsonFile path = do
+  absPath <- resolvePath path
+  liftIO (Aeson.eitherDecodeFileStrict absPath)
+    >>= either (failTest . (("Expected " ++ absPath ++ " to be JSON that decodes: ") ++)) return
 
 copyFile :: FilePath -> FilePath -> TestM ()
 copyFile srcPath dstPath = do

@@ -3,7 +3,8 @@
 -- Fixtures edit the starter's files instead of rewriting them, so the tests
 -- keep up with the starter. An edit fails loudly when the starter changes.
 module Tests.Fixtures
-  ( taskPrismaModel,
+  ( withKitchenSinkProject,
+    taskPrismaModel,
     userCodeTypeError,
     userCodeTypeErrorMessage,
     setRootRoutePath,
@@ -28,6 +29,17 @@ import Control.Monad (forM_, void)
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
+import Wasp.Project.Db (databaseUrlEnvVarName)
+
+-- | Runs the steps in a copy of the kitchen-sink example app, the one app that
+-- uses every Wasp feature. It's set up to compile, but nothing is installed.
+withKitchenSinkProject :: TestM a -> TestM a
+withKitchenSinkProject steps = do
+  copyGitTrackedDir "examples/kitchen-sink" waspAppDirName
+  inDirectory waspAppDirName $ do
+    copyFile ".env.server.example" ".env.server"
+    appendToFile ".env.server" ("\n" <> T.pack databaseUrlEnvVarName <> "=mock-database-url")
+    steps
 
 taskPrismaModel :: T.Text
 taskPrismaModel =
