@@ -3190,6 +3190,18 @@ The body of the `Response` is already read into `message` and `data`, so don't r
 
 To look at the [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) that failed, use `error.cause.request`. The `cause` is the error that [ky](https://github.com/sindresorhus/ky#httperror), the HTTP client Wasp uses, threw.
 
+##### Client timeout and long-running Actions
+
+The generated Action client uses Ky's default **10-second HTTP timeout**. When the request times out, the client call rejects, but the Action running on the server may still finish and write data. The timeout doesn't apply when you call the Action directly from server code.
+
+For work that may take longer, use a start-and-poll pattern:
+
+1. A `startTask` Action enqueues the work in a [background Job](https://wasp.sh/docs/features/jobs) and returns a task ID without waiting for the work to finish.
+2. The worker records the task's status and result. A read-only `getTaskStatus` Query checks that the caller can access the task and returns its current status by ID.
+3. The client polls `getTaskStatus` with `useQuery` and a `refetchInterval`. Stop polling when the task succeeds or fails.
+
+Don't automatically retry a timed-out Action. The first request may already have started the work, and another call could start it twice. If you need to let the user resubmit safely, make the start Action idempotent, for example by using a client-generated request ID to return the existing task instead of starting another one.
+
 #### Using Entities in Actions
 
 In most cases, resources used in Actions will be [Entities](https://wasp.sh/docs/features/data/entities). To use an Entity in your Action, add it to the `action` spec in Wasp:
