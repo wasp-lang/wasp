@@ -2,11 +2,12 @@ module Wasp.Project.WaspNpmPackage
   ( -- * Versions
     InstalledWaspNpmPackageError (..),
     tryGettingInstalledWaspNpmPackageVersion,
-    tryGettingInstalledWaspNpmPackagePeerDeps,
+    tryGettingInstalledWaspNpmPackageRequiredPeerDeps,
     doesVersionMatchDeclaredVersion,
     WaspNpmPackageDeclaration (..),
     getWaspNpmPackageDeclaration,
     getDeclaredVersion,
+    dependsOnDevWaspNpmPackages,
 
     -- * Scripts
     WaspNpmPackageScript (..),
@@ -18,7 +19,7 @@ where
 import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
 import qualified Data.ByteString.Lazy.UTF8 as BLU
-import Data.List (find, isInfixOf)
+import Data.List (find, isInfixOf, isPrefixOf)
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import StrongPath (Abs, Dir, Path', fromAbsDir)
@@ -48,11 +49,16 @@ tryGettingInstalledWaspNpmPackageVersion waspProjectDir =
 
 -- | The packages Wasp needs in every app, e.g. React or Express. Only the
 -- package.json of \@wasp/wasp lists them.
-tryGettingInstalledWaspNpmPackagePeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
-tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir =
-  (>>= parsePeerDeps) <$> readInstalledWaspNpmPackageJson waspProjectDir peerDepsAsJson
+tryGettingInstalledWaspNpmPackageRequiredPeerDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either InstalledWaspNpmPackageError [Npm.Dependency.Dependency])
+tryGettingInstalledWaspNpmPackageRequiredPeerDeps waspProjectDir =
+  (>>= parsePeerDeps) <$> readInstalledWaspNpmPackageJson waspProjectDir requiredPeerDepsAsJson
   where
-    peerDepsAsJson packageJson = "JSON.stringify(" ++ packageJson ++ ".peerDependencies ?? {})"
+    requiredPeerDepsAsJson packageJson =
+      "JSON.stringify(Object.fromEntries(Object.entries("
+        ++ packageJson
+        ++ ".peerDependencies ?? {}).filter(([name]) => !"
+        ++ packageJson
+        ++ ".peerDependenciesMeta?.[name]?.optional)))"
     parsePeerDeps =
       first BrokenWaspNpmPackage
         . fmap (Npm.Dependency.fromList . M.toList)
@@ -102,6 +108,18 @@ getWaspNpmPackageDeclaration waspProjectDir =
         (Just version, _) -> DeclaredInDependencies version
         (Nothing, Just version) -> DeclaredInDevDependencies version
         (Nothing, Nothing) -> NotDeclared
+
+-- | TODO(#2262): Once Wasp works with pnpm, the repo's Wasp apps stop
+-- depending on dev tarballs, and only projects that the dev CLI creates
+-- outside the repo do.
+--
+-- Whether the project depends on \@wasp/wasp through a `file:` tarball. Only
+-- projects that develop Wasp itself do (see @Wasp.Cli.DevWaspNpmPackages@).
+dependsOnDevWaspNpmPackages :: PJ.PackageJson -> Bool
+dependsOnDevWaspNpmPackages packageJson =
+  any
+    (maybe False ("file:" `isPrefixOf`) . M.lookup waspNpmPackageName)
+    [PJ.dependencies packageJson, PJ.devDependencies packageJson]
 
 getDeclaredVersion :: WaspNpmPackageDeclaration -> Maybe String
 getDeclaredVersion = \case

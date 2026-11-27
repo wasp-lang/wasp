@@ -197,9 +197,9 @@ waspDbSeedTest =
         }
       |]
 
-    -- npm usually hoists `dotenv` to the project root's `node_modules`. We move it
-    -- into the server's `node_modules` and leave a decoy in its place, so the seed
-    -- only passes if the server loads `dotenv` from the server package. The decoy
+    -- `dotenv` is in the project root's `node_modules`. We move it into a
+    -- `node_modules` in the server dir and leave a decoy in its place, so the seed
+    -- only passes if `dotenv` gets resolved from the server dir. The decoy
     -- still provides `parse`, which the Prisma CLI uses to check the db connection.
     replaceRootDotenvWithDecoy :: ShellCommand
     replaceRootDotenvWithDecoy =

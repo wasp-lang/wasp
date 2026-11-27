@@ -1,7 +1,11 @@
 {{={= =}=}}
 {
   "name": "{= sdkPackageName =}",
-  "version": "1.0.0",
+  {=!
+    No `version` or `license` on purpose. npm copies them into the project's
+    lockfile, which would then differ between an install on a fresh clone,
+    before the SDK exists, and an install after.
+  =}
   "private": true,
   "type": "module",
   "scripts": {
@@ -76,8 +80,6 @@
     {=! Client: initializeQueryClient in the app entry. =}
     "./client/operations": "./dist/client/operations/index.js",
     "./client/router": "./dist/client/router/index.js",
-    {=! Users: Vitest helpers. Has optional peer dependencies: vitest, msw, and @testing-library/react. =}
-    "./client/test": "./dist/client/test/index.js",
     "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     {=! Users: entity types. =}
@@ -103,8 +105,6 @@
     {=! Users: type WebSocketDefinition, type WaspSocketData. =}
     {=! Server: type ServerType. =}
     "./server/webSocket": "./dist/server/webSocket/index.js",
-    {=! Users: the Vitest config helper. =}
-    "./test": "./dist/test/index.js",
 
     {=!
       ===============================================================
@@ -159,8 +159,5 @@
     "*": {
       "client/api": ["api/index.ts"]
     }
-  },
-  "license": "ISC",
-  {=& depsChunk =},
-  {=& devDepsChunk =}
+  }
 }

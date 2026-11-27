@@ -4,14 +4,14 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
+import qualified System.FilePath.Posix as FP.Posix
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
-import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import Wasp.Util (toUpperFirst)
-import Wasp.Util.StrongPath (invertRelDir)
 
 data SdkRootDir
 
@@ -86,5 +86,14 @@ vitePluginsDirInSdkTemplatesDir = viteDirInSdkTemplatesDir </> [reldir|plugins|]
 sdkPackageName :: String
 sdkPackageName = "wasp"
 
-libsRootDirFromSdkDir :: Path' (Rel SdkRootDir) (Dir WaspLibsC.LibsRootDir)
-libsRootDirFromSdkDir = invertRelDir sdkRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir
+-- | What the project's package.json says for the 'sdkPackageName' dependency.
+-- npm links the dir into `node_modules`, even before Wasp generates it.
+sdkPackageSpecifier :: String
+sdkPackageSpecifier = "file:" ++ sdkRootDirInWaspProjectDirPosix
+  where
+    sdkRootDirInWaspProjectDirPosix =
+      FP.Posix.dropTrailingPathSeparator
+        $ SP.fromRelDirP
+        $ fromJust
+        $ SP.relDirToPosix
+        $ dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir </> sdkRootDirInGeneratedAppDir

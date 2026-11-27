@@ -10,11 +10,13 @@ import ShellCommands
     assertCommandFailsWith,
     createTestWaspProject,
     inTestWaspProjectDir,
+    installOptionalFeaturePackagesCommand,
     replaceMainWaspTsFile,
     waspCliCompile,
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Generator.SdkGenerator.Server.AuthG (authNpmDeps)
 
 waspSpecEntityTypesTest :: Test
 waspSpecEntityTypesTest =
@@ -28,6 +30,7 @@ waspSpecEntityTypesTest =
                 [ appendToPrismaFile prismaUserModel,
                   replaceMainWaspTsFile $ mainWaspTs validEntityName,
                   compileWaspMainTsFiles,
+                  installAuthPackages,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
                   compileWaspMainTsFiles
                 ]
@@ -54,6 +57,7 @@ waspSpecEntityTypesTest =
               inTestWaspProjectDir
                 [ appendToPrismaFile prismaUserModel,
                   replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  installAuthPackages,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
                   replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
                   assertCommandFailsWith
@@ -66,6 +70,9 @@ waspSpecEntityTypesTest =
   where
     compileWaspMainTsFiles :: ShellCommandBuilder WaspProjectContext ShellCommand
     compileWaspMainTsFiles = return "npx tsc --noEmit -p tsconfig.wasp.json"
+
+    installAuthPackages :: ShellCommandBuilder WaspProjectContext ShellCommand
+    installAuthPackages = return $ installOptionalFeaturePackagesCommand [authNpmDeps]
 
     prismaUserModel :: T.Text
     prismaUserModel =

@@ -5,7 +5,17 @@
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 
-Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
+Enabling auth for your app is optional.
+
+Auth needs the `lucia` package in your project. Install it if you haven't already:
+
+```shell
+npm install lucia@3
+```
+
+Social auth methods, like `google` and `gitHub` below, also need the `arctic` package.
+
+Then configure the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"

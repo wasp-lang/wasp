@@ -14,12 +14,7 @@
  * @module
  */
 
-import type {
-  Job,
-  JSONObject,
-  JSONValue,
-  SubmittedJob,
-} from "@wasp/lib-sdk-core";
+import type { Job, JSONObject, JSONValue, SubmittedJob } from "@wasp/sdk-core";
 
 /**
  * The type of a Job's worker function: an `async` function that performs the

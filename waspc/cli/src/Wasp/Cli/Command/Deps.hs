@@ -5,7 +5,6 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
@@ -13,13 +12,10 @@ import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspNpmPackageAvailable (WaspNpmPackageAvailable (WaspNpmPackageAvailable), brokenInstallError, notInstalledError)
 import Wasp.Docs (versionedWaspDocsUrl)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.NpmDependencies as N
-import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import Wasp.Generator.OptionalFeatureNpmDeps (getNpmDepsOfUsedOptionalFeatures)
 import Wasp.NpmPackageNames (waspNpmPackageName)
 import Wasp.Project (analyzeWaspProject)
-import Wasp.Project.WaspNpmPackage (InstalledWaspNpmPackageError (..), tryGettingInstalledWaspNpmPackagePeerDeps)
+import Wasp.Project.WaspNpmPackage (InstalledWaspNpmPackageError (..), tryGettingInstalledWaspNpmPackageRequiredPeerDeps)
 import qualified Wasp.Util.TextStyle as TextStyle
 
 deps :: Command ()
@@ -34,36 +30,29 @@ deps = do
       return
       appSpecOrAnalyzerErrors
 
-  waspNpmPackagePeerDeps <-
-    liftIO (tryGettingInstalledWaspNpmPackagePeerDeps waspProjectDir) >>= \case
+  waspNpmPackageRequiredPeerDeps <-
+    liftIO (tryGettingInstalledWaspNpmPackageRequiredPeerDeps waspProjectDir) >>= \case
       Right peerDeps -> return peerDeps
       Left WaspNpmPackageNotInstalled -> throwError notInstalledError
       Left (BrokenWaspNpmPackage reason) -> throwError $ brokenInstallError reason
 
-  liftIO $ putStrLn $ depsMessage appSpec waspNpmPackagePeerDeps
+  liftIO $ putStrLn $ depsMessage appSpec waspNpmPackageRequiredPeerDeps
 
 depsMessage :: AppSpec -> [Npm.Dependency.Dependency] -> String
-depsMessage appSpec waspNpmPackagePeerDeps =
+depsMessage appSpec waspNpmPackageRequiredPeerDeps =
   unlines $
     [ "",
-      TextStyle.styleTitle "Below are the dependencies Wasp uses in your project. You can import them in your code as if you specified them yourself.",
+      TextStyle.styleTitle "Below are the dependencies Wasp uses in your project.",
       "To use another version, see " ++ versionedWaspDocsUrl "advanced/dependencies#overriding-wasps-dependencies-advanced",
       ""
     ]
       ++ printDeps
-        ("Peer dependencies of " ++ waspNpmPackageName ++ ":")
-        waspNpmPackagePeerDeps
+        ("Peer dependencies of " ++ waspNpmPackageName ++ ". You can import them in your code as if you specified them yourself:")
+        waspNpmPackageRequiredPeerDeps
       ++ [""]
       ++ printDeps
-        "Server dependencies:"
-        (filterOutWaspLibDeps $ N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
-      ++ [""]
-      ++ printDeps
-        "Server devDependencies:"
-        (filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
-  where
-    waspLibPackageNames = Set.fromList $ map WaspLib.packageName AvailableLibs.waspLibs
-    filterOutWaspLibDeps = filter ((`Set.notMember` waspLibPackageNames) . Npm.Dependency.name)
+        "Packages for the features your app uses, which your project specifies:"
+        (getNpmDepsOfUsedOptionalFeatures appSpec)
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =

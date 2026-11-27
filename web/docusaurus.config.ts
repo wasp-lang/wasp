@@ -341,7 +341,7 @@ const config: Config = {
         useCustomAnchors: true,
 
         // Documents types that our packages reference but don't export, e.g.
-        // the `@wasp/lib-sdk-core` types used in the Wasp SDK's signatures. The
+        // the `@wasp/sdk-core` types used in the Wasp SDK's signatures. The
         // theme plugin puts them in a "Referenced Types" group.
         plugin: [
           "typedoc-plugin-missing-exports",
@@ -351,7 +351,11 @@ const config: Config = {
 
         // input packages
         entryPointStrategy: "packages",
-        entryPoints: ["../packages/spec", "./sdk-api-docs"],
+        entryPoints: [
+          "../packages/spec",
+          "./sdk-api-docs",
+          "../packages/test-utils",
+        ],
 
         // If you want to set an option to a specific package, you can create a
         // `typedoc.jsonc` file in that package's folder with the desired

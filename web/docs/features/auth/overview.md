@@ -8,12 +8,19 @@ import { AuthMethodsGrid } from "./AuthMethodsGrid";
 import { CardLink } from "@site/src/components/CardLink";
 import { LinkGrid } from "@site/src/components/LinkGrid";
 import ReadMoreAboutAuthEntities from './_read-more-about-auth-entities.md';
+import AuthPackages from './_auth-packages.md';
 
 # Auth overview
 
 Auth is an essential piece of any serious application. That's why Wasp provides authentication and authorization support out of the box.
 
-Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
+Enabling auth for your app is optional.
+
+<AuthPackages />
+
+Social auth methods, like `google` and `gitHub` below, also need the `arctic` package.
+
+Then configure the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp/spec"

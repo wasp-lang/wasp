@@ -1,6 +1,6 @@
-import { isEmailResendAllowed } from '@wasp/lib-sdk-core'
+import { isEmailResendAllowed } from '@wasp/sdk-core'
 // PUBLIC API
-export { isEmailResendAllowed } from '@wasp/lib-sdk-core'
+export { isEmailResendAllowed } from '@wasp/sdk-core'
 
 import { createJWT, TimeSpan } from '../jwt.js'
 import { emailSender } from '../../email/index.js';

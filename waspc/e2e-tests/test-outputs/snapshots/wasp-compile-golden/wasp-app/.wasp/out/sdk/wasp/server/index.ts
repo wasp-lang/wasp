@@ -10,7 +10,7 @@ export type { ServerSetupFn } from './types/index.js'
 export type {
   ServerErrorContext,
   ServerOnErrorFn,
-} from "@wasp/lib-sdk-core/node";
+} from "@wasp/sdk-core/node";
 // PUBLIC API
 export type { MiddlewareConfigFn } from './middleware/index.js'
 // PUBLIC API

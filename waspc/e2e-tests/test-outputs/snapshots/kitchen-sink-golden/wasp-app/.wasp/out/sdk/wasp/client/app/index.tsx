@@ -7,7 +7,7 @@ export {
   registerClientOnErrorFn,
   reportClientError,
   reportRenderError,
-} from "@wasp/lib-sdk-core/browser";
+} from "@wasp/sdk-core/browser";
 
 // PRIVATE API (web-app)
 export { createAuthRequiredPage } from './pages/createAuthRequiredPage'

@@ -37,43 +37,98 @@
   "peerDependencies": {
     "@prisma/client": "6.19.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
+    "@sendgrid/mail": "^7.7.0",
+    "@socket.io/component-emitter": "^4.0.0",
     "@tanstack/react-query": "~4.42.0",
     "@types/cors": "^2.8.5",
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
+    "@types/node": "^26.0.0",
+    "@types/nodemailer": "^8.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "@wasp/test-utils": "workspace:~",
+    "arctic": "^1.2.1",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "~5.1.0",
     "helmet": "^6.0.0",
     "ky": "^2.0.0",
+    "lucia": "^3.0.1",
+    "mailgun.js": "^10.2.3",
     "morgan": "~1.12.1",
     "nf3": "0.4.2",
+    "nodemailer": "^8.0.1",
+    "pg-boss": "^8.4.2",
     "prisma": "6.19.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.45.4",
     "react-router": "^8.0.1",
+    "resend": "^6.0.0",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
     "superjson": "^2.2.1",
     "typescript": "6.0.3",
-    "vite": "^8.1.0"
+    "vite": "^8.1.0",
+    "zod": "^4.3.6"
+  },
+  "peerDependenciesMeta": {
+    "@sendgrid/mail": {
+      "optional": true
+    },
+    "@socket.io/component-emitter": {
+      "optional": true
+    },
+    "@types/nodemailer": {
+      "optional": true
+    },
+    "@wasp/test-utils": {
+      "optional": true
+    },
+    "arctic": {
+      "optional": true
+    },
+    "lucia": {
+      "optional": true
+    },
+    "mailgun.js": {
+      "optional": true
+    },
+    "nodemailer": {
+      "optional": true
+    },
+    "pg-boss": {
+      "optional": true
+    },
+    "resend": {
+      "optional": true
+    },
+    "socket.io": {
+      "optional": true
+    },
+    "socket.io-client": {
+      "optional": true
+    }
   },
   "dependencies": {
+    "@wasp/auth": "workspace:*",
     "@wasp/cli": "workspace:*",
     "@wasp/deploy": "workspace:*",
+    "@wasp/sdk-core": "workspace:*",
     "@wasp/spec": "workspace:*",
-    "@wasp/studio": "workspace:*"
+    "@wasp/studio": "workspace:*",
+    "@wasp/vite-ssr": "workspace:*"
   },
   "publishConfig": {
     "access": "public"
   },
   "//": [
     "Older global Wasp CLIs find this package through the `./package.json` export (see packages/cli/src/find-project-wasp-cli.ts), so changing it breaks their hand-over.",
-    "The `peerDependencies` are the packages Wasp needs in every app. See packages/README.md for details."
+    "The `peerDependencies` are the packages Wasp needs in every app. The optional ones are an exception, since only apps that use their feature need them. See packages/README.md for details."
   ]
 }

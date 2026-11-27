@@ -70,16 +70,11 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
       FSN.watchDir mgr (SP.fromAbsDir waspProjectDir) eventFilter (onEvent chan)
-      where
-        eventFilter event =
-          isWatchedFile filename && filename /= "package-lock.json"
-          where
-            filename = FP.takeFileName $ FSN.eventPath event
 
     watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan dirInWaspProjectDir =
       FSN.watchTree mgr (SP.fromAbsDir $ waspProjectDir </> dirInWaspProjectDir) eventFilter (onEvent chan)
-      where
-        eventFilter = isWatchedFile . FP.takeFileName . FSN.eventPath
+    eventFilter :: FSN.Event -> Bool
+    eventFilter = isWatchedFile . FP.takeFileName . FSN.eventPath
 
     onEvent :: Chan FSN.Event -> FSN.Event -> IO ()
     onEvent chan event = do

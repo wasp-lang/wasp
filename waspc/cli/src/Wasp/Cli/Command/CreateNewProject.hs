@@ -14,8 +14,9 @@ import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..), newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
+import Wasp.Cli.Command.CreateNewProject.NpmInstall (installProjectNpmDependencies)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     getAbsWaspProjectDir,
@@ -35,11 +36,11 @@ import Wasp.Cli.DevWaspNpmPackages (checkDirectlyRunWaspCanCreateProjects)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
-import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Util (indent)
+import qualified Wasp.Util.Interactive as Interactive
 import Wasp.Util.TextStyle (styleCode)
 import qualified Wasp.Util.TextStyle as TextStyle
 
@@ -54,7 +55,7 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
       needsMigration = newProjectDescription._template.metadata._migratesDbOnCreation
 
   createProjectOnDisk newProjectDescription
-  areDepsInstalled <- liftIO $ installDepsForNewProject absWaspProjectDir
+  areDepsInstalled <- liftIO $ installDepsForNewProject args._shouldInstallDeps absWaspProjectDir
 
   isDbMigrated <-
     if needsMigration && areDepsInstalled
@@ -78,15 +79,27 @@ createProjectOnDisk
       BundledStarterTemplate {bundledPath = bundledPath'} ->
         liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
 
--- | Returns whether the dependencies got installed.
-installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
-installDepsForNewProject absWaspProjectDir =
-  installProjectNpmDependencies absWaspProjectDir >>= \case
-    Right () -> return True
-    Left _err -> do
-      putStrLn $
-        TextStyle.applyStyles [TextStyle.Yellow] "Warning: The project was created, but dependency installation failed.\n"
-      return False
+-- | Installs the project's dependencies if the user wants it, and returns
+-- whether they got installed. Asks the user if they didn't say so with an
+-- argument. Without an interactive terminal there is nobody to ask, so it
+-- goes with the question's default answer and installs them.
+installDepsForNewProject :: Maybe Bool -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
+installDepsForNewProject shouldInstallDepsArg absWaspProjectDir = do
+  shouldInstallDeps <- maybe askIfInteractive return shouldInstallDepsArg
+  if shouldInstallDeps then installDeps else return False
+  where
+    askIfInteractive = Interactive.getInteractiveTerminal >>= maybe (return True) askWhetherToInstallDeps
+
+    askWhetherToInstallDeps terminal =
+      Interactive.askForConfirmationDefaultingToYes terminal "Install the dependencies with npm?"
+
+    installDeps =
+      installProjectNpmDependencies absWaspProjectDir >>= \case
+        Right () -> return True
+        Left _err -> do
+          putStrLn $
+            TextStyle.applyStyles [TextStyle.Yellow] "Warning: The project was created, but dependency installation failed.\n"
+          return False
 
 -- | Creates and applies the project's initial migration, so users can run the
 -- app right away. Returns whether the database got migrated.
@@ -143,5 +156,5 @@ printExtraInstructionsForProject [] = return ()
 printExtraInstructionsForProject steps =
   putStrLn
     $ TextStyle.applyStyles [TextStyle.Yellow]
-    $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
+    $ "Note: Before running your project, run the following setup steps:\n"
       ++ concatMap (\step -> indent 4 (styleCode step) ++ "\n") steps

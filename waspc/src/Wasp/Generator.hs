@@ -5,13 +5,10 @@ module Wasp.Generator
   )
 where
 
-import Control.Monad (forM_)
 import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.ExternalConfig.Npm.Dependency as D
-import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
@@ -19,8 +16,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad
   ( Generator,
     GeneratorError,
-    GeneratorWarning (GenericGeneratorWarning),
-    logGeneratorWarning,
+    GeneratorWarning,
     runGenerator,
   )
 import Wasp.Generator.SdkGenerator (genSdk)
@@ -30,7 +26,6 @@ import qualified Wasp.Generator.Start
 import Wasp.Generator.TypeAugmentationGenerator (genTypeAugmentation)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
-import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath, synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -59,24 +54,9 @@ writeWebAppCode spec dstDir sendMessage setupGoals = do
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors, changedGeneratedAppPaths)
 
 genApp :: AppSpec -> Generator [FileDraft]
-genApp spec = do
-  warnOverriddenDeps spec
-
+genApp spec =
   genServer spec
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genTypeAugmentation spec
-    <++> genWaspLibs
-
-warnOverriddenDeps :: AppSpec -> Generator ()
-warnOverriddenDeps spec =
-  forM_ overriddenDepNames $ \pkgName ->
-    logGeneratorWarning
-      $ GenericGeneratorWarning
-      $ "Dependency override active for \""
-        ++ pkgName
-        ++ "\". You are using an unsupported version. "
-        ++ "Wasp cannot guarantee compatibility."
-  where
-    overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)

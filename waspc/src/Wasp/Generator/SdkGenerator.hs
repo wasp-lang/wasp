@@ -3,7 +3,6 @@
 module Wasp.Generator.SdkGenerator
   ( genSdk,
     buildSdk,
-    npmDepsForSdk,
   )
 where
 
@@ -18,9 +17,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
-import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( GeneratedAppDir,
     makeJsonWithEntityData,
@@ -30,7 +28,6 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NodeCommand as NodeCommand
-import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AppG (genClientApp)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genClientAuth)
@@ -40,26 +37,19 @@ import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genClientRouterApi)
 import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
+import Wasp.Generator.SdkGenerator.EnvValidation (genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.SdkGenerator.NodeCommands as SdkNodeCommands
 import Wasp.Generator.SdkGenerator.Server.AuthG (genServerAuth)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genServerCrudApi)
-import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, devDepsRequiredByEmail, genEmailSenderApi)
-import Wasp.Generator.SdkGenerator.Server.JobGenerator
-  ( depsRequiredByJobs,
-    genJobsApi,
-  )
-import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
+import Wasp.Generator.SdkGenerator.Server.EmailSenderG (genEmailSenderApi)
+import Wasp.Generator.SdkGenerator.Server.JobGenerator (genJobsApi)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import qualified Wasp.Generator.SdkGenerator.VirtualUserModules as VUM
-import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
+import Wasp.Generator.SdkGenerator.WebSocketGenerator (genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
-import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as Job
 import qualified Wasp.Node.Version as NodeVersion
@@ -93,14 +83,12 @@ genSdk spec =
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/errors/index.ts|],
       C.genFileCopy [relfile|client/index.ts|],
-      C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|test/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
       genServerExportedTypesDir,
-      genPackageJson spec,
+      genPackageJson,
       genServerDbClient spec,
       genVirtualUserModulesDeclaration spec
     ]
@@ -157,43 +145,12 @@ genEntitiesAndServerTypesDirs spec =
     allEntities = map (makeJsonWithEntityData . AS.Entity.getName) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (AS.Valid.getApp spec)
 
-genPackageJson :: AppSpec -> Generator FileDraft
-genPackageJson spec = do
+genPackageJson :: Generator FileDraft
+genPackageJson =
   return $
     C.mkTmplFdWithData
       [relfile|package.json|]
-      ( object
-          [ "sdkPackageName" .= C.sdkPackageName,
-            "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec)
-          ]
-      )
-
-npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
-npmDepsForSdk spec =
-  N.NpmDepsForPackage
-    { -- TODO(#4824): The generated SDK stops being an npm workspace once it
-      -- lists no dependencies. For that, the optional ones (e.g. for email or
-      -- WebSockets) move to the user's project, and the rest to @wasp/wasp.
-      --
-      -- Only the dependencies that depend on the app. The core ones are peer
-      -- dependencies of @wasp/wasp.
-      N.dependencies =
-        depsRequiredByOAuth spec
-          ++ ServerAuthG.depsRequiredByAuth spec
-          ++ depsRequiredByEmail spec
-          ++ depsRequiredByWebSockets spec
-          ++ depsRequiredByJobs spec
-          ++ depsRequiredByEnvValidation
-          ++ waspLibsNpmDeps,
-      N.devDependencies =
-        Npm.Dependency.fromList
-          [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec)
-          ]
-          ++ devDepsRequiredByEmail spec
-    }
-  where
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
+      (object ["sdkPackageName" .= C.sdkPackageName])
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =

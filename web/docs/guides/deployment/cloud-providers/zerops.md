@@ -60,7 +60,6 @@ zerops:
       buildCommands:
         - npm ci
         - npm run build
-        - cd .wasp/out/server && npm install
         - cd .wasp/out/server && npx prisma generate --schema=../db/schema.prisma
         - cd .wasp/out/server && npm run bundle
       deployFiles:
