@@ -156,7 +156,6 @@ waspNpmPackageAvailableTest =
       return
         "npm pkg set \"devDependencies.@wasp/wasp=$(npm pkg get dependencies.@wasp/wasp | jq -r .)\" && npm pkg delete dependencies.@wasp/wasp"
 
-    -- No Wasp release will ever have this version, so the CLI never matches it.
     nonexistentWaspVersion :: String
     nonexistentWaspVersion = "0.0.0-e2e-nonexistent"
 

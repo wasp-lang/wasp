@@ -77,9 +77,7 @@ readInstalledWaspNpmPackageJson waspProjectDir makeJsExpression = do
         }
     packageJsonJsExpression = "require(" ++ show (waspNpmPackageName ++ "/package.json") ++ ")"
 
--- | Matches versions the way npm does. A prerelease only matches a range that names a prerelease
--- of the same version: `^0.27.0-rc.1` matches 0.27.0-rc.2, `^0.27.0` doesn't.
--- A declared version that isn't a range, e.g. a `file:` tarball, matches anything.
+-- | A declared version that isn't a range, e.g. a `file:` tarball, matches anything.
 doesVersionMatchDeclaredVersion :: String -> SV.Version -> Bool
 doesVersionMatchDeclaredVersion declaredVersion version =
   either (const True) (SV.isVersionInRange version) (SV.parseRange declaredVersion)
