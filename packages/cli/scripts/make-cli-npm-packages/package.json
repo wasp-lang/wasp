@@ -12,6 +12,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/node": "catalog:",
     "type-fest": "^5.3.1",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "wasp-cli-package-data-types": "workspace:*"
   }
 }
