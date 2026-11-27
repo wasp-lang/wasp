@@ -77,7 +77,6 @@ jobs:
 
       - name: Compile TS packages and libs
         run: |
-          mise run build:packages
           mise run build:libs
 
       - name: Build external dependencies

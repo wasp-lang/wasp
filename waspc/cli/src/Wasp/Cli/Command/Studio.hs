@@ -170,7 +170,7 @@ studio = withArguments studioArgsParser $ \args -> do
       ]
 
   result <- liftIO $ do
-    Wasp.Project.Studio.startStudio (SP.toFilePath waspStudioDataJsonFilePath) studioPort
+    Wasp.Project.Studio.startStudio waspDir (SP.toFilePath waspStudioDataJsonFilePath) studioPort
 
   either (throwError . CommandError "Studio command failed") return result
   where
