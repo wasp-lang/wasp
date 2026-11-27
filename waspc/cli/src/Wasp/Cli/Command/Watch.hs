@@ -184,9 +184,8 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
         Left _ -> return FailedCompile
       return (warnings, errors, compileOutcome)
 
-    -- This Wasp can't compile for another Wasp version. Compiling would install
-    -- that version, which replaces this Wasp's own files in node_modules while
-    -- it runs.
+    -- Stops the compilation and asks for a reinstall if the user changes the
+    -- Wasp version while Wasp is watching.
     findWaspVersionChangeError :: IO (Maybe CompileError)
     findWaspVersionChangeError = do
       runningVersion <- getWaspCliNpmPackageVersion
