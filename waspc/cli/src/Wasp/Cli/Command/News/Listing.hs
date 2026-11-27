@@ -20,6 +20,7 @@ where
 import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.Maybe (catMaybes)
+import qualified Data.Text as T
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (showNewsEntry)
@@ -32,8 +33,9 @@ import Wasp.Cli.Command.News.LocalNewsState
     wasLastListingMoreThanNHoursAgo,
     wasNewsEntrySeen,
   )
-import Wasp.Cli.Console.Prompter (Prompter)
+import Wasp.Cli.Console (Console (..))
 import qualified Wasp.Cli.Console.Prompter as Prompter
+import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.TextStyle (styleCode)
 
 shouldWaspListMustSeeNews :: LocalNewsState -> IO Bool
@@ -71,9 +73,9 @@ getNewsToMarkAsSeen localState listing = case listing of
     -- explicitly.
     | otherwise -> []
 
-listNews :: Maybe Prompter -> LocalNewsState -> NewsListing -> IO ()
-listNews maybePrompter localState listing = do
-  putStrLn $ intercalate "\n\n" $ catMaybes [newsListingStr, messageForUser]
+listNews :: Console -> LocalNewsState -> NewsListing -> IO ()
+listNews console localState listing = do
+  console.writeRawOutput Stdout . T.pack $ intercalate "\n\n" (catMaybes [newsListingStr, messageForUser]) ++ "\n"
 
   shouldMarkNewsAsSeen <-
     if isConfirmationRequired localState listing
@@ -88,7 +90,7 @@ listNews maybePrompter localState listing = do
     messageForUser = showMessageForUser localState listing
 
     getConfirmationFromUser =
-      case maybePrompter of
+      case console.prompter of
         -- Without a prompter we can't ask, so we don't assume the user has
         -- seen the news.
         Nothing -> return False

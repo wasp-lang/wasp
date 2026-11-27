@@ -9,6 +9,7 @@ import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Functor (($>))
 import Data.Maybe (isJust)
+import qualified Data.Text as T
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory, setCurrentDirectory)
 import System.Environment (lookupEnv)
@@ -30,7 +31,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Db.Migrate (migrateDev)
 import Wasp.Cli.Command.Install (installIO)
-import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Message (cliSendMessageC, cliWriteRawOutputC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Console (Console (..))
 import Wasp.Cli.Console.Reporter (Reporter (..))
@@ -40,7 +41,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Util (indent)
-import Wasp.Util.IO.Process (WriteOutput)
+import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 import Wasp.Util.TextStyle (styleCode)
 import qualified Wasp.Util.TextStyle as TextStyle
 
@@ -55,17 +56,17 @@ createNewProject = withArguments newProjectArgsParser $ \args -> do
   createProjectOnDisk newProjectDescription
   -- TODO consider removing if we start doing `wasp install` automatically
   console <- getConsole
-  areDepsInstalled <- liftIO $ installDepsForNewProject console.writeRawOutput absWaspProjectDir
+  areDepsInstalled <- liftIO $ installDepsForNewProject console absWaspProjectDir
 
   isDbMigrated <-
     if needsMigration && areDepsInstalled
       then migrateDbForNewProject absWaspProjectDir
       else return False
 
-  liftIO $ printGettingStartedInstructionsForProject console.reporter newProjectDescription
+  liftIO $ printGettingStartedInstructionsForProject console newProjectDescription
 
   liftIO
-    $ printExtraInstructionsForProject
+    $ printExtraInstructionsForProject console.writeRawOutput
     $ ["wasp install" | not areDepsInstalled]
       ++ ["wasp db migrate-dev" | needsMigration && not isDbMigrated]
 
@@ -80,13 +81,13 @@ createProjectOnDisk
         liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
 
 -- | Returns whether the dependencies got installed.
-installDepsForNewProject :: WriteOutput -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
-installDepsForNewProject writeOutput absWaspProjectDir =
-  installIO writeOutput absWaspProjectDir >>= \case
+installDepsForNewProject :: Console -> SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO Bool
+installDepsForNewProject console absWaspProjectDir =
+  installIO console.writeRawOutput absWaspProjectDir >>= \case
     Right () -> return True
     Left _err -> do
-      putStrLn $
-        TextStyle.applyStyles [TextStyle.Yellow] "Warning: The project was created, but dependency installation failed.\n"
+      console.writeRawOutput Stdout . T.pack $
+        TextStyle.applyStyles [TextStyle.Yellow] "Warning: The project was created, but dependency installation failed.\n" ++ "\n"
       return False
 
 -- | Creates and applies the project's initial migration, so users can run the
@@ -121,8 +122,8 @@ migrateDbForNewProject absWaspProjectDir =
         action
 
     warnAboutFailedMigration commandError = do
-      liftIO
-        $ putStrLn
+      cliWriteRawOutputC Stdout
+        $ (++ "\n")
         $ TextStyle.applyStyles [TextStyle.Yellow]
         $ "Warning: The project was created, but its database wasn't migrated.\n"
           ++ _errorTitle commandError
@@ -132,17 +133,19 @@ migrateDbForNewProject absWaspProjectDir =
       return False
 
 -- | This function assumes that the project dir was created inside the current working directory.
-printGettingStartedInstructionsForProject :: Reporter -> NewProjectDescription -> IO ()
-printGettingStartedInstructionsForProject reporter projectDescription = do
+printGettingStartedInstructionsForProject :: Console -> NewProjectDescription -> IO ()
+printGettingStartedInstructionsForProject console projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
   let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
-  reporter.send $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
-  putStrLn instructions
+  console.reporter.send $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
+  console.writeRawOutput Stdout . T.pack $ instructions ++ "\n"
 
-printExtraInstructionsForProject :: [String] -> IO ()
-printExtraInstructionsForProject [] = return ()
-printExtraInstructionsForProject steps =
-  putStrLn
+printExtraInstructionsForProject :: WriteOutput -> [String] -> IO ()
+printExtraInstructionsForProject _ [] = return ()
+printExtraInstructionsForProject writeRawOutput steps =
+  writeRawOutput Stdout
+    . T.pack
+    $ (++ "\n")
     $ TextStyle.applyStyles [TextStyle.Yellow]
     $ "Note: Due to warnings during project creation, you need to run the following setup steps for your project manually:\n"
       ++ concatMap (\step -> indent 4 (styleCode step) ++ "\n") steps

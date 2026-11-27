@@ -15,7 +15,7 @@ module Wasp.NodePackageFFI
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
-import Control.Monad.Extra (unlessM)
+import Control.Monad.Extra (ifM, unlessM)
 import Control.Monad.IO.Class (liftIO)
 import Data.Bifunctor (first)
 import Data.Maybe (fromJust)
@@ -37,8 +37,7 @@ import StrongPath
     relfile,
     (</>),
   )
-import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
-import System.IO (hPutStrLn, stderr)
+import System.Exit (ExitCode (ExitFailure, ExitSuccess))
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
@@ -88,17 +87,13 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- If the package does not have its dependencies installed yet (for example,
 -- when the package is run for the first time after installing Wasp), we install
 -- the dependencies.
-getPackageProcessOptions :: RunnablePackage -> [String] -> IO P.CreateProcess
-getPackageProcessOptions package args = do
-  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    Left errorMsg -> do
-      hPutStrLn stderr errorMsg
-      exitFailure
-    Right () -> pure ()
+getPackageProcessOptions :: RunnablePackage -> [String] -> IO (Either String P.CreateProcess)
+getPackageProcessOptions package args = runExceptT $ do
+  ExceptT NodeVersion.checkUserNodeAndNpmMeetWaspRequirements
 
-  packageDir <- getRunnablePackageDir package
+  packageDir <- liftIO $ getRunnablePackageDir package
   let scriptFile = packageDir </> scriptInPackageDir
-  ensurePackageDependenciesAreInstalled packageDir
+  ExceptT $ ensurePackageDependenciesAreInstalled packageDir
   return $ packageCreateProcess packageDir "node" (fromAbsFile scriptFile : args)
 
 getPackageJsonSpecifierForPackage :: InstallablePackage -> String
@@ -168,17 +163,14 @@ getRunnablePackageDir package = do
 {- HLINT ignore ensurePackageDependenciesAreInstalled "Avoid npm and npx" -}
 
 -- | Runs @npm install@ if @node_modules@ does not exist in the package directory.
-ensurePackageDependenciesAreInstalled :: Path' Abs (Dir PackageDir) -> IO ()
+ensurePackageDependenciesAreInstalled :: Path' Abs (Dir PackageDir) -> IO (Either String ())
 ensurePackageDependenciesAreInstalled packageDir =
-  unlessM nodeModulesDirExists $ do
+  ifM nodeModulesDirExists (return $ Right ()) $ do
     let npmInstallCreateProcess = packageCreateProcess packageDir "npm" ["install"]
     (exitCode, _out, err) <- P.readCreateProcessWithExitCode npmInstallCreateProcess ""
-    case exitCode of
-      ExitFailure _ -> do
-        -- Exit if node_modules fails to install
-        hPutStrLn stderr $ "Failed to install NPM dependencies for package. Please report this issue: " ++ err
-        exitFailure
-      ExitSuccess -> pure ()
+    return $ case exitCode of
+      ExitFailure _ -> Left $ "Failed to install NPM dependencies for package. Please report this issue: " ++ err
+      ExitSuccess -> Right ()
   where
     nodeModulesDirExists = IOUtil.doesDirectoryExist nodeModulesDir
     nodeModulesDir = packageDir </> [reldir|node_modules|]

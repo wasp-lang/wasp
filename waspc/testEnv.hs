@@ -14,6 +14,8 @@
  Run it either as an executable or with `stack SCRIPT_NAME`.
 -}
 
+{- HLINT ignore "Avoid restricted function" -}
+
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy.Char8 as L

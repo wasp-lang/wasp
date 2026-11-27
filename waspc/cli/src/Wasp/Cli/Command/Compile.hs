@@ -21,10 +21,10 @@ import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
+import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr)
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..), getConsole, require)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -44,6 +44,7 @@ import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
+import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
 -- | Meant for the standalone `wasp compile` command: commands that hold the
 -- project lock themselves should call 'compile' instead.
@@ -203,13 +204,14 @@ analyzeWithDiagnosticsOnStderr waspProjectDir = do
     liftIO $ Wasp.Project.analyzeWaspProject waspProjectDir $ defaultCompileOptions console waspProjectDir
   liftIO
     $ unless (null warnings)
-    $ printDiagnosticToStderr compilationWarningsTitle (formatErrorOrWarningMessages warnings)
+    $ printDiagnosticToStderr console.writeRawOutput compilationWarningsTitle (formatErrorOrWarningMessages warnings)
   case appSpecOrErrors of
     Right spec -> return spec
     Left errors ->
       liftIO $ do
-        printDiagnosticToStderr (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
+        printDiagnosticToStderr console.writeRawOutput (analysisErrorsTitle errors) (formatErrorOrWarningMessages errors)
         exitFailure
 
-printDiagnosticToStderr :: String -> String -> IO ()
-printDiagnosticToStderr diagnosticTitle body = hPutStrLn stderr $ diagnosticTitle <> ":\n" <> body
+printDiagnosticToStderr :: WriteOutput -> String -> String -> IO ()
+printDiagnosticToStderr writeRawOutput diagnosticTitle body =
+  writeRawOutput Stderr . T.pack $ diagnosticTitle <> ":\n" <> body <> "\n"

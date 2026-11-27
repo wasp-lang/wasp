@@ -1,4 +1,6 @@
 import Control.Concurrent (getNumCapabilities)
+{- HLINT ignore "Avoid restricted function" -}
+
 import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
 import SnapshotTest (testTreeFromSnapshotTest)
 import StrongPath ((</>))

@@ -41,6 +41,7 @@ import System.Exit (exitFailure)
 import Wasp.Cli.Console (Console (..), isPromptInputEOF)
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
+import Wasp.Util.IO.Process (OutputStream (..))
 import Wasp.Util.IO.Retry (MonadRetry (..))
 
 newtype Command a = Command {_runCommand :: ReaderT Console (StateT [Requirement] (ExceptT CommandError IO)) a}
@@ -54,7 +55,7 @@ runCommand console cmd =
   E.tryJust (guard . isPromptInputEOF) (runExceptT (flip evalStateT [] $ flip runReaderT console $ _runCommand cmd)) >>= \case
     Left () -> do
       -- The user ended the input (Ctrl+D) while a prompt was waiting for an answer.
-      putStrLn "Aborted."
+      console.writeRawOutput Stdout "Aborted.\n"
       exitFailure
     Right (Left cmdError) -> do
       console.reporter.send $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)

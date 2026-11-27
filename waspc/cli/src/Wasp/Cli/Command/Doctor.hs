@@ -13,11 +13,14 @@ import System.Directory (findExecutable)
 import System.IO.Error (tryIOError)
 import qualified System.Info
 import System.Process (readProcessWithExitCode)
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Message (cliWriteRawOutputC)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (trim)
 import qualified Wasp.Util.Docker as Docker
 import Wasp.Util.GitRev (gitRevDescription)
+import Wasp.Util.IO.Process (OutputStream (..))
 import qualified Wasp.Util.TextStyle as TextStyle
 import Wasp.Version (waspVersion)
 
@@ -29,13 +32,13 @@ type Check a = ExceptT String IO a
 --
 -- It intentionally doesn't require a Wasp project and should never fail the
 -- process: each check just reports its own result.
-doctor :: IO ()
+doctor :: Command ()
 doctor = do
-  putStrLn $ TextStyle.applyStyles [TextStyle.Bold] "Checking your environment...\n"
+  cliWriteRawOutputC Stdout $ TextStyle.applyStyles [TextStyle.Bold] "Checking your environment...\n" ++ "\n"
 
   forM_ checks $ \(title, check) -> do
-    result <- runExceptT check
-    putStrLn $ renderCheckResult title result
+    result <- liftIO $ runExceptT check
+    cliWriteRawOutputC Stdout $ renderCheckResult title result ++ "\n"
 
 {- HLINT ignore checks "Avoid npm and npx" -}
 
