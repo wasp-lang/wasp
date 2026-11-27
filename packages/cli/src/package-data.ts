@@ -1,4 +1,7 @@
-export interface SubPackageInfo {
+// The format of `data.json`, which lists the sub-packages that hold the Wasp
+// binary (one per platform), and the API each sub-package exports.
+
+export interface CliSubPackageInfo {
   packageName: string;
 }
 
@@ -7,17 +10,17 @@ export interface SubPackageInfo {
 // The usual convention is to call it "unknown".
 export const UNDEFINED_LIBC_NAME = "unknown" as const;
 
-export interface MainPackageData {
+export interface CliPackageData {
   subPackages: {
     [os: string]: {
       [arch: string]: {
-        [libc: string | typeof UNDEFINED_LIBC_NAME]: SubPackageInfo;
+        [libc: string | typeof UNDEFINED_LIBC_NAME]: CliSubPackageInfo;
       };
     };
   };
 }
 
-export interface SubPackageAPI {
+export interface CliSubPackageAPI {
   waspBinPath: string;
   dataDirPath: string;
 }

@@ -399,6 +399,7 @@ library
     Wasp.Util.InstallMethod
     Wasp.Util.Interactive
     Wasp.Util.IO
+    Wasp.Util.IO.Process
     Wasp.Util.IO.Retry
     Wasp.Util.Js
     Wasp.Util.Json
@@ -406,7 +407,7 @@ library
     Wasp.Util.Network.Socket
     Wasp.Util.Network.URI
     Wasp.Util.StrongPath
-    Wasp.Util.Terminal
+    Wasp.Util.TextStyle
     Wasp.Util.TH
     Wasp.Util.WebRouterPath
     Wasp.Valid

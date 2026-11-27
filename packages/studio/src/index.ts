@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { fileURLToPath } from "url";
 
 import { Command } from "commander";
 import cors from "cors";
@@ -39,7 +40,7 @@ app.use(
   }),
 );
 
-const publicDirPath = new URL("./public", import.meta.url).pathname;
+const publicDirPath = fileURLToPath(new URL("./public", import.meta.url));
 app.use(express.static(publicDirPath));
 
 const pathToDataFile = getUrlFromRelativePathToCwd(options.dataFile);

@@ -36,12 +36,11 @@ import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
-import Wasp.Cli.Terminal (title)
 import Wasp.Cli.TerminationSignals (handleTerminationSignalsLikeInterrupt)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand, legacyVersionsNote)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 import Wasp.Version (waspVersion)
 
 main :: IO ()
@@ -144,11 +143,11 @@ printUsage :: IO ()
 printUsage =
   putStrLn $
     unlines
-      [ title "USAGE",
+      [ TextStyle.styleTitle "USAGE",
               "  wasp <command> [command-args]",
               "",
-        title "COMMANDS",
-        title "  GENERAL",
+        TextStyle.styleTitle "COMMANDS",
+        TextStyle.styleTitle "  GENERAL",
         cmd   "    new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.",
               "      OPTIONS:",
               "        -t|--template <template-name>",
@@ -159,7 +158,7 @@ printUsage =
         cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ...).",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall [--force]   Removes Wasp from your system.",
-        title "  IN PROJECT",
+        TextStyle.styleTitle "  IN PROJECT",
         cmd   "    start [--client-port <port>] [--server-port <port>] [--client-url <url>] [--server-url <url>]",
               "                          Runs Wasp app in development mode, watching for file changes.",
               "                          Optionally specify the ports the client and the server run on.",
@@ -188,14 +187,14 @@ printUsage =
               "                          If the port is not specified, Wasp picks a free port.",
         cmd   "    news                  Read the latest Wasp-related news.",
               "",
-        title "EXAMPLES",
+        TextStyle.styleTitle "EXAMPLES",
               "  wasp new MyApp",
               "  wasp start",
               "  wasp db migrate-dev",
               "",
-        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp.sh/docs",
-        Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
-        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
+        TextStyle.applyStyles [TextStyle.Green]   "Docs:" ++ " https://wasp.sh/docs",
+        TextStyle.applyStyles [TextStyle.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
+        TextStyle.applyStyles [TextStyle.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
       ]
 {- ORMOLU_ENABLE -}
 
@@ -233,10 +232,10 @@ printDbUsage :: IO ()
 printDbUsage =
   putStrLn $
     unlines
-      [ title "USAGE",
+      [ TextStyle.styleTitle "USAGE",
               "  wasp db <command> [command-args]",
               "",
-        title "COMMANDS",
+        TextStyle.styleTitle "COMMANDS",
         cmd $ intercalate "\n" [
               "  start [--db-port <port>] [--db-image <image>] [--db-volume-mount-path <path>]",
               "                               Alias for `wasp start db`.",
@@ -262,7 +261,7 @@ printDbUsage =
               "                               If the port is not specified, Wasp picks a free port."
         ],
               "",
-        title "EXAMPLES",
+        TextStyle.styleTitle "EXAMPLES",
               "  wasp db migrate-dev",
               "  wasp db migrate-dev --name \"Added User entity\"",
               "  wasp db migrate-dev --create-only",
@@ -272,7 +271,7 @@ printDbUsage =
 {- ORMOLU_ENABLE -}
 
 cmd :: String -> String
-cmd = mapFirstWord (Term.applyStyles [Term.Yellow, Term.Bold])
+cmd = mapFirstWord (TextStyle.applyStyles [TextStyle.Yellow, TextStyle.Bold])
 
 mapFirstWord :: (String -> String) -> String -> String
 mapFirstWord f s = beforeFirstWord ++ f firstWord ++ afterFirstWord

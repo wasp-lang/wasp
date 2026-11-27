@@ -25,6 +25,8 @@ In addition to applications, we also cover secondary outputs, such as the instal
 We test Wasp CLI commands whose outputs we can discard.
 
 Each test runs in its own test directory in `waspc/e2e-tests/test-outputs/`.
+A test directory is removed when its test passes and kept when it fails, so you can inspect what went wrong.
+To keep the test directories of passed tests too, set `WASP_E2E_TESTS_KEEP_OUTPUTS=1`.
 While the exact files within a test directory aren't strictly defined, they usually have the following structure:
 
 ```

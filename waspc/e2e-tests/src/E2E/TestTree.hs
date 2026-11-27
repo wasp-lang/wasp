@@ -26,6 +26,8 @@ import Data.List (intercalate, isPrefixOf, nub)
 import Data.Tagged (Tagged (..))
 import E2E.SuiteEnv (TestSuiteEnv (..))
 import E2E.TestM (TestFailure (..), TestM, TestPaths (..), runTestSteps)
+import System.Directory (removePathForcibly)
+import System.Environment (lookupEnv)
 import System.FilePath (isPathSeparator, joinPath, (</>))
 import Test.Tasty (TestTree, adjustOption, askOption, localOption)
 import qualified Test.Tasty as Tasty
@@ -47,14 +49,25 @@ instance IsOption GroupNames where
 -- | A test that passes when all of its steps succeed.
 --
 -- It runs in a fresh @test-outputs/<groups>/<name>/@ dir, and writes the
--- output of the commands it runs to @output.log@ in it.
+-- output of the commands it runs to @output.log@ in it. The dir is removed
+-- when the test passes (see 'removeOutputsOfPassedTest').
 test :: String -> TestM a -> TestTree
 test name steps =
   withTestSuiteEnv $ \testSuiteEnv -> inTestDir name $ \testPath -> IOTest $ do
     let testDir = testSuiteEnv.testOutputsDir </> joinPath testPath
         testPaths = TestPaths {workingDir = testDir, logFile = testDir </> testLogFileName}
-    (runTestSteps testSuiteEnv (intercalate "/" testPath) testPaths steps >> return (testPassed ""))
+    ( runTestSteps testSuiteEnv (intercalate "/" testPath) testPaths steps
+        >> removeOutputsOfPassedTest testDir
+        >> return (testPassed "")
+      )
       `catch` (\(TestFailure message) -> return $ testFailed message)
+
+-- | Outputs of a passed test are rarely needed and take up a lot of disk space
+-- (mostly @node_modules@), so we remove them unless asked to keep them.
+removeOutputsOfPassedTest :: FilePath -> IO ()
+removeOutputsOfPassedTest testDir = do
+  shouldKeepOutputs <- maybe False (not . null) <$> lookupEnv "WASP_E2E_TESTS_KEEP_OUTPUTS"
+  unless shouldKeepOutputs $ removePathForcibly testDir
 
 -- | A test that passes with the message, without running. It still claims the
 -- dir it would run in, so that the dir check doesn't depend on which tests a

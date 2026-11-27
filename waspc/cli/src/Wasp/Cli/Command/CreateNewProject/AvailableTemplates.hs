@@ -14,7 +14,7 @@ import qualified System.FilePath as FP
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate (..), TemplateMetadata (..))
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util.Terminal (styleCode, styleText)
+import Wasp.Util.TextStyle (styleCode, styleText)
 import Wasp.Version (waspVersion)
 
 availableStarterTemplates :: [StarterTemplate]

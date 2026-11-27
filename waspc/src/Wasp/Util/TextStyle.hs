@@ -1,4 +1,4 @@
-module Wasp.Util.Terminal
+module Wasp.Util.TextStyle
   ( Style (..),
     styleCode,
     applyStyles,
@@ -6,6 +6,7 @@ module Wasp.Util.Terminal
     ansiEscapeCode,
     ansiResetAllCode,
     styleText,
+    styleTitle,
   )
 where
 
@@ -21,6 +22,9 @@ styleCode str = ansiEscapeCode ++ getAnsiCodeFor Bold ++ str ++ ansiEscapeCode +
 -- to styleCode and styleText look similar.
 styleText :: String -> String
 styleText = id
+
+styleTitle :: String -> String
+styleTitle = applyStyles [Bold]
 
 data Style
   = Black

@@ -6,7 +6,7 @@ import E2E
 import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getPackageInstallationPathInProject)
-import Wasp.Util.Terminal (styleCode)
+import Wasp.Util.TextStyle (styleCode)
 
 test_waspSpecAvailable :: TestTree
 test_waspSpecAvailable =

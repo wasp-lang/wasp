@@ -5,7 +5,7 @@ import Data.Time (defaultTimeLocale, formatTime)
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Util (indent, wrapString)
-import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Util.TextStyle as TextStyle
 
 showNewsEntry :: NewsEntry -> String
 showNewsEntry newsEntry =
@@ -21,10 +21,10 @@ showNewsEntry newsEntry =
     ${body}
   |]
   where
-    title = T.pack $ Term.applyStyles [Term.Bold] newsEntry.title
-    publishedAt = T.pack $ Term.applyStyles [Term.Bold, Term.Yellow] date
+    title = T.pack $ TextStyle.applyStyles [TextStyle.Bold] newsEntry.title
+    publishedAt = T.pack $ TextStyle.applyStyles [TextStyle.Bold, TextStyle.Yellow] date
     level = T.pack $ showNewsLevel newsEntry.level
-    body = T.pack $ Term.applyStyles [Term.Grey] $ indent indentSize $ wrapString (maxColumns - indentSize) newsEntry.body
+    body = T.pack $ TextStyle.applyStyles [TextStyle.Grey] $ indent indentSize $ wrapString (maxColumns - indentSize) newsEntry.body
     separator =
       T.pack $
         " "
@@ -39,6 +39,6 @@ showNewsEntry newsEntry =
 
 showNewsLevel :: NewsLevel -> String
 showNewsLevel newsLevel = case newsLevel of
-  Critical -> Term.applyStyles [Term.Red] "Critical"
-  Important -> Term.applyStyles [Term.Yellow] "Important"
-  Info -> Term.applyStyles [Term.Blue] "Info"
+  Critical -> TextStyle.applyStyles [TextStyle.Red] "Critical"
+  Important -> TextStyle.applyStyles [TextStyle.Yellow] "Important"
+  Info -> TextStyle.applyStyles [TextStyle.Blue] "Info"

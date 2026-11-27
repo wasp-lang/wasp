@@ -23,7 +23,8 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
 import qualified Wasp.Job.Common as J
-import qualified Wasp.Util.Terminal as Term
+import Wasp.Util.IO.Process (OutputStream (..))
+import qualified Wasp.Util.TextStyle as TextStyle
 
 -- | Prints job output to Wasp's own stdout and stderr. Jobs can print from
 -- several threads at once, so it prints one message at a time.
@@ -34,11 +35,11 @@ newPrefixedWriter = PrefixedWriter <$> newMVar initialPrefixedWriterState
 
 -- | Prints the output as is if it has no job type, or prefixed with the job
 -- type otherwise.
-printOutput :: PrefixedWriter -> Maybe J.JobType -> J.OutputType -> T.Text -> IO ()
-printOutput (PrefixedWriter stateVar) maybeJobType outputType content =
+printOutput :: PrefixedWriter -> Maybe J.JobType -> OutputStream -> T.Text -> IO ()
+printOutput (PrefixedWriter stateVar) maybeJobType outputStream content =
   modifyMVar_ stateVar $ execStateT $ _runPrefixedWriterM $ case maybeJobType of
-    Nothing -> liftIO $ printMessageContent outputType content
-    Just jobType -> printJobMessagePrefixed (Output jobType outputType) content
+    Nothing -> liftIO $ printMessageContent outputStream content
+    Just jobType -> printJobMessagePrefixed (Output jobType outputStream) content
 
 -- |
 -- Imagine you have a job sending following two messages:
@@ -86,7 +87,7 @@ printJobMessagePrefixed output content = do
   writerState <- get
   let (writerState', prefixedContent) = formatOutput writerState output content
   put writerState'
-  liftIO $ printMessageContent (_outputType output) prefixedContent
+  liftIO $ printMessageContent (_outputStream output) prefixedContent
 
 formatOutput :: PrefixedWriterState -> Output -> T.Text -> (PrefixedWriterState, T.Text)
 formatOutput (PrefixedWriterState outputsWithPendingPrefix lastOutput) output content =
@@ -144,7 +145,7 @@ initialPrefixedWriterState =
 -- Job message output type.
 data Output = Output
   { _outputJobType :: !J.JobType,
-    _outputType :: !J.OutputType
+    _outputStream :: !OutputStream
   }
   deriving (Eq, Ord)
 
@@ -171,7 +172,7 @@ applyPendingPrefix outputsWithPendingPrefix output content = (outputsWithPending
 
 makeJobMessagePrefix :: Output -> T.Text
 makeJobMessagePrefix output =
-  T.pack . concatMap (\(text, styles) -> Term.applyStyles styles text) . concat $
+  T.pack . concatMap (\(text, styles) -> TextStyle.applyStyles styles text) . concat $
     [ [(startDelimiter, jobStyles)],
       [unstyled namePaddingFront],
       [(jobName, jobStyles)],
@@ -199,25 +200,25 @@ makeJobMessagePrefix output =
 
     styledFlags :: [StyledText]
     styledFlags =
-      [("!", [Term.Red, Term.Bold]) | _outputType output == J.Stderr]
+      [("!", [TextStyle.Red, TextStyle.Bold]) | _outputStream output == Stderr]
 
     (jobName, jobStyles) = getJobNameAndStyles $ _outputJobType output
 
     getJobNameAndStyles = \case
-      J.Wasp -> ("Wasp", [Term.Yellow])
-      J.Server -> ("Server", [Term.Magenta])
-      J.WebApp -> ("Client", [Term.Cyan])
-      J.Db -> ("Db", [Term.Blue])
+      J.Wasp -> ("Wasp", [TextStyle.Yellow])
+      J.Server -> ("Server", [TextStyle.Magenta])
+      J.WebApp -> ("Client", [TextStyle.Cyan])
+      J.Db -> ("Db", [TextStyle.Blue])
 
     unstyled = (,[])
 
-type StyledText = (String, [Term.Style])
+type StyledText = (String, [TextStyle.Style])
 
-printMessageContent :: J.OutputType -> T.Text -> IO ()
-printMessageContent outputType content = T.IO.hPutStr outHandle content >> hFlush outHandle
+printMessageContent :: OutputStream -> T.Text -> IO ()
+printMessageContent outputStream content = T.IO.hPutStr outHandle content >> hFlush outHandle
   where
-    outHandle = getOutputTypeHandle outputType
+    outHandle = getOutputStreamHandle outputStream
 
-getOutputTypeHandle :: J.OutputType -> Handle
-getOutputTypeHandle J.Stdout = stdout
-getOutputTypeHandle J.Stderr = stderr
+getOutputStreamHandle :: OutputStream -> Handle
+getOutputStreamHandle Stdout = stdout
+getOutputStreamHandle Stderr = stderr
