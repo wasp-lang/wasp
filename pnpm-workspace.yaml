@@ -8,6 +8,7 @@ packages:
   - packages/spec
   - packages/studio
   - packages/studio/client
+  - packages/wasp
   - packages/libs/*
   - packages/wasp-app-runner
   - web

@@ -21,7 +21,7 @@ Whoever submits the PR must understand the change well enough to explain it and 
   - `data/` — Mustache templates, starters, and the built TS packages and libs the CLI ships
   - `data/Generator/templates/` — Mustache templates for code generation
   - `e2e-tests/` — Golden file snapshot tests
-- `packages/` — TypeScript packages: `cli` (the `wasp` executable wrapper), `spec`, the FFI packages the CLI calls (`deploy`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests.
+- `packages/` — TypeScript packages: `wasp` (the package Wasp apps depend on, which brings all the other Wasp packages), `cli` (the `wasp` executable wrapper), `spec`, the FFI packages the CLI calls (`deploy`, `studio`), `libs/` embedded into generated project code, and `wasp-app-runner` for running Wasp apps in e2e tests.
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
