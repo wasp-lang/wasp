@@ -19,7 +19,7 @@ import Test.Hspec (Spec, anyIOException, describe, expectationFailure, it, shoul
 import Test.Process.Util (ProcessId, isProcessAlive, killProcess, makeTempPath, readProcessId, waitUntil)
 import qualified Wasp.Job as Job
 import Wasp.Util (secondsToMicroSeconds)
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 
 spec_Job :: Spec
 spec_Job = do

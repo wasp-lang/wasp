@@ -399,13 +399,13 @@ library
     Wasp.Util.InstallMethod
     Wasp.Util.Interactive
     Wasp.Util.IO
+    Wasp.Util.IO.Process
     Wasp.Util.IO.Retry
     Wasp.Util.Js
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
     Wasp.Util.Network.Socket
     Wasp.Util.Network.URI
-    Wasp.Util.OutputStream
     Wasp.Util.StrongPath
     Wasp.Util.Terminal
     Wasp.Util.TH

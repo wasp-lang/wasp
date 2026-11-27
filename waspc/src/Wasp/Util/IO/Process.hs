@@ -1,4 +1,4 @@
-module Wasp.Util.OutputStream
+module Wasp.Util.IO.Process
   ( OutputStream (..),
   )
 where

@@ -23,7 +23,7 @@ import qualified Wasp.Job as Job
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import Wasp.Util (checkExitSuccess, secondsToMicroSeconds)
 import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.OutputStream (OutputStream (..))
+import Wasp.Util.IO.Process (OutputStream (..))
 
 -- Installs the npm deps of the user's project and its workspaces (the generated server and the
 -- Wasp SDK). Skips the install if `node_modules` exists and the installed npm deps log matches
