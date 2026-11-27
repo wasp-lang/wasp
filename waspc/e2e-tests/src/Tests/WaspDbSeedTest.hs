@@ -1,12 +1,11 @@
 module Tests.WaspDbSeedTest (test_waspDbSeed) where
 
-import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import E2E
 import NeatInterpolation (trimming)
 import qualified StrongPath as SP
-import System.Directory (createDirectoryIfMissing, doesDirectoryExist, renameDirectory)
+import System.Directory (createDirectoryIfMissing, renameDirectory)
 import System.FilePath (takeDirectory, (</>))
 import Tests.Fixtures
   ( Seed (..),
@@ -69,12 +68,10 @@ test_waspDbSeed =
     -- still provides `parse`, which the Prisma CLI uses to check the db connection.
     replaceRootDotenvWithDecoy :: TestM ()
     replaceRootDotenvWithDecoy = do
+      -- npm must have hoisted it. We check before deleting the server's copy,
+      -- so that the test fails on why it can't continue.
+      assertDirectoryExists rootDotenvDir
       rootDotenvAbsDir <- resolvePath rootDotenvDir
-      -- Before deleting the server's copy, so that the test fails on why it
-      -- can't continue.
-      isDotenvHoisted <- liftIO $ doesDirectoryExist rootDotenvAbsDir
-      unless isDotenvHoisted $
-        expectationFailure ("npm didn't hoist dotenv to " ++ rootDotenvDir ++ ", which the test moves into the server's node_modules")
       deleteDirectory serverDotenvDir
       serverDotenvAbsDir <- resolvePath serverDotenvDir
       liftIO $ do

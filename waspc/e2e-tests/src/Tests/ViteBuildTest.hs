@@ -1,6 +1,6 @@
 module Tests.ViteBuildTest (test_viteBuild) where
 
-import Control.Monad (filterM, when)
+import Control.Monad (filterM)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
@@ -85,17 +85,14 @@ test_viteBuild =
     viteBuildWithApiUrlCommand = withApiUrl $ viteBuildCommand []
 
     assertBuildDirContains :: (HasCallStack) => String -> TestM ()
-    assertBuildDirContains value = do
-      filesWithValue <- getBuildDirFilesContaining value
-      when (null filesWithValue) $
-        expectationFailure ("Expected a file in the build dir to contain " ++ show value)
+    assertBuildDirContains value = getBuildDirFilesContaining value `shouldNotReturn` []
 
     -- Also checks that the build dir has the main page, without which
     -- nothing would contain the value.
     assertBuildDirDoesNotContain :: (HasCallStack) => String -> TestM ()
     assertBuildDirDoesNotContain value = do
       assertBuildDirContains mainPageMarker
-      getBuildDirFilesContaining value >>= (`shouldBe` [])
+      getBuildDirFilesContaining value `shouldReturn` []
 
     -- Relative to the build dir.
     getBuildDirFilesContaining :: String -> TestM [FilePath]

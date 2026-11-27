@@ -1,6 +1,6 @@
 module Tests.WaspDbMigrateDevTest (test_waspDbMigrateDev) where
 
-import Control.Monad (forM_, unless)
+import Control.Monad (forM_)
 import Data.List (isInfixOf)
 import E2E
 import GHC.Stack (HasCallStack)
@@ -40,15 +40,13 @@ test_waspDbMigrateDev =
     hangTimeoutSeconds :: Int
     hangTimeoutSeconds = 5 * 60
 
-    assertMigrationExists, assertNoMigrationExists :: (HasCallStack) => String -> TestM ()
-    assertMigrationExists = assertMigrationPresence True
-    assertNoMigrationExists = assertMigrationPresence False
-
     -- In the project and in the generated app.
-    assertMigrationPresence :: (HasCallStack) => Bool -> String -> TestM ()
-    assertMigrationPresence shouldExist migrationName =
+    assertMigrationExists, assertNoMigrationExists :: (HasCallStack) => String -> TestM ()
+    assertMigrationExists migrationName =
       forM_ dbMigrationsDirs $ \migrationsDir -> do
         migrations <- listDbMigrations migrationsDir
-        let quantifier = if shouldExist then "a" else "no"
-        unless (any (migrationName `isInfixOf`) migrations == shouldExist) $
-          expectationFailure ("Expected " ++ quantifier ++ " migration named " ++ show migrationName ++ " in " ++ migrationsDir ++ ", which has: " ++ show migrations)
+        migrations `shouldSatisfy` any (migrationName `isInfixOf`)
+    assertNoMigrationExists migrationName =
+      forM_ dbMigrationsDirs $ \migrationsDir -> do
+        migrations <- listDbMigrations migrationsDir
+        migrations `shouldNotSatisfy` any (migrationName `isInfixOf`)

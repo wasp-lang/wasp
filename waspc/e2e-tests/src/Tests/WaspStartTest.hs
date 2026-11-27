@@ -1,6 +1,6 @@
 module Tests.WaspStartTest (test_waspStart) where
 
-import Control.Monad (unless)
+import Control.Monad (void)
 import E2E
 import qualified StrongPath as SP
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -46,13 +46,12 @@ test_waspStart =
           assertOutputContains "Web app failed" result
     ]
   where
-    -- Kills the Vite dev server of the test's project.
+    -- Kills the Vite dev server of the test's project. `pkill` fails when it
+    -- finds no such process.
     crashWebApp :: TestM ()
     crashWebApp = do
       viteBin <- resolvePath "node_modules/.bin/vite"
-      result <- runAllowingFailure $ program "pkill" ["-KILL", "-f", viteBin]
-      unless (result.exitCode == ExitSuccess) $
-        failWithResult result "found no Vite dev server process to kill"
+      void . run $ program "pkill" ["-KILL", "-f", viteBin]
 
 -- | Runs `wasp start` until the app is up, and then stops it with the signal.
 -- Checks that Wasp stops the processes it started, by checking that nothing

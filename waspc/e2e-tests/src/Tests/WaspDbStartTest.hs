@@ -1,6 +1,6 @@
 module Tests.WaspDbStartTest (test_waspDbStart) where
 
-import Control.Monad (unless, void, when)
+import Control.Monad (void, when)
 import Data.Char (isSpace)
 import qualified Data.Text as T
 import E2E
@@ -38,8 +38,7 @@ test_waspDbStart =
                 -- Also proves that we derived the names right, since the
                 -- cleanup can't tell a wrong name from a container or volume
                 -- that's already gone.
-                getReportedVolumeName devDb
-                  >>= (`shouldBe` devDbDockerNames.volumeName)
+                getReportedVolumeName devDb `shouldReturn` devDbDockerNames.volumeName
                 return devDb
               step "a Wasp command finds the database and connects to it once `wasp db start` says it's ready" $
                 waspDbMigrateDev "first_migration"
@@ -60,8 +59,7 @@ test_waspDbStart =
                   assertNotOnDefaultPostgresPort devDbDockerNames
                   return devDbOnOtherPort
               step "the new database uses the same volume, so the data is still there" $
-                getReportedVolumeName devDbOnOtherPort
-                  >>= (`shouldBe` devDbDockerNames.volumeName)
+                getReportedVolumeName devDbOnOtherPort `shouldReturn` devDbDockerNames.volumeName
               step "a Wasp command finds the database and connects to it on a non-default port" $
                 waspDbMigrateDev "no_new_migration"
               step "SIGTERM (e.g. from a process manager) also stops the database and deletes the container" $
@@ -138,10 +136,8 @@ stopDevDbWithSignal sig devDb devDbDockerNames = do
     -- `docker run` client instead, which is Wasp.
     getWaspPid = do
       -- Matches `docker run ... --name <container> ...`, which only Wasp runs.
-      pgrepResult <- runAllowingFailure $ program "pgrep" ["-f", "docker run .*--name " ++ devDbDockerNames.containerName ++ " "]
-      unless (pgrepResult.exitCode == ExitSuccess) $
-        failWithResult pgrepResult "found no `docker run` process of the dev database"
-      dockerRunPid <- firstStdoutLine pgrepResult
+      -- `pgrep` fails when it finds no such process.
+      dockerRunPid <- run (program "pgrep" ["-f", "docker run .*--name " ++ devDbDockerNames.containerName ++ " "]) >>= firstStdoutLine
       psResult <- run (program "ps" ["-o", "ppid=", "-p", dockerRunPid])
       waspPid <- firstStdoutLine psResult
       maybe (failWithResult psResult "printed an invalid parent PID") return (readMaybe waspPid)
