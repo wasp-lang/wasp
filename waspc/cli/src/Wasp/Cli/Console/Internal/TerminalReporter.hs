@@ -1,12 +1,16 @@
--- | What the console's reporter does with a message in a terminal. Only
--- "Wasp.Cli.Console" uses it, to build the reporter that it hands out.
+-- | The reporter that writes to the terminal. Only "Wasp.Cli.Console" uses it,
+-- when it builds the console.
 module Wasp.Cli.Console.Internal.TerminalReporter
-  ( cliSendMessage,
+  ( makeTerminalReporter,
   )
 where
 
+import Wasp.Cli.Console.Reporter (Reporter (..))
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.TextStyle as TextStyle
+
+makeTerminalReporter :: Reporter
+makeTerminalReporter = Reporter {send = cliSendMessage}
 
 -- | Send a message using the CLI
 cliSendMessage :: Msg.SendMessage

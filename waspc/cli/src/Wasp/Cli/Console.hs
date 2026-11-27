@@ -6,7 +6,7 @@ where
 
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
-import Wasp.Cli.Console.Internal.TerminalReporter (cliSendMessage)
+import Wasp.Cli.Console.Internal.TerminalReporter (makeTerminalReporter)
 import Wasp.Cli.Console.Reporter (Reporter (..))
 import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
@@ -22,7 +22,7 @@ initConsole :: IO Console
 initConsole =
   return
     Console
-      { reporter = Reporter {send = cliSendMessage},
+      { reporter = makeTerminalReporter,
         writeRawOutput = writeToOutputStream
       }
 
