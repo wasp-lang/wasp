@@ -1,6 +1,6 @@
 module Wasp.Cli.Console.Reporter
   ( Reporter (..),
-    renderMessage,
+    cliSendMessage,
   )
 where
 
@@ -12,22 +12,27 @@ newtype Reporter = Reporter
   { send :: Msg.Message -> IO ()
   }
 
-renderMessage :: Msg.Message -> String
-renderMessage = \case
-  Msg.Info msg -> waspSays msg
-  Msg.Start msg -> waspSays $ asWaspStartMessage msg
-  Msg.Success msg -> waspSays $ asWaspSuccessMessage msg
-  Msg.Failure title msg -> waspScreams $ asWaspFailureMessage (title ++ ":") ++ msg
-  Msg.Warning title msg -> waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
+-- | Send a message using the CLI
+cliSendMessage :: Msg.SendMessage
+cliSendMessage (Msg.Info msg) =
+  waspSays msg
+cliSendMessage (Msg.Start msg) =
+  waspSays $ asWaspStartMessage msg
+cliSendMessage (Msg.Success msg) =
+  waspSays $ asWaspSuccessMessage msg
+cliSendMessage (Msg.Failure title msg) =
+  waspScreams $ asWaspFailureMessage (title ++ ":") ++ msg
+cliSendMessage (Msg.Warning title msg) =
+  waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
 
-waspSays :: String -> String
-waspSays = TextStyle.applyStyles [TextStyle.Yellow]
+waspSays :: String -> IO ()
+waspSays what = putStrLn $ TextStyle.applyStyles [TextStyle.Yellow] what
 
-waspWarns :: String -> String
-waspWarns = TextStyle.applyStyles [TextStyle.Magenta]
+waspWarns :: String -> IO ()
+waspWarns what = putStrLn $ TextStyle.applyStyles [TextStyle.Magenta] what
 
-waspScreams :: String -> String
-waspScreams = TextStyle.applyStyles [TextStyle.Red]
+waspScreams :: String -> IO ()
+waspScreams what = putStrLn $ TextStyle.applyStyles [TextStyle.Red] what
 
 asWaspStartMessage :: String -> String
 asWaspStartMessage = waspMessageWithEmoji "🐝"

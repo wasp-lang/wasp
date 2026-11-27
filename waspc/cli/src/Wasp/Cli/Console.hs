@@ -6,7 +6,7 @@ where
 
 import qualified Data.Text.IO as T.IO
 import System.IO (Handle, hFlush, stderr, stdout)
-import Wasp.Cli.Console.Reporter (Reporter (..), renderMessage)
+import Wasp.Cli.Console.Reporter (Reporter (..), cliSendMessage)
 import Wasp.Util.IO.Process (OutputStream (..), WriteOutput)
 
 -- | Everything the CLI uses to talk to the user. There is a single one, created
@@ -21,7 +21,7 @@ initConsole :: IO Console
 initConsole =
   return
     Console
-      { reporter = Reporter {send = putStrLn . renderMessage},
+      { reporter = Reporter {send = cliSendMessage},
         writeRawOutput = writeToOutputStream
       }
 
