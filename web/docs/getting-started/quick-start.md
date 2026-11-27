@@ -1,7 +1,7 @@
 ---
 title: "Quick start: install Wasp and create your first app"
 sidebar_label: Quick start
-description: Install Wasp with npm, create an app with wasp new and run it with wasp start. Then add the Wasp agent plugin to Claude Code or another coding agent.
+description: Create a Wasp app with npx @wasp/cli new and run it with npm run dev. Then add the Wasp agent plugin to Claude Code or another coding agent.
 slug: /quick-start
 ---
 
@@ -14,46 +14,38 @@ import Trackable from '@site/src/components/Trackable';
 
 Welcome, new Waspeteer 🐝!
 
-Let's create and run our first Wasp app in 3 short steps:
+Let's create and run our first Wasp app in 2 short steps:
 
-1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
+1. **To create a new app on Linux / macOS / WSL (Windows), open your terminal and run:**
 
-   <Trackable event="Install Command: Copy">
+   <Trackable event="CLI Command: Copy" command="wasp_new">
 
-   ```shell
-   npm i -g @wasp/cli@latest
-   ```
+   <WaspCommand command="wasp new" />
 
    </Trackable>
 
    ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
 
-2. **Then, create a new app by running:**
-
-   <Trackable event="CLI Command: Copy" command="wasp_new">
-
-   ```shell
-   wasp new
-   ```
-
-   </Trackable>
-
-3. **Finally, run the app:**
+2. **Then, run the app:**
 
    <Trackable event="CLI Command: Copy" command="wasp_start">
 
-   ```shell
+   <WaspCommand>{`
    cd <my-project-name>
    wasp start
-   ```
+   `}</WaspCommand>
 
    </Trackable>
 
 That's it 🎉 You have successfully created a new full-stack web app and Wasp is serving both frontend and backend for you. Open the client URL that Wasp printed on startup (usually [http://localhost:3000](http://localhost:3000), unless it's taken) to see it.
 
+:::tip Prefer shorter commands?
+These commands run the local Wasp CLI your project installed. To type `wasp start` instead, install the [global Wasp CLI](#global-cli).
+:::
+
 But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
 
-4. **Install Agent Plugin / Skills:**
+3. **Install Agent Plugin / Skills:**
 
    **Claude Code:**
 
@@ -70,9 +62,7 @@ But don't stop there! Turn your coding agent into a Wasp framework expert in the
 
     <Trackable event="Agent Plugin: Copy" kind="skills_cli">
 
-    ```bash
-    npx skills add wasp-lang/wasp-agent-plugins
-    ```
+    <PackageManagerCommand npm="npx skills add wasp-lang/wasp-agent-plugins" />
 
     </Trackable>
 
@@ -94,7 +84,7 @@ Check [More Details](#more-details) section below if anything went wrong with th
 :::
 
 :::tip Having trouble running Wasp?
-  If you get stuck with a weird error while developing with Wasp, try running `wasp clean` - this is the Wasp equivalent of "turning it off and on again"!
+  If you get stuck with a weird error while developing with Wasp, try running <InlineWaspCommand command="wasp clean" /> - this is the Wasp equivalent of "turning it off and on again"!
   Do however let us know about the issue on our GitHub repo or Discord server.
 :::
 
@@ -155,32 +145,43 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 
 ### Installation {#detailed-installation}
 
+Wasp installs as an npm dependency of each project, the `@wasp/wasp` package. Read how to run the CLI in [Running Wasp commands](../advanced/cli.md#running-wasp-commands).
+
+#### Installing Wasp globally {#global-cli}
+
+You don't need a global install to use Wasp. If you prefer shorter commands, like `wasp start` instead of `npm run dev`, install the Wasp CLI globally:
+
+<Trackable event="Install Command: Copy">
+
+<PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
+
+</Trackable>
+
+Inside a project, it runs the project's own Wasp version. Read more in [Global CLI](../advanced/cli.md#global-cli).
+
+:::note Looking for the old installer script?
+
+Check out the **[Legacy installer guide](../guides/legacy/installer.md)** for instructions on how to migrate to npm-based installation.
+
+:::
+
+#### Upgrading Wasp
+
+To switch a project to another Wasp version, change its `@wasp/wasp` dependency:
+
+<PackageManagerCommand npm="npm install --save-exact @wasp/wasp@x.y.z" />
+
+Check the [migration guide](../migration-guide.md) before upgrading to a new minor version.
+
+#### Windows and building from source
+
 <Tabs
-  defaultValue="npm"
+  defaultValue="win"
   values={[
-    {label: 'Linux / macOS (npm)', value: 'npm'},
     {label: 'Windows', value: 'win'},
     {label: 'From source', value: 'source'}
   ]}
 >
-  <TabItem value="npm">
-    Open your terminal and run:
-
-    <Trackable event="Install Command: Copy">
-
-    ```shell
-    npm i -g @wasp/cli@latest
-    ```
-
-    </Trackable>
-
-    :::note Looking for the old installer script?
-
-    Check out the **[Legacy installer guide](../guides/legacy/installer.md)** for instructions on how to keep using it or how to migrate to npm-based installation.
-
-    :::
-  </TabItem>
-
   <TabItem value="win">
     With Wasp for Windows, we are almost there: Wasp is successfully compiling and running on Windows but there is a bug or two stopping it from fully working. Check out [GitHub issue #48](https://github.com/wasp-lang/wasp/issues/48) if you are interested in helping.
 

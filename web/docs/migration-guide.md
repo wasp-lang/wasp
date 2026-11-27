@@ -6,6 +6,14 @@ sidebar_label: From 0.26 to 0.27
 
 ## What's new in 0.27?
 
+### Wasp as a project dependency
+
+Your project now depends on Wasp through the `@wasp/wasp` npm package, which brings the Wasp CLI and the Wasp Spec.
+
+The `@wasp/wasp` version in `package.json` sets the project's Wasp version, so the `wasp: { version }` field in `main.wasp.ts` is gone. `npm install` installs Wasp with the rest of your dependencies, so the `wasp install` command is gone too.
+
+The global `wasp` command keeps working. Inside a project, it hands each command over to the project's own Wasp.
+
 ### Node.js 26
 
 Wasp now requires Node.js 26 or later, the [current LTS line](https://github.com/nodejs/release#release-schedule). It enables the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) by default and removes some long-deprecated APIs. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) for the full list of changes.
@@ -85,18 +93,21 @@ Wasp also requires `@types/node` to match the Node.js major version. Update it i
 
 Node.js 26 is a new major version with breaking changes. Check out Node.js's [release notes](https://nodejs.org/en/blog/release/v26.0.0) to see if any of them affect your app.
 
-### 2. Switch to the new Wasp CLI package
+### 2. Switch to the new global Wasp CLI package
 
-The Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package first, otherwise npm fails with an `EEXIST` error when installing the new one:
+The global Wasp CLI is now published as `@wasp/cli` instead of `@wasp.sh/wasp-cli`. Uninstall the old package. It doesn't hand commands over to your project's Wasp, so `wasp start` would keep running Wasp 0.26 on your migrated project:
 
-```sh
-npm uninstall -g @wasp.sh/wasp-cli
-npm i -g @wasp/cli@0.27
-```
+<PackageManagerCommand npm="npm uninstall -g @wasp.sh/wasp-cli" />
 
-### 3. Rename `@wasp.sh/spec` to `@wasp/spec`
+**If you don't want a global Wasp CLI, you can skip the rest of this step.** Your project's `@wasp/wasp` dependency brings the Wasp CLI, and you run it through npm (see [Running Wasp commands](./advanced/cli.md#running-wasp-commands)).
 
-Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp Spec dependency in your `package.json`:
+To keep typing `wasp <command>`, install the new package. If you skipped the uninstall above, npm fails here with an `EEXIST` error:
+
+<PackageManagerCommand npm="npm i -g @wasp/cli@0.27" />
+
+### 3. Depend on `@wasp/wasp` instead of `@wasp.sh/spec` {#depend-on-wasp}
+
+Replace the `@wasp.sh/spec` devDependency with an exact `@wasp/wasp` dependency. Also add the npm scripts that new projects come with. They run your project's Wasp without a global install, and the docs' npm commands use them, for example `npm run dev` or `npm run wasp -- db migrate-dev --name init`. See [Running Wasp commands](./advanced/cli.md#running-wasp-commands):
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -112,16 +123,88 @@ Wasp's packages moved from the `@wasp.sh` npm scope to `@wasp`. Rename the Wasp 
   <TabItem value="after" label="After">
     ```json title="package.json"
     {
-      "devDependencies": {
-        // highlight-next-line
-        "@wasp/spec": "file:.wasp/spec"
+      // highlight-start
+      "scripts": {
+        "wasp": "wasp",
+        "dev": "wasp start",
+        "build": "wasp build",
+        "preview": "wasp build start"
+      },
+      "dependencies": {
+        "@wasp/wasp": "0.27.0"
       }
+      // highlight-end
     }
     ```
   </TabItem>
 </Tabs>
 
-Then replace `@wasp.sh/spec` with `@wasp/spec` everywhere else in your project. That covers the imports in `main.wasp.ts` and any other `*.wasp.ts` files, and mentions in files like `AGENTS.md` or `CLAUDE.md`:
+Don't run `npm install` yet. `@wasp/wasp` requires Prisma 6, so npm fails with a dependency conflict while `package.json` still lists Prisma 5. You'll install the dependencies in [step 9](#reinstall-dependencies).
+
+### 4. Move your overrides of Wasp's dependencies to npm `overrides`
+
+**If your `package.json` has no `wasp.overriddenDeps` field, you can skip this step.**
+
+If `wasp.overriddenDeps` lists React, Vite, Express, or another package that comes with `@wasp/wasp`, override it with npm's `overrides` field instead. Wasp reports such `overriddenDeps` entries as errors.
+
+The two fields take different versions. `wasp.overriddenDeps` lists the version Wasp requires, while `overrides` lists the version you want. So don't copy the value over. Set the override to the version from your `dependencies`, since npm fails with `EOVERRIDE` when the two don't match exactly:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
+      },
+      // highlight-start
+      "wasp": {
+        "overriddenDeps": {
+          "react": "19.2.1",
+          "react-dom": "19.2.1"
+        }
+      }
+      // highlight-end
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
+      },
+      // highlight-start
+      "overrides": {
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
+      }
+      // highlight-end
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Read more in [Overriding Wasp's dependencies](./advanced/dependencies.md#overriding-wasps-dependencies-advanced).
+
+### 5. Check your `.npmrc`
+
+**If your project has no `.npmrc` file, you can skip this step.**
+
+If your `.npmrc` sets `legacy-peer-deps=true` or `omit=peer`, remove that setting. `@wasp/wasp` brings React, Prisma and the other packages your app needs as peer dependencies, and npm skips peer dependencies with either setting.
+
+If your `.npmrc` sets `min-release-age`, npm won't install packages published in the last 7 days, and that includes a new Wasp release. Exclude Wasp's packages, so you can upgrade on the day a release comes out:
+
+```ini title=".npmrc"
+min-release-age=7
+# highlight-next-line
+min-release-age-exclude[]=@wasp/*
+```
+
+### 6. Rename `@wasp.sh/spec` imports to `@wasp/spec`
+
+Wasp now publishes the Wasp Spec as `@wasp/spec`, so update the imports in your `main.wasp.ts` and any other `*.wasp.ts` files:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
@@ -138,14 +221,17 @@ Then replace `@wasp.sh/spec` with `@wasp/spec` everywhere else in your project. 
   </TabItem>
 </Tabs>
 
-### 4. Bump the Wasp version
+If your project has an `AGENTS.md` or `CLAUDE.md` from a Wasp starter, replace it with the [`AGENTS.md` of the latest Wasp release](https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/Cli/starters/skeleton/AGENTS.md), so coding agents don't follow outdated instructions. Keep any lines you added yourself.
 
-Update the version field in your Wasp config to `^0.27.0`.
+### 7. Remove the Wasp version from `main.wasp.ts`
+
+`package.json` now sets the Wasp version, so remove the `wasp` field:
 
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```ts title="main.wasp.ts"
     export default app({
+      name: "myApp",
       // highlight-next-line
       wasp: { version: "^0.26.0" },
       // ...
@@ -155,21 +241,68 @@ Update the version field in your Wasp config to `^0.27.0`.
   <TabItem value="after" label="After">
     ```ts title="main.wasp.ts"
     export default app({
-      // highlight-next-line
-      wasp: { version: "^0.27.0" },
+      name: "myApp",
       // ...
     });
     ```
   </TabItem>
 </Tabs>
 
-And run the following command to update the Wasp libraries in your project:
+### 8. Upgrade to Prisma 6
 
-```bash
-wasp install
+Update the Prisma packages in your `package.json`:
+
+<Tabs sideBySide>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // highlight-next-line
+        "@prisma/client": "5.19.1" // if already present
+      },
+      "devDependencies": {
+        // highlight-next-line
+        "prisma": "5.19.1"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "dependencies": {
+        // highlight-next-line
+        "@prisma/client": "6.19.3" // if already present
+      },
+      "devDependencies": {
+        // highlight-next-line
+        "prisma": "6.19.3"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
+
+### 9. Reinstall your dependencies {#reinstall-dependencies}
+
+:::caution Back up your SQLite development database
+If your app uses SQLite in development, its database is `.wasp/out/db/dev.db`, so deleting `.wasp` deletes your development data too. Copy the file somewhere outside `.wasp` first if you want to keep it.
+:::
+
+Delete the old build output and `node_modules`, and install the dependencies:
+
+```sh
+rm -rf .wasp node_modules
+npm install
 ```
 
-### 5. Update your Vitest setup
+Then run the migrations. Prisma 6 changed how it stores some things in the database, so <InlineWaspCommand command="wasp db migrate-dev" /> creates a new migration if your app needs one:
+
+<WaspCommand command="wasp db migrate-dev" />
+
+### 10. Update your Vitest setup
 
 The `wasp test` command is gone, and Wasp no longer installs testing libraries or configures Vitest for you. The `wasp/client/test` helpers (`renderInContext` and `mockServer`) stay, but they now need `vitest`, `msw`, and `@testing-library/react` in your project's `devDependencies`.
 
@@ -259,9 +392,7 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
 
 1. Install Vitest and the testing libraries your tests use:
 
-   ```bash
-   npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw
-   ```
+   <PackageManagerCommand npm="npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom msw" />
 
    Wasp's testing helpers need Vitest 5 and MSW 3, so this also upgrades Vitest if your project is on an older version. If your tests use Vitest features that changed, check [Vitest's migration guide](https://vitest.dev/guide/migration/).
 
@@ -409,66 +540,22 @@ Wasp no longer needs `vitest`, so you can remove it from your project:
      </TabItem>
    </Tabs>
 
-   Your tests import the Wasp SDK, so generate it first with `wasp compile`, or keep `wasp start` running in another terminal:
+   Your tests import the Wasp SDK, so generate it first with <InlineWaspCommand command="wasp compile" />, or keep <InlineWaspCommand command="wasp start" /> running in another terminal:
 
-   ```bash
+   <WaspCommand>{`
    wasp compile
    npm test
-   ```
+   `}</WaspCommand>
 
 Read more in the [testing docs](./advanced/testing.md).
 
-### 6. Upgrade to Prisma 6
-
-Update the Prisma packages in your `package.json`:
-
-<Tabs sideBySide>
-  <TabItem value="before" label="Before">
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // highlight-next-line
-        "@prisma/client": "5.19.1" // if already present
-      },
-      "devDependencies": {
-        // highlight-next-line
-        "prisma": "5.19.1"
-      }
-    }
-    ```
-  </TabItem>
-  <TabItem value="after" label="After">
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // highlight-next-line
-        "@prisma/client": "6.19.3" // if already present
-      },
-      "devDependencies": {
-        // highlight-next-line
-        "prisma": "6.19.3"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-Then run:
-
-```sh
-wasp install
-wasp db migrate-dev
-```
-
-Prisma 6 changed how some things are stored in the database, so `wasp db migrate-dev` creates a new migration if your app needs one. Prisma 6 also has a few breaking changes in Prisma Client. Check [Prisma's upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-6) to see if any of them affect your app.
-
-### 7. Check relative paths in your server code
+### 11. Check relative paths in your server code
 
 The server now runs with your project's root directory as its working directory, instead of `.wasp/out/server`. In the Docker image, that's `/app` instead of `/app/.wasp/out/server`.
 
 If your server code reads or writes files using relative paths, they now resolve from the project root. If you worked around the old behavior (e.g. with paths like `../../../src/data/countries.json`), remove the workaround. If you deploy with Docker and mount a volume at a path inside `/app/.wasp/out/server`, move it to the matching path inside `/app`.
 
-### 8. Check the packages your server loads at runtime
+### 12. Check the packages your server loads at runtime
 
 **If you didn't add any npm packages to your app yourself, you can skip this step.** The packages Wasp uses work out of the box.
 
@@ -487,7 +574,7 @@ export default app({
 })
 ```
 
-### 9. Install the system dependencies your app needs
+### 13. Install the system dependencies your app needs
 
 **If your app doesn't run Python on the server, you can skip this step.**
 
@@ -497,11 +584,11 @@ The generated Dockerfile no longer installs `python3` in the final image, becaus
 RUN apk add --no-cache python3
 ```
 
-### 10. Update your custom Dockerfile
+### 14. Update your custom Dockerfile
 
 **If you don't have a [`Dockerfile`](./deployment/methods/overview#customizing-the-dockerfile) in your project's dir, you can skip this step.**
 
-The generated Dockerfile changed. Run `wasp dockerfile` to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
+The generated Dockerfile changed. Run <InlineWaspCommand command="wasp dockerfile" /> to print it with your custom Dockerfile appended at the bottom, and check that your steps still apply to the new stages.
 
 The final stage (`server-production`) no longer contains the `/app/node_modules` folder. It only has the server's bundle and the packages the bundle uses, in `/app/.wasp/out/server`. If your steps use other packages (for example, through `npx`), copy the full `node_modules` from the `server-builder` stage:
 
@@ -509,7 +596,7 @@ The final stage (`server-production`) no longer contains the `/app/node_modules`
 COPY --from=server-builder /app/node_modules /app/node_modules
 ```
 
-### 11. Import `HttpError` from `wasp/errors`
+### 15. Import `HttpError` from `wasp/errors`
 
 The server and the client now use the same `HttpError` class, so it moved from `wasp/server` to `wasp/errors`. Update your imports:
 
@@ -527,7 +614,7 @@ The server and the client now use the same `HttpError` class, so it moved from `
   </TabItem>
 </Tabs>
 
-### 12. Update how you read errors on the client
+### 16. Update how you read errors on the client
 
 On the client, failed operations and auth actions now throw an `HttpError`, the same class you throw on the server. It replaces `WaspHttpError` from `wasp/client/api`, and it differs in two ways:
 
@@ -564,7 +651,7 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
   </TabItem>
 </Tabs>
 
-### 13. Pass `HttpError` data in the options
+### 17. Pass `HttpError` data in the options
 
 `HttpError`'s third argument is now an options object, and the data is one of its options, next to `headers` and `cause`:
 
@@ -586,7 +673,7 @@ On the client, failed operations and auth actions now throw an `HttpError`, the 
 
 Its status code is also available as `status` now. `statusCode` still works, but it is deprecated.
 
-### 14. Move your error tracking to `onError`
+### 18. Move your error tracking to `onError`
 
 This step is only for apps that send errors to an error tracking service, like Sentry.
 
@@ -645,7 +732,7 @@ On the client, `client.onError` also receives the errors that an error tracker c
 
 If you use Sentry, follow the updated [Sentry guide](./guides/integrations/sentry.md) for the full setup on both sides.
 
-### 15. Pass raw values as route params
+### 19. Pass raw values as route params
 
 **If you don't use `Link`, `NavLink`, or `routes.<name>.build()` with params, you can skip this step.**
 
@@ -669,6 +756,6 @@ Wasp now keeps params that are `0`, and encodes characters like `/`, `?`, and `#
   </TabItem>
 </Tabs>
 
-### 16. Enjoy your updated Wasp app
+### 20. Enjoy your updated Wasp app
 
 That's it!
