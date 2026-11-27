@@ -517,6 +517,7 @@ library cli-lib
     Wasp.Cli.Command.Watch
     Wasp.Cli.Compile
     Wasp.Cli.Console
+    Wasp.Cli.Console.Internal.TerminalReporter
     Wasp.Cli.Console.Reporter
     Wasp.Cli.DevDb
     Wasp.Cli.DevDb.ArgumentsParser
