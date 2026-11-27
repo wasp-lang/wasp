@@ -9,6 +9,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/0.27/migration-
 - Wasp now requires Node.js >=26.13.1 (previously >=24.22.1) and `@types/node` `^26.0.0`. ([#5329](https://github.com/wasp-lang/wasp/pull/5329))
 - Wasp projects now depend on the `@wasp/wasp` npm package, which brings `@wasp/spec` and the Wasp CLI. ([#5264](https://github.com/wasp-lang/wasp/pull/5264))
 - The custom `wasp install` is no longer needed. A regular `npm install` replaces it. ([#5266](https://github.com/wasp-lang/wasp/pull/5266))
+- `wasp.overriddenDeps` no longer works for packages that come with `@wasp/wasp`, like React, Vite or Express. Use npm's `overrides` instead. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
+- React, Vite, Express and the other packages that come with `@wasp/wasp` are now its peer dependencies, so Wasp projects no longer work with npm's `legacy-peer-deps` or `omit=peer` settings. ([#5268](https://github.com/wasp-lang/wasp/pull/5268))
 - The Wasp Spec package is now `@wasp/spec`. ([#5159](https://github.com/wasp-lang/wasp/pull/5159))
 - The Wasp CLI is now published as `@wasp/cli`. ([#5157](https://github.com/wasp-lang/wasp/pull/5157))
 - Wasp now uses Prisma 6. ([#5091](https://github.com/wasp-lang/wasp/pull/5091))
