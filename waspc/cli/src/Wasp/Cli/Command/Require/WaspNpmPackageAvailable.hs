@@ -48,7 +48,7 @@ instance Requirable WaspNpmPackageAvailable where
       isRunByNpmPackage <- liftIO isRunByWaspCliNpmPackage
       throwError $
         if isRunByNpmPackage
-          then partialInstallError installedVersion cliVersion
+          then waspNpmPackageVersionMismatchError installedVersion cliVersion
           else directRunError cliVersion installedVersion
     return WaspNpmPackageAvailable
     where
@@ -62,8 +62,8 @@ instance Requirable WaspNpmPackageAvailable where
             ++ "."
 
       -- When \@wasp/wasp and \@wasp/cli don't match, e.g. after a partial install.
-      partialInstallError :: SV.Version -> SV.Version -> CommandError
-      partialInstallError installedVersion cliVersion =
+      waspNpmPackageVersionMismatchError :: SV.Version -> SV.Version -> CommandError
+      waspNpmPackageVersionMismatchError installedVersion cliVersion =
         outOfDateError $
           "node_modules has "
             ++ styleCode (waspNpmPackageName ++ " " ++ show installedVersion)
