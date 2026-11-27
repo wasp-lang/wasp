@@ -1,14 +1,33 @@
-module Wasp.Cli.Terminal
-  ( asWaspMessage,
-    asWaspStartMessage,
-    asWaspSuccessMessage,
-    asWaspFailureMessage,
-    asWaspWarningMessage,
+module Wasp.Cli.Console.Reporter
+  ( Reporter (..),
+    renderMessage,
   )
 where
 
-asWaspMessage :: String -> String
-asWaspMessage = waspMessageWithEmoji ""
+import qualified Wasp.Message as Msg
+import qualified Wasp.Util.TextStyle as TextStyle
+
+-- | How Wasp says things to the user.
+newtype Reporter = Reporter
+  { send :: Msg.Message -> IO ()
+  }
+
+renderMessage :: Msg.Message -> String
+renderMessage = \case
+  Msg.Info msg -> waspSays msg
+  Msg.Start msg -> waspSays $ asWaspStartMessage msg
+  Msg.Success msg -> waspSays $ asWaspSuccessMessage msg
+  Msg.Failure title msg -> waspScreams $ asWaspFailureMessage (title ++ ":") ++ msg
+  Msg.Warning title msg -> waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg
+
+waspSays :: String -> String
+waspSays = TextStyle.applyStyles [TextStyle.Yellow]
+
+waspWarns :: String -> String
+waspWarns = TextStyle.applyStyles [TextStyle.Magenta]
+
+waspScreams :: String -> String
+waspScreams = TextStyle.applyStyles [TextStyle.Red]
 
 asWaspStartMessage :: String -> String
 asWaspStartMessage = waspMessageWithEmoji "🐝"
