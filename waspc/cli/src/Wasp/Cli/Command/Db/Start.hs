@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.Start.Db
+module Wasp.Cli.Command.Db.Start
   ( start,
   )
 where
@@ -40,4 +40,4 @@ start = withArguments startDbArgsParser $ \devDbOptions -> do
         "Nothing to do! You are all good, you are using SQLite which doesn't need to be started."
 
 startDbArgsParser :: ArgsParser DevDbOptions
-startDbArgsParser = ArgsParser "wasp start db" devDbOptionsParser
+startDbArgsParser = ArgsParser "wasp db start" devDbOptionsParser
