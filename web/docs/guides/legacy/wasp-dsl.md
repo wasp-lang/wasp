@@ -285,11 +285,106 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
 
 ## How to migrate
 
-Upgrade the project to the latest Wasp. Follow the [migration guides](../../migration-guide.md) one version at a time, starting with the one from your project's version.
+These steps convert a Wasp DSL config to the Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.24.0`.
 
-<!-- TODO: Link `/docs/0.27/migration-guide` once Wasp 0.27 is released. The docs build fails on links to unreleased versions. -->
+After finishing this guide, return to the [migration guide](/docs/0.24/migration-guide) if you still need to complete the shared Wasp 0.24 migration steps.
 
-Notable releases on the way:
+Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
-- [Wasp 0.24](/docs/0.24/migration-guide): the Wasp Spec replaces the Wasp DSL. The [0.24 version of this guide](/docs/0.24/guides/legacy/wasp-dsl) has the full conversion steps.
-- [Wasp 0.27](../../migration-guide.md): each project installs its own Wasp as an npm dependency, and the global Wasp CLI is `@wasp/cli`.
+1. Rename `tsconfig.json` to `tsconfig.src.json` and make it exclude Wasp Spec files:
+
+   ```json title="tsconfig.src.json"
+   {
+     // ...
+     "include": ["src"],
+     "exclude": ["**/*.wasp.ts"]
+   }
+   ```
+
+2. Create a new `tsconfig.json` that references the other two configs:
+
+   ```json title="tsconfig.json"
+   {
+     "files": [],
+     "references": [
+       { "path": "./tsconfig.src.json" },
+       { "path": "./tsconfig.wasp.json" }
+     ]
+   }
+   ```
+
+3. Create a `tsconfig.wasp.json` with the required compiler options and the Wasp Spec includes:
+
+   ```json title="tsconfig.wasp.json"
+   {
+     "compilerOptions": {
+       "target": "ES2022",
+       "module": "esnext",
+       "moduleResolution": "bundler",
+       "jsx": "preserve",
+       "strict": true,
+       "isolatedModules": true,
+       "moduleDetection": "force",
+       "skipLibCheck": true,
+       "allowJs": true,
+       "noEmit": true,
+       "lib": ["ES2023"]
+     },
+     "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
+   }
+   ```
+
+4. Add the required `devDependencies` to your `package.json`:
+
+   ```json title="package.json"
+   {
+     // ...
+     "devDependencies": {
+       // ...
+       // highlight-next-line
+       "@types/node": "^26.0.0",
+       // highlight-next-line
+       "@wasp/spec": "file:.wasp/spec"
+     }
+   }
+   ```
+
+   Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp/spec` provides the local Wasp Spec API package.
+
+5. Run `wasp install`.
+
+6. Rename `main.wasp` to `main.wasp.old`.
+
+7. Create a `main.wasp.ts` file with the following content:
+
+   ```ts title="main.wasp.ts"
+   import { app } from "@wasp/spec";
+
+   export default app({
+     name: "myApp",
+     title: "My app",
+     wasp: { version: "^0.24.0" },
+     head: ["<link rel='icon' href='/favicon.ico' />"],
+     spec: [
+       // ...
+     ],
+   });
+   ```
+
+   :::note
+   While previously we accepted any `*.wasp` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
+   :::
+
+8. Rewrite your config:
+
+   You can use the mapping above. Top-level concerns (e.g. `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`) become keys of the `app({ ... })` object; pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `spec` property.
+
+9. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
+
+:::note
+At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
+:::
+
+10. Delete `main.wasp.old` once you're sure the new config works.
+
+See the full [Wasp Spec reference](../../features/spec.md#reference) for every option. Got stuck? Reach out on our [Discord](https://discord.gg/rzdnErX) and we'll help.

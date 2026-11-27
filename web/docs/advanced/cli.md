@@ -15,9 +15,9 @@ Once you've [set up Wasp](../getting-started/quick-start.md), you can run Wasp c
 
 ### npm scripts {#npm-scripts}
 
-Each Wasp project has `@wasp/wasp` as a dependency, which brings the Wasp CLI. The `@wasp/wasp` version in `package.json` is the project's Wasp version, so everyone working on the project runs the same Wasp. `npm install` installs it with the rest of the project's dependencies, so run it first in a fresh clone.
+Each Wasp project has `@wasp/wasp` as a dependency, which brings the Wasp CLI.
 
-Each project also comes with npm scripts that run its Wasp:
+Each project also comes with npm scripts to run its Wasp CLI:
 
 | Script | Runs |
 | --- | --- |
@@ -40,7 +40,7 @@ The `wasp` package on npm is not Wasp. In a project with installed dependencies,
 
 ### Global CLI {#global-cli}
 
-You don't need a global install to use Wasp, but if you prefer typing `wasp <command>` directly, and want the Wasp CLI available anywhere, you can install it globally:
+The global Wasp CLI is optional. Install it if you prefer typing `wasp <command>` directly, from any directory:
 
 <PackageManagerCommand npm="npm i -g @wasp/cli@latest" />
 
@@ -48,7 +48,7 @@ Inside a project, the global CLI hands each command over to the project's own Wa
 
 Outside of a project, there's no project Wasp to hand the command over to, so the global CLI runs it with its own version. For example, `wasp new` creates projects on the global CLI's version. Update the global CLI at any time to run these commands with the latest Wasp.
 
-To run a command outside of a project without installing the global CLI, run it through npx with the latest version. This is how you create a project without a global install:
+To run a command outside of a project without installing the global CLI, run it through npx with the latest version, e.g. creating a new project:
 
 <PackageManagerCommand npm="npx @wasp/cli@latest new" />
 
