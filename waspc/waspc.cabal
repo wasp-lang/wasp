@@ -219,6 +219,8 @@ library
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.NpmWorkspaces
+    Wasp.Generator.OptionalFeatureNpmDeps
+    Wasp.Generator.OptionalFeatureNpmDeps.Common
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.Common
@@ -285,7 +287,6 @@ library
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common
     Wasp.Generator.Valid.PackageJson.Dependencies
-    Wasp.Generator.Valid.PackageJson.WaspConfig
     Wasp.Generator.Valid.PackageJson.Workspaces
     Wasp.Generator.WaspInfo
     Wasp.Generator.WebAppGenerator
@@ -589,8 +590,8 @@ test-suite waspc-tests
     Generator.ServerGenerator.StartTest
     Generator.ServerGeneratorTest
     Generator.SetupTest
-    Generator.Valid.PackageJson.WaspConfigTest
     Generator.VirtualUserModulesTest
+    Generator.Valid.PackageJson.DependenciesTest
     Generator.WaspNpmPackageJsonTest
     Generator.WriteFileDraftsTest
     Job.CreateProcess.SearchPathTest
@@ -602,7 +603,6 @@ test-suite waspc-tests
     Paths_waspc
     Project.Db.DevTest
     Project.DbTest
-    Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
     Project.ExternalConfig.SrcTsConfigTest
     Project.ExternalConfig.TsConfigTest
