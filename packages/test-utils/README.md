@@ -1,14 +1,18 @@
-# Test Utils Library
+Helpers for testing the client code of Wasp apps with Vitest, as an npm package.
 
-Vitest helpers for testing the client code of Wasp apps. The generated Wasp SDK re-exports them from `wasp/client/test`.
+## For Wasp users
 
-Entry points:
+Install the package in your Wasp app together with the testing libraries it works with:
 
-- `@wasp/test-utils`
-- `@wasp/test-utils/config`
+```bash
+npm install -D @wasp/test-utils vitest msw @testing-library/react @testing-library/jest-dom jsdom
+```
 
-See the [parent README](../README.md#packages-the-generated-code-imports) for development and packaging.
+- Learn more about Wasp: https://wasp.sh/
+- Read the docs: https://wasp.sh/docs
+- Read about testing Wasp apps: https://wasp.sh/docs/advanced/testing
+- Browse the API reference: https://wasp.sh/docs/api/@wasp/test-utils
+- Join our community: https://discord.gg/rzdnErX
 
-`vitest`, `jsdom`, `msw`, and `@testing-library/react` are optional peer dependencies, because every Wasp app installs this package, but only apps with tests install them.
-
-The `jsdom` range copies Vitest's own peer dependency on it (`*`), because the package only names it as the test environment and doesn't call any of its APIs.
+> [!NOTE]
+> The user-facing intro of the package's API reference is in [`docs.md`](./docs.md).

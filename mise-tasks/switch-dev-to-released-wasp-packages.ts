@@ -5,10 +5,11 @@
 
 import { execa } from "execa";
 import {
-  WASP_MAIN_PACKAGE_NAME,
   WASP_NPM_SUBPACKAGE_NAMES,
+  WASP_PACKAGE_NAMES,
 } from "../waspc/tools/packages/utils.ts";
 import { reinstallDevWaspAppDeps } from "../waspc/tools/reinstallDevWaspAppDeps.ts";
+import { getPackageJson } from "../waspc/tools/utils.ts";
 
 const [_node, _filename, version] = process.argv;
 if (!version) {
@@ -22,7 +23,15 @@ const devOverrides = WASP_NPM_SUBPACKAGE_NAMES.map(
   (packageName) => `overrides.${packageName}`,
 );
 
-await $`npm pkg set dependencies.${WASP_MAIN_PACKAGE_NAME}=${version}`;
+const packageJson = getPackageJson(process.cwd());
+const directWaspDeps = (["dependencies", "devDependencies"] as const).flatMap(
+  (section) =>
+    WASP_PACKAGE_NAMES.filter(
+      (packageName) => packageJson[section]?.[packageName],
+    ).map((packageName) => `${section}.${packageName}=${version}`),
+);
+
+await $`npm pkg set ${directWaspDeps}`;
 // `//` holds the examples' note about the dev packages.
 await $`npm pkg delete ${devOverrides} //`;
 await reinstallDevWaspAppDeps(process.cwd());

@@ -83,8 +83,6 @@ genSdk spec =
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/errors/index.ts|],
       C.genFileCopy [relfile|client/index.ts|],
-      C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|test/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
