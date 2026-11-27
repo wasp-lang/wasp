@@ -6,6 +6,7 @@ slug: /
 ---
 
 import HowItWorksDiagram from '@site/src/components/HowItWorksDiagram'
+import AgentPrompts from '@site/src/components/AgentPrompts'
 
 # What's Wasp?
 
@@ -14,6 +15,16 @@ If you are looking for the installation instructions, check out the [Quick Start
 :::
 
 We will give a brief overview of what Wasp is, how it works on a high level and when to use it.
+
+<div className="skip-in-markdown-docs">
+
+## Start with an AI agent
+
+Rather have your agent do the reading? Copy a prompt and paste it into your AI agent.
+
+<AgentPrompts />
+
+</div>
 
 ## Wasp is a tool to build modern web applications
 
@@ -215,3 +226,9 @@ Wasp addresses the same core problems that typical web app frameworks are addres
 Wasp does not match typical expectations of a web app framework: it is not just a set of libraries. You describe your app in the `main.wasp.ts` spec file, and the compiler uses that spec together with your React, Node.js, and Prisma code to generate the application structure and glue code.
 
 This spec-driven approach lets Wasp focus on one purpose: **building modern web applications with 10x less code and less stack-specific knowledge**.
+
+### Easy to understand, for you and your coding agent
+
+The spec gives you a map of the whole app in one file. Read `main.wasp.ts` from top to bottom and you see every route, page, query, action, job and auth setting, and which data each one uses. Since Wasp generates the glue code between them, there's also less code to read and write.
+
+Coding agents get the same map. They can read the spec to understand the entire codebase before they change it, and Wasp's conventions show them where each change belongs. Every new Wasp project also includes an `AGENTS.md` file that tells agents how to work with Wasp.

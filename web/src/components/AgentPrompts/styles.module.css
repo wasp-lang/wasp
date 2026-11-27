@@ -1,0 +1,45 @@
+.card {
+  --agent-prompts-shadow: rgba(17, 17, 17, 0.1);
+
+  margin: 1.5rem 0 2rem;
+  border: 1px solid var(--wasp-g3);
+  padding: 0.25rem 1rem 1rem;
+  background:
+    linear-gradient(135deg, rgba(245, 200, 66, 0.22), transparent 48%),
+    var(--ifm-background-color);
+  box-shadow: 6px 6px 0 var(--agent-prompts-shadow);
+}
+
+html[data-theme="dark"] .card {
+  --agent-prompts-shadow: rgba(245, 200, 66, 0.16);
+}
+
+.label {
+  padding: 0.75rem 0 0.25rem;
+  color: var(--ifm-color-primary);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tabs {
+  margin-bottom: 0;
+}
+
+.caption {
+  margin: 0.75rem 0 0.5rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.9rem;
+}
+
+.card :global(.theme-code-block) {
+  margin-bottom: 0;
+}
+
+/* Prompts are prose: wrap them instead of scrolling sideways. */
+.card pre code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

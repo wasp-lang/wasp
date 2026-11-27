@@ -230,6 +230,12 @@ Wasp does not match typical expectations of a web app framework: it is not just 
 
 This spec-driven approach lets Wasp focus on one purpose: **building modern web applications with 10x less code and less stack-specific knowledge**.
 
+#### Easy to understand, for you and your coding agent
+
+The spec gives you a map of the whole app in one file. Read `main.wasp.ts` from top to bottom and you see every route, page, query, action, job and auth setting, and which data each one uses. Since Wasp generates the glue code between them, there's also less code to read and write.
+
+Coding agents get the same map. They can read the spec to understand the entire codebase before they change it, and Wasp's conventions show them where each change belongs. Every new Wasp project also includes an `AGENTS.md` file that tells agents how to work with Wasp.
+
 
 ## Getting started / Quick start
 

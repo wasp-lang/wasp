@@ -7,12 +7,23 @@ slug: /quick-start
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Trackable from '@site/src/components/Trackable';
+import AgentPrompts from '@site/src/components/AgentPrompts';
 
 # Quick start
 
 ## Installation
 
 Welcome, new Waspeteer 🐝!
+
+<div className="skip-in-markdown-docs">
+
+Want your coding agent to do the setup for you? Copy this prompt into it:
+
+<AgentPrompts prompts={["setup"]} />
+
+Or follow these steps yourself.
+
+</div>
 
 Let's create and run our first Wasp app in 3 short steps:
 
