@@ -20,6 +20,7 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.Function ((&))
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -34,6 +35,7 @@ import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAv
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Cli.ProjectLock as ProjectLock
 import Wasp.CompileOptions (CompileOptions (..))
+import qualified Wasp.Diagnostic as Diagnostic
 import qualified Wasp.Generator
 import Wasp.Generator.Setup (SetupGoal, allSetupGoals)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
@@ -84,7 +86,8 @@ compileWithOptions options = do
       $ "Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory outDir
     cliSendMessageC
-      $ Msg.Success
+      $ Msg.Diagnostic
+      $ Diagnostic.makeSuccess
       $ "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
@@ -107,7 +110,7 @@ compileWithOptions options = do
 printCompilationResult :: ([CompileWarning], [CompileError]) -> IO ()
 printCompilationResult (warns, errs) = do
   if null errs
-    then cliSendMessage $ Msg.Success "Your wasp project has successfully compiled."
+    then cliSendMessage $ Msg.Diagnostic (Diagnostic.makeSuccess "Your wasp project has successfully compiled.")
     else printErrorsIfAny errs
   printWarningsIfAny warns
 
@@ -120,15 +123,17 @@ printWarningsIfAny :: [CompileWarning] -> IO ()
 printWarningsIfAny warns = do
   unless (null warns)
     $ cliSendMessage
-    $ Msg.Warning compilationWarningsTitle
-    $ formatErrorOrWarningMessages warns
+    $ Msg.Diagnostic
+    $ Diagnostic.makeWarning compilationWarningsTitle
+      & Diagnostic.setDetails (formatErrorOrWarningMessages warns)
 
 printErrorsIfAny :: [CompileError] -> IO ()
 printErrorsIfAny errs = do
   unless (null errs)
     $ cliSendMessage
-    $ Msg.Failure "Your wasp project failed to compile"
-    $ formatErrorOrWarningMessages errs
+    $ Msg.Diagnostic
+    $ Diagnostic.makeError "Your wasp project failed to compile"
+      & Diagnostic.setDetails (formatErrorOrWarningMessages errs)
 
 formatErrorOrWarningMessages :: [String] -> String
 formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)

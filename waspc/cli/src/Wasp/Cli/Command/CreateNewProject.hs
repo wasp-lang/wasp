@@ -34,6 +34,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNpm))
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
+import qualified Wasp.Diagnostic as Diagnostic
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
@@ -133,7 +134,7 @@ printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
 printGettingStartedInstructionsForProject projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
   let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
-  cliSendMessage $ Msg.Success $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
+  cliSendMessage $ Msg.Diagnostic $ Diagnostic.makeSuccess $ "Created a new Wasp app in `./" ++ projectDirName ++ "`."
   putStrLn instructions
 
 printExtraInstructionsForProject :: [String] -> IO ()

@@ -20,6 +20,7 @@ import Wasp.Cli.Command.Require.ValidNodeAndNpm (ValidNodeAndNpm (ValidNodeAndNp
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
 import Wasp.Cli.ProjectRunConfig (showRunConfigUrls)
 import Wasp.Cli.Util.Parser (withArguments)
+import qualified Wasp.Diagnostic as Diagnostic
 import qualified Wasp.Job as Job
 import qualified Wasp.Message as Msg
 import Wasp.Util (checkExitSuccess)
@@ -49,12 +50,12 @@ buildAndStartServerAndClient appSpec config = do
   cliSendMessageC $ Msg.Start "Building client..."
   Job.run (Job.prefixWith Job.WebApp $ buildClient config)
     >>= throwOnExitFailure "Building client failed." "Building the client"
-  cliSendMessageC $ Msg.Success "Client built."
+  cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Client built.")
 
   cliSendMessageC $ Msg.Start "Building server..."
   Job.run (Job.prefixWith Job.Server $ buildServer config)
     >>= throwOnExitFailure "Building server failed." "Building the server"
-  cliSendMessageC $ Msg.Success "Server built."
+  cliSendMessageC $ Msg.Diagnostic (Diagnostic.makeSuccess "Server built.")
 
   cliSendMessageC $ Msg.Start "Starting client and server..."
   cliSendMessageC
