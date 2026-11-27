@@ -3,6 +3,8 @@ module Test.Job.Util
   )
 where
 
+{- HLINT ignore "Avoid restricted function" -}
+
 import qualified Data.Text.IO as T.IO
 import Wasp.Util.IO.Process (WriteOutput)
 

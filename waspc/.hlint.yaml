@@ -49,3 +49,27 @@
     note: >
       Run the tool's binary directly (with `Job.proc`), so that signals
       are forwarded correctly when Wasp stops the process.
+
+# Only the terminal module works with stdout, stdin and stderr, because it
+# knows what else is on the screen and whether there is a terminal at all.
+# Everything else talks to the user through what `Wasp.Cli.Console` hands out.
+- functions:
+    - name:
+        - System.IO.stdout
+        - System.IO.stderr
+        - System.IO.stdin
+        - putStr
+        - putStrLn
+        - print
+        - putChar
+        - getLine
+        - getContents
+        - getChar
+        - interact
+        - Data.Text.IO.putStr
+        - Data.Text.IO.putStrLn
+        - Data.Text.IO.getLine
+        - Data.Text.IO.getContents
+        - Data.Text.IO.interact
+      within: [Wasp.Cli.Console.Internal.Terminal]
+      message: "Use the console (see Wasp.Cli.Console)."

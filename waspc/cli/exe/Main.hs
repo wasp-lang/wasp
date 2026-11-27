@@ -11,7 +11,6 @@ import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
-import System.IO (BufferMode (LineBuffering), hSetBuffering, stdout)
 import Wasp.Cli.Command (Command, runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -54,11 +53,6 @@ main = withUtf8 $ do
 
 runMain :: Console -> IO ()
 runMain console = do
-  -- If we don't explicitly set line buffering, the output gets block-buffered
-  -- when stdout is not a terminal (e.g. redirected to a file or another program),
-  -- so messages from long-running commands don't show up until the command exits.
-  hSetBuffering stdout LineBuffering
-
   -- So that Wasp also cleans up after itself (e.g. stops the processes it
   -- started) when it's stopped with SIGTERM (process managers, `kill`) or
   -- SIGHUP (closed terminal), and not only with Ctrl+C.

@@ -1,6 +1,7 @@
 module Wasp.Cli.Console
   ( Console (..),
     initConsole,
+    isOutputShownInTerminal,
     isPromptInputEOF,
   )
 where
@@ -26,6 +27,7 @@ data Console = Console
 
 initConsole :: IO Console
 initConsole = do
+  Terminal.setLineBufferingForOutput
   canPrompt <- Terminal.isInputTerminal
   return
     Console
@@ -33,6 +35,10 @@ initConsole = do
         writeRawOutput = Terminal.writeRawOutput,
         prompter = if canPrompt then Just makeTerminalPrompter else Nothing
       }
+
+-- | Whether what Wasp writes ends up in a terminal.
+isOutputShownInTerminal :: IO Bool
+isOutputShownInTerminal = Terminal.isOutputTerminal
 
 -- | True for an error caused by the user ending the input (Ctrl+D) while a
 -- prompt is waiting for an answer.

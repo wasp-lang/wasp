@@ -26,13 +26,13 @@ import Paths_waspc (version)
 import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import qualified System.Environment as ENV
-import qualified System.IO as SIO
 import qualified System.Info
 import Wasp.Cli.Command (Command, require)
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
+import Wasp.Cli.Console (isOutputShownInTerminal)
 import Wasp.Util (checkIfOnCi, ifM, isOlderThanNHours)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -82,7 +82,7 @@ getTelemetryContext = do
         -- NOTE(martin): We are not 100% sure how correctly does `hIsTerminalDevice` detect
         --   if shell is non-interactive or not, so let's use this info with regard to that and
         --   revise this in the future once we have more data.
-        (SIO.hIsTerminalDevice SIO.stdout `catchError` const (return True))
+        (isOutputShownInTerminal `catchError` const (return True))
           <&> \case True -> ""; False -> "NON_INTERACTIVE_SHELL"
       ]
 

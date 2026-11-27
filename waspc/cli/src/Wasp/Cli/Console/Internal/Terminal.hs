@@ -1,14 +1,17 @@
--- | The only module that writes Wasp's messages and the jobs' output to the
--- terminal. Only "Wasp.Cli.Console" and the modules next to this one use it,
--- to build what the console hands out to the rest of the code.
+-- | The only module that works with stdout, stdin and stderr. Everything Wasp
+-- writes to the terminal or reads from it goes through here. Only
+-- "Wasp.Cli.Console" and the modules next to this one use it, to build what
+-- the console hands out to the rest of the code.
 --
--- We eventually want to route all terminal communication through this module,
--- making it the only one allowed to work with stdout, stdin and stderr. See
--- https://github.com/wasp-lang/wasp/issues/5493 for details.
+-- A lint rule in @.hlint.yaml@ keeps the other modules away from the three
+-- handles and from the functions that use them without naming them (e.g.
+-- 'putStrLn'). See https://github.com/wasp-lang/wasp/issues/5493 for details.
 module Wasp.Cli.Console.Internal.Terminal
   ( writeLine,
     writeRawOutput,
     isInputTerminal,
+    isOutputTerminal,
+    setLineBufferingForOutput,
     writePrompt,
     readLine,
     isInputEOF,
@@ -17,7 +20,7 @@ where
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import System.IO (Handle, hFlush, hIsTerminalDevice, stderr, stdin, stdout)
+import System.IO (BufferMode (LineBuffering), Handle, hFlush, hIsTerminalDevice, hSetBuffering, stderr, stdin, stdout)
 import System.IO.Error (ioeGetHandle, isEOFError)
 import Wasp.Util.IO.Process (OutputStream (..))
 
@@ -35,6 +38,15 @@ getOutputStreamHandle Stderr = stderr
 
 isInputTerminal :: IO Bool
 isInputTerminal = hIsTerminalDevice stdin
+
+isOutputTerminal :: IO Bool
+isOutputTerminal = hIsTerminalDevice stdout
+
+-- If we don't explicitly set line buffering, the output gets block-buffered
+-- when stdout is not a terminal (e.g. redirected to a file or another program),
+-- so messages from long-running commands don't show up until the command exits.
+setLineBufferingForOutput :: IO ()
+setLineBufferingForOutput = hSetBuffering stdout LineBuffering
 
 -- | Writes a part of a prompt, which stays on the same line as the user's
 -- answer, so it's written out right away.
