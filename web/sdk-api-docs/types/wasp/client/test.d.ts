@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { Route } from "@wasp/lib-sdk-core";
+import type { Route } from "@wasp/sdk-core";
 import type { ReactElement, ReactNode } from "react";
 import type { Query } from "./operations";
 

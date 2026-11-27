@@ -10,7 +10,7 @@
  * @module
  */
 
-import type { Params, Search } from "@wasp/lib-sdk-core";
+import type { Params, Search } from "@wasp/sdk-core";
 import type { JSX, RefAttributes } from "react";
 import type {
   LinkProps as RouterLinkProps,

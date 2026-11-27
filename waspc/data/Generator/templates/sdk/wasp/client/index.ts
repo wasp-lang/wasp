@@ -1,11 +1,11 @@
 // PUBLIC API
-export { HttpMethod, type ClientConfig, type Route } from '@wasp/lib-sdk-core'
+export { HttpMethod, type ClientConfig, type Route } from '@wasp/sdk-core'
 
 // PUBLIC API
 export type {
   ClientErrorContext,
   ClientOnErrorFn,
-} from "@wasp/lib-sdk-core/browser";
+} from "@wasp/sdk-core/browser";
 
 // PUBLIC API
 export { config } from './config';

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-//MISE description="Bumps the Wasp version across waspc.cabal, libs, and example projects, then rebuilds the libs and the dev Wasp npm packages and busts each project's libs cache."
+//MISE description="Bumps the Wasp version across waspc.cabal, the Wasp npm packages, and example projects, then rebuilds the dev Wasp npm packages and reinstalls each project's dependencies."
 //USAGE arg "<level>" { choices "major" "minor" "patch" }
 /// <reference types="node" />
 
@@ -11,13 +11,11 @@ import {
   cabalVersionRegex,
   getWaspcVersion,
 } from "../waspc/tools/get-waspc-version.ts";
-import { getLibsDirPath } from "../waspc/tools/libs/utils.ts";
 import {
   getPackageDirPath,
-  WASP_PACKAGE_DIR_NAMES,
+  WASP_PACKAGE_NAMES,
 } from "../waspc/tools/packages/utils.ts";
 import {
-  discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
   getWaspcDirPath,
   runCmd,
@@ -40,14 +38,11 @@ function bumpWaspVersion(bumpType: BumpType): void {
 
   bumpWaspcCabalVersion(nextVersion);
 
-  bumpLibsVersion(nextVersion);
-  rebuildLibs();
-
   bumpPackagesVersion(nextVersion);
   rebuildDevPackages();
 
   bumpWaspProjectsVersion(nextVersion);
-  bustWaspProjectsLibsCache();
+  reinstallWaspProjectsDeps();
 }
 
 function bumpWaspcCabalVersion(nextVersion: string): void {
@@ -65,14 +60,8 @@ function bumpWaspcCabalVersion(nextVersion: string): void {
   writeFileSync(cabalFilePath, updatedCabalFileContent);
 }
 
-function bumpLibsVersion(nextVersion: string): void {
-  for (const libDirPath of discoverSubDirs(getLibsDirPath())) {
-    bumpPackageJsonVersion(libDirPath, nextVersion);
-  }
-}
-
 function bumpPackagesVersion(nextVersion: string): void {
-  for (const packageDirPath of WASP_PACKAGE_DIR_NAMES.map(getPackageDirPath)) {
+  for (const packageDirPath of WASP_PACKAGE_NAMES.map(getPackageDirPath)) {
     bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }
@@ -98,8 +87,8 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   }
   packageJson.version = nextVersion;
 
-  // Libs and packages depend on each other (e.g. sdk-core on lib-auth), so we
-  // must update version numbers in dependencies as well.
+  // The packages depend on each other (e.g. `@wasp/sdk-core` on `@wasp/auth`), so we must
+  // update version numbers in dependencies as well.
   for (const deps of [
     packageJson.dependencies,
     packageJson.devDependencies,
@@ -124,7 +113,7 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
 // `rebuildDevPackages` go away.
 //
 // The Wasp projects in this repo depend on the dev Wasp npm package tarballs
-// (see `tasks/build/dev-packages.ts`), whose file names carry the version.
+// (see `mise-tasks/build/dev-packages.ts`), whose file names carry the version.
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   const packageJsonPath = join(projectDir, "package.json");
   const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
@@ -145,16 +134,9 @@ function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   writeFileSync(packageJsonPath, updatedPackageJsonContent);
 }
 
-function rebuildLibs(): void {
-  runCmd("mise", ["run", "build:libs"], {
-    cwd: waspcDirPath,
-    stdio: "inherit",
-  });
-}
-
 // The Wasp projects in this repo depend on the dev tarballs by version (see
 // `bumpWaspProjectVersion`), so the tarballs must exist at the new version
-// before `bustWaspProjectsLibsCache` reinstalls the projects.
+// before `reinstallWaspProjectsDeps` reinstalls the projects.
 function rebuildDevPackages(): void {
   runCmd("mise", ["run", "build:dev-packages"], {
     cwd: waspcDirPath,
@@ -162,9 +144,9 @@ function rebuildDevPackages(): void {
   });
 }
 
-function bustWaspProjectsLibsCache(): void {
+function reinstallWaspProjectsDeps(): void {
   for (const waspProjectDirPath of waspProjectDirsPaths) {
-    runCmd("mise", ["run", "bust-libs-cache"], {
+    runCmd("mise", ["run", "reinstall-dev-wasp-app-deps"], {
       cwd: waspProjectDirPath,
       stdio: "inherit",
     });

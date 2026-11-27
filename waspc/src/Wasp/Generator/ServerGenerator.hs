@@ -58,8 +58,6 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.VirtualUserModulesPluginG (genVirtualUserModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
-import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import qualified Wasp.SemanticVersion as SV
@@ -155,10 +153,8 @@ npmDepsFromWasp spec =
     N.NpmDepsForPackage
       { -- TODO(#4824): The generated server stops being an npm workspace once
         -- it lists no dependencies. For that, the optional ones (WebSockets)
-        -- move to the user's project and the Wasp libs to @wasp/wasp.
-        N.dependencies =
-          depsRequiredByWebSockets spec
-            ++ waspLibsNpmDeps,
+        -- move to the user's project.
+        N.dependencies = depsRequiredByWebSockets spec,
         N.devDependencies =
           Npm.Dependency.fromList
             [ ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor $ getLowestNodeVersionUserAllows spec),
@@ -167,8 +163,6 @@ npmDepsFromWasp spec =
       }
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
-
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec
