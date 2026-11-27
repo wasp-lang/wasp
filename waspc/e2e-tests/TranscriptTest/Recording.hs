@@ -16,7 +16,7 @@ import Control.Concurrent (MVar, forkIO, newEmptyMVar, putMVar, readMVar, thread
 import Control.Exception (IOException, bracket, finally, handle)
 import Control.Monad (foldM_, unless, when)
 import qualified Data.ByteString as BS
-import Data.IORef (IORef, atomicModifyIORef', newIORef, readIORef)
+import Data.IORef (IORef, atomicModifyIORef', newIORef, readIORef, writeIORef)
 import Data.Maybe (isJust, isNothing, maybeToList)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -88,6 +88,8 @@ data CommandToRecord = CommandToRecord
 
 data Recording = Recording
   { streams :: [RecordedStream],
+    -- | What the command had printed when Ctrl-C was pressed, if it was.
+    streamsBeforeCtrlC :: Maybe [RecordedStream],
     -- | The exit code a shell would report.
     exitCode :: Int
   }
@@ -107,7 +109,8 @@ recordCommand mode commandToRecord interactions =
       interactWith runningCommand interactions
       processExitCode <- waitForProcess runningCommand.processHandle
       streams <- mapM waitForRecordedStream (outputCollectors runningCommand)
-      return Recording {streams, exitCode = exitCodeAsShellReportsIt processExitCode}
+      streamsBeforeCtrlC <- readIORef runningCommand.streamsBeforeCtrlC
+      return Recording {streams, streamsBeforeCtrlC, exitCode = exitCodeAsShellReportsIt processExitCode}
     maybe (fail $ "The command didn't finish in time: " ++ commandToRecord.command) return maybeRecording
   where
     recordingTimeoutMicroseconds = 15 * 60 * microsecondsInSecond
@@ -118,7 +121,8 @@ data RunningCommand = RunningCommand
     processHandle :: ProcessHandle,
     stdinHandle :: Handle,
     stdoutCollector :: OutputCollector,
-    stderrCollector :: Maybe OutputCollector
+    stderrCollector :: Maybe OutputCollector,
+    streamsBeforeCtrlC :: IORef (Maybe [RecordedStream])
   }
 
 startCommand :: RecordingMode -> CommandToRecord -> IO RunningCommand
@@ -136,6 +140,7 @@ startCommand mode commandToRecord = do
   hSetBuffering stdinHandle NoBuffering
   stdoutCollector <- collectOutput (stdoutStreamName mode) stdoutHandle
   stderrCollector <- mapM (collectOutput "stderr") maybeStderrHandle
+  streamsBeforeCtrlC <- newIORef Nothing
   return
     RunningCommand
       { mode,
@@ -143,15 +148,22 @@ startCommand mode commandToRecord = do
         processHandle,
         stdinHandle,
         stdoutCollector,
-        stderrCollector
+        stderrCollector,
+        streamsBeforeCtrlC
       }
   where
     -- `exec` makes the command take the shell's place, so that signals reach
     -- it directly and its exit code is the one we record.
     commandTakingShellsPlace = "exec " ++ commandToRecord.command
 
+    -- BSD `script` exits with the bare signal number when a signal kills the
+    -- command, which looks the same as an exit code. So here the shell stays:
+    -- the trap keeps it running through the terminal's Ctrl-C, and it exits
+    -- with what it reports for the command.
+    commandWhoseSignalTheShellReports = "trap : INT; " ++ commandToRecord.command ++ "; exit $?"
+
     makeProcess (Terminal UtilLinuxScript) = proc "script" ["-qefc", commandTakingShellsPlace, "/dev/null"]
-    makeProcess (Terminal BsdScript) = proc "script" ["-q", "/dev/null", "/bin/sh", "-c", commandTakingShellsPlace]
+    makeProcess (Terminal BsdScript) = proc "script" ["-q", "/dev/null", "/bin/sh", "-c", commandWhoseSignalTheShellReports]
     makeProcess Pipe = shell commandTakingShellsPlace
 
     -- In a terminal, the command's stdout and stderr both end up in the
@@ -192,9 +204,13 @@ perform runningCommand position = \case
     Pipe -> return position
   WaitUntil condition -> waitUntil runningCommand condition >> return position
   TypeLine line -> writeToStdin runningCommand (line ++ "\n") >> return position
-  PressCtrlC -> pressCtrlC >> return position
+  PressCtrlC -> rememberStreamsBeforeCtrlC >> pressCtrlC >> return position
   PressCtrlD -> pressCtrlD >> return position
   where
+    rememberStreamsBeforeCtrlC =
+      mapM readRecordedStreamSoFar (outputCollectors runningCommand)
+        >>= writeIORef runningCommand.streamsBeforeCtrlC . Just
+
     pressCtrlC = case runningCommand.mode of
       -- The terminal turns the character into SIGINT for everything that runs
       -- in it, the same as when a user presses the keys.
@@ -286,6 +302,10 @@ readOutputSoFar outputCollector = readIORef outputCollector.collectedOutput
 waitForRecordedStream :: OutputCollector -> IO RecordedStream
 waitForRecordedStream outputCollector = do
   readMVar outputCollector.isDone
+  readRecordedStreamSoFar outputCollector
+
+readRecordedStreamSoFar :: OutputCollector -> IO RecordedStream
+readRecordedStreamSoFar outputCollector = do
   content <- readOutputSoFar outputCollector
   return RecordedStream {name = outputCollector.streamName, content}
 

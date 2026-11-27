@@ -11,6 +11,7 @@ where
 
 import Control.Monad (unless, when)
 import qualified Data.ByteString as BS
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Encoding.Error as T
@@ -157,8 +158,15 @@ makeTranscript :: RuntimeOutput -> Path' Abs (Dir TestCaseDir) -> Recording -> E
 makeTranscript runtimeOutput scenarioDir recording = do
   when (expectsRuntimeOutput && not hasRuntimeOutputOfWholeApp) $
     Left "The app didn't start: the server or the client didn't print anything."
-  return $ T.concat $ (formatStream <$> recording.streams) ++ formattedExitCode
+  return $ T.concat $ (formatStream <$> transcriptStreams) ++ formattedExitCode
   where
+    -- What a command prints while it stops differs between runs, and in a
+    -- stream that holds none of the app's output there is no other way to
+    -- tell where the cut-off transcript ends.
+    transcriptStreams = case runtimeOutput of
+      CutOffAtRuntimeOutput -> fromMaybe recording.streams recording.streamsBeforeCtrlC
+      _keepsWholeOutput -> recording.streams
+
     formatStream :: RecordedStream -> T.Text
     formatStream stream =
       formatSection stream.name $ normalizeOutput normalizationOptions $ decodeOutput stream.content

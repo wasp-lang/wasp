@@ -39,10 +39,14 @@ normalizeOutput options =
   makeControlCharactersVisible
     . normalizeLines options.runtimeOutput
     . T.replace (T.pack options.scenarioDir) "<scenario-dir>"
+    . dropCtrlDEcho
     . dropTerminalLineEndings
   where
     -- A terminal turns every "\n" a program prints into "\r\n".
     dropTerminalLineEndings = T.replace "\r\n" "\n"
+    -- Some terminals (e.g. on macOS) show Ctrl-D as "^D" and then move the
+    -- cursor back over it. Others show nothing.
+    dropCtrlDEcho = T.replace "^D\b\b" ""
 
 normalizeLines :: RuntimeOutput -> T.Text -> T.Text
 normalizeLines runtimeOutput output = case runtimeOutput of
@@ -51,11 +55,24 @@ normalizeLines runtimeOutput output = case runtimeOutput of
   CutOffAtRuntimeOutput -> T.unlines $ collapseJobOutput linesBeforeRuntimeOutput ++ [cutOffMarker]
   DropRuntimeOutput -> T.unlines $ collapseJobOutput linesBeforeRuntimeOutput ++ keepOnlyWaspOutput linesFromRuntimeOutput
   where
+    outputLines = case runtimeOutput of
+      DropRuntimeOutput -> T.lines $ dropUnfinishedAnsiCodeAtEnd output
+      _keepsTheEndAsItIs -> T.lines output
     -- A job's output can start with an empty line, which is printed without
     -- the job's prefix.
     linesBeforeRuntimeOutput = dropWhileEnd isEmptyLine linesBeforeFirstRuntimeJobLine
-    (linesBeforeFirstRuntimeJobLine, linesFromRuntimeOutput) = break isRuntimeJobLine $ T.lines output
+    (linesBeforeFirstRuntimeJobLine, linesFromRuntimeOutput) = break isRuntimeJobLine outputLines
     cutOffMarker = "<cut off: the app is running>"
+
+-- | A command that is stopped while it prints can end in the middle of an ANSI
+-- code, in a different place on every run.
+dropUnfinishedAnsiCodeAtEnd :: T.Text -> T.Text
+dropUnfinishedAnsiCodeAtEnd output
+  | endsInsideAnsiCode = T.dropEnd (T.length lastLine) output
+  | otherwise = output
+  where
+    lastLine = T.takeWhileEnd (/= '\n') output
+    endsInsideAnsiCode = "\ESC" `T.isPrefixOf` stripAnsiCodes lastLine
 
 -- | The tools Wasp runs print different things on different runs, and each of
 -- their lines carries the job's prefix. Lines of one job that follow each
