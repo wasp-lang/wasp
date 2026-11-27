@@ -77,12 +77,14 @@ jobs:
           set -euxo pipefail
           cd install-test
 
-          # Test that the Wasp CLI can find and run the binary. `tee` keeps the
-          # wrapper's debug log in the CI output even when the command fails.
-          NODE_DEBUG=wasp-bin-wrapper npx wasp version 2>&1 | tee wrapper-debug.log
+          # The project's own `wasp` executable runs the binary right away.
+          NODE_DEBUG=wasp-bin-wrapper npx wasp version
 
-          # Test that the Wasp CLI finds the project's `@wasp/cli` in the npm
-          # layout, and recognizes it is that CLI.
+          # A global `wasp` first looks for the project's Wasp CLI, to hand over
+          # to it. We run the `@wasp/cli` executable like a global one would, to
+          # test that it finds the project's Wasp CLI and sees it is that CLI.
+          # `tee` keeps the debug log in the CI output even if the command fails.
+          NODE_DEBUG=wasp-bin-wrapper node node_modules/@wasp/cli/dist/bin.js version 2>&1 | tee wrapper-debug.log
           grep -q "Running as the project's own Wasp CLI" wrapper-debug.log
 
       - name: List the data files of the platform sub-package
