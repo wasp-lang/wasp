@@ -23,8 +23,7 @@ import qualified Wasp.Util.IO as IOUtil
 data PackageJson = PackageJson
   { name :: !String,
     dependencies :: !DependenciesMap,
-    devDependencies :: !DependenciesMap,
-    workspaces :: !(Maybe [String])
+    devDependencies :: !DependenciesMap
   }
   deriving (Show)
 
@@ -37,7 +36,6 @@ instance FromJSON PackageJson where
       -- from dealing with two "empty" states (Nothing + an empty map).
       <*> v .:? "dependencies" .!= M.empty
       <*> v .:? "devDependencies" .!= M.empty
-      <*> v .:? "workspaces"
 
 type DependenciesMap = Map PackageName PackageVersion
 

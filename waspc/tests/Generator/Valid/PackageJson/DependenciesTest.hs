@@ -44,6 +44,5 @@ spec_optionalFeatureNpmDepsValidator = do
       P.PackageJson
         { P.name = "test-app",
           P.dependencies = M.fromList deps,
-          P.devDependencies = M.fromList devDeps,
-          P.workspaces = Nothing
+          P.devDependencies = M.fromList devDeps
         }
