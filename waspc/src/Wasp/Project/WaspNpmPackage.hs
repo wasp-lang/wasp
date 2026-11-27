@@ -115,19 +115,19 @@ data WaspNpmPackageScript
   | WaspDeployScript
   | WaspStudioScript
 
-waspNpmPackageScriptExportName :: WaspNpmPackageScript -> String
-waspNpmPackageScriptExportName = \case
-  WaspSpecAnalyzerScript -> "internal/run-spec"
-  WaspDeployScript -> "internal/run-deploy"
-  WaspStudioScript -> "internal/run-studio"
-
 -- | Runs the project's \@wasp/wasp script. The scripts must handle `--eval`
 -- arguments, which have no script path in `process.argv`.
 waspNpmPackageScriptCommand :: WaspNpmPackageScript -> [String] -> NodeCommand WaspProjectDir
 waspNpmPackageScriptCommand script args =
   NodeCommand "node" $ ["--input-type=module", "--eval", "import " ++ show scriptImport ++ ";", "--"] ++ args
   where
-    scriptImport = waspNpmPackageName ++ "/" ++ waspNpmPackageScriptExportName script
+    scriptImport = waspNpmPackageName ++ "/" ++ scriptExportName
+
+    scriptExportName :: String
+    scriptExportName = case script of
+      WaspSpecAnalyzerScript -> "internal/run-spec"
+      WaspDeployScript -> "internal/run-deploy"
+      WaspStudioScript -> "internal/run-studio"
 
 runWaspNpmPackageScript :: Path' Abs (Dir WaspProjectDir) -> WaspNpmPackageScript -> [String] -> IO ExitCode
 runWaspNpmPackageScript waspProjectDir script args =
