@@ -4,6 +4,8 @@ sidebar_label: Starter templates
 description: "Create a new Wasp project from a template with wasp new: basic, minimal, or the OpenSaaS.sh template with auth, Stripe payments, Tailwind and cron jobs."
 ---
 
+import Trackable from '@site/src/components/Trackable';
+
 # Starter templates
 
 We created a few starter templates to help you get started with Wasp. Check out the list [below](#available-templates).
@@ -52,9 +54,13 @@ Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments
 
 Use this template:
 
+<Trackable event="CLI Command: Copy" command="wasp_new">
+
 ```
 wasp new <project-name> -t saas
 ```
+
+</Trackable>
 
 ### Minimal Template
 
@@ -62,6 +68,10 @@ A minimal starter template that features just a single page. Perfect for startin
 
 Use this template:
 
+<Trackable event="CLI Command: Copy" command="wasp_new">
+
 ```
 wasp new <project-name> -t minimal
 ```
+
+</Trackable>

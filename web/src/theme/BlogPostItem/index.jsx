@@ -78,7 +78,12 @@ const JoinOurCommunityButton = () => {
   );
 };
 
+// Older blog posts link to this id.
+const NEWSLETTER_INPUT_ID = "newsletter-input";
+
 const JoinNewsletterCard = () => {
+  useBrokenLinks().collectAnchor(NEWSLETTER_INPUT_ID);
+
   return (
     <div
       className={`flex flex-col items-start space-y-3 rounded-lg border border-yellow-500/25 bg-yellow-500/20 p-8`}
@@ -93,7 +98,7 @@ const JoinNewsletterCard = () => {
 
       <p>Once per month - receive useful blog posts and Wasp news.</p>
 
-      <SubscribeForm className="self-stretch" />
+      <SubscribeForm className="self-stretch" inputId={NEWSLETTER_INPUT_ID} />
     </div>
   );
 };

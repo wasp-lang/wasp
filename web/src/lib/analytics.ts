@@ -40,6 +40,9 @@ export type AnalyticsEvents = {
   // sends that event.
   "Cookie Consent: Accept": Record<string, never>;
   "Cookie Consent: Reject": Record<string, never>;
+  // A visit to a page that does not exist. The Plausible goal for it has this
+  // name, not the `Object: Action` form.
+  "404": { path: string };
 };
 
 export type AnalyticsEventName = keyof AnalyticsEvents;
@@ -96,6 +99,8 @@ const PLACEMENTS = [
   // The cookie banner when a visitor opens it again with the "Cookie
   // settings" link.
   "cookie_settings",
+  // The box for the email when Wasp 1.0 lands, in some blog posts.
+  "wasp_v1_signup",
   // Anywhere else.
   "body",
 ] as const;
