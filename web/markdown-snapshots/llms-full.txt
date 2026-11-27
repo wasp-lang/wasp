@@ -12997,6 +12997,28 @@ router.post("/webhook/callback", webhookCallbackMiddleware, ...)
 ```
 :::
 
+#### Serve media to another origin
+
+If an `<audio>` or `<video>` element can't play media from a Wasp API on a different origin (even another port on the same host), check the media request in your browser's Network panel. Chromium may report `net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin` even when the server returned `200 OK` or `206 Partial Content`. By default, Helmet sets [`Cross-Origin-Resource-Policy: same-origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Resource-Policy), which blocks cross-origin `no-cors` loads, such as media elements without a `crossorigin` attribute. Adding an `Access-Control-Allow-Origin` header doesn't change that policy. If your element uses `crossorigin`, it makes a CORS request instead, and your [CORS configuration](https://wasp.sh/docs/guides/configuration/cors-multiple-domains) must allow the page's origin.
+
+For an API route that intentionally serves media for cross-origin embedding, use that route's `middlewareConfigFn` to override just the CORP header:
+
+```ts title="src/media.ts"
+import { type MiddlewareConfigFn } from "wasp/server"
+
+export const allowCrossOriginMedia: MiddlewareConfigFn = (middlewareConfig) => {
+  middlewareConfig.set("crossOriginMedia", (_req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin")
+    next()
+  })
+  return middlewareConfig
+}
+```
+
+Use a reference import (`with { type: "ref" }`) for `allowCrossOriginMedia` in `main.wasp.ts`, as shown above, and set `middlewareConfigFn: allowCrossOriginMedia` on the media `api`. Leave Helmet's global configuration unchanged.
+
+`cross-origin` permits `no-cors` embedding from any origin, not just your frontend. CORP is not authorization: keep enforcing access to protected media on the server.
+
 ### 3. Customize Per-Path Middleware
 
 If you would like to modify the middleware for all API routes under some common path, you can define a `middlewareConfigFn` on an `apiNamespace`:
