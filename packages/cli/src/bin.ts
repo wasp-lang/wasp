@@ -8,9 +8,9 @@ import {
   handOverTo,
   isSameWaspCli,
 } from "./installed-wasp-cli.js";
-import { runAsExecutable, runWaspCli } from "./run-wasp-cli.js";
+import { runWaspCli, setExitCodeFrom } from "./run-wasp-cli.js";
 
-await runAsExecutable(main);
+await setExitCodeFrom(main);
 
 async function main(): Promise<number> {
   const thisWaspCli = await getThisWaspCli();

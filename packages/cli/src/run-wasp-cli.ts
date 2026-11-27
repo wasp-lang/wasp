@@ -7,8 +7,11 @@ import { CLIError } from "./cli-error.js";
 import { debug } from "./debug.js";
 import { loadSubPackageForCurrentPlatform } from "./load-sub-package.js";
 
-/** Reports an error instead of throwing it, and sets a failure exit code. */
-export async function runAsExecutable(
+/**
+ * Sets the exit code that `run` returns as the process's. Reports an error
+ * instead of throwing it, and sets a failure exit code.
+ */
+export async function setExitCodeFrom(
   run: () => Promise<number>,
 ): Promise<void> {
   try {
