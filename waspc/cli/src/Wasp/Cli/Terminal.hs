@@ -1,6 +1,5 @@
 module Wasp.Cli.Terminal
-  ( title,
-    asWaspMessage,
+  ( asWaspMessage,
     asWaspStartMessage,
     asWaspSuccessMessage,
     asWaspFailureMessage,
@@ -8,10 +7,7 @@ module Wasp.Cli.Terminal
   )
 where
 
-import qualified Wasp.Util.TextStyle as TextStyle
-
-title :: String -> String
-title = TextStyle.applyStyles [TextStyle.Bold]
+-- DELETED-IMPORT--
 
 asWaspMessage :: String -> String
 asWaspMessage = waspMessageWithEmoji ""

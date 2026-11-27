@@ -11,7 +11,6 @@ import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Cli.Command.Require.InWaspProject (InWaspProject (InWaspProject))
 import Wasp.Cli.Command.Require.WaspSpecAvailable (WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
@@ -38,7 +37,7 @@ depsMessage :: AppSpec -> String
 depsMessage appSpec =
   unlines $
     [ "",
-      title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
+      TextStyle.styleTitle "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
       ""
     ]
       ++ printDeps
@@ -54,7 +53,7 @@ depsMessage appSpec =
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =
-  title dependenciesTitle : map printDep dependencies
+  TextStyle.styleTitle dependenciesTitle : map printDep dependencies
 
 printDep :: Npm.Dependency.Dependency -> String
 printDep dep =
