@@ -16,10 +16,10 @@ newtype Console = Console
   }
 
 initConsole :: IO Console
-initConsole = return Console {writeRawOutput = writeJobOutput}
+initConsole = return Console {writeRawOutput = writeToOutputStream}
 
-writeJobOutput :: WriteOutput
-writeJobOutput outputStream output = T.IO.hPutStr outputHandle output >> hFlush outputHandle
+writeToOutputStream :: WriteOutput
+writeToOutputStream outputStream output = T.IO.hPutStr outputHandle output >> hFlush outputHandle
   where
     outputHandle = getOutputStreamHandle outputStream
 
