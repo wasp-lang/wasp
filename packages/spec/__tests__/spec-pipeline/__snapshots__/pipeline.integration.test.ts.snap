@@ -9,9 +9,6 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
       "declValue": {
         "name": "demo",
         "title": "Split Demo",
-        "wasp": {
-          "version": "^0.16.0",
-        },
       },
     },
     {

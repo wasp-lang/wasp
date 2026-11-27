@@ -72,7 +72,6 @@ describe("convertWaspSpecToAppSpec", () => {
         declType: "App",
         declValue: {
           name: app.name,
-          wasp: app.wasp,
           title: app.title,
           deployment: undefined,
           head: app.head,
@@ -110,7 +109,6 @@ describe("convertWaspSpecToAppSpec", () => {
 
     const inputApp = app({
       name: "FullApp",
-      wasp: { version: "^0.16.3" },
       title: "Mock App",
       deployment,
       head: ['<link rel="icon" href="/favicon.ico" />'],
@@ -147,7 +145,6 @@ describe("convertWaspSpecToAppSpec", () => {
         declType: "App",
         declValue: {
           name: inputApp.name,
-          wasp: inputApp.wasp,
           title: inputApp.title,
           deployment: { mode: undefined },
           head: inputApp.head,
