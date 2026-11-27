@@ -21,6 +21,16 @@ spec_camelToKebabCase = do
     camel ~> kebab = it (camel ++ " -> " ++ kebab) $ do
       camelToKebabCase camel `shouldBe` kebab
 
+spec_camelToSnakeCase :: Spec
+spec_camelToSnakeCase = do
+  "foobar" ~> "foobar"
+  "getLinks" ~> "get_links"
+  "getLinkStats" ~> "get_link_stats"
+  "s3Folder" ~> "s3_folder"
+  where
+    camel ~> snake = it (camel ++ " -> " ++ snake) $ do
+      camelToSnakeCase camel `shouldBe` snake
+
 spec_kebabToCamelCase :: Spec
 spec_kebabToCamelCase = do
   "foobar" ~> "foobar"

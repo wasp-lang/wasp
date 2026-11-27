@@ -4,6 +4,7 @@ module Wasp.AppSpec.Valid
   ( validateAppSpec,
     getApp,
     isAuthEnabled,
+    isMcpEnabled,
     doesUserEntityContainField,
     getIdFieldFromCrudEntity,
     getLowestNodeVersionUserAllows,
@@ -40,6 +41,7 @@ import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
+import Wasp.AppSpec.Valid.Mcp (validateMcp)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -77,7 +79,8 @@ validateAppSpec spec =
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec,
           validateAtLeastOneRoute spec,
-          validatePrerenderRoutes spec
+          validatePrerenderRoutes spec,
+          validateMcp spec (getApp spec)
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -513,6 +516,10 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ getApp spec)
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+isMcpEnabled :: AppSpec -> Bool
+isMcpEnabled spec = isJust (App.mcp $ getApp spec)
 
 getValidDbSystem :: AppSpec -> AS.Db.DbSystem
 getValidDbSystem = getValidDbSystemFromPrismaSchema . AS.prismaSchema

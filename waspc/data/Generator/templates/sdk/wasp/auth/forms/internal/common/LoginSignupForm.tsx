@@ -28,6 +28,9 @@ import { SocialButton } from '@wasp/lib-sdk-core/browser'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'
+{=# isMcpEnabled =}
+import { peekMcpReturnTo } from '../../../../client/mcp/returnTo.js'
+{=/ isMcpEnabled =}
 import { getAuthErrorMessage, newPasswordFieldRules, passwordFieldRules } from '@wasp/lib-sdk-core/browser'
 import { passwordValidationSchema } from '../../../validation.js'
 {=/ isAnyPasswordBasedAuthEnabled =}
@@ -100,7 +103,12 @@ export const LoginSignupForm = ({
     isLogin,
     onError: onErrorHandler,
     onSuccess() {
+      {=# isMcpEnabled =}
+      navigate(peekMcpReturnTo() ?? {=& onAuthSucceededRedirectTo =})
+      {=/ isMcpEnabled =}
+      {=^ isMcpEnabled =}
       navigate({=& onAuthSucceededRedirectTo =})
+      {=/ isMcpEnabled =}
     },
   });
   {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
@@ -113,7 +121,12 @@ export const LoginSignupForm = ({
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
+      {=# isMcpEnabled =}
+      navigate(peekMcpReturnTo() ?? {=& onAuthSucceededRedirectTo =})
+      {=/ isMcpEnabled =}
+      {=^ isMcpEnabled =}
       navigate({=& onAuthSucceededRedirectTo =})
+      {=/ isMcpEnabled =}
     },
   });
   {=/ enabledProviders.isEmailAuthEnabled =}

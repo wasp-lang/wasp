@@ -4,6 +4,9 @@ import type { IfAny, _Awaited, _Parameters, _ReturnType } from '@wasp/lib-sdk-co
 {=# isAuthEnabled =}
 import type { AuthUser } from '../../auth/user.js'
 {=/ isAuthEnabled =}
+{=# isMcpEnabled =}
+import type { McpCallContext } from '../mcp/index.js'
+{=/ isMcpEnabled =}
 import type {
   _Entity,
   {=# isAuthEnabled =}
@@ -112,7 +115,14 @@ export type AuthenticatedOperationFor<
  * The type of the context users must pass when calling an authenticated
  * operation's server-side API.
  */
+{=# isMcpEnabled =}
+// `mcp` is set when the MCP server calls the operation as a tool.
+export type AuthenticatedOperationContext = { user: AuthUser; mcp?: McpCallContext }
+
+{=/ isMcpEnabled =}
+{=^ isMcpEnabled =}
 export type AuthenticatedOperationContext = { user: AuthUser }
+{=/ isMcpEnabled =}
 
 // PRIVATE API (used in SDK)
 /**

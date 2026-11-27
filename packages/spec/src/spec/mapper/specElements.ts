@@ -100,7 +100,7 @@ export function mapQuerySpec(
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
       auth,
-      expose: expose && mapExpose(expose),
+      expose: expose && mapExpose(expose, ctx),
     },
   };
 }
@@ -117,14 +117,55 @@ export function mapActionSpec(
       fn: ctx.parseRefObject(fn),
       entities: entities?.map(ctx.resolveEntityRef),
       auth,
-      expose: expose && mapExpose(expose),
+      expose: expose && mapExpose(expose, ctx),
     },
   };
 }
 
-export function mapExpose(expose: WaspSpec.Expose): AppSpec.Expose {
-  const { client } = expose;
-  return { client };
+export function mapExpose(
+  expose: WaspSpec.Expose,
+  ctx: AppMapperContext,
+): AppSpec.Expose {
+  const { client, mcp } = expose;
+  return {
+    client,
+    mcp: mcp && mapMcpTool(mcp, ctx),
+  };
+}
+
+export function mapMcpTool(
+  tool: WaspSpec.McpTool,
+  ctx: AppMapperContext,
+): AppSpec.McpTool {
+  const {
+    name,
+    title,
+    scope,
+    insufficientScope,
+    description,
+    input,
+    output,
+    idempotent,
+    openWorld,
+    destructive,
+  } = tool;
+  return {
+    name,
+    title,
+    scope,
+    insufficientScope,
+    description,
+    input: ctx.parseRefObject(input),
+    output: output && ctx.parseRefObject(output),
+    idempotent,
+    openWorld,
+    // `{ describe }` means destructive, with a summary for the approval page.
+    destructive: typeof destructive === "object" ? true : destructive,
+    describe:
+      typeof destructive === "object"
+        ? ctx.parseRefObject(destructive.describe)
+        : undefined,
+  };
 }
 
 export function mapApiSpec(

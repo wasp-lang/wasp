@@ -16,6 +16,7 @@ import Wasp.AppSpec.App.Db (Db)
 import Wasp.AppSpec.App.Deployment (Deployment)
 import qualified Wasp.AppSpec.App.Deployment as Deployment
 import Wasp.AppSpec.App.EmailSender (EmailSender)
+import Wasp.AppSpec.App.Mcp (Mcp)
 import Wasp.AppSpec.App.Server (Server)
 import Wasp.AppSpec.App.Wasp (Wasp)
 import Wasp.AppSpec.App.WebSocket (WebSocket)
@@ -34,7 +35,8 @@ data App = App
     client :: Maybe Client,
     db :: Maybe Db,
     emailSender :: Maybe EmailSender,
-    webSocket :: Maybe WebSocket
+    webSocket :: Maybe WebSocket,
+    mcp :: Maybe Mcp
   }
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 

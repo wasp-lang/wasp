@@ -1,0 +1,56 @@
+{
+  "extends": "@tsconfig/node26/tsconfig.json",
+  "compilerOptions": {
+    /* Strictness and type checking */
+    // TODO: Enable `strict` once the server code is typed for it.
+    // Until then, we only enable the flags whose errors can't depend on the
+    // types the server imports from the user's project.
+    "strict": false,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+
+    "allowJs": true,
+    "checkJs": true,
+    // The project reference takes care of the user project,
+    // so `rootDir` only needs to include the server files.
+    "rootDir": ".",
+    // Enable source map for debugging
+    "sourceMap": true,
+    // We are using rollup and extensionless imports, our module and module
+    // resolution reflect that.
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    // `isolatedModules` rejects code that single-file transpilers (like esbuild)
+    // can't handle. Rollup bundles the server with esbuild, so it must not rely on such code.
+    "isolatedModules": true,
+    // `verbatimModuleSyntax` makes type-only imports explicit, so single-file
+    // transpilers can drop them without having to know what they refer to.
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force", // Assume all files are modules
+    // The remaining settings should match the extended nodeXY/tsconfig.json, but I kept
+    // them here to be explicit.
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "target": "es2022",
+    "lib" : ["es2023"],
+    "types": ["node"]
+  },
+  "include": [
+    "src",
+    "rollup.config.js",
+    "rollup.dbSeed.config.js",
+    "prepareProduction.ts"
+  ],
+  "references": [
+    { "path": "../../../tsconfig.src.json" }
+  ]
+}

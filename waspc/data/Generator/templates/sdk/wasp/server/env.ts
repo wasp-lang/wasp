@@ -156,6 +156,17 @@ const jwtTokenSchema = z
   })
 {=/ isAuthEnabled =}
 
+{=# isMcpEnabled =}
+// Seals MCP OAuth codes and tokens. Changing it signs every MCP client out.
+const mcpSecretSchema = z
+  .string({
+    error: '{= mcpSecretEnvVarName =} is required (generate one with `openssl rand -base64 32`)',
+  })
+  .refine((value) => Buffer.byteLength(value, 'utf8') >= 32, {
+    error: '{= mcpSecretEnvVarName =} must be at least 32 bytes (generate one with `openssl rand -base64 32`)',
+  })
+
+{=/ isMcpEnabled =}
 // In development, we provide default values for some environment variables
 // to make the development process easier.
 const waspDevServerEnvSchema = z.object({
@@ -166,6 +177,10 @@ const waspDevServerEnvSchema = z.object({
   "{= jwtSecretEnvVarName =}": jwtTokenSchema
     .default("DEVJWTSECRET"),
   {=/ isAuthEnabled =}
+  {=# isMcpEnabled =}
+  "{= mcpSecretEnvVarName =}": mcpSecretSchema
+    .default("DEV-ONLY-MCP-SECRET-0123456789abcdef"),
+  {=/ isMcpEnabled =}
 });
 
 const waspProdServerEnvSchema = z.object({
@@ -175,6 +190,9 @@ const waspProdServerEnvSchema = z.object({
   {=# isAuthEnabled =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema,
   {=/ isAuthEnabled =}
+  {=# isMcpEnabled =}
+  "{= mcpSecretEnvVarName =}": mcpSecretSchema,
+  {=/ isMcpEnabled =}
 });
 
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [

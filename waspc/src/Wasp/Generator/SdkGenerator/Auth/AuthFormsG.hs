@@ -29,8 +29,8 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Util ((<++>))
 import Wasp.Util.Js (makeJsStringLiteral)
 
-genAuthForms :: AS.Auth.Auth -> Maybe AS.EmailSender.EmailSender -> Generator [FileDraft]
-genAuthForms auth maybeEmailSender =
+genAuthForms :: AS.Auth.Auth -> Maybe AS.EmailSender.EmailSender -> Bool -> Generator [FileDraft]
+genAuthForms auth maybeEmailSender isMcpEnabled =
   sequence
     [ genAuthComponent auth isDummyEmailSenderNoticeEnabled,
       genFileCopyInAuthForms [relfile|Auth.module.css|],
@@ -39,7 +39,7 @@ genAuthForms auth maybeEmailSender =
       genFileCopyInAuthForms [relfile|Signup.tsx|]
     ]
     <++> genEmailForms auth
-    <++> genInternalAuthComponents auth
+    <++> genInternalAuthComponents auth isMcpEnabled
     <++> genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled
   where
     isDummyEmailSenderNoticeEnabled = AS.Auth.isEmailAuthEnabled auth && isDummyEmailSenderUsed
@@ -78,9 +78,9 @@ genEmailForms auth =
   where
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
-genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
-genInternalAuthComponents auth =
-  genLoginSignupForm auth
+genInternalAuthComponents :: AS.Auth.Auth -> Bool -> Generator [FileDraft]
+genInternalAuthComponents auth isMcpEnabled =
+  genLoginSignupForm auth isMcpEnabled
     <++> genEmailComponents
     <++> genUsernameAndPasswordComponents
   where
@@ -110,8 +110,8 @@ genDummyEmailSenderNotice isDummyEmailSenderNoticeEnabled =
         genFileCopyInAuthFormsInternal [relfile|email/DummyEmailSenderNotice.module.css|]
       ]
 
-genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
-genLoginSignupForm auth =
+genLoginSignupForm :: AS.Auth.Auth -> Bool -> Generator [FileDraft]
+genLoginSignupForm auth isMcpEnabled =
   sequence
     [ genLoginSigunFormComponent,
       genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
@@ -125,6 +125,7 @@ genLoginSignupForm auth =
     loginSignupFormComponentTmplData =
       object
         [ "onAuthSucceededRedirectTo" .= makeJsStringLiteral (getOnAuthSucceededRedirectToOrDefault auth),
+          "isMcpEnabled" .= isMcpEnabled,
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,

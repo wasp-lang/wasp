@@ -14,6 +14,7 @@ import Tests.ServerTypeCheckingTest (serverTypeCheckingTest)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
+import Tests.SnapshotTests.WaspMcpSnapshotTest (waspMcpSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.ViteBuildTest (viteBuildTest)
@@ -89,6 +90,7 @@ e2eTests = do
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
         waspMigrateSnapshotTest,
+        waspMcpSnapshotTest,
         kitchenSinkSnapshotTest
       ]
   shellTestTrees <-
