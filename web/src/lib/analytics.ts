@@ -57,6 +57,10 @@ const AGENT_PLUGIN_KINDS = [
   "plugin_prompt",
   // The example prompt on `/vibe-coding`.
   "example_prompt",
+  // The "Explain Wasp" prompt in the docs.
+  "explore_prompt",
+  // The "Set up Wasp" prompt in the docs.
+  "setup_prompt",
 ] as const;
 export type AgentPluginKind = (typeof AGENT_PLUGIN_KINDS)[number];
 
