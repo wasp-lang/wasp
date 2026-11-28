@@ -47,6 +47,7 @@ module ShellCommands
     assertCommandFails,
     assertCommandFailsWith,
     skipIfDockerDisabled,
+    reportedDevDbVolumeName,
     createSeedFile,
     replaceMainWaspTsFile,
     waspCliDockerfile,
@@ -73,6 +74,7 @@ import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTempl
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
+import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- TODO: In future, find a good way to test `wasp-cli start`.
@@ -351,6 +353,11 @@ isDockerEnabledCondition = "[ -z \"$" ++ skipDockerEnvVarName ++ "\" ]"
 
 skipDockerEnvVarName :: String
 skipDockerEnvVarName = "WASP_E2E_TESTS_SKIP_DOCKER"
+
+-- | Shell substitution for the dev database volume name Wasp printed to the given file.
+reportedDevDbVolumeName :: FilePath -> String
+reportedDevDbVolumeName outputFile =
+  "$(grep -o -m 1 '" ++ Dev.Postgres.waspDevDbDockerVolumePrefix ++ "[^ ]*' " ++ outputFile ++ ")"
 
 -- 'Test' specific commands
 

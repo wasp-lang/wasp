@@ -7,6 +7,9 @@ import ShellCommands
     WaspProjectContext (..),
     createTestWaspProject,
     inTestWaspProjectDir,
+    reportedDevDbVolumeName,
+    setWaspDbToPSQL,
+    skipIfDockerDisabled,
     waitUntil,
     waspCliCompile,
     waspCliStart,
@@ -79,6 +82,23 @@ waspStartTest =
             ]
         ),
       TestCase
+        "start-and-stop-postgresql-dev-db"
+        ( skipIfDockerDisabled . sequence $
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $
+                setWaspDbToPSQL
+                  : runWaspStartAndStopIt "INT" postgresTestPorts
+                  ++ [ return $ "grep -q 'Starting a PostgreSQL dev database' " ++ waspStartLogFile,
+                       return $
+                         waitUntil
+                           30
+                           ("[ -z \"$(docker ps -a -q --filter volume=" ++ reportedDevDbVolumeName waspStartLogFile ++ ")\" ]")
+                           "The dev database container was left behind after Wasp stopped.",
+                       return $ "docker volume rm \"" ++ reportedDevDbVolumeName waspStartLogFile ++ "\""
+                     ]
+            ]
+        ),
+      TestCase
         "fail-when-web-app-crashes"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
@@ -106,6 +126,9 @@ waspStartTest =
 
     terminalHangupTestPorts :: (Int, Int)
     terminalHangupTestPorts = (31050, 31051)
+
+    postgresTestPorts :: (Int, Int)
+    postgresTestPorts = (31060, 31061)
 
     -- Kills the Vite dev server of this test case's project.
     crashWebApp :: ShellCommand
@@ -164,7 +187,10 @@ waspCliStartWithPorts (clientPort, serverPort) = do
         "--client-port",
         show clientPort,
         "--server-port",
-        show serverPort
+        show serverPort,
+        -- So it doesn't compete for the default port with parallel test cases.
+        "--db-port",
+        show (serverPort + 1)
       ]
 
 -- | Registers an EXIT trap that stops whatever is left of the app when the
