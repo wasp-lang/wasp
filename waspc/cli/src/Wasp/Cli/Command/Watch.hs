@@ -23,7 +23,7 @@ import Wasp.Cli.ProjectLock.Handle (ProjectLock, setWatcherStatus)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import Wasp.Generator.ServerGenerator.Start (CompileChanges (..), CompileOutcome (..), ServerEvent (..))
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors)
+import Wasp.Project (CompileError, CompileWarning, WaspProjectDir, compileResultWarningsAndErrors, warnIfDbNeedsMigration)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 import Wasp.Project.RunConfig (ProjectRunConfig)
 
@@ -150,7 +150,7 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
     recompile compileStartTime changedProjectFiles = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
       compileResult <- compileIO waspProjectDir outDir
-      let (warnings, errors) = compileResultWarningsAndErrors compileResult
+      (warnings, errors) <- collectWarningsAndErrors compileResult
 
       printCompilationResult (warnings, errors)
       compileOutcome <- case _compileOutcome compileResult of
@@ -171,6 +171,15 @@ watch waspProjectDir outDir projectLock ongoingCompilationResultMVar makeProject
       setWatcherStatus projectLock $ if null errors then UpToDate else CompilationFailed
       updateOngoingCompilationResultMVar (warnings, errors)
       onServerEvent $ Compiled compileOutcome
+
+    collectWarningsAndErrors :: CompileResult -> IO ([CompileWarning], [CompileError])
+    collectWarningsAndErrors compileResult = do
+      dbWarnings <- case _compileOutcome compileResult of
+        Right appSpec -> warnIfDbNeedsMigration appSpec outDir
+        Left _ -> return []
+      return (compileWarnings ++ dbWarnings, errors)
+      where
+        (compileWarnings, errors) = compileResultWarningsAndErrors compileResult
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,

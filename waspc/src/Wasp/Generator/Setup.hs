@@ -10,13 +10,12 @@ module Wasp.Generator.Setup
   )
 where
 
-import Control.Monad (forM_, when)
+import Control.Monad (forM_)
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Writer.Strict (WriterT, runWriterT, tell)
+import Control.Monad.Writer.Strict (WriterT, runWriterT)
 import Data.Either (fromLeft)
 import Data.List (nub)
-import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
@@ -30,12 +29,10 @@ import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Job as J
 import qualified Wasp.Message as Msg
-import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
 
 -- | Something a command needs from the generated app, after code generation.
 data SetupGoal
   = PrismaCliReady
-  | DbMigrationsChecked
   | SdkReady
   | UserCodeTypeChecked
   deriving (Eq, Show, Enum, Bounded)
@@ -48,7 +45,6 @@ allSetupGoals = [minBound .. maxBound]
 data SetupStep
   = InstallNpmDeps
   | FormatPrismaSchema
-  | WarnIfDbNeedsMigration
   | GeneratePrismaClient
   | BuildSdk
   | TypeCheckUserCode
@@ -65,7 +61,6 @@ allSetupSteps = [minBound .. maxBound]
 prerequisites :: SetupStep -> [SetupStep]
 prerequisites InstallNpmDeps = []
 prerequisites FormatPrismaSchema = [InstallNpmDeps]
-prerequisites WarnIfDbNeedsMigration = [InstallNpmDeps, FormatPrismaSchema]
 prerequisites GeneratePrismaClient = [InstallNpmDeps, FormatPrismaSchema]
 -- Runs `tsc`, and the SDK imports the Prisma client.
 prerequisites BuildSdk = [InstallNpmDeps, GeneratePrismaClient]
@@ -92,7 +87,6 @@ resolveSetupSteps = withPrerequisites . concatMap stepsForGoal
 
 stepsForGoal :: SetupGoal -> [SetupStep]
 stepsForGoal PrismaCliReady = [InstallNpmDeps, FormatPrismaSchema]
-stepsForGoal DbMigrationsChecked = [WarnIfDbNeedsMigration]
 stepsForGoal SdkReady = [BuildSdk]
 stepsForGoal UserCodeTypeChecked = [TypeCheckUserCode]
 
@@ -107,9 +101,6 @@ runSetupStep :: SetupStep -> AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Msg.S
 runSetupStep step spec generatedAppDir sendMessage = case step of
   InstallNpmDeps -> installDependencies spec generatedAppDir sendMessage
   FormatPrismaSchema -> formatPrismaSchema generatedAppDir
-  -- A production build is deployed elsewhere, so there is no local database
-  -- to check for pending migrations.
-  WarnIfDbNeedsMigration -> when (AS.isDevelopment spec) $ warnIfDbNeedsMigration spec generatedAppDir
   GeneratePrismaClient -> generatePrismaClient spec generatedAppDir sendMessage
   -- todo(filip): Should we consider building SDK as part of code generation?
   -- todo(filip): Avoid building on each setup if we don't need to.
@@ -122,13 +113,6 @@ installDependencies spec generatedAppDir sendMessage = do
   case result of
     Left npmInstallError -> throwError [npmInstallError]
     Right () -> liftIO $ sendMessage $ Msg.Success "Successfully completed npm install."
-
-warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> Setup ()
-warnIfDbNeedsMigration spec generatedAppDir = do
-  warning <- liftIO $ do
-    envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl spec
-    DbGenerator.warnIfDbNeedsMigration envVars spec generatedAppDir
-  tell $ maybeToList warning
 
 formatPrismaSchema :: Path' Abs (Dir GeneratedAppDir) -> Setup ()
 formatPrismaSchema generatedAppDir = do

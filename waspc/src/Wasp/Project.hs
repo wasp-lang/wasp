@@ -8,6 +8,7 @@ module Wasp.Project
     CompileError,
     CompileWarning,
     analyzeWaspProject,
+    warnIfDbNeedsMigration,
     compileAndRenderDockerfile,
   )
 where
@@ -21,10 +22,12 @@ import StrongPath (Abs, Dir, Path')
 import qualified Wasp.AppSpec as AS
 import Wasp.CompileOptions (CompileOptions (sendMessage, setupGoals))
 import qualified Wasp.Generator as Generator
+import qualified Wasp.Generator.DbGenerator as DbGenerator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.WriteFileDrafts (ChangedGeneratedAppPath)
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
+import Wasp.Project.Db.Dev (devDatabaseEnvVars, findDevDatabaseUrl)
 import qualified Wasp.Project.Env as Project.Env
 
 data CompileResult = CompileResult
@@ -74,6 +77,13 @@ generateCode appSpec outDir options = do
         _compileOutcome = if null generatorErrors then Right appSpec else Left $ show <$> generatorErrors,
         _compileChangedGeneratedAppPaths = changedGeneratedAppPaths
       }
+
+-- | Warns if the dev database needs a migration.
+-- Needs npm dependencies installed and the Prisma schema formatted.
+warnIfDbNeedsMigration :: AS.AppSpec -> Path' Abs (Dir Generator.GeneratedAppDir) -> IO [CompileWarning]
+warnIfDbNeedsMigration appSpec outDir = do
+  envVars <- devDatabaseEnvVars <$> findDevDatabaseUrl appSpec
+  map show . maybeToList <$> DbGenerator.warnIfDbNeedsMigration envVars appSpec outDir
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do

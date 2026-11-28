@@ -29,7 +29,7 @@ import qualified Wasp.Generator.ServerGenerator.RunConfig as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.Start as ServerGenerator.Start
 import qualified Wasp.Generator.WebAppGenerator.RunConfig as WebAppGenerator
 import qualified Wasp.Message as Msg
-import Wasp.Project (CompileError, CompileWarning)
+import Wasp.Project (CompileError, CompileWarning, warnIfDbNeedsMigration)
 import Wasp.Project.Common (WaspProjectDir, findFileInWaspProjectDir, generatedAppDirInWaspProjectDir)
 import qualified Wasp.Project.Env as Env
 import Wasp.Project.RunConfig (ProjectRunConfig)
@@ -55,7 +55,7 @@ start = withArguments startArgsParser $ \args ->
 
     cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-    (warnings, appSpec) <- compile
+    (compileWarnings, appSpec) <- compile
 
     ports <- findProjectPorts (args.clientPort, args.serverPort)
     -- The ports and custom URLs stay the same for the whole session, while the
@@ -65,6 +65,8 @@ start = withArguments startArgsParser $ \args ->
     assertImplicitEnvVarsDontOverrideWaspEnvVars waspProjectDir projectRunConfig
 
     throwIfDbConnectionNotEstablished projectRunConfig
+    dbWarnings <- liftIO $ warnIfDbNeedsMigration appSpec outDir
+    let warnings = compileWarnings ++ dbWarnings
 
     cliSendMessageC $ Msg.Start "Listening for file changes..."
     cliSendMessageC $ Msg.Start "Starting up generated project..."
